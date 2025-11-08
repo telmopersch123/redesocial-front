@@ -45,3 +45,8 @@
   opacity: 0;
   animation: slideUpFade 0.6s ease-out forwards;
 }
+
+/* estilos inputs ranges */
+input[type='range']::-webkit-slider-thumb {
+  transform: scale(1.25);
+}

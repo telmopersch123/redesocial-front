@@ -1,6 +1,5 @@
 import {
   BookHeart,
-  CircleUser,
   Heart,
   Home,
   MessageCircle,
@@ -30,7 +29,6 @@ const items = [
   { title: 'Mensagens', url: '/mensagens', icon: MessageCircle },
   { title: 'Diário', url: '/diario', icon: BookHeart },
   { title: 'Autocuidado', url: '/autocuidado', icon: Heart },
-  { title: 'Perfil', url: '/perfil', icon: CircleUser },
 ]
 
 export function AppSidebar() {
