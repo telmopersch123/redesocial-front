@@ -8,7 +8,7 @@ export const bibliotecaApoioData: BibliotecaApoioItems[] = [
       cor: '#c7b9ff',
       titulo: 'Entendendo a Ansiedade',
       categoria: 'Saúde Mental',
-      tempo: '7 minutos para ler',
+      tempo: '7 minutos de leitura',
       desc: 'Como a ansiedade funciona e como controlá-la no dia a dia',
       conteudo: `
 # O que é Ansiedade? Entendendo os Sinais e Estratégias para Lidar com Ela
@@ -55,7 +55,7 @@ A ansiedade pode ser uma condição debilitante que pode afetar negativamente a 
       cor: '#ffb8d1',
       titulo: 'Autocuidado Diário',
       categoria: 'Bem-estar',
-      tempo: '8 minutos para ler',
+      tempo: '10 minutos de leitura',
       desc: 'Pequenas práticas que fazem grande diferença no seu bem-estar',
       conteudo: `
 # Qual é a importância do autocuidado para a saúde mental?
@@ -86,7 +86,7 @@ Nós também produzimos artigos e materiais sobre educação emocional e terapia
       cor: '#e8deff',
       titulo: 'Mindfulness para Iniciantes',
       categoria: 'Mindfulness',
-      tempo: '6 minutos para ler',
+      tempo: '15 minutos de leitura',
       desc: 'Introdução à prática de atenção plena e seus benefícios',
       conteudo: `
 # Mindfulness: o que é, origem e 17 práticas para você aplicar no seu contexto!

@@ -7,7 +7,7 @@ const BibliotecasDeApoio = forwardRef<HTMLDivElement, BibliotecaApoioItems>(
     return (
       <div
         ref={ref}
-        className="flex cursor-pointer flex-col rounded-2xl bg-white shadow-md transition-shadow hover:shadow-lg"
+        className="flex min-h-[200px] cursor-pointer flex-col rounded-2xl bg-white shadow-md transition-shadow hover:shadow-lg"
       >
         <div
           className="flex h-12 w-full items-center justify-center rounded-t-2xl"

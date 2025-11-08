@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button } from '../components/ui/button'
+import { DialogPost } from '../components/componentsPages/componentsFeed/DialogPost'
 
 const feelings: Array<keyof typeof gradientMap> = [
   'Todos',
@@ -46,11 +46,7 @@ const FeedPage = () => {
         <p className="text-1xl text-muted-foreground sm:text-left">
           Um espaço seguro para compartilhar e apoiar 💙
         </p>
-
-        <Button className="bg-linear-purple mt-5 w-[calc(100vw-5rem)] rounded-xl border-none p-7 text-lg font-semibold text-white shadow-lg transition-all hover:shadow-xl active:shadow-md md:w-[calc(100vw-19rem)] xl:w-[950px]">
-          + Como você está se sentindo?
-        </Button>
-
+        <DialogPost />
         <div
           className="scroll-show m-auto mt-3 flex max-w-[calc(100vw-3rem)] justify-between overflow-x-auto whitespace-nowrap rounded-lg bg-white/50 p-2 shadow-sm backdrop-blur-md sm:w-[calc(100vw-19rem)] xl:w-[950px]"
           style={{ WebkitOverflowScrolling: 'touch' }}
@@ -72,7 +68,6 @@ const FeedPage = () => {
             )
           })}
         </div>
-
         <div className="mt-24">
           {itemsSimulation.length ? (
             itemsSimulation.map((item, index) => <div key={index}>{item}</div>)

@@ -30,7 +30,7 @@ const AutoCuidadoPage = () => {
         <h2 className="flex items-center gap-2 truncate font-semibold text-[#a5c9ff]">
           <Wind className="shrink-0" /> <span>Exercícios de Respiração</span>
         </h2>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
           {[
             {
               tempo: '2 minutos',
@@ -51,13 +51,17 @@ const AutoCuidadoPage = () => {
               key={i}
               className="flex flex-col gap-2 rounded-2xl bg-white p-4 shadow-md transition-shadow hover:shadow-lg"
             >
-              <p className="truncate font-medium text-gray-700">{ex.tempo}</p>
               {/* Ícone com fundo adaptável */}
-              <div
-                className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl p-3"
-                style={{ backgroundColor: ex.cor }}
-              >
-                <Wind className="h-6 w-6" style={{ color: ex.corIcon }} />
+              <div className="flex items-center justify-between">
+                <div
+                  className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl p-3"
+                  style={{ backgroundColor: ex.cor }}
+                >
+                  <Wind className="h-6 w-6" style={{ color: ex.corIcon }} />
+                </div>
+                <p className="truncate rounded-full bg-[#f8f5f2] px-1 text-xs font-medium text-gray-700 text-muted-foreground">
+                  {ex.tempo}
+                </p>
               </div>
               <p className="truncate font-semibold">{ex.metodo}</p>
               <p className="truncate text-sm text-gray-500">{ex.desc}</p>
@@ -73,7 +77,7 @@ const AutoCuidadoPage = () => {
       </div>
 
       {/* Biblioteca de Apoio */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="space-y-4 md:grid md:grid-cols-3 md:gap-4 md:space-y-0">
         {bibliotecaApoioData.map((data, i) => (
           <DialogsBibliotecas key={i} item={data.item} />
         ))}
