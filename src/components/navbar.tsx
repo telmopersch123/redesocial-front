@@ -4,6 +4,7 @@ import {
   Home,
   MessageCircle,
   Phone,
+  UserRound,
   UsersRound,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -13,6 +14,7 @@ import { Separator } from './ui/separator'
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -105,6 +107,24 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="border-t border-muted p-4">
+        <NavLink to="/perfil">
+          <div className="flex cursor-pointer items-center space-x-3 rounded-xl p-2 transition-all duration-200 hover:bg-white/70">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#dbcfff]">
+              <UserRound className="h-5 w-5 text-[#3d3a64]" />
+            </div>
+
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-foreground">
+                Meu perfil
+              </span>
+              <span className="text-xs text-muted-foreground">
+                Carlos Almeida
+              </span>
+            </div>
+          </div>
+        </NavLink>
+      </SidebarFooter>
     </Sidebar>
   )
 }
