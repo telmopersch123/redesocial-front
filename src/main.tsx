@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 
 import { BrowserRouter } from 'react-router-dom'
-import { AppSidebar } from './components/navbar.tsx'
+import { AppSidebar } from './components/componentsPages/Navbar/navbar.tsx'
 import { SidebarProvider, SidebarTrigger } from './components/ui/sidebar.tsx'
 import './index.css'
 createRoot(document.getElementById('root')!).render(

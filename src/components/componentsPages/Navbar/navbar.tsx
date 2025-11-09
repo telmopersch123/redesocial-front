@@ -3,14 +3,12 @@ import {
   Heart,
   Home,
   MessageCircle,
-  Phone,
   UserRound,
   UsersRound,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { Button } from './ui/button'
-import { Separator } from './ui/separator'
+import { Separator } from '../../ui/separator'
 import {
   Sidebar,
   SidebarContent,
@@ -22,7 +20,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from './ui/sidebar'
+} from '../../ui/sidebar'
+import DialogHelp from './DialogHelp'
 
 // Menu items
 const items = [
@@ -37,8 +36,18 @@ export function AppSidebar() {
   const [active, setActive] = useState('Feed')
   const { setOpenMobile } = useSidebar()
   const location = useLocation()
+  const pathname = location.pathname
+
   useEffect(() => {
     setOpenMobile(false)
+
+    const itemPathe = items.find((item) => item.url === pathname)
+    console.log(pathname)
+    if (pathname === '/perfil') {
+      setActive('Perfil')
+    } else {
+      setActive(itemPathe?.title || 'Feed')
+    }
   }, [location.pathname])
   return (
     <Sidebar className="border-r border-muted">
@@ -94,10 +103,7 @@ export function AppSidebar() {
               })}
 
               <div className="!mt-10 text-center">
-                <Button className="mx-auto w-full max-w-xs rounded-xl bg-[linear-gradient(to_right,#b8e6d6,#b3dedf,#aed6ed,#a9d0f4,#a6caff)] p-4 font-semibold text-black/70 shadow-lg transition-all hover:shadow-xl active:shadow-md">
-                  <Phone className="mr-2 inline h-5 w-5" />
-                  Preciso de Ajuda
-                </Button>
+                <DialogHelp />
 
                 <p className="mx-auto mt-5 max-w-xs rounded-2xl bg-[#f1eefb] p-4 text-sm italic text-muted-foreground shadow-sm">
                   "Você não está sozinho. Estamos aqui para apoiar você."
@@ -108,8 +114,14 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-t border-muted p-4">
-        <NavLink to="/perfil">
-          <div className="flex cursor-pointer items-center space-x-3 rounded-xl p-2 transition-all duration-200 hover:bg-white/70">
+        <NavLink onClick={() => setActive('Perfil')} to="/perfil">
+          <div
+            className={`${
+              active === 'Perfil'
+                ? 'bg-gradient-to-r from-[#e9f0fb] via-[#ebeffb] to-[#f0edfb] text-[#3d3a64] shadow-sm'
+                : 'text-muted-foreground hover:bg-gradient-to-r hover:from-[#f0f3fc] hover:via-[#f0f2fb] hover:to-[#f0f1fb] hover:text-[#3d3a64]'
+            } flex cursor-pointer items-center space-x-3 rounded-xl from-[#e9f0fb] via-[#ebeffb] to-[#f0edfb] p-2 text-[#3d3a64] transition-all duration-200 hover:bg-white/70 hover:bg-gradient-to-r hover:from-[#f0f3fc] hover:via-[#f0f2fb] hover:to-[#f0f1fb]`}
+          >
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#dbcfff]">
               <UserRound className="h-5 w-5 text-[#3d3a64]" />
             </div>

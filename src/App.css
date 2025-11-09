@@ -50,3 +50,23 @@
 input[type='range']::-webkit-slider-thumb {
   transform: scale(1.25);
 }
+
+.border-linear-purple {
+  border: 4px solid transparent;
+  background: linear-gradient(
+      to right,
+      #a8c8ff,
+      #adc5ff,
+      #b2c2ff,
+      #b6c1ff,
+      #b9c0ff,
+      #bcbfff,
+      #bebdff,
+      #c1bcff,
+      #c4bbff
+    )
+    border-box;
+  -webkit-background-clip: padding-box, border-box;
+  background-clip: padding-box, border-box;
+  background-origin: border-box;
+}
