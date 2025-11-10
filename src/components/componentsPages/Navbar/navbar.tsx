@@ -42,7 +42,6 @@ export function AppSidebar() {
     setOpenMobile(false)
 
     const itemPathe = items.find((item) => item.url === pathname)
-    console.log(pathname)
     if (pathname === '/perfil') {
       setActive('Perfil')
     } else {

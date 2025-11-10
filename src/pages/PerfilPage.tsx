@@ -72,8 +72,8 @@ const PerfilPage = () => {
 
   return (
     <>
-      <div className="mx-3 mt-4 min-h-screen bg-background">
-        <div className="mx-auto max-w-3xl space-y-8 px-4 py-8 md:px-0">
+      <div className="mb-2 mt-12 flex min-h-screen w-[calc(100vw-1rem)] flex-col space-y-3 overflow-auto md:w-[calc(100vw-20rem)] xl:w-auto 2xl:flex-row 2xl:items-start 2xl:space-x-3 2xl:space-y-0">
+        <div className="2xl:w-1/3">
           <UserPerfilComponent
             file={file}
             setFile={setFile}
@@ -88,6 +88,8 @@ const PerfilPage = () => {
             sentimentoAtual={sentimentoAtual}
             coresFundos={coresFundos}
           />
+        </div>
+        <div className="2xl:w-1/2">
           {/* ===== INFORMAÇÕES BÁSICAS ===== */}
           <InformacaoBasica
             nomeUser={nomeUser}
@@ -107,12 +109,14 @@ const PerfilPage = () => {
           </Button>
         </div>
       </div>
-      <DialogConfig
-        open={dialogConfigOpen}
-        setOpen={setDialogConfigOpen}
-        nomeUser={nomeUser}
-        setNomeUser={setNomeUser}
-      />
+      <div className="hidden">
+        <DialogConfig
+          open={dialogConfigOpen}
+          setOpen={setDialogConfigOpen}
+          nomeUser={nomeUser}
+          setNomeUser={setNomeUser}
+        />
+      </div>
     </>
   )
 }

@@ -14,7 +14,7 @@ import {
 import { Label } from '../../ui/label'
 import { Separator } from '../../ui/separator'
 import { Switch } from '../../ui/switch'
-import ConfirmDialog2Etapas from './DialogConfirm'
+import ConfirmDialog2Etapas from './DialogConfirmEtapas'
 import DialogEditNome from './DialogEditNome'
 
 interface DialogConfigProps {
@@ -55,7 +55,7 @@ export function DialogConfig({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <div>
-            <Button className="absolute bottom-2 right-2 z-10 cursor-pointer select-none rounded-lg bg-white/60 px-3 py-1.5 text-sm font-medium text-gray-700 shadow-md backdrop-blur-sm transition-all duration-700 hover:scale-[105%] hover:bg-white/80 hover:text-[#6b4de6] hover:shadow-lg">
+            <Button className="im:absolute im:w-auto relative bottom-1 right-1 z-10 w-[calc(100vw-5rem)] cursor-pointer select-none rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-md backdrop-blur-sm transition-all duration-700 hover:scale-[105%] hover:bg-white/80 hover:text-[#6b4de6] hover:shadow-lg 2xl:relative 2xl:mt-20">
               Configurações
             </Button>
           </div>

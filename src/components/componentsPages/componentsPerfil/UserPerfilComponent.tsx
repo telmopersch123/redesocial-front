@@ -65,7 +65,7 @@ const UserPerfilComponent = ({
 
   return (
     <Card>
-      <CardContent className="relative flex items-center gap-5 p-6">
+      <CardContent className="im:flex-row relative flex w-full flex-col items-center gap-5 p-6">
         {/* AVATAR COM BOTÃO DE REMOVER FORA */}
         <div
           ref={avatarContainerRef}

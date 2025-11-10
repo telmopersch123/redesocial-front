@@ -130,7 +130,7 @@ const InformacaoBasica = ({
         {/* Avatar Simbólico */}
         <div className="space-y-3">
           <Label>Avatar Simbólico</Label>
-          <div className="grid grid-cols-4 gap-3 sm:grid-cols-8">
+          <div className="grid grid-cols-4 gap-3 dm:grid-cols-8">
             {avataresSimbolicos.map((item, index) => {
               const Icon = item.icon
               const isSelected = selectedAvatar === item.id
@@ -143,10 +143,10 @@ const InformacaoBasica = ({
                     setFile(null)
                   }}
                   variant="ghost"
-                  className={`relative flex h-24 flex-col items-center justify-center rounded-2xl p-3 transition-all duration-300 hover:scale-105 ${
+                  className={`relative flex h-24 flex-col items-center justify-center rounded-2xl border-2 p-3 transition-all duration-300 hover:scale-105 ${
                     isSelected
-                      ? 'border-2 border-[#a5c9ff] ring-2 ring-[#a5c9ff]/50'
-                      : 'border border-gray-300'
+                      ? 'border-[#a5c9ff] ring-2 ring-[#a5c9ff]/40'
+                      : 'border-[#a5c9ff]/40'
                   }`}
                 >
                   <span className={`${bgColor} rounded-xl p-3 text-white`}>

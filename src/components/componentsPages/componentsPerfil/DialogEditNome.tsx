@@ -19,7 +19,7 @@ interface DialogEditNomeProps {
 
 const DialogEditNome = ({ nomeUser, setNomeUser }: DialogEditNomeProps) => {
   return (
-    <Dialog>
+    <Dialog modal={false}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm">
           <Edit2 className="mr-1 h-3 w-3" />
