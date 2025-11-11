@@ -72,7 +72,7 @@ const PerfilPage = () => {
 
   return (
     <>
-      <div className="mb-2 mt-12 flex min-h-screen w-[calc(100vw-1rem)] flex-col space-y-3 overflow-auto md:w-[calc(100vw-20rem)] xl:w-auto 2xl:flex-row 2xl:items-start 2xl:space-x-3 2xl:space-y-0">
+      <div className="mb-2 mt-12 flex min-h-screen w-[calc(100vw-1rem)] flex-col space-y-3 overflow-auto overflow-y-auto md:w-[calc(100vw-20rem)] xl:w-auto 2xl:flex-row 2xl:items-start 2xl:space-x-3 2xl:space-y-0">
         <div className="2xl:w-1/3">
           <UserPerfilComponent
             file={file}
@@ -95,7 +95,6 @@ const PerfilPage = () => {
             nomeUser={nomeUser}
             selectedAvatar={selectedAvatar}
             coresFundos={coresFundos}
-            setNomeUser={setNomeUser}
             sentimentoAtual={sentimentoAtual}
             setSentimentoAtual={setSentimentoAtual}
             setSelectedAvatar={setSelectedAvatar}
@@ -104,7 +103,7 @@ const PerfilPage = () => {
             abrirDialogConfig={() => setDialogConfigOpen(true)}
           />
 
-          <Button className="bg-linear-purple mt-5 w-full rounded-xl border-none p-7 text-lg font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] active:shadow-md">
+          <Button className="bg-linear-purple mt-5 w-full rounded-xl border-none p-7 text-lg font-semibold text-white shadow-lg transition-all hover:text-black/50 hover:shadow-xl active:shadow-md">
             <UserRoundCheck className="mr-2 !h-6 !w-6" /> Salvar alterações
           </Button>
         </div>

@@ -55,7 +55,7 @@ const DialogEditNome = ({ nomeUser, setNomeUser }: DialogEditNomeProps) => {
             </Button>
           </DialogClose>
           <Button className="bg-linear-purple w-full transition-shadow hover:shadow-md">
-            Salvar alterações
+            Alterar Nome
           </Button>
         </DialogFooter>
       </DialogContent>

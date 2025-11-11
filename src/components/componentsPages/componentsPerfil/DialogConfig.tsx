@@ -55,7 +55,7 @@ export function DialogConfig({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <div>
-            <Button className="im:absolute im:w-auto relative bottom-1 right-1 z-10 w-[calc(100vw-5rem)] cursor-pointer select-none rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-md backdrop-blur-sm transition-all duration-700 hover:scale-[105%] hover:bg-white/80 hover:text-[#6b4de6] hover:shadow-lg 2xl:relative 2xl:mt-20">
+            <Button className="relative bottom-1 right-1 z-10 w-[calc(100vw-5rem)] cursor-pointer select-none rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-md backdrop-blur-sm transition-all duration-700 hover:scale-[105%] hover:bg-white/80 hover:text-[#6b4de6] hover:shadow-lg im:absolute im:w-auto 2xl:relative 2xl:mt-20">
               Configurações
             </Button>
           </div>
@@ -230,7 +230,9 @@ export function DialogConfig({
             <DialogClose asChild>
               <Button variant="outline">Cancelar</Button>
             </DialogClose>
-            <Button>Salvar alterações</Button>
+            <Button className="bg-linear-purple transition-shadow hover:shadow-md">
+              Salvar alterações
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

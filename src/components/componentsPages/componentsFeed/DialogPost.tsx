@@ -246,9 +246,9 @@ export function DialogPost() {
                             onClick={() => setIsFullscreen(true)}
                             variant="ghost"
                             size="icon"
-                            className="absolute bottom-2 right-2 rounded-full bg-white/80 p-2 shadow-md backdrop-blur-sm hover:scale-105 hover:bg-white"
+                            className="bg-linear-purple absolute left-2 top-2 rounded-full p-2 shadow-md backdrop-blur-sm hover:scale-105"
                           >
-                            <Fullscreen className="h-5 w-5 text-gray-700" />
+                            <Fullscreen className="h-5 w-5 text-white" />
                           </Button>
                         </>
                       )}
@@ -264,9 +264,9 @@ export function DialogPost() {
                         onClick={removeFile}
                         variant="ghost"
                         size="icon"
-                        className="absolute right-2 top-2 rounded-full bg-white/80 p-2 shadow-md backdrop-blur-sm hover:scale-105 hover:bg-white"
+                        className="bg-linear-purple absolute right-2 top-2 rounded-full p-2 shadow-md backdrop-blur-sm hover:scale-105"
                       >
-                        <CircleX className="h-5 w-5 text-red-500" />
+                        <CircleX className="h-5 w-5 text-white" />
                       </Button>
                     </div>
                   )}
@@ -323,8 +323,6 @@ export function DialogPost() {
                   Publicar
                 </Button>
               </DialogFooter>
-
-              {/* Fullscreen da imagem */}
             </div>
           </DialogContent>
         </form>
@@ -340,9 +338,9 @@ export function DialogPost() {
             />
             <Button
               onClick={() => setIsFullscreen(false)}
-              className="absolute -top-6 right-2 w-9 rounded-full bg-white/90 p-2 shadow-lg hover:scale-110 sm:-right-2"
+              className="bg-linear-purple absolute -top-6 right-2 w-9 rounded-full p-2 shadow-lg hover:scale-110 sm:-right-2"
             >
-              <CircleX className="h-8 w-10 text-red-600" />
+              <CircleX className="h-8 w-10 text-white" />
             </Button>
           </div>
         </DialogContent>

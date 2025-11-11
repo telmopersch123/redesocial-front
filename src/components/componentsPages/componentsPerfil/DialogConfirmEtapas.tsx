@@ -41,7 +41,7 @@ const ConfirmDialog2Etapas = ({
           <DialogClose asChild>
             <Button
               variant="outline"
-              className="mt-2"
+              className="mt-2 sm:mt-0"
               onClick={() => setConfirmDialogOpen(false)}
             >
               Cancelar

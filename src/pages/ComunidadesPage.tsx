@@ -1,6 +1,8 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
+import { NavLink } from 'react-router-dom'
 import CardsComponent from '../components/componentsPages/componentsComunidade/Cards'
+import { Button } from '../components/ui/button'
 import {
   Pagination,
   PaginationContent,
@@ -34,10 +36,21 @@ const ComunidadesPages = () => {
 
   return (
     <div className="mt-16 w-full p-2 md:mt-10 md:w-[calc(100vw-20rem)]">
-      <h1 className="text-3xl font-bold">Comunidades</h1>
-      <p className="mt-3 text-left text-sm text-muted-foreground sm:text-base md:text-lg lg:text-xl">
-        Encontre apoio em grupos com interesses comuns
-      </p>
+      <div className="items-left flex flex-col flex-wrap justify-between gap-2 sm:flex-row sm:items-end">
+        <div className="min-w-0 max-w-[90%]">
+          <h1 className="text-3xl font-bold">Comunidades</h1>
+          <p className="mt-3 whitespace-normal break-words text-left text-sm text-muted-foreground sm:text-base md:text-lg lg:text-xl">
+            Encontre apoio em grupos com interesses comuns
+          </p>
+        </div>
+        <div>
+          <NavLink to="/comunidades_usuario">
+            <Button className="bg-linear-purple transition-shadow duration-300 ease-in-out hover:shadow-md">
+              Minhas comunidades
+            </Button>
+          </NavLink>
+        </div>
+      </div>
 
       {/* cards */}
       <div className="animate-stagger mt-10 grid grid-cols-1 gap-6 gap-y-14 md:grid-cols-2 xl:grid-cols-3">

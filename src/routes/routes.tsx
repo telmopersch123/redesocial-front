@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
+import AreaComunidadesUsuario from '../pages/AreaComunidadesUsuario'
 import AutoCuidadoPage from '../pages/AutoCuidadoPage'
 import ComunidadesPage from '../pages/ComunidadesPage'
 import DiarioPage from '../pages/DiarioPage'
@@ -15,6 +16,7 @@ export default function AppRoutes() {
       <Route path="/diario" element={<DiarioPage />} />
       <Route path="/autocuidado" element={<AutoCuidadoPage />} />
       <Route path="/perfil" element={<PerfilPage />} />
+      <Route path="/comunidades_usuario" element={<AreaComunidadesUsuario />} />
     </Routes>
   )
 }

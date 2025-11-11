@@ -18,7 +18,7 @@ interface InformacaoBasicaProps {
   nomeUser: string
   selectedAvatar: number | null
   coresFundos: string[]
-  setNomeUser: (nomeUser: string) => void
+
   sentimentoAtual: string[]
   setSentimentoAtual: (sentimentoAtual: string[]) => void
   setSelectedAvatar: (selectedAvatar: number) => void
@@ -38,7 +38,6 @@ const InformacaoBasica = ({
   nomeUser,
   selectedAvatar,
   coresFundos,
-  setNomeUser,
   sentimentoAtual,
   setSentimentoAtual,
   setSelectedAvatar,
@@ -172,7 +171,7 @@ const InformacaoBasica = ({
             />
           </div>
 
-          <div className="max-h-[400px] space-y-2 overflow-y-auto">
+          <div className="max-h-[400px] space-y-2">
             {metodosAutocuidado.map((metodo, i) => (
               <div
                 key={i}
