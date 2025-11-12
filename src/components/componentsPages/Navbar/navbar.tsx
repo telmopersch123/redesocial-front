@@ -3,7 +3,10 @@ import {
   Heart,
   Home,
   MessageCircle,
+  MessageCircleDashed,
+  MessageCircleHeart,
   UserRound,
+  Users,
   UsersRound,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
@@ -23,6 +26,10 @@ import {
 } from '../../ui/sidebar'
 import DialogHelp from './DialogHelp'
 
+import { useComunidades } from '../../../context/ComunidadesContext'
+import { useCriarPostDialog } from '../../../context/ContextDialogPost'
+import { Button } from '../../ui/button'
+
 // Menu items
 const items = [
   { title: 'Feed', url: '/', icon: Home },
@@ -31,10 +38,16 @@ const items = [
   { title: 'Diário', url: '/diario', icon: BookHeart },
   { title: 'Autocuidado', url: '/autocuidado', icon: Heart },
 ]
-
+const comunidades = [
+  'Mindfulness',
+  'Autoajuda',
+  'Fé & Espiritualidade',
+] as const
 export function AppSidebar() {
+  const { open } = useCriarPostDialog()
   const [active, setActive] = useState('Feed')
   const { setOpenMobile } = useSidebar()
+  const { isInComunidades, filtro, setFiltro } = useComunidades()
   const location = useLocation()
   const pathname = location.pathname
 
@@ -109,6 +122,65 @@ export function AppSidebar() {
                 </p>
               </div>
             </SidebarMenu>
+            {isInComunidades && (
+              <div className="mt-6 px-2">
+                <Separator className="mb-4" />
+
+                <div className={`w-full transition-all duration-300`}>
+                  <div
+                    className={`'w-0 opacity-0' : 'opacity-100'} overflow-hidden`}
+                  >
+                    <div className="mb-3 flex items-center gap-2">
+                      <Users className="h-5 w-5 text-purple-500" />
+                      <h3 className="font-bold text-gray-800">Comunidades</h3>
+                    </div>
+
+                    <div className="mb-4 flex flex-col gap-3">
+                      <Button
+                        onClick={open}
+                        className="bg-linear-purple w-full justify-start text-sm text-white shadow-md hover:shadow-lg"
+                      >
+                        <MessageCircleDashed className="mr-2 h-4 w-4" />
+                        Criar post
+                      </Button>
+                    </div>
+
+                    <Separator className="my-3" />
+
+                    <div className="max-h-96 space-y-1 overflow-y-auto">
+                      <Button
+                        variant={filtro === 'all' ? 'default' : 'outline'}
+                        className={`w-full justify-start text-sm ${
+                          filtro === 'all'
+                            ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white'
+                            : 'hover:border-purple-300 hover:text-purple-600'
+                        }`}
+                        onClick={() => setFiltro('all')}
+                      >
+                        <MessageCircleHeart className="mr-2 h-4 w-4" />
+                        Todas
+                      </Button>
+
+                      {comunidades.map((c) => (
+                        <Button
+                          key={c}
+                          variant={filtro === c ? 'default' : 'outline'}
+                          className={`w-full justify-start text-sm ${
+                            filtro === c
+                              ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white'
+                              : 'hover:border-purple-300 hover:text-purple-600'
+                          }`}
+                          onClick={() => setFiltro(c)}
+                        >
+                          <MessageCircleHeart className="mr-2 h-4 w-4" />
+                          {c}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

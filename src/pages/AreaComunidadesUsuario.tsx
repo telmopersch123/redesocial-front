@@ -9,16 +9,16 @@ import {
   MessageCircleHeart,
   MessageCircleX,
   Play,
-  PlusCircle,
   Send,
   Share2,
   Users,
 } from 'lucide-react'
 import { useState } from 'react'
+import { NavLink } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
-import { Separator } from '../components/ui/separator'
+import { useComunidades } from '../context/ComunidadesContext'
 
 interface Comentario {
   id: number
@@ -113,14 +113,8 @@ const postsFicticios: Post[] = [
   },
 ]
 
-const comunidades = [
-  'Mindfulness',
-  'Autoajuda',
-  'Fé & Espiritualidade',
-] as const
-
 export default function ComunidadesPage() {
-  const [filtro, setFiltro] = useState<string | 'all'>('all')
+  const { filtro } = useComunidades()
   const [posts, setPosts] = useState<Post[]>(postsFicticios)
 
   const [comentarioAberto, setComentarioAberto] = useState<number | null>(null)
@@ -128,7 +122,6 @@ export default function ComunidadesPage() {
 
   const postsFiltrados =
     filtro === 'all' ? posts : posts.filter((p) => p.comunidade === filtro)
-
   const handleLike = (id: number) => {
     setPosts(
       posts.map((p) =>
@@ -173,63 +166,8 @@ export default function ComunidadesPage() {
   }
 
   return (
-    <div className="mt-12 flex min-h-screen w-[calc(100vw-2rem)] flex-col space-y-3 p-4 md:w-[calc(100vw-20rem)] md:justify-center xl:flex-row xl:space-y-0">
-      {/* Sidebar - 1/3 no mobile, fixo no desktop */}
-      <aside className="mb-6 w-full rounded-2xl bg-white p-6 shadow-lg md:mb-0 md:max-h-[80vh] md:flex-shrink-0 md:overflow-y-auto xl:min-h-[600px] xl:w-1/4">
-        <div className="flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-xl font-bold text-gray-800">
-            <Users className="h-5 w-5 text-purple-500" />
-            Comunidades
-          </h2>
-        </div>
-
-        <div className="mt-4 flex flex-col flex-wrap gap-3 dm:flex-row">
-          <Button className="bg-linear-purple flex-1 font-medium text-white shadow-md transition-all hover:shadow-lg">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Criar comunidade
-          </Button>
-          <Button className="bg-linear-purple flex-1 font-medium text-white shadow-md transition-all hover:shadow-lg">
-            <MessageCircleHeart className="mr-2 h-4 w-4" />
-            Criar post
-          </Button>
-        </div>
-
-        <Separator className="my-4" />
-
-        <div className="flex flex-col gap-2">
-          <Button
-            variant={filtro === 'all' ? 'default' : 'outline'}
-            className={`justify-start rounded-lg transition-all ${
-              filtro === 'all'
-                ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-sm'
-                : 'bg-white text-gray-700 hover:border-purple-300 hover:text-purple-600'
-            }`}
-            onClick={() => setFiltro('all')}
-          >
-            <MessageCircleHeart className="mr-2 h-4 w-4" />
-            Todas as postagens
-          </Button>
-
-          {comunidades.map((c) => (
-            <Button
-              key={c}
-              variant={filtro === c ? 'default' : 'outline'}
-              className={`justify-start rounded-lg transition-all ${
-                filtro === c
-                  ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-sm'
-                  : 'whitespace-normal bg-white p-1 text-gray-700 hover:border-purple-300 hover:text-purple-600'
-              }`}
-              onClick={() => setFiltro(c)}
-            >
-              <MessageCircleHeart className="mr-2 h-4 w-4" />
-              {c}
-            </Button>
-          ))}
-        </div>
-      </aside>
-
-      {/* Feed - 2/3 no mobile, flex no desktop */}
-      <main className="flex-1 xl:ml-8 xl:w-1/2">
+    <div className="mb-4 mt-12 min-h-screen w-[calc(100vw-5rem-17px)] md:w-[calc(100vw-20rem-17px)] 2xl:w-[1000px]">
+      <main className={`transition-all duration-300`}>
         <div className="min-h-[600px] space-y-6">
           {postsFiltrados.length > 0 ? (
             postsFiltrados.map((post) => (
@@ -454,10 +392,32 @@ export default function ComunidadesPage() {
               </Card>
             ))
           ) : (
-            <div className="flex h-96 items-center justify-center rounded-xl bg-gray-50">
-              <p className="text-center text-gray-500">
-                Nenhum post encontrado nessa comunidade.
-              </p>
+            <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-xl bg-gray-50 px-6">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 shadow-sm">
+                <MessageCircleHeart className="h-8 w-8 text-purple-600" />
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-medium text-gray-700">
+                  Ainda não há posts
+                </p>
+                <p className="mt-1 text-sm text-gray-500">
+                  Seja o primeiro a compartilhar algo ou crie uma nova
+                  comunidade!
+                </p>
+              </div>
+              <NavLink to="/comunidades">
+                <Button
+                  className="bg-linear-purple mt-2 text-white shadow-md hover:shadow-lg"
+                  size="sm"
+                  onClick={() => {
+                    // Abrir modal de criar post ou redirecionar
+                    console.log('Abrir criar post')
+                  }}
+                >
+                  <Users className="mr-2 h-4 w-4" />
+                  Visualizar Comunidades
+                </Button>
+              </NavLink>
             </div>
           )}
         </div>

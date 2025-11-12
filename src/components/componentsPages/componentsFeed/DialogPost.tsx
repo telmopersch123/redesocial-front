@@ -1,5 +1,6 @@
 import { CircleX, Fullscreen, ImageIcon, VideoIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import { Button } from '../../ui/button'
 import {
   Dialog,
@@ -9,7 +10,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '../../ui/dialog'
 import { Label } from '../../ui/label'
 import {
@@ -23,6 +23,7 @@ import { Switch } from '../../ui/switch'
 import { Textarea } from '../../ui/textarea'
 
 export function DialogPost() {
+  const { isOpen, close } = useCriarPostDialog()
   const [anonimo, setAnonimo] = useState(false)
   const [uploadType, setUploadType] = useState<'image' | 'video' | null>(null)
   const [file, setFile] = useState<string | null>(null)
@@ -57,8 +58,6 @@ export function DialogPost() {
     setUploadType(null)
   }
 
-  const closeFullscreen = () => setIsFullscreen(false)
-
   const handleCloseDialog = () => {
     if (file) URL.revokeObjectURL(file)
     setFile(null)
@@ -74,17 +73,17 @@ export function DialogPost() {
   return (
     <>
       <Dialog
+        open={isOpen}
         onOpenChange={(open) => {
-          if (!open && !isFullscreen) handleCloseDialog()
+          if (!open) {
+            if (!isFullscreen) {
+              handleCloseDialog()
+              close()
+            }
+          }
         }}
       >
         <form>
-          <DialogTrigger asChild>
-            <Button className="bg-linear-purple mt-5 w-[calc(100vw-5rem)] rounded-xl border-none p-7 text-lg font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] active:shadow-md md:w-[calc(100vw-19rem)] xl:w-[950px]">
-              + Como você está se sentindo?
-            </Button>
-          </DialogTrigger>
-
           <DialogContent className="!z-40 !overflow-y-auto rounded-2xl bg-white p-6 shadow-xl sm:max-w-[520px]">
             <div className="max-h-[80vh] overflow-y-auto p-6">
               <DialogHeader className="space-y-2 text-center">

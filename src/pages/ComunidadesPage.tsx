@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight, PlusCircle, Users } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import CardsComponent from '../components/componentsPages/componentsComunidade/Cards'
@@ -43,12 +43,18 @@ const ComunidadesPages = () => {
             Encontre apoio em grupos com interesses comuns
           </p>
         </div>
-        <div>
+        <div className="flex items-center gap-2">
           <NavLink to="/comunidades_usuario">
             <Button className="bg-linear-purple transition-shadow duration-300 ease-in-out hover:shadow-md">
+              <Users className="mr-2 h-4 w-4" />
               Minhas comunidades
             </Button>
           </NavLink>
+
+          <Button className="bg-linear-purple transition-shadow duration-300 ease-in-out hover:shadow-md">
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Criar comunidade
+          </Button>
         </div>
       </div>
 

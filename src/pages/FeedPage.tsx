@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { DialogPost } from '../components/componentsPages/componentsFeed/DialogPost'
+import { Button } from '../components/ui/button'
+import { useCriarPostDialog } from '../context/ContextDialogPost'
 
 const feelings: Array<keyof typeof gradientMap> = [
   'Todos',
@@ -31,6 +32,7 @@ const emojiMap: Record<string, string> = {
 const itemsSimulation: Array<string> = []
 
 const FeedPage = () => {
+  const { open } = useCriarPostDialog()
   const [selectedFeeling, setSelectedFeeling] =
     useState<keyof typeof gradientMap>('Todos')
   return (
@@ -46,7 +48,12 @@ const FeedPage = () => {
         <p className="text-1xl text-muted-foreground sm:text-left">
           Um espaço seguro para compartilhar e apoiar 💙
         </p>
-        <DialogPost />
+        <Button
+          onClick={open}
+          className="bg-linear-purple mt-5 w-[calc(100vw-5rem)] rounded-xl border-none p-7 text-lg font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] active:shadow-md md:w-[calc(100vw-19rem)] xl:w-[950px]"
+        >
+          + Como você está se sentindo?
+        </Button>
         <div
           className="scroll-show m-auto mt-3 flex max-w-[calc(100vw-3rem)] justify-between overflow-x-auto whitespace-nowrap rounded-lg bg-white/50 p-2 shadow-sm backdrop-blur-md sm:w-[calc(100vw-19rem)] xl:w-[950px]"
           style={{ WebkitOverflowScrolling: 'touch' }}
