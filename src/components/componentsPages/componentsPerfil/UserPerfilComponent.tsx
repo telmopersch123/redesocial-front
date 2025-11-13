@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import { Avatar, AvatarFallback } from '../../ui/avatar'
 import { Badge } from '../../ui/badge'
 import { Card, CardContent } from '../../ui/card'
-import { DialogConfig } from './DialogConfig'
+import { ConfigDialog } from './ConfigDialog'
 
 interface UserPerfilComponentProps {
   file: string | null
@@ -65,7 +65,7 @@ const UserPerfilComponent = ({
 
   return (
     <Card>
-      <CardContent className="im:flex-row relative flex w-full flex-col items-center gap-5 p-6">
+      <CardContent className="relative flex w-full flex-col items-center gap-5 p-6 im:flex-row">
         {/* AVATAR COM BOTÃO DE REMOVER FORA */}
         <div
           ref={avatarContainerRef}
@@ -152,7 +152,7 @@ const UserPerfilComponent = ({
             <span>{sentimentoAtual[0]}</span>
           </Badge>
         </div>
-        <DialogConfig nomeUser={nomeUser} setNomeUser={setNomeUser} />
+        <ConfigDialog nomeUser={nomeUser} setNomeUser={setNomeUser} />
       </CardContent>
     </Card>
   )

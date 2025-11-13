@@ -13,8 +13,8 @@ import { useEffect, useRef, useState } from 'react'
 
 import UserPerfilComponent from '../components/componentsPages/componentsPerfil/UserPerfilComponent'
 
-import { DialogConfig } from '../components/componentsPages/componentsPerfil/DialogConfig'
-import InformacaoBasica from '../components/componentsPages/componentsPerfil/InformacaoBasicas'
+import BasicInformationComponent from '../components/componentsPages/componentsPerfil/BasicInformationComponent'
+import { ConfigDialog } from '../components/componentsPages/componentsPerfil/ConfigDialog'
 import { Button } from '../components/ui/button'
 
 const PerfilPage = () => {
@@ -91,7 +91,7 @@ const PerfilPage = () => {
         </div>
         <div className="2xl:w-1/2">
           {/* ===== INFORMAÇÕES BÁSICAS ===== */}
-          <InformacaoBasica
+          <BasicInformationComponent
             nomeUser={nomeUser}
             selectedAvatar={selectedAvatar}
             coresFundos={coresFundos}
@@ -109,7 +109,7 @@ const PerfilPage = () => {
         </div>
       </div>
       <div className="hidden">
-        <DialogConfig
+        <ConfigDialog
           open={dialogConfigOpen}
           setOpen={setDialogConfigOpen}
           nomeUser={nomeUser}

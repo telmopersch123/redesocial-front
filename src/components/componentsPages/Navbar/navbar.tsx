@@ -26,7 +26,7 @@ import {
 } from '../../ui/sidebar'
 import DialogHelp from './DialogHelp'
 
-import { useComunidades } from '../../../context/ComunidadesContext'
+import { useComunidades } from '../../../context/CommunityContext'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import { Button } from '../../ui/button'
 
@@ -57,6 +57,12 @@ export function AppSidebar() {
     const itemPathe = items.find((item) => item.url === pathname)
     if (pathname === '/perfil') {
       setActive('Perfil')
+    } else if (
+      pathname === '/comunidades_usuario' ||
+      pathname === '/criar_comunidade'
+    ) {
+      console.log('ENTROU?')
+      setActive('Comunidades')
     } else {
       setActive(itemPathe?.title || 'Feed')
     }

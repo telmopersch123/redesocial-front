@@ -1,13 +1,17 @@
 import { HouseHeart } from 'lucide-react'
 import { useState } from 'react'
+import { useLimitForms } from '../../../hooks/useLimitForms'
+import { MessageForms } from '../../formCustomer/MessageForms'
 import { Button } from '../../ui/button'
+import { Textarea } from '../../ui/textarea'
 
-const FormDiario = () => {
+const FormDailyComponent = () => {
   const [active, setActive] = useState<number | null>(null)
   const [activeList, setActiveList] = useState<number[] | null>(null)
   const [valorEnergia, setValorEnergia] = useState(3)
   const [valorAnsiedade, setValorAnsiedade] = useState(3)
-
+  const notas = useLimitForms(5000)
+  const gratidao = useLimitForms(5000)
   const toggleActive = (id: number) => {
     setActiveList((prev: number[] | null) =>
       prev?.includes(id)
@@ -114,10 +118,17 @@ const FormDiario = () => {
           <p className="text-base font-semibold text-black">
             Notas e reflexões
           </p>
-          <textarea
-            className="mt-2 h-32 max-h-[400px] w-full rounded-lg border border-gray-200 bg-white p-3 text-sm text-black shadow-sm transition-all duration-200 hover:text-muted-foreground focus:border-[#a5c9ff] focus:outline-none focus:ring-1 focus:ring-[#a5c9ff]"
+          <Textarea
+            value={notas.value}
+            onChange={notas.handleChange}
+            className="mt-2 h-32 max-h-[400px] w-full rounded-lg border border-gray-200 bg-white p-3 text-sm text-muted-foreground shadow-sm transition-all duration-200 hover:text-black focus:!border-[#a5c9ff] focus:outline-none focus:ring-1 focus:!ring-[#a5c9ff]"
             placeholder="Escreva suas notas aqui..."
-          ></textarea>
+          ></Textarea>
+          <MessageForms
+            error={notas.error}
+            valueLength={notas.value.length}
+            maxLength={notas.maxLength}
+          />
         </div>
 
         {/* Gratidão */}
@@ -125,10 +136,17 @@ const FormDiario = () => {
           <p className="text-base font-semibold text-black">
             Pelo que você é grato hoje? 🙏
           </p>
-          <textarea
-            className="mt-2 h-32 max-h-[400px] w-full rounded-lg border border-gray-200 bg-white p-3 text-sm text-black shadow-sm transition-all duration-200 hover:text-muted-foreground focus:border-[#a5c9ff] focus:outline-none focus:ring-1 focus:ring-[#a5c9ff]"
+          <Textarea
+            value={gratidao.value}
+            onChange={gratidao.handleChange}
+            className="mt-2 h-32 max-h-[400px] w-full rounded-lg border-gray-200 bg-white p-3 text-sm text-muted-foreground shadow-sm transition-all duration-200 hover:text-black focus:!border-[#a5c9ff] focus:outline-none focus:ring-1 focus:!ring-[#a5c9ff]"
             placeholder="Escreva suas notas aqui..."
-          ></textarea>
+          ></Textarea>
+          <MessageForms
+            error={gratidao.error}
+            valueLength={gratidao.value.length}
+            maxLength={gratidao.maxLength}
+          />
         </div>
 
         {/* Atividades e botão */}
@@ -163,4 +181,4 @@ const FormDiario = () => {
   )
 }
 
-export default FormDiario
+export default FormDailyComponent

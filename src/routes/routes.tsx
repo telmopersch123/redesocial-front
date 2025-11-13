@@ -1,22 +1,27 @@
 import { Route, Routes } from 'react-router-dom'
-import AreaComunidadesUsuario from '../pages/AreaComunidadesUsuario'
-import AutoCuidadoPage from '../pages/AutoCuidadoPage'
-import ComunidadesPage from '../pages/ComunidadesPage'
-import DiarioPage from '../pages/DiarioPage'
+import AreaCommunitiesUserPage from '../pages/AreaCommunitiesUserPage'
+import CommunityPage from '../pages/CommunityPage'
+import CreateCommunityPage from '../pages/CreateCommunityPage'
+import DiaryPage from '../pages/DiaryPage'
 import FeedPage from '../pages/FeedPage'
-import MensagensPage from '../pages/MensagensPage'
+import MessagePage from '../pages/MessagePage'
 import PerfilPage from '../pages/PerfilPage'
+import SelfCarePage from '../pages/SelfCarePage'
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<FeedPage />} />
-      <Route path="/comunidades" element={<ComunidadesPage />} />
-      <Route path="/mensagens" element={<MensagensPage />} />
-      <Route path="/diario" element={<DiarioPage />} />
-      <Route path="/autocuidado" element={<AutoCuidadoPage />} />
+      <Route path="/comunidades" element={<CommunityPage />} />
+      <Route path="/criar_comunidade" element={<CreateCommunityPage />} />
+      <Route path="/mensagens" element={<MessagePage />} />
+      <Route path="/diario" element={<DiaryPage />} />
+      <Route path="/autocuidado" element={<SelfCarePage />} />
       <Route path="/perfil" element={<PerfilPage />} />
-      <Route path="/comunidades_usuario" element={<AreaComunidadesUsuario />} />
+      <Route
+        path="/comunidades_usuario"
+        element={<AreaCommunitiesUserPage />}
+      />
     </Routes>
   )
 }

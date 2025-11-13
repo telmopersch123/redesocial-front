@@ -1,7 +1,7 @@
 import { ArrowLeft, MessageCircle, MessageSquare } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from '../components/ui/button'
-const MensagensPage = () => {
+const MessagePage = () => {
   const [selectedChat, setSelectedChat] = useState<number | null>(null)
   const [clickedOpen, setClickedOpen] = useState<boolean>(false)
   const contatos: Array<{
@@ -65,10 +65,10 @@ const MensagensPage = () => {
   }
 
   return (
-    <div className="dm:w-[calc(100vw-18rem)] flex h-screen w-full flex-col gap-0 p-2 md:w-[calc(100vw-16rem)] md:flex-row md:gap-4 md:p-4">
+    <div className="flex h-screen w-full flex-col gap-0 p-2 md:w-[calc(100vw-16rem)] md:flex-row md:gap-4 md:p-4 dm:w-[calc(100vw-18rem)]">
       {/* ===== LISTA DE CONVERSAS ===== */}
       <div
-        className={`dm:w-1/4 mt-10 flex min-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-gray-300 bg-white md:mt-0 md:w-1/2 lg:w-1/4 ${clickedOpen && 'max-[767px]:hidden'}`} // esconde a
+        className={`mt-10 flex min-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-gray-300 bg-white md:mt-0 md:w-1/2 dm:w-1/4 lg:w-1/4 ${clickedOpen && 'max-[767px]:hidden'}`} // esconde a
       >
         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
           <div className="flex items-center gap-2">
@@ -101,12 +101,12 @@ const MensagensPage = () => {
                         {contato.nome}
                       </span>
 
-                      <span className="dm:inline hidden text-[11px] text-gray-400 xl:hidden">
+                      <span className="hidden text-[11px] text-gray-400 dm:inline xl:hidden">
                         {contato.hora}
                       </span>
                     </div>
 
-                    <span className="dm:hidden text-[11px] text-gray-400 xl:inline">
+                    <span className="text-[11px] text-gray-400 dm:hidden xl:inline">
                       {contato.hora}
                     </span>
                   </div>
@@ -128,7 +128,7 @@ const MensagensPage = () => {
       {/* ===== ÁREA DO CHAT ===== */}
 
       <div
-        className={`dm:w-3/4 mt-10 min-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-gray-300 bg-white md:mt-0 md:w-1/2 lg:w-3/4 ${window.innerWidth < 768 ? (clickedOpen ? 'flex' : 'hidden') : 'flex'}`}
+        className={`mt-10 min-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-gray-300 bg-white md:mt-0 md:w-1/2 dm:w-3/4 lg:w-3/4 ${window.innerWidth < 768 ? (clickedOpen ? 'flex' : 'hidden') : 'flex'}`}
       >
         {selectedChat !== null ? (
           <div className="flex flex-1 flex-col p-6">
@@ -165,4 +165,4 @@ const MensagensPage = () => {
   )
 }
 
-export default MensagensPage
+export default MessagePage

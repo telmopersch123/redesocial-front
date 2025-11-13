@@ -10,9 +10,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../ui/dialog'
-import BibliotecasDeApoio from './BibliotecasDeApoio'
+import SupportLibrary from './SupportLibraryComponent'
 
-const DialogsBibliotecas = ({ item }: { item: BibliotecaApoioItem }) => {
+const DialogsLibrariesComponent = ({ item }: { item: BibliotecaApoioItem }) => {
   const { icon: Icon, cor, titulo, categoria, tempo, desc, conteudo } = item
 
   // Usa conteudo (longo) ou fallback para desc
@@ -22,7 +22,7 @@ const DialogsBibliotecas = ({ item }: { item: BibliotecaApoioItem }) => {
     <Dialog>
       <DialogTrigger asChild>
         <div className="cursor-pointer">
-          <BibliotecasDeApoio item={item} />
+          <SupportLibrary item={item} />
         </div>
       </DialogTrigger>
 
@@ -109,4 +109,4 @@ const DialogsBibliotecas = ({ item }: { item: BibliotecaApoioItem }) => {
   )
 }
 
-export default DialogsBibliotecas
+export default DialogsLibrariesComponent

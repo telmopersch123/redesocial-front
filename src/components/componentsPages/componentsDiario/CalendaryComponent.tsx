@@ -3,7 +3,7 @@
 import * as React from 'react'
 import { Calendar } from '../../ui/calendar'
 
-export function Calendario() {
+export function CalendaryComponent() {
   const today = new Date()
 
   const [date, setDate] = React.useState<Date | undefined>(today)

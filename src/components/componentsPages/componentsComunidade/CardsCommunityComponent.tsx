@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from '../../ui/card'
 
-const CardsComponent = () => {
+const CardsCommunityComponent = () => {
   return (
     // CardsComponent.tsx
     <Card className="backface-hidden !mb-5 w-[calc(100vw-3rem)] flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 ease-out will-change-transform hover:z-10 hover:-translate-y-1 hover:scale-100 hover:shadow-lg md:w-full">
@@ -45,4 +45,4 @@ const CardsComponent = () => {
   )
 }
 
-export default CardsComponent
+export default CardsCommunityComponent

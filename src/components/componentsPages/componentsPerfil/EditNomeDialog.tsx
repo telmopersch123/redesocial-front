@@ -1,4 +1,6 @@
 import { AlertCircle, Edit2 } from 'lucide-react'
+import { useLimitForms } from '../../../hooks/useLimitForms'
+import { MessageForms } from '../../formCustomer/MessageForms'
 import { Button } from '../../ui/button'
 import {
   Dialog,
@@ -17,7 +19,8 @@ interface DialogEditNomeProps {
   setNomeUser: (nomeUser: string) => void
 }
 
-const DialogEditNome = ({ nomeUser, setNomeUser }: DialogEditNomeProps) => {
+const EditNomeDialog = ({ nomeUser, setNomeUser }: DialogEditNomeProps) => {
+  const nameUserControl = useLimitForms(50)
   return (
     <Dialog modal={false}>
       <DialogTrigger asChild>
@@ -41,11 +44,19 @@ const DialogEditNome = ({ nomeUser, setNomeUser }: DialogEditNomeProps) => {
             </p>
           </div>
         </DialogHeader>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-center gap-2">
           <Input
             placeholder="Nome de exibição"
             value={nomeUser || ''}
-            onChange={(e) => setNomeUser(e.target.value)}
+            onChange={(e) => {
+              nameUserControl.handleChange(e)
+              setNomeUser(e.target.value)
+            }}
+          />
+          <MessageForms
+            error={nameUserControl.error}
+            valueLength={nameUserControl.value.length}
+            maxLength={nameUserControl.maxLength}
           />
         </div>
         <DialogFooter className="gap-3 sm:justify-start">
@@ -63,4 +74,4 @@ const DialogEditNome = ({ nomeUser, setNomeUser }: DialogEditNomeProps) => {
   )
 }
 
-export default DialogEditNome
+export default EditNomeDialog

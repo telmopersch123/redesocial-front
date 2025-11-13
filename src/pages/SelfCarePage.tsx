@@ -1,9 +1,9 @@
 import { Sparkles, Wind } from 'lucide-react'
-import DialogsBibliotecas from '../components/componentsPages/componentsAutoCuidado/DialogsBiblioteca'
+import DialogsLibrariesComponent from '../components/componentsPages/componentsAutoCuidado/DialogsLibrariesComponent'
 import { Button } from '../components/ui/button'
 import { bibliotecaApoioData } from '../data/biblioteca_apoio/bibliotecaApoioConteudo'
 
-const AutoCuidadoPage = () => {
+const SelfCarePage = () => {
   return (
     <div className="mt-16 flex w-[calc(100vw-2rem)] flex-col p-2 md:mt-10 md:w-[calc(100vw-20rem)]">
       <div className="space-y-6">
@@ -81,7 +81,7 @@ const AutoCuidadoPage = () => {
         {/* Biblioteca de Apoio */}
         <div className="space-y-4 md:grid md:grid-cols-3 md:gap-4 md:space-y-0">
           {bibliotecaApoioData.map((data, i) => (
-            <DialogsBibliotecas key={i} item={data.item} />
+            <DialogsLibrariesComponent key={i} item={data.item} />
           ))}
         </div>
       </div>
@@ -89,4 +89,4 @@ const AutoCuidadoPage = () => {
   )
 }
 
-export default AutoCuidadoPage
+export default SelfCarePage

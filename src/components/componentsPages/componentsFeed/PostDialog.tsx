@@ -1,6 +1,8 @@
 import { CircleX, Fullscreen, ImageIcon, VideoIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
+import { useLimitForms } from '../../../hooks/useLimitForms'
+import { MessageForms } from '../../formCustomer/MessageForms'
 import { Button } from '../../ui/button'
 import {
   Dialog,
@@ -21,8 +23,9 @@ import {
 } from '../../ui/select'
 import { Switch } from '../../ui/switch'
 import { Textarea } from '../../ui/textarea'
+import FullscreenDialog from './FullscreenDialog'
 
-export function DialogPost() {
+export function PostDialog() {
   const { isOpen, close } = useCriarPostDialog()
   const [anonimo, setAnonimo] = useState(false)
   const [uploadType, setUploadType] = useState<'image' | 'video' | null>(null)
@@ -31,6 +34,7 @@ export function DialogPost() {
   const [postDestino, setPostDestino] = useState<'geral' | 'comunidade'>(
     'geral'
   )
+  const { value, error, handleChange, maxLength } = useLimitForms(5000)
   const [comunidadeSelecionada, setComunidadeSelecionada] = useState<
     string | null
   >(null)
@@ -138,8 +142,15 @@ export function DialogPost() {
                   </Label>
                   <Textarea
                     id="pensamentos"
+                    value={value}
+                    onChange={handleChange}
                     placeholder="Escreva seus pensamentos, sentimentos ou o que quiser compartilhar..."
                     className="min-h-[120px] resize-none rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-900 shadow-sm transition-all hover:border-[#a5c9ff]/40 focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff]"
+                  />
+                  <MessageForms
+                    error={error}
+                    valueLength={value.length}
+                    maxLength={maxLength}
                   />
                 </div>
 
@@ -327,23 +338,11 @@ export function DialogPost() {
         </form>
       </Dialog>
 
-      <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
-        <DialogContent className="fixed flex items-center justify-center bg-black/80 p-0 shadow-none [&>button]:hidden">
-          <div className="flex items-center justify-center">
-            <img
-              src={file!}
-              alt="Fullscreen"
-              className="max-h-full max-w-full rounded-xl object-contain shadow-2xl"
-            />
-            <Button
-              onClick={() => setIsFullscreen(false)}
-              className="bg-linear-purple absolute -top-6 right-2 w-9 rounded-full p-2 shadow-lg hover:scale-110 sm:-right-2"
-            >
-              <CircleX className="h-8 w-10 text-white" />
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <FullscreenDialog
+        isFullscreen={isFullscreen}
+        setIsFullscreen={setIsFullscreen}
+        file={file}
+      />
     </>
   )
 }

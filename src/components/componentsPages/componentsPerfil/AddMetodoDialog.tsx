@@ -17,7 +17,7 @@ interface DialogAddMetodoProps {
   onAddMetodo: (metodo: string) => void
 }
 
-const DialogAddMetodo = ({ onAddMetodo }: DialogAddMetodoProps) => {
+const AddMetodoDialog = ({ onAddMetodo }: DialogAddMetodoProps) => {
   const [novoMetodo, setNovoMetodo] = useState('')
 
   function handleAddMetodo() {
@@ -81,4 +81,4 @@ const DialogAddMetodo = ({ onAddMetodo }: DialogAddMetodoProps) => {
   )
 }
 
-export default DialogAddMetodo
+export default AddMetodoDialog

@@ -1,7 +1,7 @@
 import { TrendingUp } from 'lucide-react'
 import { forwardRef } from 'react'
 
-const HumorMedioComponent = forwardRef<
+const AverageMoodComponent = forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >((props, ref) => {
@@ -33,4 +33,4 @@ const HumorMedioComponent = forwardRef<
   )
 })
 
-export default HumorMedioComponent
+export default AverageMoodComponent

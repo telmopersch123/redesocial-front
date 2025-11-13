@@ -1,9 +1,9 @@
 import { CalendarHeart } from 'lucide-react'
-import { Calendario } from '../components/componentsPages/componentsDiario/Calendario'
-import FormDiario from '../components/componentsPages/componentsDiario/FormDiario'
-import { DialogGraphicsMidia } from '../components/componentsPages/componentsDiario/GraphicsMidia'
+import { CalendaryComponent } from '../components/componentsPages/componentsDiario/CalendaryComponent'
+import FormDailyComponent from '../components/componentsPages/componentsDiario/FormDailyComponent'
+import { GraphicsMidiaDialog } from '../components/componentsPages/componentsDiario/GraphicsMidiaDialog'
 
-const DiarioPage = () => {
+const DiaryPage = () => {
   return (
     <div className="mt-16 w-[calc(100vw-2rem)] p-2 md:mt-10 md:w-[calc(100vw-20rem)]">
       <div>
@@ -21,20 +21,20 @@ const DiarioPage = () => {
               <CalendarHeart />
               <h2> Selecione uma data</h2>
             </div>
-            <Calendario />
+            <CalendaryComponent />
           </div>
 
-          <DialogGraphicsMidia />
+          <GraphicsMidiaDialog />
         </div>
         {/* entradas do diario */}
         <div className="mt-5 flex w-full flex-col space-y-3 rounded-2xl border p-5 xl:!mt-0">
           <h2 className="text-xl font-semibold">6 de novembro de 2025</h2>
           <p className="text-muted-foreground">Como você está se sentindo?</p>
-          <FormDiario />
+          <FormDailyComponent />
         </div>
       </div>
     </div>
   )
 }
 
-export default DiarioPage
+export default DiaryPage

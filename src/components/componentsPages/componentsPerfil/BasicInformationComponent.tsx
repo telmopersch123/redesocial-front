@@ -1,5 +1,7 @@
 import { Edit2, X } from 'lucide-react'
 import { useState } from 'react'
+import { useLimitForms } from '../../../hooks/useLimitForms'
+import { MessageForms } from '../../formCustomer/MessageForms'
 import { Button } from '../../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
 import { Label } from '../../ui/label'
@@ -12,7 +14,7 @@ import {
 } from '../../ui/select'
 import { Separator } from '../../ui/separator'
 import { Textarea } from '../../ui/textarea'
-import DialogAddMetodo from './DialogAddMetodos'
+import DialogAddMetodo from './AddMetodoDialog'
 
 interface InformacaoBasicaProps {
   nomeUser: string
@@ -34,7 +36,7 @@ const sentimentos = [
   { value: 'triste', label: 'Triste', emoji: '😢' },
 ]
 
-const InformacaoBasica = ({
+const BasicInformationComponent = ({
   nomeUser,
   selectedAvatar,
   coresFundos,
@@ -45,6 +47,7 @@ const InformacaoBasica = ({
   avataresSimbolicos,
   abrirDialogConfig,
 }: InformacaoBasicaProps) => {
+  const BiographyControl = useLimitForms(256)
   const [metodosAutocuidado, setMetodosAutocuidado] = useState([
     'Meditar 10 minutos ao acordar',
     'Beber 2L de água',
@@ -88,8 +91,14 @@ const InformacaoBasica = ({
         <div className="space-y-2">
           <Label>Lema ou biografia</Label>
           <Textarea
+            onChange={BiographyControl.handleChange}
             placeholder="Escreva algo sobre você..."
             className="min-h-20 resize-none"
+          />
+          <MessageForms
+            error={BiographyControl.error}
+            valueLength={BiographyControl.value.length}
+            maxLength={BiographyControl.maxLength}
           />
         </div>
 
@@ -195,4 +204,4 @@ const InformacaoBasica = ({
   )
 }
 
-export default InformacaoBasica
+export default BasicInformationComponent

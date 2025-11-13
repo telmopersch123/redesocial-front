@@ -14,8 +14,8 @@ import {
 import { Label } from '../../ui/label'
 import { Separator } from '../../ui/separator'
 import { Switch } from '../../ui/switch'
-import ConfirmDialog2Etapas from './DialogConfirmEtapas'
-import DialogEditNome from './DialogEditNome'
+import ConfirmDialog2Etapas from './ConfirmTwoStepsDialog'
+import DialogEditNome from './EditNomeDialog'
 
 interface DialogConfigProps {
   open?: boolean
@@ -24,7 +24,7 @@ interface DialogConfigProps {
   setNomeUser?: (nomeUser: string) => void
 }
 
-export function DialogConfig({
+export function ConfigDialog({
   open,
   setOpen,
   nomeUser,

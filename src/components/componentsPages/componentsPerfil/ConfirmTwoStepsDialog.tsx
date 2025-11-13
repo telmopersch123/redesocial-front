@@ -15,7 +15,7 @@ interface Dialog2EtapasProps {
   confirmDisableTwoFactor: () => void
 }
 
-const ConfirmDialog2Etapas = ({
+const ConfirmTwoStepsDialog = ({
   confirmDialogOpen,
   setConfirmDialogOpen,
   confirmDisableTwoFactor,
@@ -60,4 +60,4 @@ const ConfirmDialog2Etapas = ({
   )
 }
 
-export default ConfirmDialog2Etapas
+export default ConfirmTwoStepsDialog
