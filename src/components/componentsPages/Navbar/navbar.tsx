@@ -58,8 +58,9 @@ export function AppSidebar() {
     if (pathname === '/perfil') {
       setActive('Perfil')
     } else if (
-      pathname === '/comunidades_usuario' ||
-      pathname === '/criar_comunidade'
+      pathname === '/comunidades/usuario' ||
+      pathname === '/comunidades/criar' ||
+      pathname === '/comunidades/usuario/config'
     ) {
       console.log('ENTROU?')
       setActive('Comunidades')

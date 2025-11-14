@@ -1,10 +1,10 @@
 import { PlusCircle, Users } from 'lucide-react'
 import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 
-import CardsCommunityComponent from '../components/componentsPages/componentsComunidade/CardsCommunityComponent'
-import PaginationComponent from '../components/componentsPages/componentsComunidade/PaginationComponent'
-import { Button } from '../components/ui/button'
+import CardsCommunityComponent from '../../components/componentsPages/componentsComunidade/CardsCommunityComponent'
+import PaginationComponent from '../../components/componentsPages/componentsComunidade/PaginationComponent'
+import { Button } from '../../components/ui/button'
 
 const CommunityPage = () => {
   const [currentPage, setCurrentPage] = useState(1)
@@ -20,6 +20,7 @@ const CommunityPage = () => {
 
   return (
     <div className="mt-16 w-full p-2 md:mt-10 md:w-[calc(100vw-20rem)]">
+      <Outlet />
       <div className="items-left flex flex-col flex-wrap justify-between gap-2 sm:flex-row sm:items-end">
         <div className="min-w-0 max-w-[90%]">
           <h1 className="text-3xl font-bold">Comunidades</h1>
@@ -28,14 +29,14 @@ const CommunityPage = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <NavLink to="/comunidades_usuario">
+          <NavLink to="usuario">
             <Button className="bg-linear-purple transition-shadow duration-300 ease-in-out hover:shadow-md">
               <Users className="mr-2 h-4 w-4" />
               Minhas comunidades
             </Button>
           </NavLink>
 
-          <NavLink to="/criar_comunidade">
+          <NavLink to="criar">
             <Button className="bg-linear-purple transition-shadow duration-300 ease-in-out hover:shadow-md">
               <PlusCircle className="mr-2 h-4 w-4" />
               Criar comunidade

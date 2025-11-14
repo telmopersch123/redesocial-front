@@ -2,16 +2,30 @@
 
 import { Fullscreen, Globe, Lock, SquarePlus, Upload, X } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { NavLink } from 'react-router-dom'
-import FullscreenDialog from '../components/componentsPages/componentsFeed/FullscreenDialog'
-import { MessageForms } from '../components/formCustomer/MessageForms'
-import { Button } from '../components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
-import { Input } from '../components/ui/input'
-import { Label } from '../components/ui/label'
-import { Separator } from '../components/ui/separator'
-import { Textarea } from '../components/ui/textarea'
-import { useLimitForms } from '../hooks/useLimitForms'
+import { useNavigate } from 'react-router-dom'
+import FullscreenDialog from '../../components/componentsPages/componentsFeed/FullscreenDialog'
+import { MessageForms } from '../../components/formCustomer/MessageForms'
+import { Button } from '../../components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '../../components/ui/card'
+import { Input } from '../../components/ui/input'
+import { Label } from '../../components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '../../components/ui/select'
+import { Separator } from '../../components/ui/separator'
+import { Textarea } from '../../components/ui/textarea'
+import { useLimitForms } from '../../hooks/useLimitForms'
 
 const CreateCommunityPage = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -22,6 +36,8 @@ const CreateCommunityPage = () => {
   const nameCommunity = useLimitForms(50)
   const descriptionCommunity = useLimitForms(256)
   const communityRules = useLimitForms(256)
+  const navigate = useNavigate()
+  const prohibitedCommunity = useLimitForms(256)
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     setIsDragging(false)
@@ -73,7 +89,7 @@ const CreateCommunityPage = () => {
                 id="name"
                 onChange={nameCommunity.handleChange}
                 placeholder="Ex: Bem-estar e Meditação"
-                className="focus:!ring-purple-600"
+                className={` ${nameCommunity.error ? 'border-red-500 focus:!ring-red-500' : 'focus:!ring-purple-600'}`}
               />
               <MessageForms
                 error={nameCommunity.error}
@@ -95,7 +111,7 @@ const CreateCommunityPage = () => {
                 id="description"
                 placeholder="Descreva o propósito e as intenções da sua comunidade..."
                 rows={4}
-                className="resize-none focus:!ring-purple-600"
+                className={`max-h-[500px] ${descriptionCommunity.error ? 'border-red-500 focus:!ring-red-500' : 'focus:!ring-purple-600'}`}
               />
               <MessageForms
                 error={descriptionCommunity.error}
@@ -112,17 +128,22 @@ const CreateCommunityPage = () => {
               >
                 Categoria
               </Label>
-              <select
-                id="category"
-                className="w-full rounded-md border border-gray-300 bg-white p-2 text-gray-700 shadow-sm outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-300"
-              >
-                <option value="">Selecione uma categoria</option>
-                <option value="autoajuda">Autoajuda</option>
-                <option value="mindfulness">Mindfulness</option>
-                <option value="fé">Fé & Espiritualidade</option>
-                <option value="saúde">Saúde mental</option>
-                <option value="outros">Outros</option>
-              </select>
+              <Select>
+                <SelectTrigger className="w-full focus:border-purple-600 focus:ring-0">
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent className="w-full">
+                  <SelectGroup>
+                    <SelectLabel>Fruits</SelectLabel>
+
+                    <SelectItem value="autoajuda">Autoajuda</SelectItem>
+                    <SelectItem value="mindfulness">Mindfulness</SelectItem>
+                    <SelectItem value="fé">Fé & Espiritualidade</SelectItem>
+                    <SelectItem value="saúde">Saúde mental</SelectItem>
+                    <SelectItem value="outros">Outros</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Capa da Comunidade */}
@@ -212,13 +233,64 @@ const CreateCommunityPage = () => {
                 onChange={communityRules.handleChange}
                 placeholder="Liste as principais regras e boas práticas da comunidade..."
                 rows={3}
-                className="resize-none focus:!ring-purple-600"
+                className={`max-h-[500px] ${communityRules.error ? 'border-red-500 focus:!ring-red-500' : 'focus:!ring-purple-600'}`}
               />
               <MessageForms
                 error={communityRules.error}
                 valueLength={communityRules.value.length}
                 maxLength={communityRules.maxLength}
               />
+            </div>
+            {/* Palavras proibidas */}
+            <div className="space-y-1">
+              <Label>Palavras proibidas</Label>
+              <Textarea
+                className={`max-h-[500px] ${prohibitedCommunity.error ? 'border-red-500 focus:!ring-red-500' : 'focus:!ring-purple-600'}`}
+                onChange={prohibitedCommunity.handleChange}
+                placeholder="Separe por vírgulas para a identificação precisa das palavras, ok? Ex: palavrão1, palavrão2, palavrão3..."
+              />
+              <MessageForms
+                error={prohibitedCommunity.error}
+                valueLength={prohibitedCommunity.value.length}
+                maxLength={prohibitedCommunity.maxLength}
+              />
+            </div>
+
+            <Separator />
+
+            {/* Administração */}
+            <div className="space-y-6">
+              {/* Quem pode postar */}
+              <div className="space-y-1">
+                <Label>Quem pode postar?</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos os membros</SelectItem>
+                    <SelectItem value="admins">
+                      Somente administradores
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Quem pode comentar */}
+              <div className="space-y-1">
+                <Label>Quem pode comentar?</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos os membros</SelectItem>
+                    <SelectItem value="admins">
+                      Somente administradores
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Privacidade */}
@@ -253,14 +325,14 @@ const CreateCommunityPage = () => {
 
             {/* Ações */}
             <div className="flex flex-col-reverse items-center justify-end gap-3 sm:flex-row">
-              <NavLink to="/comunidades" className="w-full sm:w-auto">
-                <Button
-                  variant="outline"
-                  className="w-full border-gray-300 text-gray-600 hover:bg-gray-100 sm:w-auto"
-                >
-                  Cancelar
-                </Button>
-              </NavLink>
+              <Button
+                onClick={() => navigate(-1)}
+                variant="outline"
+                className="w-full border-gray-300 text-gray-600 hover:bg-gray-100 sm:w-auto"
+              >
+                Cancelar
+              </Button>
+
               <Button className="bg-linear-purple w-full text-white hover:shadow-lg sm:w-auto">
                 <SquarePlus className="mr-2 h-4 w-4" /> Criar comunidade
               </Button>

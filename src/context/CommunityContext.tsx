@@ -10,7 +10,7 @@ const ComunidadesContext = createContext<ComunidadesContextType | undefined>(
 )
 export function ComunidadesProvider({ children }: { children: ReactNode }) {
   const location = useLocation()
-  const isInComunidades = location.pathname === '/comunidades_usuario'
+  const isInComunidades = location.pathname === '/comunidades/usuario'
 
   const [filtro, setFiltro] = useState<string | 'all'>('all')
 
