@@ -134,6 +134,7 @@ const UsersCommunityDialog = () => {
   const [page, setPage] = useState(1)
   const [users, setUsers] = useState<User[]>(sampleUsers)
 
+  // responsavel por filtrar os usuários com base na no nome e cargo
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     return users.filter((u) => {
@@ -145,15 +146,19 @@ const UsersCommunityDialog = () => {
     })
   }, [users, query, roleFilter])
 
+  // responsavel por calcular e mostrar uma certa quantidade de usuários  por pagina
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+  // responsavel por distribuir os usuários por pagina
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
+  // responsavel por selecionar ou desselecionar um item
   const toggleSelect = (id: number) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     )
   }
 
+  // responsavel por selecionar ou desselecionar todos os itens da página
   const selectAllPage = () => {
     const ids = pageItems.map((u) => u.id)
     const allSelected = ids.every((id) => selected.includes(id))
@@ -164,12 +169,14 @@ const UsersCommunityDialog = () => {
     )
   }
 
+  // responsavel por remover os itens selecionados
   const removeSelected = () => {
     if (!selected.length) return
     setUsers((prev) => prev.filter((u) => !selected.includes(u.id)))
     setSelected([])
   }
 
+  // responsavel por promover um usuário
   const promote = (id: number) => {
     setUsers((prev) =>
       prev.map((u) =>
@@ -180,6 +187,7 @@ const UsersCommunityDialog = () => {
     )
   }
 
+  // responsavel por demover um usuário
   const demote = (id: number) => {
     setUsers((prev) =>
       prev.map((u) => (u.id === id ? { ...u, role: 'member' } : u))
@@ -268,22 +276,6 @@ const UsersCommunityDialog = () => {
           </div>
 
           <Separator />
-
-          {/* list header: seleção + info */}
-          {/* <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                checked={pageItems.every((u) => selected.includes(u.id))}
-                onChange={selectAllPage}
-                className="h-4 w-4 rounded border-gray-300"
-              />
-              <span className="text-sm font-medium">Selecionar</span>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              {filtered.length} membros
-            </div>
-          </div> */}
 
           {/* Lista com scroll */}
           <div

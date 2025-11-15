@@ -1,7 +1,8 @@
 'use client'
 
-import { Globe, Lock, Upload, User } from 'lucide-react'
+import { ArrowLeft, Globe, Lock, Upload, User } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { MessageForms } from '../../components/formCustomer/MessageForms'
 import { Button } from '../../components/ui/button'
 import {
@@ -21,10 +22,16 @@ import {
 } from '../../components/ui/select'
 import { Textarea } from '../../components/ui/textarea'
 import { useLimitForms } from '../../hooks/useLimitForms'
-
-const ConfigCommunity = () => {
+interface ConfigCommunityProps {
+  showButtonReturn: boolean
+  methodW_fullscreen: boolean
+}
+const ConfigCommunity = ({
+  showButtonReturn,
+  methodW_fullscreen,
+}: ConfigCommunityProps) => {
+  const navigation = useNavigate()
   const [isPrivate, setIsPrivate] = useState(false)
-
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
   const nameCommunity = useLimitForms(50)
@@ -40,13 +47,28 @@ const ConfigCommunity = () => {
   }
 
   return (
-    <div className="mx-auto w-[calc(100vw-2rem)] space-y-6 py-10 md:w-[calc(100vw-20rem)]">
+    <div
+      className={`mx-auto space-y-6 py-10 ${methodW_fullscreen ? 'w-full' : 'w-[calc(100vw-2rem)] md:w-[calc(100vw-18rem)]'}`}
+    >
       {/* Título */}
-      <div className="space-y-2 text-left">
-        <h1 className="text-3xl font-bold">Configurações da Comunidade</h1>
-        <p className="-mt-2 text-sm text-muted-foreground">
-          Gerencie como sua comunidade funciona
-        </p>
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col space-y-2">
+          <h1 className="text-3xl font-bold">Configurações da Comunidade</h1>
+          <p className="-mt-2 text-sm text-muted-foreground">
+            Gerencie como sua comunidade funciona
+          </p>
+        </div>
+        {/* Botão de retorno */}
+        {!showButtonReturn && (
+          <Button
+            variant="outline"
+            onClick={() => navigation(-1)}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft size={16} />
+            Voltar
+          </Button>
+        )}
       </div>
 
       {/* --- CARD: Informações básicas --- */}
@@ -61,7 +83,7 @@ const ConfigCommunity = () => {
           </p>
           <div className="flex flex-col items-center gap-4">
             {/* Container da imagem */}
-            <div className="relative flex h-[150px] w-[350px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-500/60 to-indigo-500/60 shadow-lg ring-2 ring-purple-300/40 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+            <div className="relative flex h-[150px] w-[340px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-500/60 to-indigo-500/60 shadow-lg ring-2 ring-purple-300/40 transition-all duration-300 hover:shadow-xl">
               {imagePreview ? (
                 <img
                   src={imagePreview}
