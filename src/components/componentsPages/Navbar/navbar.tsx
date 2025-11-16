@@ -45,6 +45,7 @@ const comunidades = [
 ] as const
 export function AppSidebar() {
   const { open } = useCriarPostDialog()
+
   const [active, setActive] = useState('Feed')
   const { setOpenMobile } = useSidebar()
   const { isInComunidades, filtro, setFiltro } = useComunidades()

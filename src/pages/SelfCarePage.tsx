@@ -1,9 +1,12 @@
-import { Sparkles, Wind } from 'lucide-react'
+import { Wind } from 'lucide-react'
 import DialogsLibrariesComponent from '../components/componentsPages/componentsAutoCuidado/DialogsLibrariesComponent'
+import MessageDayComponent from '../components/componentsPages/componentsAutoCuidado/MessageDayComponent'
 import { Button } from '../components/ui/button'
+import { useBreathing } from '../context/BreathingContext'
 import { bibliotecaApoioData } from '../data/biblioteca_apoio/bibliotecaApoioConteudo'
 
 const SelfCarePage = () => {
+  const { setOpen, setTypeBreathing } = useBreathing()
   return (
     <div className="mt-16 flex w-[calc(100vw-2rem)] flex-col p-2 md:mt-10 md:w-[calc(100vw-20rem)]">
       <div className="space-y-6">
@@ -14,19 +17,7 @@ const SelfCarePage = () => {
           </p>
         </div>
         {/* Afirmação do Dia */}
-        <div className="flex flex-col gap-4 rounded-2xl bg-[#F3F7FE] p-5 text-center shadow-md transition-shadow hover:shadow-lg">
-          <p className="truncate text-sm font-medium text-muted-foreground">
-            Afirmação do Dia
-          </p>
-          <h2 className="truncate text-lg font-semibold">
-            "Eu sou suficiente exatamente como sou 💙"
-          </h2>
-          <Button className="m-auto flex w-fit items-center gap-2 rounded-full bg-white text-[#a5d3ff] hover:bg-gray-100">
-            <Sparkles className="shrink-0" />
-            <span className="truncate">Nova Afirmação</span>
-          </Button>
-        </div>
-
+        <MessageDayComponent />
         {/* Exercícios de Respiração */}
         <div className="flex flex-col gap-4">
           <h2 className="flex items-center gap-2 truncate font-semibold text-[#a5c9ff]">
@@ -68,6 +59,10 @@ const SelfCarePage = () => {
                 <p className="truncate font-semibold">{ex.metodo}</p>
                 <p className="truncate text-sm text-gray-500">{ex.desc}</p>
                 <Button
+                  onClick={() => {
+                    setTypeBreathing(ex.metodo)
+                    setOpen(true)
+                  }}
                   className="w-full truncate"
                   style={{ backgroundColor: ex.corIcon, color: '#fff' }}
                 >
@@ -77,7 +72,6 @@ const SelfCarePage = () => {
             ))}
           </div>
         </div>
-
         {/* Biblioteca de Apoio */}
         <div className="space-y-4 md:grid md:grid-cols-3 md:gap-4 md:space-y-0">
           {bibliotecaApoioData.map((data, i) => (
