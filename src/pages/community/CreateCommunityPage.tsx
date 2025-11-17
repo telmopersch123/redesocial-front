@@ -61,16 +61,18 @@ const CreateCommunityPage = () => {
 
   return (
     <>
-      <div className="mb-4 mt-16 flex w-[calc(100vw-0rem)] flex-col gap-8 px-4 md:w-[calc(100vw-20rem)]">
-        <h1 className="text-3xl font-bold text-gray-800 md:text-4xl">
-          Criar nova comunidade
-        </h1>
-        <p className="text-gray-500">
-          Construa um espaço acolhedor onde pessoas com interesses em comum
-          possam se conectar, compartilhar e crescer juntas 🌱
-        </p>
+      <div className="mb-4 mt-12 flex w-[calc(100vw-0rem)] flex-col px-5 md:w-[calc(100vw-20rem)]">
+        <div className="space-y-4">
+          <h1 className="text-center text-xl font-bold text-gray-800 md:text-left md:text-4xl">
+            Criar nova comunidade
+          </h1>
+          <p className="mt-3 whitespace-normal break-words text-center text-base text-gray-500 text-muted-foreground md:text-left md:text-lg lg:text-xl">
+            Construa um espaço acolhedor onde pessoas com interesses em comum
+            possam se conectar, compartilhar e crescer juntas 🌱
+          </p>
+        </div>
 
-        <Card className="rounded-2xl border border-gray-200 bg-white shadow-md">
+        <Card className="mt-12 rounded-2xl border border-gray-200 bg-white shadow-md">
           <CardHeader>
             <CardTitle className="text-xl text-gray-800">
               Detalhes principais

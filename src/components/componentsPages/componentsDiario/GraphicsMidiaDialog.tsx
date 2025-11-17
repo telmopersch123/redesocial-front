@@ -7,7 +7,6 @@ import {
   DialogTrigger,
 } from '../../ui/dialog'
 import HumorMedioComponent from './AverageMoodComponent'
-
 export function GraphicsMidiaDialog() {
   return (
     <Dialog>

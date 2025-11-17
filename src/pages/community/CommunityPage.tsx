@@ -19,16 +19,18 @@ const CommunityPage = () => {
   )
 
   return (
-    <div className="mt-16 w-full p-2 md:mt-10 md:w-[calc(100vw-20rem)]">
+    <div className="mb-4 mt-12 w-full p-2 md:w-[calc(100vw-20rem)]">
       <Outlet />
-      <div className="items-left flex flex-col flex-wrap justify-between gap-2 sm:flex-row sm:items-end">
+      <div className="items-left flex flex-col flex-wrap items-center justify-between gap-2 sm:flex-row sm:items-end">
         <div className="min-w-0 max-w-[90%]">
-          <h1 className="text-3xl font-bold">Comunidades</h1>
-          <p className="mt-3 whitespace-normal break-words text-left text-sm text-muted-foreground sm:text-base md:text-lg lg:text-xl">
+          <h1 className="text-center text-3xl font-bold text-gray-800 md:text-left">
+            Comunidades
+          </h1>
+          <p className="mt-3 whitespace-normal break-words text-center text-sm text-muted-foreground sm:text-base md:text-left md:text-lg lg:text-xl">
             Encontre apoio em grupos com interesses comuns
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-center gap-2 md:flex-row">
           <NavLink to="usuario">
             <Button className="bg-linear-purple transition-shadow duration-300 ease-in-out hover:shadow-md">
               <Users className="mr-2 h-4 w-4" />

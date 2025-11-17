@@ -45,7 +45,7 @@ const Users = () => {
   }
 
   return (
-    <div className="mx-auto mt-12 w-[calc(100vw-2rem)] max-w-3xl space-y-8 rounded-2xl bg-gradient-to-br from-gray-50/80 via-white to-purple-50/30 p-6 shadow-xl backdrop-blur-sm md:min-w-[calc(100vw-20rem)] md:p-10">
+    <div className="mx-auto mt-12 w-[calc(100vw-2rem)] max-w-3xl space-y-8 rounded-2xl bg-gradient-to-br from-gray-50/80 via-white to-purple-50/30 p-6 shadow-xl backdrop-blur-sm md:w-[calc(100vw-20rem)] md:p-10">
       {/* Título e Input de Pesquisa */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -100,7 +100,7 @@ const Users = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.08, duration: 0.4 }}
                 >
-                  <Card className="om:flex-row group flex flex-col items-center gap-5 rounded-2xl border border-transparent bg-white/90 p-5 shadow-[0_0px_10px_0px_rgba(0,0,0,0.1)] transition-all duration-300 hover:border-purple-300 hover:bg-purple-50/50 hover:shadow-lg">
+                  <Card className="group flex flex-col items-center gap-5 rounded-2xl border border-transparent bg-white/90 p-5 shadow-[0_0px_10px_0px_rgba(0,0,0,0.1)] transition-all duration-300 hover:border-purple-300 hover:bg-purple-50/50 hover:shadow-lg om:flex-row">
                     <div className="flex w-full items-center justify-between gap-3">
                       <Avatar className="h-16 w-16 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200">
                         {user.avatar ? (
@@ -126,7 +126,7 @@ const Users = () => {
                       </div>
                     </div>
 
-                    <button className="om:w-fit w-full rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-purple-700 hover:shadow-md active:scale-95">
+                    <button className="w-full rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-purple-700 hover:shadow-md active:scale-95 om:w-fit">
                       Perfil
                     </button>
                   </Card>

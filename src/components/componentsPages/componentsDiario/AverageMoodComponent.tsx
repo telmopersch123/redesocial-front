@@ -7,9 +7,9 @@ const AverageMoodComponent = forwardRef<
 >((props, ref) => {
   return (
     <div
+      className="flex cursor-pointer flex-col items-center justify-center gap-3 space-y-10 rounded-xl bg-[#f4f5fa] p-4 shadow-md transition-all ease-in-out hover:scale-[103%] dm:w-1/2 xl:w-auto"
       ref={ref}
       {...props}
-      className="flex cursor-pointer flex-col items-center justify-center gap-3 space-y-10 rounded-xl bg-[#f4f5fa] p-4 shadow-md transition-all ease-in-out hover:scale-[103%] dm:w-1/2 xl:w-auto"
     >
       <div className="flex items-center gap-2 text-gray-600">
         <TrendingUp className="h-5 w-5 text-[#c7eade]" />

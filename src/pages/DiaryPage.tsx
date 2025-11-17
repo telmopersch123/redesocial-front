@@ -6,15 +6,18 @@ import { GraphicsMidiaDialog } from '../components/componentsPages/componentsDia
 
 const DiaryPage = () => {
   return (
-    <div className="mt-16 w-[calc(100vw-2rem)] p-2 md:mt-10 md:w-[calc(100vw-20rem)]">
+    <div className="mb-4 mt-12 w-[calc(100vw-0rem)] px-5 md:w-[calc(100vw-20rem)]">
       {/* Título + Descrição - RÁPIDO */}
+
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
-        <h1 className="text-3xl font-bold">Diário Emocional</h1>
-        <p className="mt-3 text-left text-sm text-muted-foreground sm:text-base md:text-lg lg:text-xl">
+        <h1 className="text-center text-xl font-bold text-gray-800 md:text-left md:text-4xl">
+          Diário Emocional
+        </h1>
+        <p className="mt-3 whitespace-normal break-words text-center text-base text-gray-500 text-muted-foreground md:text-left md:text-lg lg:text-xl">
           Registre seus sentimentos e acompanhe sua jornada
         </p>
       </motion.div>
@@ -33,6 +36,7 @@ const DiaryPage = () => {
           className="flex w-full flex-col justify-between gap-2 dm:flex-row xl:w-[400px] xl:flex-col xl:justify-start"
         >
           {/* Calendário - RÁPIDO */}
+
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -56,7 +60,6 @@ const DiaryPage = () => {
           </motion.div>
         </motion.div>
 
-        {/* Formulário - RÁPIDO */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}

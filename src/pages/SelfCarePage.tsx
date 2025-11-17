@@ -10,7 +10,7 @@ const SelfCarePage = () => {
   const { setOpen, setTypeBreathing } = useBreathing()
 
   return (
-    <div className="mt-16 flex w-[calc(100vw-2rem)] flex-col p-2 md:mt-10 md:w-[calc(100vw-20rem)]">
+    <div className="mb-4 mt-12 flex w-[calc(100vw-0rem)] flex-col px-5 md:w-[calc(100vw-20rem)]">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -23,8 +23,10 @@ const SelfCarePage = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25, delay: 0.05 }}
         >
-          <h1 className="truncate text-3xl font-bold">Autocuidado</h1>
-          <p className="mt-3 truncate text-sm text-muted-foreground sm:text-base md:text-lg lg:text-xl">
+          <h1 className="text-center text-xl font-bold text-gray-800 md:text-left md:text-4xl">
+            Autocuidado
+          </h1>
+          <p className="mt-3 whitespace-normal break-words text-center text-base text-gray-500 text-muted-foreground md:text-left md:text-lg lg:text-xl">
             Recursos e práticas para seu bem-estar emocional
           </p>
         </motion.div>

@@ -48,13 +48,15 @@ const ConfigCommunity = ({
 
   return (
     <div
-      className={`mx-auto space-y-6 py-10 ${methodW_fullscreen ? 'w-full' : 'w-[calc(100vw-2rem)] md:w-[calc(100vw-18rem)]'}`}
+      className={`mx-auto mb-4 mt-12 px-5 ${methodW_fullscreen ? 'w-full' : 'w-[calc(100vw-0rem)] md:w-[calc(100vw-20rem)]'}`}
     >
       {/* Título */}
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col space-y-2">
-          <h1 className="text-3xl font-bold">Configurações da Comunidade</h1>
-          <p className="-mt-2 text-sm text-muted-foreground">
+      <div className="flex flex-col items-center justify-between gap-1 sm:flex-row">
+        <div className="flex flex-col space-y-4">
+          <h1 className="text-center text-xl font-bold text-gray-800 md:text-left md:text-4xl">
+            Configurações da Comunidade
+          </h1>
+          <p className="mt-3 whitespace-normal break-words text-center text-base text-gray-500 text-muted-foreground md:text-left md:text-lg lg:text-xl">
             Gerencie como sua comunidade funciona
           </p>
         </div>
@@ -72,7 +74,7 @@ const ConfigCommunity = ({
       </div>
 
       {/* --- CARD: Informações básicas --- */}
-      <Card className="border border-black/5 shadow-sm">
+      <Card className="mt-12 border border-black/5 shadow-sm">
         <CardHeader>
           <CardTitle>Informações básicas</CardTitle>
         </CardHeader>
@@ -83,7 +85,7 @@ const ConfigCommunity = ({
           </p>
           <div className="flex flex-col items-center gap-4">
             {/* Container da imagem */}
-            <div className="relative flex h-[150px] w-[340px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-500/60 to-indigo-500/60 shadow-lg ring-2 ring-purple-300/40 transition-all duration-300 hover:shadow-xl">
+            <div className="relative flex h-[100px] w-[240px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-500/60 to-indigo-500/60 shadow-lg ring-2 ring-purple-300/40 transition-all duration-300 hover:shadow-xl im:h-[150px] im:w-[340px]">
               {imagePreview ? (
                 <img
                   src={imagePreview}
@@ -278,7 +280,7 @@ const ConfigCommunity = ({
 
       {/* Botão fixo no mobile */}
       <div className="p-4 sm:p-0">
-        <Button className="bg-linear-purple h-12 w-full text-lg font-semibold transition-shadow hover:shadow-md">
+        <Button className="bg-linear-purple mt-4 h-12 w-full text-lg font-semibold transition-shadow hover:shadow-md">
           Salvar alterações
         </Button>
       </div>
