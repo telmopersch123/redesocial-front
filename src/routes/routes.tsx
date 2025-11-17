@@ -9,6 +9,7 @@ import FeedPage from '../pages/FeedPage'
 import MessagePage from '../pages/MessagePage'
 import PerfilPage from '../pages/PerfilPage'
 import SelfCarePage from '../pages/SelfCarePage'
+import Users from '../pages/Users'
 
 export default function AppRoutes() {
   return (
@@ -26,6 +27,7 @@ export default function AppRoutes() {
       <Route path="/diario" element={<DiaryPage />} />
       <Route path="/autocuidado" element={<SelfCarePage />} />
       <Route path="/perfil" element={<PerfilPage />} />
+      <Route path="/usuarios" element={<Users />} />
     </Routes>
   )
 }

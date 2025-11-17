@@ -5,37 +5,20 @@ import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Button } from '../../components/ui/button'
 
-import CardsPostCommunityComponent from '../../components/componentsPages/componentsComunidadeUsuario/CardsPostCommunityComponent'
+import CardsPostCommunityComponent from '../../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
 import UsersCommunityDialog from '../../components/componentsPages/componentsComunidadeUsuario/UsersCommunityDialog'
 import { TooltipComponent } from '../../components/globalcomponents/tooltipComponent'
 import { useComunidades } from '../../context/CommunityContext'
+import type { Post } from '../../types'
 
-interface Comentario {
-  id: number
-  autor: string
-  texto: string
-}
-
-export interface Post {
-  id: number
-  comunidade: string
-  autor: string
-  avatar: string | null
-  conteudo: string
-  imagem?: string
-  video?: boolean
-  data: Date
-  likes: number
-  comentarios: Comentario[]
-  salvo: boolean
-}
-
-const postsFicticios: Post[] = [
+export const postsFicticiosCommunity: Post[] = [
   {
-    id: 1,
-    comunidade: 'Mindfulness',
+    id: 7,
+    typePosts: 'Ansioso',
+    community: 'Mindfulness',
     autor: 'Anônimo',
     avatar: null,
+    friend: false,
     conteudo: 'Hoje consegui meditar por 15 minutos e foi libertador!',
     imagem:
       'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80',
@@ -46,24 +29,30 @@ const postsFicticios: Post[] = [
       { id: 2, autor: 'Anônimo', texto: '15 minutos já é um grande passo!' },
     ],
     salvo: false,
+    tags: ['Mindfulness', 'Meditação', 'Bem-estar'],
   },
   {
-    id: 2,
-    comunidade: 'Autoajuda',
+    id: 9,
+    typePosts: 'Triste',
+    community: 'Autoajuda',
     autor: 'Maria Silva',
     avatar: 'MS',
+    friend: false,
     conteudo:
       'Estou aprendendo a ser mais gentil comigo mesma. É um processo, mas estou feliz com o progresso!',
     data: new Date('2025-11-09T10:15:00'),
     likes: 42,
     comentarios: [],
     salvo: true,
+    tags: ['Autoajuda', 'Reflexão', 'Autocuidado'],
   },
   {
-    id: 3,
-    comunidade: 'Fé & Espiritualidade',
+    id: 8,
+    typePosts: 'Esperançoso',
+    community: 'Fé & Espiritualidade',
     autor: 'João Pedro',
     avatar: 'JP',
+    friend: false,
     conteudo: 'A gratidão é a linguagem da fé.',
     imagem:
       'https://thumbs.dreamstime.com/b/b%C3%ADblia-e-cruz-silhueta-contra-o-fundo-solar-simbolizando-f%C3%A9-espiritualidade-gerada-por-ia-381680496.jpg',
@@ -71,23 +60,29 @@ const postsFicticios: Post[] = [
     likes: 89,
     comentarios: [{ id: 1, autor: 'Ana', texto: 'Amém! Gratidão muda tudo.' }],
     salvo: false,
+    tags: ['Fé', 'Gratidão', 'Espiritualidade'],
   },
   {
-    id: 4,
-    comunidade: 'Mindfulness',
+    id: 10,
+    typePosts: 'Feliz',
+    community: 'Mindfulness',
     autor: 'Anônimo',
     avatar: null,
+    friend: false,
     conteudo: 'Acalmar a mente antes de dormir tem mudado meus dias',
     data: new Date('2025-11-07T22:10:00'),
     likes: 15,
     comentarios: [],
     salvo: false,
+    tags: ['Mindfulness', 'Relaxamento', 'Sono'],
   },
   {
-    id: 5,
-    comunidade: 'Autoajuda',
+    id: 11,
+    typePosts: 'Feliz',
+    community: 'Autoajuda',
     autor: 'Pedro Santos',
     avatar: 'PS',
+    friend: true,
     conteudo:
       'Gravei um pequeno vídeo falando sobre como lidar com a ansiedade. Espero que ajude alguém',
     video: true,
@@ -100,6 +95,7 @@ const postsFicticios: Post[] = [
       { id: 2, autor: 'Anônimo', texto: 'Já salvei pra ver depois.' },
     ],
     salvo: true,
+    tags: ['Autoajuda', 'Ansiedade', 'Vídeo'],
   },
 ]
 
@@ -107,14 +103,14 @@ const ficticioAdminComunidade = true
 
 export default function AreaCommunitiesUserPage() {
   const { filtro } = useComunidades()
-  const [posts, setPosts] = useState<Post[]>(postsFicticios)
+  const [posts, setPosts] = useState<Post[]>(postsFicticiosCommunity)
 
   const postsFiltrados =
-    filtro === 'all' ? posts : posts.filter((p) => p.comunidade === filtro)
+    filtro === 'all' ? posts : posts.filter((p) => p.community === filtro)
 
   return (
     <>
-      <div className="mb-4 mt-12 min-h-screen w-[calc(100vw-2rem)] md:w-[calc(100vw-20rem)] 2xl:w-[1000px]">
+      <div className="mb-4 mt-12 w-[99vw] px-0.5 md:w-[calc(100vw-20rem)] 2xl:w-full">
         <main className={`transition-all duration-300`}>
           <div className="absolute right-4 top-4 flex flex-row-reverse gap-2 md:left-[270px] md:right-auto md:flex-row">
             {ficticioAdminComunidade && (
@@ -132,7 +128,7 @@ export default function AreaCommunitiesUserPage() {
             <UsersCommunityDialog />
           </div>
 
-          <div className="min-h-[600px] space-y-6">
+          <div className="min-h-[600px] space-y-24">
             {postsFiltrados.length > 0 ? (
               postsFiltrados.map((post: Post) => (
                 <CardsPostCommunityComponent

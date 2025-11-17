@@ -1,5 +1,5 @@
 import { CircleX, Fullscreen, ImageIcon, VideoIcon } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import { useLimitForms } from '../../../hooks/useLimitForms'
 import { MessageForms } from '../../formCustomer/MessageForms'
@@ -13,6 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../ui/dialog'
+import { Input } from '../../ui/input'
 import { Label } from '../../ui/label'
 import {
   Select,
@@ -23,17 +24,21 @@ import {
 } from '../../ui/select'
 import { Switch } from '../../ui/switch'
 import { Textarea } from '../../ui/textarea'
+import ErrorsPostDialog from './ErrorsPostDialog'
 import FullscreenDialog from './FullscreenDialog'
 
 export function PostDialog() {
-  const { isOpen, close } = useCriarPostDialog()
+  const { isOpen, close, postCommunity } = useCriarPostDialog()
   const [anonimo, setAnonimo] = useState(false)
   const [uploadType, setUploadType] = useState<'image' | 'video' | null>(null)
   const [file, setFile] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [typeError, setTypeError] = useState('')
   const [postDestino, setPostDestino] = useState<'geral' | 'comunidade'>(
     'geral'
   )
+  const [tagInput, setTagInput] = useState<string>('')
+  const [tags, setTags] = useState<string[]>([])
   const { value, error, handleChange, maxLength } = useLimitForms(5000)
   const [comunidadeSelecionada, setComunidadeSelecionada] = useState<
     string | null
@@ -41,6 +46,32 @@ export function PostDialog() {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  useEffect(() => {
+    if (postCommunity) {
+      setPostDestino('comunidade')
+    }
+  }, [postCommunity])
+
+  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && tagInput.trim() !== '') {
+      if (tags.length >= 10) {
+        setTypeError('Limite de tags atingido.')
+        return
+      }
+      if (tags.some((t) => t.toLowerCase() === tagInput.toLowerCase())) {
+        setTypeError('Tag já adicionada, escolha outra.')
+        return
+      }
+
+      e.preventDefault()
+      setTags([...tags, tagInput.trim()])
+      setTypeError('')
+      setTagInput('')
+    }
+  }
+  const handleRemoveTag = (tag: string) => {
+    setTags(tags.filter((t) => t !== tag))
+  }
   const handleSelectType = (type: 'image' | 'video') => {
     setUploadType(type)
     setFile(null)
@@ -82,13 +113,14 @@ export function PostDialog() {
           if (!open) {
             if (!isFullscreen) {
               handleCloseDialog()
+              setTags([])
               close()
             }
           }
         }}
       >
         <form>
-          <DialogContent className="!z-40 !overflow-y-auto rounded-2xl bg-white p-6 shadow-xl sm:max-w-[520px]">
+          <DialogContent className="!z-40 w-[95%] !overflow-y-auto rounded-2xl bg-white p-6 shadow-xl sm:max-w-[520px]">
             <div className="max-h-[80vh] overflow-y-auto p-6">
               <DialogHeader className="space-y-2 text-center">
                 <DialogTitle asChild>
@@ -169,7 +201,7 @@ export function PostDialog() {
                       <SelectValue placeholder="Escolha o destino do post" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="geral">
+                      <SelectItem disabled={postCommunity} value="geral">
                         🌍 Post geral (todos podem ver)
                       </SelectItem>
                       <SelectItem value="comunidade">
@@ -293,6 +325,49 @@ export function PostDialog() {
                     onChange={handleFileChange}
                     className="hidden"
                   />
+                </div>
+                {/* Campo de Tags */}
+                <div className="flex flex-col gap-2">
+                  <Label
+                    htmlFor="tags"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Adicione tags (pressione Enter)
+                  </Label>
+                  <Input
+                    id="tags"
+                    type="text"
+                    value={tagInput}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (value === '') {
+                        setTypeError('')
+                      }
+                      setTagInput(value)
+                    }}
+                    onKeyDown={handleAddTag}
+                    placeholder="Ex: Felicidade, Motivação"
+                    className="rounded-lg border border-gray-300 bg-white p-2 text-sm shadow-sm focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff]"
+                  />
+                  {typeError && <ErrorsPostDialog errors={typeError} />}
+                  {/* Exibir tags adicionadas */}
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="flex items-center gap-1 rounded-full bg-green-500 px-2 py-1 text-xs font-semibold text-white"
+                      >
+                        #{tag}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTag(tag)}
+                          className="ml-1 text-white hover:text-gray-200"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Publicar anonimamente */}

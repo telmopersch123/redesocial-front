@@ -53,15 +53,16 @@ const DialogHelp = () => {
           </div>
 
           {/* Exercício de Respiração */}
-          <div className="flex cursor-pointer items-center gap-3 rounded-2xl bg-[linear-gradient(to_right,#b7e5d5,#b0dae8,#a5cafe)] p-4 shadow-lg transition-all hover:scale-[1.03] hover:shadow-xl">
+          <div
+            onClick={() => {
+              setOpen(false)
+              setOpenBreathing(true)
+              setTypeBreathing('Respiração Profunda')
+            }}
+            className="flex cursor-pointer items-center gap-3 rounded-2xl bg-[linear-gradient(to_right,#b7e5d5,#b0dae8,#a5cafe)] p-4 shadow-lg transition-all hover:scale-[1.03] hover:shadow-xl"
+          >
             <Wind className="h-6 w-6 text-foreground/80" />
-            <div
-              onClick={() => {
-                setOpen(false)
-                setOpenBreathing(true)
-                setTypeBreathing('Respiração Profunda')
-              }}
-            >
+            <div>
               <p className="text-base font-semibold text-foreground">
                 Exercício de Respiração
               </p>

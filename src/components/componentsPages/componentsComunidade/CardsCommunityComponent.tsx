@@ -12,7 +12,7 @@ import {
 const CardsCommunityComponent = () => {
   return (
     // CardsComponent.tsx
-    <Card className="backface-hidden !mb-5 w-[calc(100vw-3rem)] flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 ease-out will-change-transform hover:z-10 hover:-translate-y-1 hover:scale-100 hover:shadow-lg md:w-full">
+    <Card className="!mb-5 w-[calc(100vw-3rem)] flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 ease-out will-change-transform hover:z-10 hover:-translate-y-1 hover:scale-100 hover:shadow-lg md:w-full">
       <CardHeader className="m-0 p-0">
         <div className="flex h-[100px] items-center justify-center rounded-lg bg-slate-400/50">
           <p className="text-5xl">😰</p>

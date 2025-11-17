@@ -23,8 +23,8 @@ import {
 import { Textarea } from '../../components/ui/textarea'
 import { useLimitForms } from '../../hooks/useLimitForms'
 interface ConfigCommunityProps {
-  showButtonReturn: boolean
-  methodW_fullscreen: boolean
+  showButtonReturn?: boolean
+  methodW_fullscreen?: boolean
 }
 const ConfigCommunity = ({
   showButtonReturn,

@@ -13,7 +13,8 @@ import {
 import React, { useState } from 'react'
 import { useLimitForms } from '../../../hooks/useLimitForms'
 
-import type { Post } from '../../../pages/community/AreaCommunitiesUserPage'
+import type { Post } from '../../../types'
+import { Badge } from '../../ui/badge'
 import { Button } from '../../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
 import { Input } from '../../ui/input'
@@ -23,14 +24,11 @@ interface PostCardProps {
   valuePost: Post
   setPosts: React.Dispatch<React.SetStateAction<Post[]>>
 }
-const CardsPostCommunityComponent = ({
-  posts,
-  valuePost,
-  setPosts,
-}: PostCardProps) => {
+const CardsPostComponent = ({ posts, valuePost, setPosts }: PostCardProps) => {
   const [comentarioAberto, setComentarioAberto] = useState<number | null>(null)
   const [novoComentario, setNovoComentario] = useState('')
   const comentarios = useLimitForms(5000)
+
   const handleLike = (id: number) => {
     setPosts(
       posts.map((p: Post) =>
@@ -94,17 +92,25 @@ const CardsPostCommunityComponent = ({
           <div>
             <CardTitle className="text-base text-gray-800">
               <span className="font-semibold text-purple-600">
-                {valuePost.comunidade}
+                {valuePost.community}
               </span>{' '}
               • {valuePost.autor}
             </CardTitle>
-            <p className="flex items-center gap-1 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Clock className="h-3 w-3" />
               {formatDistanceToNow(valuePost.data, {
                 addSuffix: true,
                 locale: ptBR,
               })}
-            </p>
+              {valuePost.friend && (
+                <Badge
+                  variant="secondary"
+                  className="bg-green-500 text-white hover:bg-green-600"
+                >
+                  Amigo
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -116,7 +122,7 @@ const CardsPostCommunityComponent = ({
           <div className="relative -mx-6 mt-3 h-[500px] overflow-hidden rounded-b-xl bg-gray-100">
             <img
               src={valuePost.imagem}
-              alt={valuePost.comunidade}
+              alt={valuePost.community}
               className="h-full w-full object-cover"
             />
             {valuePost.video && (
@@ -258,9 +264,9 @@ const CardsPostCommunityComponent = ({
                         </p>
 
                         {/* Parágrafo - ocupa todo o espaço disponível */}
-                        <div className="mt-10 max-h-[100px] max-w-[1000px] overflow-x-auto rounded-lg bg-black/[0.02] text-sm text-gray-700 sm:mt-0 sm:max-h-[200px] sm:!max-w-[800px] sm:p-1">
+                        <section className="mt-10 max-h-[100px] max-w-[1000px] overflow-x-auto rounded-lg bg-black/[0.02] text-sm text-gray-700 sm:mt-0 sm:max-h-[200px] sm:!max-w-[800px] sm:p-1">
                           <p className="break-all">{c.texto}</p>
-                        </div>
+                        </section>
                       </div>
                     </div>
                   </div>
@@ -325,4 +331,4 @@ const CardsPostCommunityComponent = ({
   )
 }
 
-export default CardsPostCommunityComponent
+export default CardsPostComponent

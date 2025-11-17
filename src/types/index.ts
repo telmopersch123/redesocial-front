@@ -11,3 +11,27 @@ export type BibliotecaApoioItem = {
 export type BibliotecaApoioItems = {
   item: BibliotecaApoioItem
 }
+
+// tipos para os posts
+interface Comentario {
+  id: number
+  autor: string
+  texto: string
+}
+
+export interface Post {
+  id: number
+  typePosts: 'Feliz' | 'Esperançoso' | 'Ansioso' | 'Agradecido' | 'Triste'
+  community?: string
+  autor: string
+  avatar: string | null
+  friend: boolean
+  conteudo: string
+  imagem?: string
+  video?: boolean
+  data: Date
+  likes: number
+  comentarios: Comentario[]
+  salvo: boolean
+  tags: string[]
+}

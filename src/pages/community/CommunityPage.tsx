@@ -1,7 +1,7 @@
+import { AnimatePresence, motion } from 'framer-motion'
 import { PlusCircle, Users } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-
 import CardsCommunityComponent from '../../components/componentsPages/componentsComunidade/CardsCommunityComponent'
 import PaginationComponent from '../../components/componentsPages/componentsComunidade/PaginationComponent'
 import { Button } from '../../components/ui/button'
@@ -46,13 +46,21 @@ const CommunityPage = () => {
       </div>
 
       {/* cards */}
-      <div className="animate-stagger mt-10 grid grid-cols-1 gap-6 gap-y-14 md:grid-cols-2 xl:grid-cols-3">
-        {currentItems.map((_, index) => (
-          <div key={index} className="h-[280px] w-full">
-            <CardsCommunityComponent />
-          </div>
-        ))}
-      </div>
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0, height: 0, y: 20 }} // começa 20px abaixo
+          animate={{ opacity: 1, height: 'auto', y: 0 }} // sobe para a posição normal
+          exit={{ opacity: 0, height: 0, y: 20 }} // sai descendo
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="mt-10 grid min-h-[650px] grid-cols-1 gap-6 gap-y-14 md:grid-cols-2 xl:grid-cols-3"
+        >
+          {currentItems.map((_, index) => (
+            <div key={index} className="h-[280px] w-full">
+              <CardsCommunityComponent />
+            </div>
+          ))}
+        </motion.div>
+      </AnimatePresence>
 
       {/* paginação */}
       <div className="mt-10 flex justify-center text-muted-foreground">

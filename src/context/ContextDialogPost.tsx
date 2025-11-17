@@ -5,6 +5,8 @@ interface CriarPostDialogContextType {
   isOpen: boolean
   open: () => void
   close: () => void
+  postCommunity: boolean
+  setPostCommunity: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const CriarPostDialogContext = createContext<
@@ -13,11 +15,14 @@ const CriarPostDialogContext = createContext<
 
 export function CriarPostDialogProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false)
+  const [postCommunity, setPostCommunity] = useState<boolean>(false)
   const open = () => setIsOpen(true)
   const close = () => setIsOpen(false)
 
   return (
-    <CriarPostDialogContext.Provider value={{ isOpen, open, close }}>
+    <CriarPostDialogContext.Provider
+      value={{ isOpen, open, close, postCommunity, setPostCommunity }}
+    >
       {children}
     </CriarPostDialogContext.Provider>
   )

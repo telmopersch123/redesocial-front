@@ -207,7 +207,7 @@ const UsersCommunityDialog = () => {
         description="Usuarios da Comunidade"
       />
 
-      <DialogContent className="h-[800px] w-[98%] overflow-y-auto rounded-xl border-none sm:max-w-3xl">
+      <DialogContent className="h-[700px] w-[98%] overflow-y-auto rounded-xl border-none im:h-[800px] md:max-w-3xl">
         <DialogHeader>
           <div className="flex flex-col gap-1">
             <DialogTitle>Membros da comunidade</DialogTitle>
@@ -219,10 +219,10 @@ const UsersCommunityDialog = () => {
         </DialogHeader>
 
         <div className="mt-4 flex flex-col gap-3">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex w-full items-center gap-3">
-              <div className="flex w-full items-center gap-2">
-                <div className="relative flex w-full items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex flex-col items-center gap-3 sm:flex-row md:w-full">
+              <div className="flex items-center gap-2 md:w-full">
+                <div className="relative flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 shadow-sm md:w-full">
                   <Search className="h-4 w-4 text-gray-400" />
                   <Input
                     value={query}
@@ -231,7 +231,7 @@ const UsersCommunityDialog = () => {
                       setPage(1)
                     }}
                     placeholder="Buscar por nome ou usuário..."
-                    className="w-full border-0 px-0 py-0 focus:ring-0"
+                    className="w-full border-0 px-0 py-0 pl-2 focus:ring-0"
                   />
                 </div>
               </div>
@@ -256,7 +256,7 @@ const UsersCommunityDialog = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center gap-2 sm:justify-start">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -267,7 +267,7 @@ const UsersCommunityDialog = () => {
                 Atualizar
               </Button>
               <Button
-                className="hidden items-center gap-2 sm:inline-flex"
+                className="inline-flex items-center gap-2"
                 onClick={() => alert('Tela de convite (implementar)')}
               >
                 <UserPlus className="h-4 w-4" /> Convidar
@@ -287,7 +287,7 @@ const UsersCommunityDialog = () => {
                   key={u.id}
                   className="flex items-center justify-between gap-3 rounded-lg border border-gray-100 bg-white p-3 shadow-sm"
                 >
-                  <div className="flex w-[120px] items-center gap-3 sm:w-[500px]">
+                  <div className="flex w-[120px] items-center gap-3 md:w-[500px]">
                     {/* Avatar: se seu projeto não tem Avatar component, substitua com markup */}
                     <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-indigo-400 font-semibold text-white">
                       {u.name
@@ -377,8 +377,8 @@ const UsersCommunityDialog = () => {
           </div>
 
           {/* Ações em massa + paginação */}
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:justify-between">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-3 md:justify-between">
+            <div className="flex flex-col items-center gap-2 im:flex-row">
               <Button variant="outline" onClick={selectAllPage}>
                 <CheckSquare className="h-4 w-4" /> Selecionar Todos
               </Button>

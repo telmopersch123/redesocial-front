@@ -1,6 +1,7 @@
 import {
   BookHeart,
   Heart,
+  HeartHandshake,
   Home,
   MessageCircle,
   MessageCircleDashed,
@@ -33,7 +34,8 @@ import { Button } from '../../ui/button'
 // Menu items
 const items = [
   { title: 'Feed', url: '/', icon: Home },
-  { title: 'Comunidades', url: '/comunidades', icon: UsersRound },
+  { title: 'Comunidades', url: '/comunidades', icon: HeartHandshake },
+  { title: 'Usuarios', url: '/usuarios', icon: UsersRound },
   { title: 'Mensagens', url: '/mensagens', icon: MessageCircle },
   { title: 'Diário', url: '/diario', icon: BookHeart },
   { title: 'Autocuidado', url: '/autocuidado', icon: Heart },
@@ -44,7 +46,7 @@ const comunidades = [
   'Fé & Espiritualidade',
 ] as const
 export function AppSidebar() {
-  const { open } = useCriarPostDialog()
+  const { open, setPostCommunity } = useCriarPostDialog()
 
   const [active, setActive] = useState('Feed')
   const { setOpenMobile } = useSidebar()
@@ -63,7 +65,6 @@ export function AppSidebar() {
       pathname === '/comunidades/criar' ||
       pathname === '/comunidades/usuario/config'
     ) {
-      console.log('ENTROU?')
       setActive('Comunidades')
     } else {
       setActive(itemPathe?.title || 'Feed')
@@ -145,15 +146,16 @@ export function AppSidebar() {
 
                     <div className="mb-4 flex flex-col gap-3">
                       <Button
-                        onClick={open}
+                        onClick={() => {
+                          open()
+                          setPostCommunity(true)
+                        }}
                         className="bg-linear-purple w-full justify-start text-sm text-white shadow-md hover:shadow-lg"
                       >
                         <MessageCircleDashed className="mr-2 h-4 w-4" />
                         Criar post
                       </Button>
                     </div>
-
-                    <Separator className="my-3" />
 
                     <div className="max-h-96 space-y-1 overflow-y-auto">
                       <Button
