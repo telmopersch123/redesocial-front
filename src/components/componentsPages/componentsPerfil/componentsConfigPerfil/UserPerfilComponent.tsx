@@ -1,8 +1,8 @@
 import { Images, Trash, User } from 'lucide-react'
 import { useRef } from 'react'
-import { Avatar, AvatarFallback } from '../../ui/avatar'
-import { Badge } from '../../ui/badge'
-import { Card, CardContent } from '../../ui/card'
+import { Avatar, AvatarFallback } from '../../../ui/avatar'
+import { Badge } from '../../../ui/badge'
+import { Card, CardContent } from '../../../ui/card'
 import { ConfigDialog } from './ConfigDialog'
 
 interface UserPerfilComponentProps {

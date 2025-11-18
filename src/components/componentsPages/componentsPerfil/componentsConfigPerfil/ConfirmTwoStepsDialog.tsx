@@ -1,4 +1,4 @@
-import { Button } from '../../ui/button'
+import { Button } from '../../../ui/button'
 import {
   Dialog,
   DialogClose,
@@ -7,7 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../../ui/dialog'
+} from '../../../ui/dialog'
 
 interface Dialog2EtapasProps {
   confirmDialogOpen: boolean

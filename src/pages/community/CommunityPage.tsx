@@ -23,10 +23,10 @@ const CommunityPage = () => {
       <Outlet />
       <div className="items-left flex flex-col flex-wrap items-center justify-between gap-2 sm:flex-row sm:items-end">
         <div className="min-w-0 max-w-[90%]">
-          <h1 className="text-center text-3xl font-bold text-gray-800 md:text-left">
+          <h1 className="text-center text-xl font-bold text-gray-800 md:text-left md:text-4xl">
             Comunidades
           </h1>
-          <p className="mt-3 whitespace-normal break-words text-center text-sm text-muted-foreground sm:text-base md:text-left md:text-lg lg:text-xl">
+          <p className="mt-3 whitespace-normal break-words text-center text-base text-gray-500 text-muted-foreground md:text-left md:text-lg lg:text-xl">
             Encontre apoio em grupos com interesses comuns
           </p>
         </div>
@@ -54,7 +54,7 @@ const CommunityPage = () => {
           animate={{ opacity: 1, height: 'auto', y: 0 }} // sobe para a posição normal
           exit={{ opacity: 0, height: 0, y: 20 }} // sai descendo
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="mt-10 grid min-h-[650px] grid-cols-1 gap-6 gap-y-14 md:grid-cols-2 xl:grid-cols-3"
+          className="mt-10 grid min-h-[650px] grid-cols-1 gap-6 gap-y-14 ym:grid-cols-2 xl:grid-cols-3"
         >
           {currentItems.map((_, index) => (
             <div key={index} className="h-[280px] w-full">

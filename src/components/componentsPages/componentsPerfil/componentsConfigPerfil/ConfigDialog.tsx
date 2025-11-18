@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Button } from '../../ui/button'
+import { Button } from '../../../ui/button'
 import {
   Dialog,
   DialogClose,
@@ -10,9 +10,9 @@ import {
   DialogOverlay,
   DialogTitle,
   DialogTrigger,
-} from '../../ui/dialog'
-import { Label } from '../../ui/label'
-import { Switch } from '../../ui/switch'
+} from '../../../ui/dialog'
+import { Label } from '../../../ui/label'
+import { Switch } from '../../../ui/switch'
 import ConfirmDialog2Etapas from './ConfirmTwoStepsDialog'
 import DialogEditNome from './EditNomeDialog'
 import NavbarConfig from './NavbarConfigComponent'

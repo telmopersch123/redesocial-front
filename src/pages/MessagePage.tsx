@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react'
 import { Button } from '../components/ui/button'
 const MessagePage = () => {
   const [selectedChat, setSelectedChat] = useState<number | null>(null)
-  const [clickedOpen, setClickedOpen] = useState<boolean>(false)
+  const [contatMessage, setContatMessage] = useState<boolean>(false)
+  const [chatMenssage, setChatMessage] = useState<boolean>(false)
   const contatos: Array<{
     id: number
     nome: string
@@ -36,17 +37,23 @@ const MessagePage = () => {
     },
     { id: 5, nome: 'Ana Paula', ultimaMsg: 'Até logo 👋', hora: '09:12' },
   ]
+  const responsive = 1000
   useEffect(() => {
     setSelectedChat(null)
-    setClickedOpen(false)
+    setContatMessage(false)
   }, [])
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768 && selectedChat !== null) {
-        setClickedOpen(true)
-      } else if (window.innerWidth >= 768) {
-        setClickedOpen(false)
+      if (window.innerWidth < responsive && selectedChat !== null) {
+        setContatMessage(true)
+      } else if (window.innerWidth >= responsive) {
+        setContatMessage(false)
+      }
+      if (window.innerWidth < responsive && selectedChat === null) {
+        setChatMessage(false)
+      } else {
+        setChatMessage(true)
       }
     }
     handleResize()
@@ -56,11 +63,16 @@ const MessagePage = () => {
   }, [selectedChat])
 
   const handleOpen = (id: number) => {
+    if (selectedChat === id) {
+      return
+    }
     setSelectedChat(id)
     if (window.innerWidth < 768) {
-      setClickedOpen(true)
+      setContatMessage(true)
+      setChatMessage(true)
     } else {
-      setClickedOpen(false)
+      setContatMessage(false)
+      setChatMessage(false)
     }
   }
 
@@ -68,7 +80,7 @@ const MessagePage = () => {
     <div className="flex h-screen w-full flex-col gap-0 p-2 md:w-[calc(100vw-16rem)] md:flex-row md:gap-4 md:p-4 dm:w-[calc(100vw-18rem)]">
       {/* ===== LISTA DE CONVERSAS ===== */}
       <div
-        className={`mt-10 flex min-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-gray-300 bg-white md:mt-0 md:w-1/2 dm:w-1/4 lg:w-1/4 ${clickedOpen && 'max-[767px]:hidden'}`} // esconde a
+        className={`mt-10 flex min-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-gray-300 bg-white md:mt-0 dm:w-1/2 ${contatMessage && 'hidden'}`}
       >
         <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
           <div className="flex items-center gap-2">
@@ -82,7 +94,9 @@ const MessagePage = () => {
             contatos.map((contato) => (
               <Button
                 key={contato.id}
-                onClick={() => handleOpen(contato.id)}
+                onClick={() => {
+                  handleOpen(contato.id)
+                }}
                 variant="ghost"
                 className={`group flex w-full items-center gap-3 rounded-none border-b border-gray-100 px-4 py-10 text-left transition-all duration-150 hover:bg-gray-50 active:scale-[0.99] ${
                   selectedChat === contato.id ? 'bg-gray-100' : 'bg-transparent'
@@ -128,15 +142,18 @@ const MessagePage = () => {
       {/* ===== ÁREA DO CHAT ===== */}
 
       <div
-        className={`mt-10 min-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-gray-300 bg-white md:mt-0 md:w-1/2 dm:w-3/4 lg:w-3/4 ${window.innerWidth < 768 ? (clickedOpen ? 'flex' : 'hidden') : 'flex'}`}
+        className={`mt-10 min-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-gray-300 bg-white md:mt-0 md:w-full lg:w-3/4 ${chatMenssage ? 'flex' : 'hidden'}`}
       >
         {selectedChat !== null ? (
           <div className="flex flex-1 flex-col p-6">
             {/* ===== HEADER DO CHAT ===== */}
             <div className="relative flex items-center border-b pb-3">
               <button
-                onClick={() => setClickedOpen(false)}
-                className="absolute left-0 mr-2 flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 md:hidden"
+                onClick={() => {
+                  setSelectedChat(null)
+                  setContatMessage(false)
+                }}
+                className="left-0 mr-2 flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-100 dm:hidden"
               >
                 <ArrowLeft className="h-5 w-5 text-gray-700" />
               </button>

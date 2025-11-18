@@ -1,7 +1,7 @@
 import { AlertCircle, Edit2 } from 'lucide-react'
-import { useLimitForms } from '../../../hooks/useLimitForms'
-import { MessageForms } from '../../formCustomer/MessageForms'
-import { Button } from '../../ui/button'
+import { useLimitForms } from '../../../../hooks/useLimitForms'
+import { MessageForms } from '../../../formCustomer/MessageForms'
+import { Button } from '../../../ui/button'
 import {
   Dialog,
   DialogClose,
@@ -11,8 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../../ui/dialog'
-import { Input } from '../../ui/input'
+} from '../../../ui/dialog'
+import { Input } from '../../../ui/input'
 
 interface DialogEditNomeProps {
   nomeUser: string | null

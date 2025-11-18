@@ -1,19 +1,19 @@
 import { Edit2, X } from 'lucide-react'
 import { useState } from 'react'
-import { useLimitForms } from '../../../hooks/useLimitForms'
-import { MessageForms } from '../../formCustomer/MessageForms'
-import { Button } from '../../ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
-import { Label } from '../../ui/label'
+import { useLimitForms } from '../../../../hooks/useLimitForms'
+import { MessageForms } from '../../../formCustomer/MessageForms'
+import { Button } from '../../../ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../ui/card'
+import { Label } from '../../../ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../ui/select'
-import { Separator } from '../../ui/separator'
-import { Textarea } from '../../ui/textarea'
+} from '../../../ui/select'
+import { Separator } from '../../../ui/separator'
+import { Textarea } from '../../../ui/textarea'
 import DialogAddMetodo from './AddMetodoDialog'
 
 interface InformacaoBasicaProps {

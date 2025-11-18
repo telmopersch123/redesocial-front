@@ -33,7 +33,7 @@ const DiaryPage = () => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.25, delay: 0.1 }}
-          className="flex w-full flex-col justify-between gap-2 dm:flex-row xl:w-[400px] xl:flex-col xl:justify-start"
+          className="flex w-full flex-col justify-between gap-2 dm:flex-row dm:items-center xl:w-[400px] xl:flex-col xl:items-stretch xl:justify-start"
         >
           {/* Calendário - RÁPIDO */}
 

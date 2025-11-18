@@ -26,15 +26,20 @@ const CardsCommunityComponent = () => {
           </CardDescription>
         </div>
       </CardHeader>
-      <CardContent className="mt-5 flex justify-start gap-10 px-5">
+      <CardContent className="mt-5 flex items-center justify-between px-5 py-2">
+        {/* Membros */}
         <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <UsersRound className="h-4 w-4" />
-          <p>0 membros</p>
+          <UsersRound className="h-5 w-5 text-purple-500/70" />
+          <p className="text-[13px]">0 membros</p>
         </div>
-        <p className="rounded-md border border-muted-foreground/20 px-2 font-semibold text-black/70">
-          0 posts
-        </p>
+
+        {/* Postagens */}
+        <div className="flex items-center gap-1 rounded-lg border border-muted-foreground/10 bg-muted/20 px-3 py-1">
+          <span className="text-sm font-semibold text-purple-600">5000</span>
+          <p className="text-sm text-muted-foreground">postagens</p>
+        </div>
       </CardContent>
+
       <CardFooter>
         <Button className="bg-linear-purple w-full rounded-xl transition-all ease-linear hover:shadow-md">
           {' '}

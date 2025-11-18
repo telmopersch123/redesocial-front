@@ -4,6 +4,7 @@ import AreaCommunitiesUserPage from '../pages/community/AreaCommunitiesUserPage'
 import CommunityPage from '../pages/community/CommunityPage'
 import ConfigCommunity from '../pages/community/ConfigCommunity'
 import CreateCommunityPage from '../pages/community/CreateCommunityPage'
+import ConfigPerfilPage from '../pages/ConfigPerfilPage'
 import DiaryPage from '../pages/DiaryPage'
 import FeedPage from '../pages/FeedPage'
 import MessagePage from '../pages/MessagePage'
@@ -23,10 +24,14 @@ export default function AppRoutes() {
           <Route path="config" element={<ConfigCommunity />} />
         </Route>
       </Route>
+      <Route path="/perfil">
+        <Route index element={<PerfilPage />} />
+        <Route path="config" element={<ConfigPerfilPage />} />
+      </Route>
+      ////
       <Route path="/mensagens" element={<MessagePage />} />
       <Route path="/diario" element={<DiaryPage />} />
       <Route path="/autocuidado" element={<SelfCarePage />} />
-      <Route path="/perfil" element={<PerfilPage />} />
       <Route path="/usuarios" element={<Users />} />
     </Routes>
   )
