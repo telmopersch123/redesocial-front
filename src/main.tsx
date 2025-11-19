@@ -3,10 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 
 import { BrowserRouter } from 'react-router-dom'
-import BreathingComponent from './components/componentsPages/componentsBreathing/BreathingComponent.tsx'
-import { PostDialog } from './components/componentsPages/componentsFeed/PostDialog.tsx'
-import { AppSidebar } from './components/componentsPages/Navbar/navbar.tsx'
-import { SidebarProvider, SidebarTrigger } from './components/ui/sidebar.tsx'
+import { SidebarProvider } from './components/ui/sidebar.tsx'
 import BreathingProvider from './context/BreathingContext.tsx'
 import { ComunidadesProvider } from './context/CommunityContext.tsx'
 import { CriarPostDialogProvider } from './context/ContextDialogPost.tsx'
@@ -18,13 +15,7 @@ createRoot(document.getElementById('root')!).render(
         <ComunidadesProvider>
           <SidebarProvider>
             <CriarPostDialogProvider>
-              <BreathingComponent />
-              <AppSidebar />
-              <main className="flex-shrink-0 overflow-x-auto">
-                <SidebarTrigger className="absolute left-0 top-0 m-3 bg-gray-500/5 p-3 transition-all ease-linear hover:bg-gray-500/15" />
-                <PostDialog />
-                <App />
-              </main>
+              <App />
             </CriarPostDialogProvider>
           </SidebarProvider>
         </ComunidadesProvider>

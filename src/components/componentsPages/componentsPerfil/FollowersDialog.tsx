@@ -1,4 +1,5 @@
 import { Heart } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import {
   Avatar,
   AvatarFallback,
@@ -12,9 +13,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../../components/ui/dialog'
+import type { Persons } from '../../../types'
+import { filter } from '../../../utils/functions'
+import { Input } from '../../ui/input'
 
 // Dados fictícios — substitua depois pela lista real
-const seguidores = [
+
+let seguidores: Persons[] = [
   { id: 1, nome: 'Julia Ferreira', avatar: '' },
   { id: 2, nome: 'Matheus Costa', avatar: '' },
   { id: 3, nome: 'Camila Rocha', avatar: '' },
@@ -28,8 +33,23 @@ const seguidores = [
 ]
 
 export function FollowersDialog() {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState<string>('')
+  const [seguidoresFiltrados, setSeguidoresFiltrados] = useState(seguidores)
+  const [empty, setEmpty] = useState(false)
+  useEffect(() => {
+    if (open) {
+      setSearch('')
+      filter(search, seguidores, setSeguidoresFiltrados, setEmpty)
+    }
+  }, [open])
+  useEffect(() => {
+    if (open) {
+      filter(search, seguidores, setSeguidoresFiltrados, setEmpty)
+    }
+  }, [search])
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button className="flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-2 transition-colors hover:bg-muted">
           <span className="text-xl font-bold text-foreground">1.2k</span>
@@ -48,10 +68,18 @@ export function FollowersDialog() {
           <p className="mt-2 text-center text-muted-foreground">
             {seguidores.length} pessoas seguindo
           </p>
+          <div>
+            <Input
+              type="text"
+              placeholder="Buscar seguidores"
+              className="mt-4"
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
         </DialogHeader>
 
-        <div className="mt-6 max-h-96 space-y-3 overflow-y-auto">
-          {seguidores.map((seguidor) => (
+        <div className="mt-6 h-[500px] space-y-3 overflow-y-auto">
+          {seguidoresFiltrados.map((seguidor) => (
             <div
               key={seguidor.id}
               className="flex items-center gap-4 rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50"
@@ -76,6 +104,11 @@ export function FollowersDialog() {
               </Button>
             </div>
           ))}
+          {empty && (
+            <p className="mb-4 flex items-center justify-center text-muted-foreground">
+              Nenhum usuário encontrado
+            </p>
+          )}
         </div>
       </DialogContent>
     </Dialog>

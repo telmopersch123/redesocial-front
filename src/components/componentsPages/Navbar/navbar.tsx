@@ -11,7 +11,7 @@ import {
   UsersRound,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useParams } from 'react-router-dom'
 import { Separator } from '../../ui/separator'
 import {
   Sidebar,
@@ -52,18 +52,23 @@ export function AppSidebar() {
   const { setOpenMobile } = useSidebar()
   const { isInComunidades, filtro, setFiltro } = useComunidades()
   const location = useLocation()
-  const pathname = location.pathname
 
+  const pathname = location.pathname
+  const { id } = useParams()
+  console.log(pathname)
   useEffect(() => {
     setOpenMobile(false)
 
     const itemPathe = items.find((item) => item.url === pathname)
-    if (pathname === '/perfil') {
+
+    if (pathname === `/perfil/${id}`) {
       setActive('Perfil')
+    } else if (pathname === `/usuarios/perfil/${id}`) {
+      setActive('Usuarios')
     } else if (
-      pathname === '/comunidades/usuario' ||
+      pathname === '/comunidades/comunidade-do-usuario' ||
       pathname === '/comunidades/criar' ||
-      pathname === '/comunidades/usuario/config'
+      pathname === '/comunidades/comunidade-do-usuario/config'
     ) {
       setActive('Comunidades')
     } else {
@@ -195,7 +200,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-t border-muted p-4">
-        <NavLink onClick={() => setActive('Perfil')} to="/perfil">
+        <NavLink onClick={() => setActive('Perfil')} to={`/perfil/${0}`}>
           <div
             className={`${
               active === 'Perfil'

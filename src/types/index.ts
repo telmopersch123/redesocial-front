@@ -19,6 +19,12 @@ interface Comentario {
   texto: string
 }
 
+export type Persons = {
+  id: number
+  nome: string
+  avatar: string
+}
+
 export interface Post {
   id: number
   typePosts: 'Feliz' | 'Esperançoso' | 'Ansioso' | 'Agradecido' | 'Triste'

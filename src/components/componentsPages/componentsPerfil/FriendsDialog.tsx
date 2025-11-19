@@ -1,4 +1,5 @@
 import { Users } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import {
   Avatar,
   AvatarFallback,
@@ -12,9 +13,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../../components/ui/dialog'
+import type { Persons } from '../../../types'
+import { filter } from '../../../utils/functions'
+import { Input } from '../../ui/input'
 
 // Dados fictícios — depois você troca pela lista real
-const amigos = [
+const amigos: Persons[] = [
   { id: 1, nome: 'Ana Clara', avatar: '' },
   { id: 2, nome: 'Pedro Henrique', avatar: '' },
   { id: 3, nome: 'Mariana Silva', avatar: '' },
@@ -26,8 +30,25 @@ const amigos = [
 ]
 
 export function FriendsDialog() {
+  const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState<string>('')
+  const [amigosFiltrados, setAmigosFiltrados] = useState(amigos)
+  const [empty, setEmpty] = useState(false)
+
+  useEffect(() => {
+    if (open) {
+      setSearch('')
+      filter(search, amigos, setAmigosFiltrados, setEmpty)
+    }
+  }, [open])
+  useEffect(() => {
+    if (open) {
+      filter(search, amigos, setAmigosFiltrados, setEmpty)
+    }
+  }, [search])
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {/* Use onde quiser (ex: no lugar do "150 amigos") */}
         <button className="flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-2 transition-colors hover:bg-muted">
@@ -47,10 +68,18 @@ export function FriendsDialog() {
           <p className="mt-2 text-center text-muted-foreground">
             {amigos.length} amigos
           </p>
+          <div>
+            <Input
+              type="text"
+              placeholder="Buscar seguidores"
+              className="mt-4"
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
         </DialogHeader>
 
-        <div className="mt-6 max-h-96 space-y-3 overflow-y-auto">
-          {amigos.map((amigo) => (
+        <div className="mt-6 h-[500px] space-y-3 overflow-y-auto">
+          {amigosFiltrados.map((amigo) => (
             <div
               key={amigo.id}
               className="flex items-center gap-4 rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50"
@@ -75,6 +104,11 @@ export function FriendsDialog() {
               </Button>
             </div>
           ))}
+          {empty && (
+            <p className="mb-4 flex items-center justify-center text-muted-foreground">
+              Nenhum usuário encontrado
+            </p>
+          )}
         </div>
       </DialogContent>
     </Dialog>

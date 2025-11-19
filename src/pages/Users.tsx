@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Lottie from 'lottie-react'
 import { Search, User, Users as UsersIcon } from 'lucide-react'
 import { useState } from 'react'
+import { NavLink } from 'react-router-dom'
 import connectionAnimate from '../assets/animations/connectionAnimate.json'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Button } from '../components/ui/button'
@@ -126,9 +127,11 @@ const Users = () => {
                       </div>
                     </div>
 
-                    <button className="w-full rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-purple-700 hover:shadow-md active:scale-95 om:w-fit">
-                      Perfil
-                    </button>
+                    <NavLink to={`perfil/${user.id}`}>
+                      <Button className="h-[50px] w-full rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-purple-700 hover:shadow-md active:scale-95 om:w-fit">
+                        Perfil
+                      </Button>
+                    </NavLink>
                   </Card>
                 </motion.div>
               ))}

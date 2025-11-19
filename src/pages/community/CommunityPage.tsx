@@ -31,7 +31,7 @@ const CommunityPage = () => {
           </p>
         </div>
         <div className="flex flex-col items-center gap-2 md:flex-row">
-          <NavLink to="usuario">
+          <NavLink to="comunidade-do-usuario">
             <Button className="bg-linear-purple transition-shadow duration-300 ease-in-out hover:shadow-md">
               <Users className="mr-2 h-4 w-4" />
               Minhas comunidades
