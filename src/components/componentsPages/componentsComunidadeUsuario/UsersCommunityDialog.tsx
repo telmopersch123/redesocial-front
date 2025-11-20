@@ -12,6 +12,7 @@ import {
   Users,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { NavLink } from 'react-router-dom'
 import { Button } from '../..//ui/button'
 import {
   Dialog,
@@ -258,15 +259,6 @@ const UsersCommunityDialog = () => {
 
             <div className="flex items-center justify-center gap-2 sm:justify-start">
               <Button
-                variant="outline"
-                onClick={() => {
-                  setOpen(false)
-                  setTimeout(() => setOpen(true), 150)
-                }}
-              >
-                Atualizar
-              </Button>
-              <Button
                 className="inline-flex items-center gap-2"
                 onClick={() => alert('Tela de convite (implementar)')}
               >
@@ -298,27 +290,32 @@ const UsersCommunityDialog = () => {
                     </div>
 
                     {/* Nome e username */}
-                    <div className="flex min-w-0 flex-col">
-                      <div className="flex items-center gap-2">
-                        <span className="truncate text-sm font-semibold text-gray-800">
-                          {u.name}
-                        </span>
+                    <NavLink
+                      to={`/perfil/${u.id}`}
+                      className="flex min-w-0 flex-col"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="truncate text-sm font-semibold text-gray-800">
+                            {u.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            @{u.username}
+                          </span>
+                          <span
+                            className={`-mt-4 ml-2 inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : u.role === 'moderator' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700'}`}
+                          >
+                            {u.role === 'admin' ? (
+                              <Crown className="h-3 w-3" />
+                            ) : null}
+                            {u.role}
+                          </span>
+                        </div>
                         <span className="text-xs text-muted-foreground">
-                          @{u.username}
-                        </span>
-                        <span
-                          className={`-mt-4 ml-2 inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : u.role === 'moderator' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700'}`}
-                        >
-                          {u.role === 'admin' ? (
-                            <Crown className="h-3 w-3" />
-                          ) : null}
-                          {u.role}
+                          Entrou em {u.joinedAt}
                         </span>
                       </div>
-                      <span className="text-xs text-muted-foreground">
-                        Entrou em {u.joinedAt}
-                      </span>
-                    </div>
+                    </NavLink>
                   </div>
                   {/* açoes e informações  */}
                   <div className="flex items-center gap-2">

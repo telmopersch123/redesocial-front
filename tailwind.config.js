@@ -14,6 +14,7 @@ export default {
         ym: '850px',
         dm: '1000px',
         tm: '1340px',
+        ny: '1640px',
       },
       borderRadius: {
         lg: 'var(--radius)',

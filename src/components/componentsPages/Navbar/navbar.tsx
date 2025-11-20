@@ -55,7 +55,7 @@ export function AppSidebar() {
 
   const pathname = location.pathname
   const { id } = useParams()
-  console.log(pathname)
+
   useEffect(() => {
     setOpenMobile(false)
 
@@ -76,7 +76,7 @@ export function AppSidebar() {
     }
   }, [location.pathname])
   return (
-    <Sidebar className="border-r border-muted">
+    <Sidebar className="w-64 border-r border-muted">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="my-4 mt-6 px-3 pb-4">

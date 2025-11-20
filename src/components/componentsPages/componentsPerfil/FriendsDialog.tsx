@@ -13,13 +13,158 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../../components/ui/dialog'
+import { useInfiniteScrollDialog } from '../../../hooks/effectsSkeletons'
 import type { Persons } from '../../../types'
 import { filter } from '../../../utils/functions'
 import { Input } from '../../ui/input'
+import { FollowerSkeleton } from './Skeleton'
 
 // Dados fictícios — depois você troca pela lista real
 const amigos: Persons[] = [
   { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
+  { id: 1, nome: 'Ana Clara', avatar: '' },
+  { id: 2, nome: 'Pedro Henrique', avatar: '' },
+  { id: 3, nome: 'Mariana Silva', avatar: '' },
+  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
+  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
+  { id: 6, nome: 'Gabriel Santos', avatar: '' },
+  { id: 7, nome: 'Laura Mendes', avatar: '' },
+  { id: 8, nome: 'Rafael Lima', avatar: '' },
   { id: 2, nome: 'Pedro Henrique', avatar: '' },
   { id: 3, nome: 'Mariana Silva', avatar: '' },
   { id: 4, nome: 'Lucas Oliveira', avatar: '' },
@@ -35,9 +180,31 @@ export function FriendsDialog() {
   const [amigosFiltrados, setAmigosFiltrados] = useState(amigos)
   const [empty, setEmpty] = useState(false)
 
+  const [visibleCount, setVisibleCount] = useState(10)
+  const [loadedCount, setLoadedCount] = useState(10)
+
+  const hasMore = visibleCount < amigosFiltrados.length
+
+  const { scrollContainerRef, loadMoreRef } = useInfiniteScrollDialog({
+    enabled: open,
+    hasMore,
+    openDelayMs: 350,
+    rootMargin: '300px',
+    onLoadMore: () => {
+      const next = Math.min(visibleCount + 10, amigosFiltrados.length)
+      setVisibleCount(next)
+      setTimeout(() => {
+        setLoadedCount(next)
+      }, 1000)
+    },
+  })
+
   useEffect(() => {
     if (open) {
       setSearch('')
+      setSearch('')
+      setVisibleCount(10)
+      setLoadedCount(10)
       filter(search, amigos, setAmigosFiltrados, setEmpty)
     }
   }, [open])
@@ -78,36 +245,52 @@ export function FriendsDialog() {
           </div>
         </DialogHeader>
 
-        <div className="mt-6 h-[500px] space-y-3 overflow-y-auto">
-          {amigosFiltrados.map((amigo) => (
-            <div
-              key={amigo.id}
-              className="flex items-center gap-4 rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50"
-            >
-              <Avatar className="h-12 w-12">
-                <AvatarImage src={amigo.avatar} alt={amigo.nome} />
-                <AvatarFallback className="bg-linear-purple font-medium text-white">
-                  {amigo.nome
-                    .split(' ')
-                    .map((n) => n[0])
-                    .join('')
-                    .toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+        <div
+          ref={scrollContainerRef}
+          className="mt-6 h-[500px] space-y-3 overflow-y-auto"
+        >
+          {amigosFiltrados.slice(0, visibleCount).map((amigo, index) => {
+            const isLoaded = index < loadedCount
 
-              <div className="flex-1">
-                <p className="font-medium text-foreground">{amigo.nome}</p>
+            return (
+              <div key={amigo.id + '-' + index}>
+                {isLoaded ? (
+                  <div className="flex items-center gap-4 rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={amigo.avatar} alt={amigo.nome} />
+                      <AvatarFallback className="bg-linear-purple font-medium text-white">
+                        {amigo.nome
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                          .toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex-1">
+                      <p className="font-medium text-foreground">
+                        {amigo.nome}
+                      </p>
+                    </div>
+
+                    <Button size="sm" className="bg-linear-purple rounded-full">
+                      Ver perfil
+                    </Button>
+                  </div>
+                ) : (
+                  <FollowerSkeleton />
+                )}
               </div>
+            )
+          })}
 
-              <Button size="sm" className="bg-linear-purple rounded-full">
-                Ver perfil
-              </Button>
-            </div>
-          ))}
           {empty && (
             <p className="mb-4 flex items-center justify-center text-muted-foreground">
               Nenhum usuário encontrado
             </p>
+          )}
+          {visibleCount < amigosFiltrados.length && (
+            <div ref={loadMoreRef} className="col-span-2 h-[1px]" />
           )}
         </div>
       </DialogContent>

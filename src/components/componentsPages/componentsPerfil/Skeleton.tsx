@@ -31,3 +31,21 @@ export const PostCardSkeleton = () => {
     </Card>
   )
 }
+export const FollowerSkeleton = () => {
+  return (
+    <div className="flex items-center gap-4 rounded-xl border bg-card p-4 transition-colors">
+      {/* Avatar */}
+      <Skeleton className="h-12 w-12 rounded-full" />
+
+      {/* Nome */}
+      <div className="flex-1 space-y-2">
+        <Skeleton className="h-5 w-40" /> {/* nome completo */}
+        <Skeleton className="h-3.5 w-28 opacity-60" />{' '}
+        {/* @username ou subtítulo opcional */}
+      </div>
+
+      {/* Botão "Ver perfil" opcional no skeleton */}
+      <Skeleton className="h-9 w-24 rounded-full" />
+    </div>
+  )
+}
