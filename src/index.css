@@ -45,7 +45,7 @@ body[data-state='open'] {
 /* Firefox */
 * {
   scrollbar-width: none; /* scroll mais fino */
-  scrollbar-color: rgba(160, 160, 160, 0) transparent;
+  scrollbar-color: white transparent;
 }
 
 @layer base {

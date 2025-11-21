@@ -1565,7 +1565,7 @@ const PerfilUsuario = () => {
               <Button className="bg-linear-purple rounded-full px-8 font-semibold shadow-lg hover:shadow-xl">
                 Seguir
               </Button>
-              <NavLink to="/mensagens">
+              <NavLink to={`/mensagens/1`}>
                 <Button
                   variant="outline"
                   className="rounded-full border-purple-300 text-purple-700 hover:bg-purple-50"

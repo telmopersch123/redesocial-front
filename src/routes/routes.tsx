@@ -32,6 +32,7 @@ export default function AppRoutes() {
         </Route>
         ////
         <Route path="/mensagens" element={<MessagePage />} />
+        <Route path="/mensagens/:id" element={<MessagePage />} />
         <Route path="/diario" element={<DiaryPage />} />
         <Route path="/autocuidado" element={<SelfCarePage />} />
         <Route path="/usuarios">

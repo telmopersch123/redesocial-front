@@ -71,6 +71,8 @@ export function AppSidebar() {
       pathname === '/comunidades/comunidade-do-usuario/config'
     ) {
       setActive('Comunidades')
+    } else if (pathname === '/mensagens' || pathname === `/mensagens/${id}`) {
+      setActive('Mensagens')
     } else {
       setActive(itemPathe?.title || 'Feed')
     }

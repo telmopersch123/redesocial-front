@@ -1,31 +1,13 @@
 // components/BatePapoSidebar.tsx
-import { formatDistanceToNow } from 'date-fns'
-import { ptBR } from 'date-fns/locale'
-import { ChevronRight, MessageCircle, Search } from 'lucide-react'
+import { ChevronRight, MessageCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
-import { Badge } from '../../..//components/ui/badge'
-import { Input } from '../../..//components/ui/input'
-import { ScrollArea } from '../../..//components/ui/scroll-area'
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from '../../..//components/ui/sidebar'
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '../../../components/ui/avatar'
+import { useLocation } from 'react-router-dom'
+import { Sidebar } from '../../..//components/ui/sidebar'
 import { Button } from '../../ui/button'
-import { Separator } from '../../ui/separator'
 import { Sheet, SheetContent, SheetTrigger } from '../../ui/sheet'
+import { MemoizedSidebarInner } from './SideBarInner'
 
-interface Conversa {
+export interface Conversa {
   id: number
   nome: string
   avatar: string
@@ -97,7 +79,9 @@ const ROTAS_COM_SIDEBAR = ['/', '/comunidades/comunidade-do-usuario']
 export const BatePapoSidebar = () => {
   const { pathname } = useLocation()
   const [isCollapsed, setIsCollapsed] = useState(false)
-  // const timeoutRef = useRef<number | null>(null)
+  const [conversations, setConversations] = useState(conversasFicticias)
+  const [originalConversations] = useState(conversasFicticias)
+  const [search, setSearch] = useState('')
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= BREAKPOINT)
   const [isOpen, setIsOpen] = useState(true)
   const [isActive, setIsActive] = useState(false)
@@ -125,114 +109,21 @@ export const BatePapoSidebar = () => {
   if (!ROTAS_COM_SIDEBAR.includes(pathname)) {
     return null
   }
-  const SidebarContentComponent = () => (
-    <>
-      <div className="flex min-h-screen flex-col">
-        <SidebarHeader className="border-b p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="rounded-xl bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 p-1 shadow-sm">
-                  <div className="rounded-lg bg-white p-2">
-                    <MessageCircle className="h-8 w-8 text-purple-600" />
-                  </div>
-                </div>
-              </div>
-              <div>
-                <h2 className="text-lg font-bold tracking-tight">Mensagens</h2>
-                <p className="text-xs text-muted-foreground">3 não lidas</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="relative mt-4">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar conversa..."
-              className="bg-muted/50 pl-10 focus:ring-purple-500"
-            />
-          </div>
-        </SidebarHeader>
+  const handleFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setSearch(value)
+    if (value.trim() === '') {
+      setConversations(originalConversations)
+      return
+    }
 
-        <SidebarContent className="h-full">
-          <ScrollArea className="im:w-auto">
-            <SidebarMenu className="space-y-3 p-3">
-              {conversasFicticias.map((conversa) => (
-                <NavLink key={conversa.id} to={`/mensagens`}>
-                  <SidebarMenuItem key={conversa.id}>
-                    <SidebarMenuButton
-                      asChild
-                      className="h-[65px] w-full justify-start gap-3 rounded-lg p-3 transition-all hover:bg-gradient-to-r hover:from-[#f0f3fc] hover:via-[#f0f2fb] hover:to-[#f0f1fb] hover:text-[#3d3a64]"
-                    >
-                      <div className="flex w-full cursor-pointer items-center gap-3">
-                        <div className="relative">
-                          <Avatar className="h-12 w-12 ring-2 ring-background">
-                            <AvatarImage src={conversa.avatar} />
-                            <AvatarFallback>
-                              {conversa.nome
-                                .split(' ')
-                                .map((n) => n[0])
-                                .join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          {conversa.online && (
-                            <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background bg-green-500" />
-                          )}
-                        </div>
+    const filteredConversations = originalConversations.filter((c) =>
+      c.nome.toLowerCase().includes(value.toLowerCase())
+    )
 
-                        <div className="flex-1">
-                          <div className="flex flex-col justify-between im:flex-row">
-                            <p className="font-medium">{conversa.nome}</p>
-                            {conversa.ultimaMensagem && (
-                              <span className="text-xs text-muted-foreground">
-                                {formatDistanceToNow(
-                                  conversa.ultimaMensagem.data,
-                                  {
-                                    addSuffix: true,
-                                    locale: ptBR,
-                                  }
-                                )}
-                              </span>
-                            )}
-                          </div>
-
-                          {conversa.ultimaMensagem ? (
-                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                              {conversa.ultimaMensagem.enviadaPorMim && (
-                                <span className="text-xs">Você: </span>
-                              )}
-                              <span className="w-[50%] truncate im:w-60">
-                                {conversa.ultimaMensagem.texto}
-                              </span>
-                              {conversa.ultimaMensagem.naoLida && (
-                                <Badge className="bg-linear-purple ml-2 flex h-5 w-5 justify-center rounded-full p-0 text-xs text-white">
-                                  1
-                                </Badge>
-                              )}
-                            </div>
-                          ) : (
-                            <p className="text-sm italic text-muted-foreground">
-                              Nenhuma mensagem ainda
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </SidebarMenuButton>
-                    <Separator className="mt-2" />
-                  </SidebarMenuItem>
-                </NavLink>
-              ))}
-            </SidebarMenu>
-          </ScrollArea>
-        </SidebarContent>
-        <SidebarFooter className="border-t p-4 text-center">
-          <p className="text-xs text-muted-foreground">
-            Tess • Apoio emocional 24h
-          </p>
-        </SidebarFooter>
-      </div>
-    </>
-  )
+    setConversations(filteredConversations)
+  }
 
   const activeThreeSeconds = () => {
     setIsActive(true)
@@ -266,7 +157,15 @@ export const BatePapoSidebar = () => {
             isCollapsed ? 'w-0 overflow-hidden' : 'w-96'
           }`}
         >
-          <SidebarContentComponent />
+          <MemoizedSidebarInner
+            search={search}
+            onSearchChange={(value) => {
+              handleFilter({
+                target: { value },
+              } as React.ChangeEvent<HTMLInputElement>)
+            }}
+            conversations={conversations}
+          />
         </Sidebar>
       </>
     )
@@ -288,7 +187,15 @@ export const BatePapoSidebar = () => {
         </SheetTrigger>
 
         <SheetContent side="right" className="w-72 p-0 im:w-auto">
-          <SidebarContentComponent />
+          <MemoizedSidebarInner
+            search={search}
+            onSearchChange={(value) => {
+              handleFilter({
+                target: { value },
+              } as React.ChangeEvent<HTMLInputElement>)
+            }}
+            conversations={conversations}
+          />
         </SheetContent>
       </Sheet>
     </>

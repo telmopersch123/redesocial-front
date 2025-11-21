@@ -1,6 +1,7 @@
 import { format } from 'date-fns'
 import { ArrowLeft, Check, MessageCircle, MessageSquare } from 'lucide-react'
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { MessageForms } from '../components/formCustomer/MessageForms'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
@@ -104,6 +105,9 @@ const MessagePage = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const responsive = 1000
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const { id: idUser } = useParams()
+  const pathname = useLocation().pathname
+  const navigateFlex = useNavigate()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
@@ -149,6 +153,7 @@ const MessagePage = () => {
       return
     }
     setSelectedChat(id)
+    navigateFlex(`/mensagens/${id}`)
     if (window.innerWidth < 768) {
       setContatMessage(true)
       setChatMessage(true)
@@ -163,6 +168,14 @@ const MessagePage = () => {
       setMessages(mensagensFicticias[selectedChat] || [])
     }
   }, [selectedChat])
+
+  useEffect(() => {
+    if (idUser !== undefined && idUser !== null && pathname !== '/mensagens') {
+      setSelectedChat(parseInt(idUser))
+    } else {
+      setSelectedChat(null)
+    }
+  }, [idUser])
   const handleSendMessage = () => {
     if (inputText.trim() === '' || inputText.length > 5000) return
 
