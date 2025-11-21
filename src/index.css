@@ -21,15 +21,12 @@ body {
   display: flex;
   flex-direction: column;
   background-color: rgb(255, 255, 255);
+  scrollbar-gutter: stable !important;
 }
-
+body[data-state='open'] {
+  overflow-y: scroll !important;
+}
 /* 🌐 Scrollbar global estilizada */
-
-/* Para navegadores baseados em WebKit (Chrome, Edge, Safari) */
-::-webkit-scrollbar {
-  height: 8px; /* altura da barra horizontal */
-  width: 8px; /* largura da barra vertical */
-}
 
 ::-webkit-scrollbar-track {
   background: transparent; /* trilho transparente */
@@ -47,8 +44,8 @@ body {
 
 /* Firefox */
 * {
-  scrollbar-width: thin; /* scroll mais fino */
-  scrollbar-color: rgba(160, 160, 160, 0.4) transparent;
+  scrollbar-width: none; /* scroll mais fino */
+  scrollbar-color: rgba(160, 160, 160, 0) transparent;
 }
 
 @layer base {
