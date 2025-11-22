@@ -83,6 +83,7 @@ export const BatePapoSidebar = () => {
   const [originalConversations] = useState(conversasFicticias)
   const [search, setSearch] = useState('')
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= BREAKPOINT)
+
   const [isOpen, setIsOpen] = useState(true)
   const [isActive, setIsActive] = useState(false)
 
@@ -105,23 +106,6 @@ export const BatePapoSidebar = () => {
       window.removeEventListener('resize', handleResize)
     }
   }, [isDesktop, pathname])
-
-  useEffect(() => {
-    const body = document.body
-    const observerScroll = new MutationObserver(() => {
-      const overflow = window.getComputedStyle(body).overflow
-      setIsCollapsed(overflow === 'hidden')
-    })
-    observerScroll.observe(body, {
-      attributes: true,
-      attributeFilter: ['style'],
-    })
-    const initialOverflow = window.getComputedStyle(body).overflow
-    setIsCollapsed(initialOverflow === 'hidden')
-    return () => {
-      observerScroll.disconnect()
-    }
-  }, [])
 
   if (!ROTAS_COM_SIDEBAR.includes(pathname)) {
     return null
@@ -146,7 +130,7 @@ export const BatePapoSidebar = () => {
     setIsActive(true)
     setTimeout(() => {
       setIsActive(false)
-    }, 500)
+    }, 200)
   }
 
   if (isDesktop) {
@@ -172,7 +156,7 @@ export const BatePapoSidebar = () => {
 
         <Sidebar
           side="right"
-          className={`fixed z-[30] border-l transition-all duration-300 ${
+          className={`fixed z-[30] w-96 border-l transition-all duration-300 ${
             isCollapsed ? 'w-0 overflow-hidden' : 'w-96'
           }`}
         >

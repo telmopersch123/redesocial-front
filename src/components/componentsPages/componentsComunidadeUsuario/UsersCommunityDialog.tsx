@@ -196,240 +196,247 @@ const UsersCommunityDialog = () => {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <TooltipComponent
-        Tag={
-          <DialogTrigger asChild>
-            <div className="bg-linear-purple -mt-1 cursor-pointer rounded-full p-1 text-white transition-colors hover:text-purple-600">
-              <Users />
+    <>
+      {open && (
+        <div className="fixed inset-0 z-40 flex h-screen items-center justify-center !overflow-hidden bg-black/80"></div>
+      )}
+      <Dialog modal={false} open={open} onOpenChange={setOpen}>
+        <TooltipComponent
+          Tag={
+            <DialogTrigger asChild>
+              <div className="bg-linear-purple -mt-1 cursor-pointer rounded-full p-1 text-white transition-colors hover:text-purple-600">
+                <Users />
+              </div>
+            </DialogTrigger>
+          }
+          description="Usuarios da Comunidade"
+        />
+
+        <DialogContent className="h-[700px] w-[98%] overflow-y-auto rounded-xl border-none im:h-[800px] md:max-w-3xl">
+          <DialogHeader>
+            <div className="flex flex-col gap-1">
+              <DialogTitle>Membros da comunidade</DialogTitle>
+              <p className="text-sm text-muted-foreground">
+                Lista completa de usuários — gerencie funções, convites e
+                moderação.
+              </p>
             </div>
-          </DialogTrigger>
-        }
-        description="Usuarios da Comunidade"
-      />
+          </DialogHeader>
 
-      <DialogContent className="h-[700px] w-[98%] overflow-y-auto rounded-xl border-none im:h-[800px] md:max-w-3xl">
-        <DialogHeader>
-          <div className="flex flex-col gap-1">
-            <DialogTitle>Membros da comunidade</DialogTitle>
-            <p className="text-sm text-muted-foreground">
-              Lista completa de usuários — gerencie funções, convites e
-              moderação.
-            </p>
-          </div>
-        </DialogHeader>
+          <div className="mt-4 flex flex-col gap-3">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex flex-col items-center gap-3 sm:flex-row md:w-full">
+                <div className="flex items-center gap-2 md:w-full">
+                  <div className="relative flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 shadow-sm md:w-full">
+                    <Search className="h-4 w-4 text-gray-400" />
+                    <Input
+                      value={query}
+                      onChange={(e) => {
+                        setQuery(e.target.value)
+                        setPage(1)
+                      }}
+                      placeholder="Buscar por nome ou usuário..."
+                      className="w-full border-0 px-0 py-0 pl-2 focus:ring-0"
+                    />
+                  </div>
+                </div>
 
-        <div className="mt-4 flex flex-col gap-3">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex flex-col items-center gap-3 sm:flex-row md:w-full">
-              <div className="flex items-center gap-2 md:w-full">
-                <div className="relative flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2 shadow-sm md:w-full">
-                  <Search className="h-4 w-4 text-gray-400" />
-                  <Input
-                    value={query}
-                    onChange={(e) => {
-                      setQuery(e.target.value)
+                <div className="flex items-center gap-2 sm:flex">
+                  <Select
+                    onValueChange={(v) => {
+                      setRoleFilter(v as any)
                       setPage(1)
                     }}
-                    placeholder="Buscar por nome ou usuário..."
-                    className="w-full border-0 px-0 py-0 pl-2 focus:ring-0"
-                  />
+                  >
+                    <SelectTrigger className="w-full sm:w-44">
+                      <SelectValue placeholder="Filtrar por função" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos</SelectItem>
+                      <SelectItem value="admin">Administradores</SelectItem>
+                      <SelectItem value="moderator">Moderadores</SelectItem>
+                      <SelectItem value="member">Membros</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 sm:flex">
-                <Select
-                  onValueChange={(v) => {
-                    setRoleFilter(v as any)
-                    setPage(1)
-                  }}
+              <div className="flex items-center justify-center gap-2 sm:justify-start">
+                <Button
+                  className="inline-flex items-center gap-2"
+                  onClick={() => alert('Tela de convite (implementar)')}
                 >
-                  <SelectTrigger className="w-full sm:w-44">
-                    <SelectValue placeholder="Filtrar por função" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="admin">Administradores</SelectItem>
-                    <SelectItem value="moderator">Moderadores</SelectItem>
-                    <SelectItem value="member">Membros</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <UserPlus className="h-4 w-4" /> Convidar
+                </Button>
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-2 sm:justify-start">
-              <Button
-                className="inline-flex items-center gap-2"
-                onClick={() => alert('Tela de convite (implementar)')}
-              >
-                <UserPlus className="h-4 w-4" /> Convidar
-              </Button>
-            </div>
-          </div>
+            <Separator />
 
-          <Separator />
+            {/* Lista com scroll */}
+            <div
+              className={` ${pageItems.length === 0 ? 'flex items-center justify-center' : ''} h-[420px] space-y-3 overflow-y-auto`}
+            >
+              {pageItems.length > 0 ? (
+                pageItems.map((u) => (
+                  <div
+                    key={u.id}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-gray-100 bg-white p-3 shadow-sm"
+                  >
+                    <div className="flex w-[120px] items-center gap-3 md:w-[500px]">
+                      {/* Avatar: se seu projeto não tem Avatar component, substitua com markup */}
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-indigo-400 font-semibold text-white">
+                        {u.name
+                          .split(' ')
+                          .map((s) => s[0])
+                          .slice(0, 2)
+                          .join('')}
+                      </div>
 
-          {/* Lista com scroll */}
-          <div
-            className={` ${pageItems.length === 0 ? 'flex items-center justify-center' : ''} h-[420px] space-y-3 overflow-y-auto`}
-          >
-            {pageItems.length > 0 ? (
-              pageItems.map((u) => (
-                <div
-                  key={u.id}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-gray-100 bg-white p-3 shadow-sm"
-                >
-                  <div className="flex w-[120px] items-center gap-3 md:w-[500px]">
-                    {/* Avatar: se seu projeto não tem Avatar component, substitua com markup */}
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-indigo-400 font-semibold text-white">
-                      {u.name
-                        .split(' ')
-                        .map((s) => s[0])
-                        .slice(0, 2)
-                        .join('')}
-                    </div>
-
-                    {/* Nome e username */}
-                    <NavLink
-                      to={`/perfil/${u.id}`}
-                      className="flex min-w-0 flex-col"
-                    >
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="truncate text-sm font-semibold text-gray-800">
-                            {u.name}
-                          </span>
+                      {/* Nome e username */}
+                      <NavLink
+                        to={`/perfil/${u.id}`}
+                        className="flex min-w-0 flex-col"
+                      >
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="truncate text-sm font-semibold text-gray-800">
+                              {u.name}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              @{u.username}
+                            </span>
+                            <span
+                              className={`-mt-4 ml-2 inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : u.role === 'moderator' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700'}`}
+                            >
+                              {u.role === 'admin' ? (
+                                <Crown className="h-3 w-3" />
+                              ) : null}
+                              {u.role}
+                            </span>
+                          </div>
                           <span className="text-xs text-muted-foreground">
-                            @{u.username}
-                          </span>
-                          <span
-                            className={`-mt-4 ml-2 inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : u.role === 'moderator' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-700'}`}
-                          >
-                            {u.role === 'admin' ? (
-                              <Crown className="h-3 w-3" />
-                            ) : null}
-                            {u.role}
+                            Entrou em {u.joinedAt}
                           </span>
                         </div>
-                        <span className="text-xs text-muted-foreground">
-                          Entrou em {u.joinedAt}
-                        </span>
+                      </NavLink>
+                    </div>
+                    {/* açoes e informações  */}
+                    <div className="flex items-center gap-2">
+                      {/* informações */}
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`h-2 w-2 rounded-full ${u.online ? 'bg-green-400' : 'bg-gray-300'}`}
+                          title={u.online ? 'Online' : 'Offline'}
+                        />
                       </div>
-                    </NavLink>
-                  </div>
-                  {/* açoes e informações  */}
-                  <div className="flex items-center gap-2">
-                    {/* informações */}
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`h-2 w-2 rounded-full ${u.online ? 'bg-green-400' : 'bg-gray-300'}`}
-                        title={u.online ? 'Online' : 'Offline'}
-                      />
-                    </div>
-                    {/* ações botoes */}
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => promote(u.id)}
-                        title="Promover"
-                      >
-                        <Crown className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => demote(u.id)}
-                        title="Demover"
-                      >
-                        <RotateCcw className="h-4 w-4" />
-                      </Button>
-                      <input
-                        type="checkbox"
-                        checked={selected.includes(u.id)}
-                        onChange={() => toggleSelect(u.id)}
-                        className="h-4 w-4 rounded border-gray-300"
-                        title="Selecionar"
-                      />
-                      <Button
-                        size="icon"
-                        variant="destructive"
-                        onClick={() => {
-                          setUsers((prev) => prev.filter((x) => x.id !== u.id))
-                          setSelected((s) => s.filter((id) => id !== u.id))
-                        }}
-                        title="Remover"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {/* ações botoes */}
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => promote(u.id)}
+                          title="Promover"
+                        >
+                          <Crown className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => demote(u.id)}
+                          title="Demover"
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                        </Button>
+                        <input
+                          type="checkbox"
+                          checked={selected.includes(u.id)}
+                          onChange={() => toggleSelect(u.id)}
+                          className="h-4 w-4 rounded border-gray-300"
+                          title="Selecionar"
+                        />
+                        <Button
+                          size="icon"
+                          variant="destructive"
+                          onClick={() => {
+                            setUsers((prev) =>
+                              prev.filter((x) => x.id !== u.id)
+                            )
+                            setSelected((s) => s.filter((id) => id !== u.id))
+                          }}
+                          title="Remover"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="f text-sm text-muted-foreground">
+                  Nenhum membro encontrado.
                 </div>
-              ))
-            ) : (
-              <div className="f text-sm text-muted-foreground">
-                Nenhum membro encontrado.
+              )}
+            </div>
+
+            {/* Ações em massa + paginação */}
+            <div className="flex flex-wrap items-center justify-center gap-3 md:justify-between">
+              <div className="flex flex-col items-center gap-2 im:flex-row">
+                <Button variant="outline" onClick={selectAllPage}>
+                  <CheckSquare className="h-4 w-4" /> Selecionar Todos
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={removeSelected}
+                  disabled={!selected.length}
+                >
+                  <Trash2 className="h-4 w-4" /> Remover ({selected.length})
+                </Button>
               </div>
-            )}
+
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 rounded-md border border-gray-200 bg-white px-2 py-1">
+                  <button
+                    className="p-1 disabled:opacity-40"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                  >
+                    <ChevronsLeft className="h-4 w-4" />
+                  </button>
+                  <div className="px-2 text-sm">
+                    Página {page} / {pageCount}
+                  </div>
+                  <button
+                    className="p-1 disabled:opacity-40"
+                    onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+                    disabled={page === pageCount}
+                  >
+                    <ChevronsRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Ações em massa + paginação */}
-          <div className="flex flex-wrap items-center justify-center gap-3 md:justify-between">
-            <div className="flex flex-col items-center gap-2 im:flex-row">
-              <Button variant="outline" onClick={selectAllPage}>
-                <CheckSquare className="h-4 w-4" /> Selecionar Todos
+          <DialogFooter className="mt-4 flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">
+              Total de membros: {users.length}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" onClick={() => setOpen(false)}>
+                Fechar
               </Button>
               <Button
-                variant="destructive"
-                onClick={removeSelected}
-                disabled={!selected.length}
+                className="bg-linear-purple text-white"
+                onClick={() => alert('Salvar alterações (implementar)')}
               >
-                <Trash2 className="h-4 w-4" /> Remover ({selected.length})
+                Salvar
               </Button>
             </div>
-
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 rounded-md border border-gray-200 bg-white px-2 py-1">
-                <button
-                  className="p-1 disabled:opacity-40"
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page === 1}
-                >
-                  <ChevronsLeft className="h-4 w-4" />
-                </button>
-                <div className="px-2 text-sm">
-                  Página {page} / {pageCount}
-                </div>
-                <button
-                  className="p-1 disabled:opacity-40"
-                  onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
-                  disabled={page === pageCount}
-                >
-                  <ChevronsRight className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <DialogFooter className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Total de membros: {users.length}
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => setOpen(false)}>
-              Fechar
-            </Button>
-            <Button
-              className="bg-linear-purple text-white"
-              onClick={() => alert('Salvar alterações (implementar)')}
-            >
-              Salvar
-            </Button>
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
