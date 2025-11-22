@@ -585,8 +585,8 @@ let seguidores: Persons[] = [
 ]
 
 export function FollowersDialog() {
-  const [visibleCount, setVisibleCount] = useState(10)
-  const [loadedCount, setLoadedCount] = useState(10)
+  const [visibleCount, setVisibleCount] = useState(20)
+  const [loadedCount, setLoadedCount] = useState(20)
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState<string>('')
   const [seguidoresFiltrados, setSeguidoresFiltrados] = useState(seguidores)
@@ -597,30 +597,29 @@ export function FollowersDialog() {
   const { scrollContainerRef, loadMoreRef } = useInfiniteScrollDialog({
     enabled: open,
     hasMore,
-    openDelayMs: 350,
-    rootMargin: '300px',
+    openDelayMs: 0,
+    rootMargin: '50px',
     onLoadMore: () => {
-      const next = Math.min(visibleCount + 10, seguidoresFiltrados.length)
+      const next = Math.min(visibleCount + 20, seguidoresFiltrados.length)
       setVisibleCount(next)
       setTimeout(() => {
         setLoadedCount(next)
-      }, 1000)
+      }, 500)
     },
   })
 
   useEffect(() => {
     if (open) {
       setSearch('')
-      setVisibleCount(10)
-      setLoadedCount(10)
+      setVisibleCount(20)
+      setLoadedCount(20)
       filter(search, seguidores, setSeguidoresFiltrados, setEmpty)
     }
   }, [open])
   useEffect(() => {
     if (open) {
       filter(search, seguidores, setSeguidoresFiltrados, setEmpty)
-      setLoadedCount(10)
-      setLoadedCount(10)
+      setLoadedCount(20)
     }
   }, [search])
   return (
@@ -655,7 +654,7 @@ export function FollowersDialog() {
 
         <div
           ref={scrollContainerRef}
-          className="mt-6 h-[500px] space-y-3 overflow-y-auto"
+          className="scrollbar mt-6 h-[500px] space-y-3 overflow-y-auto"
         >
           {seguidoresFiltrados.slice(0, visibleCount).map((seguidor, index) => {
             const isLoaded = index < loadedCount
@@ -697,7 +696,7 @@ export function FollowersDialog() {
             </p>
           )}
 
-          {hasMore && <div ref={loadMoreRef} className="col-span-2 h-[1px]" />}
+          {hasMore && <div ref={loadMoreRef} className="h-12" />}
         </div>
       </DialogContent>
     </Dialog>

@@ -179,23 +179,22 @@ export function FriendsDialog() {
   const [search, setSearch] = useState<string>('')
   const [amigosFiltrados, setAmigosFiltrados] = useState(amigos)
   const [empty, setEmpty] = useState(false)
-
-  const [visibleCount, setVisibleCount] = useState(10)
-  const [loadedCount, setLoadedCount] = useState(10)
+  const [visibleCount, setVisibleCount] = useState(20)
+  const [loadedCount, setLoadedCount] = useState(20)
 
   const hasMore = visibleCount < amigosFiltrados.length
 
   const { scrollContainerRef, loadMoreRef } = useInfiniteScrollDialog({
     enabled: open,
     hasMore,
-    openDelayMs: 350,
-    rootMargin: '300px',
+    openDelayMs: 0,
+    rootMargin: '50px',
     onLoadMore: () => {
-      const next = Math.min(visibleCount + 10, amigosFiltrados.length)
+      const next = Math.min(visibleCount + 20, amigosFiltrados.length)
       setVisibleCount(next)
       setTimeout(() => {
         setLoadedCount(next)
-      }, 1000)
+      }, 500)
     },
   })
 
@@ -203,14 +202,15 @@ export function FriendsDialog() {
     if (open) {
       setSearch('')
       setSearch('')
-      setVisibleCount(10)
-      setLoadedCount(10)
+      setVisibleCount(20)
+      setLoadedCount(20)
       filter(search, amigos, setAmigosFiltrados, setEmpty)
     }
   }, [open])
   useEffect(() => {
     if (open) {
       filter(search, amigos, setAmigosFiltrados, setEmpty)
+      setLoadedCount(20)
     }
   }, [search])
 
@@ -247,7 +247,7 @@ export function FriendsDialog() {
 
         <div
           ref={scrollContainerRef}
-          className="mt-6 h-[500px] space-y-3 overflow-y-auto"
+          className="scrollbar mt-6 h-[500px] space-y-3 overflow-y-auto"
         >
           {amigosFiltrados.slice(0, visibleCount).map((amigo, index) => {
             const isLoaded = index < loadedCount
@@ -290,7 +290,7 @@ export function FriendsDialog() {
             </p>
           )}
           {visibleCount < amigosFiltrados.length && (
-            <div ref={loadMoreRef} className="col-span-2 h-[1px]" />
+            <div ref={loadMoreRef} className="h-12" />
           )}
         </div>
       </DialogContent>

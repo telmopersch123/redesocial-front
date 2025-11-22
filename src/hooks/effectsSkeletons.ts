@@ -67,40 +67,66 @@ export function useInfiniteScrollDialog({
   enabled,
   hasMore,
   onLoadMore,
-  rootMargin = '200px',
-  threshold = 0.1,
-  openDelayMs = 300, // tempo da animação do Dialog (Shadcn usa ~250ms)
+  rootMargin,
+  threshold = 1,
 }: PropsDialogScroll) {
   const loadMoreRef = useRef<HTMLDivElement>(null)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
+  const observerRef = useRef<IntersectionObserver | null>(null)
+
   useEffect(() => {
-    if (!enabled || !hasMore) return
+    if (observerRef.current) {
+      observerRef.current.disconnect()
+      observerRef.current = null
+    }
 
-    const timer = setTimeout(() => {
-      if (!loadMoreRef.current || !scrollContainerRef.current) return
+    if (!enabled || !hasMore) {
+      return
+    }
 
-      const observer = new IntersectionObserver(
+    let tries = 0
+
+    const init = () => {
+      const root = scrollContainerRef.current
+      const target = loadMoreRef.current
+
+      if (!root || !target) {
+        if (tries < 20) {
+          tries++
+          requestAnimationFrame(init)
+        }
+        return
+      }
+
+      if (observerRef.current) {
+        observerRef.current.disconnect()
+        observerRef.current = null
+      }
+
+      observerRef.current = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting) {
+          if (entry.isIntersecting && hasMore) {
             onLoadMore()
           }
         },
-        {
-          root: scrollContainerRef.current,
-          rootMargin,
-          threshold,
-        }
+        { root, rootMargin, threshold }
       )
 
-      observer.observe(loadMoreRef.current)
+      observerRef.current.observe(target)
+    }
 
-      return () => observer.disconnect()
-    }, openDelayMs)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(init)
+    })
 
-    return () => clearTimeout(timer)
-  }, [enabled, hasMore, onLoadMore, rootMargin, threshold, openDelayMs])
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect()
+        observerRef.current = null
+      }
+    }
+  }, [enabled, hasMore, onLoadMore, rootMargin, threshold])
 
-  // Retorna as duas refs: uma pro container, outra pro sentinel
   return { scrollContainerRef, loadMoreRef }
 }

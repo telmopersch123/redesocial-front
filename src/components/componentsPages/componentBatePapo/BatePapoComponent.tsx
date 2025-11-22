@@ -106,6 +106,23 @@ export const BatePapoSidebar = () => {
     }
   }, [isDesktop, pathname])
 
+  useEffect(() => {
+    const body = document.body
+    const observerScroll = new MutationObserver(() => {
+      const overflow = window.getComputedStyle(body).overflow
+      setIsCollapsed(overflow === 'hidden')
+    })
+    observerScroll.observe(body, {
+      attributes: true,
+      attributeFilter: ['style'],
+    })
+    const initialOverflow = window.getComputedStyle(body).overflow
+    setIsCollapsed(initialOverflow === 'hidden')
+    return () => {
+      observerScroll.disconnect()
+    }
+  }, [])
+
   if (!ROTAS_COM_SIDEBAR.includes(pathname)) {
     return null
   }
@@ -131,6 +148,7 @@ export const BatePapoSidebar = () => {
       setIsActive(false)
     }, 500)
   }
+
   if (isDesktop) {
     return (
       <>
@@ -151,9 +169,10 @@ export const BatePapoSidebar = () => {
             className={`h-6 w-6 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`}
           />
         </Button>
+
         <Sidebar
           side="right"
-          className={`fixed right-0 top-0 z-[30] border-l transition-all duration-300 ${
+          className={`fixed z-[30] border-l transition-all duration-300 ${
             isCollapsed ? 'w-0 overflow-hidden' : 'w-96'
           }`}
         >
