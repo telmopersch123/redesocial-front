@@ -63,7 +63,10 @@ export function AppSidebar() {
 
     if (pathname === `/perfil/${id}`) {
       setActive('Perfil')
-    } else if (pathname === `/usuarios/perfil/${id}`) {
+    } else if (
+      pathname === `/usuarios/perfil/${id}` ||
+      pathname === `/usuarios/perfil/${id}/config`
+    ) {
       setActive('Usuarios')
     } else if (
       pathname === '/comunidades/comunidade-do-usuario' ||

@@ -26,7 +26,7 @@ const ConfirmTwoStepsDialog = ({
       open={confirmDialogOpen}
       onOpenChange={setConfirmDialogOpen}
     >
-      <DialogContent className="rounded-2xl bg-background/95 p-6 shadow-2xl backdrop-blur-sm data-[state=open]:animate-in">
+      <DialogContent className="w-[90%] rounded-2xl bg-background/95 p-6 shadow-2xl backdrop-blur-sm data-[state=open]:animate-in md:w-[50%]">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-foreground">
             Desativar autenticação em duas etapas?

@@ -127,6 +127,9 @@ const sampleUsers: User[] = [
 
 const PAGE_SIZE = 6
 
+const ficticioAdminComunidade = false
+const ficticioModeradorComunidade = false
+
 const UsersCommunityDialog = () => {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -331,43 +334,52 @@ const UsersCommunityDialog = () => {
                         />
                       </div>
                       {/* ações botoes */}
+
                       <div className="flex items-center gap-2">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => promote(u.id)}
-                          title="Promover"
-                        >
-                          <Crown className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => demote(u.id)}
-                          title="Demover"
-                        >
-                          <RotateCcw className="h-4 w-4" />
-                        </Button>
-                        <input
-                          type="checkbox"
-                          checked={selected.includes(u.id)}
-                          onChange={() => toggleSelect(u.id)}
-                          className="h-4 w-4 rounded border-gray-300"
-                          title="Selecionar"
-                        />
-                        <Button
-                          size="icon"
-                          variant="destructive"
-                          onClick={() => {
-                            setUsers((prev) =>
-                              prev.filter((x) => x.id !== u.id)
-                            )
-                            setSelected((s) => s.filter((id) => id !== u.id))
-                          }}
-                          title="Remover"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        {ficticioAdminComunidade && (
+                          <>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => promote(u.id)}
+                              title="Promover"
+                            >
+                              <Crown className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => demote(u.id)}
+                              title="Demover"
+                            >
+                              <RotateCcw className="h-4 w-4" />
+                            </Button>
+
+                            <input
+                              type="checkbox"
+                              checked={selected.includes(u.id)}
+                              onChange={() => toggleSelect(u.id)}
+                              className="h-4 w-4 rounded border-gray-300"
+                              title="Selecionar"
+                            />
+                          </>
+                        )}
+                        {(ficticioAdminComunidade ||
+                          ficticioModeradorComunidade) && (
+                          <Button
+                            size="icon"
+                            variant="destructive"
+                            onClick={() => {
+                              setUsers((prev) =>
+                                prev.filter((x) => x.id !== u.id)
+                              )
+                              setSelected((s) => s.filter((id) => id !== u.id))
+                            }}
+                            title="Remover"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -381,19 +393,21 @@ const UsersCommunityDialog = () => {
 
             {/* Ações em massa + paginação */}
             <div className="flex flex-wrap items-center justify-center gap-3 md:justify-between">
-              <div className="flex flex-col items-center gap-2 im:flex-row">
-                <Button variant="outline" onClick={selectAllPage}>
-                  <CheckSquare className="h-4 w-4" /> Selecionar Todos
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={removeSelected}
-                  disabled={!selected.length}
-                >
-                  <Trash2 className="h-4 w-4" /> Remover ({selected.length})
-                </Button>
-              </div>
+              {ficticioAdminComunidade && (
+                <div className="flex flex-col items-center gap-2 im:flex-row">
+                  <Button variant="outline" onClick={selectAllPage}>
+                    <CheckSquare className="h-4 w-4" /> Selecionar Todos
+                  </Button>
 
+                  <Button
+                    variant="destructive"
+                    onClick={removeSelected}
+                    disabled={!selected.length}
+                  >
+                    <Trash2 className="h-4 w-4" /> Remover ({selected.length})
+                  </Button>
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-2 rounded-md border border-gray-200 bg-white px-2 py-1">
                   <button

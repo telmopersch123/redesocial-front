@@ -26,7 +26,7 @@ const DialogsLibrariesComponent = ({ item }: { item: BibliotecaApoioItem }) => {
         </div>
       </DialogTrigger>
 
-      <DialogContent className="h-screen overflow-y-auto border-none p-6 sm:h-auto sm:max-h-[90vh] sm:rounded-xl">
+      <DialogContent className="h-[90vh] w-[95%] overflow-y-auto rounded-md border-none p-6 sm:h-auto sm:max-h-[90vh] sm:rounded-xl 2xl:w-[1000px]">
         <DialogHeader className="flex flex-row items-start gap-3 border-b pb-4">
           <div
             className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl shadow-sm"

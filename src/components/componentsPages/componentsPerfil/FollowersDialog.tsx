@@ -1,4 +1,4 @@
-import { Heart } from 'lucide-react'
+import { Heart, Trash2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
   Avatar,
@@ -583,8 +583,10 @@ let seguidores: Persons[] = [
   { id: 9, nome: 'Sofia Ribeiro', avatar: '' },
   { id: 10, nome: 'Renato Oliveira', avatar: '' },
 ]
-
-export function FollowersDialog() {
+interface PropsFollowers {
+  euUsuario: boolean
+}
+export function FollowersDialog({ euUsuario }: PropsFollowers) {
   const [visibleCount, setVisibleCount] = useState(20)
   const [loadedCount, setLoadedCount] = useState(20)
   const [open, setOpen] = useState(false)
@@ -634,7 +636,7 @@ export function FollowersDialog() {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-md rounded-2xl border bg-background/95 p-6 shadow-xl backdrop-blur-sm">
+      <DialogContent className="w-[98%] max-w-md rounded-2xl border bg-background/95 p-6 shadow-xl backdrop-blur-sm sm:w-full">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-semibold text-foreground">
             Seguidores de Carlos Almeida
@@ -662,7 +664,7 @@ export function FollowersDialog() {
             return (
               <div key={seguidor.id + '-' + index}>
                 {isLoaded ? (
-                  <div className="flex items-center gap-4 rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50">
+                  <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50">
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={seguidor.avatar} alt={seguidor.nome} />
                       <AvatarFallback className="bg-linear-purple font-medium text-white">
@@ -673,16 +675,24 @@ export function FollowersDialog() {
                           .toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
-
                     <div className="flex-1">
                       <p className="font-medium text-foreground">
                         {seguidor.nome}
                       </p>
                     </div>
-
                     <Button size="sm" className="bg-linear-purple rounded-full">
                       Ver perfil
                     </Button>
+                    {euUsuario && (
+                      <Button
+                        className="ml-auto w-full im:w-[50px]"
+                        size="icon"
+                        variant="destructive"
+                        title="Remover"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 ) : (
                   <FollowerSkeleton />

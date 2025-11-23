@@ -14,7 +14,7 @@ const ShowCommunityDialog = () => {
 
         <DialogContent
           onWheel={(e) => e.stopPropagation()}
-          className="max-h-[95vh] w-[90%] overflow-y-auto rounded-2xl p-4"
+          className="h-[calc(100vh-4rem)] w-fit overflow-y-auto rounded-2xl p-4"
         >
           {/* Conteúdo real */}
 

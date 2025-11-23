@@ -14,6 +14,7 @@ import {
 import { Label } from '../../../ui/label'
 import { Switch } from '../../../ui/switch'
 import ConfirmDialog2Etapas from './ConfirmTwoStepsDialog'
+import DialogConfirmRemoveAccount from './DialogConfirmRemoveAccount'
 import DialogEditNome from './EditNomeDialog'
 import NavbarConfig from './NavbarConfigComponent'
 import OptionsCommunity from './OptionsCommunityComponent'
@@ -227,6 +228,27 @@ export function ConfigDialog({
                     checked={showStatus}
                     onCheckedChange={setShowStatus}
                   />
+                </div>
+
+                {/* Seção de Exclusão da Conta */}
+                <div className="flex flex-col gap-3">
+                  <h3 className="text-base font-medium text-foreground">
+                    Conta
+                  </h3>
+
+                  <div className="flex items-start justify-between rounded-xl border border-red-300/40 bg-red-50/40 p-4 shadow-sm transition-all hover:bg-red-50 hover:shadow-md">
+                    <div className="max-w-[75%]">
+                      <p className="text-sm font-medium text-red-700">
+                        Remover conta
+                      </p>
+                      <p className="mt-1 text-xs leading-relaxed text-red-600/80">
+                        Sua conta será permanentemente excluída, incluindo
+                        posts, mensagens e todas as informações associadas.
+                      </p>
+                    </div>
+
+                    <DialogConfirmRemoveAccount />
+                  </div>
                 </div>
               </div>
             </div>

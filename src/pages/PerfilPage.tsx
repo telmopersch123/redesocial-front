@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { NavLink, useParams } from 'react-router-dom'
 import { FollowersDialog } from '../components/componentsPages/componentsPerfil/FollowersDialog'
 import { FriendsDialog } from '../components/componentsPages/componentsPerfil/FriendsDialog'
+import ReportDialog from '../components/componentsPages/componentsPerfil/ReportDialog'
 import { PostCardSkeleton } from '../components/componentsPages/componentsPerfil/Skeleton'
 import CardsPostComponent from '../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
@@ -1490,6 +1491,8 @@ const postsFicticiosGlobal: Post[] = [
   },
 ]
 
+const euUsuario = false
+
 const PerfilUsuario = () => {
   const { id } = useParams()
   const [visibleCount, setVisibleCount] = useState(10)
@@ -1512,32 +1515,46 @@ const PerfilUsuario = () => {
   })
 
   return (
-    <div className="mb-4 mt-12 min-h-screen w-[1000px] overflow-hidden bg-gradient-to-b pb-4">
+    <div className="mb-4 mt-12 min-h-screen w-[99vw] overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] xl:px-5 2xl:w-full">
       {/* Header do Perfil */}
       <motion.header
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="from-purple-50/60 via-white to-pink-50/40 px-5 pb-10 pt-8"
       >
-        <div className="mx-auto">
-          <div className="flex items-end gap-6">
+        <div>
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-end">
             {/* Avatar com hover de edição */}
-            <div className="group relative">
-              <Avatar className="h-28 w-28 shadow-2xl ring-4 ring-white sm:h-32 sm:w-32">
-                <AvatarImage
-                  src="https://i.pravatar.cc/300"
-                  alt="Carlos Almeida"
-                />
-                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-3xl font-bold text-white">
-                  CA
-                </AvatarFallback>
-              </Avatar>
-              <NavLink to="config">
-                <div className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center rounded-full bg-black/50 opacity-0 backdrop-blur-sm transition-all group-hover:opacity-100">
-                  <Edit2 className="h-8 w-8 text-white" />{' '}
-                  <p className="text-white">Editar</p>
+            <div className="flex flex-col items-center">
+              <div className="group relative">
+                <Avatar className="h-28 w-28 shadow-2xl ring-4 ring-white sm:h-32 sm:w-32">
+                  <AvatarImage
+                    src="https://i.pravatar.cc/300"
+                    alt="Carlos Almeida"
+                  />
+                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-3xl font-bold text-white">
+                    CA
+                  </AvatarFallback>
+                </Avatar>
+                {euUsuario && (
+                  <NavLink to="config">
+                    <div className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center rounded-full bg-black/50 opacity-0 backdrop-blur-sm transition-all group-hover:opacity-100">
+                      <Edit2 className="h-8 w-8 text-white" />{' '}
+                      <p className="text-white">Editar</p>
+                    </div>
+                  </NavLink>
+                )}
+              </div>
+
+              {euUsuario && (
+                <div className="mt-2">
+                  <NavLink to="config">
+                    <Button className="cursor-pointer select-none rounded-lg bg-white text-sm font-medium text-gray-700 shadow-md backdrop-blur-sm transition-all duration-700 hover:scale-[105%] hover:bg-white/80 hover:text-[#6b4de6] hover:shadow-lg">
+                      Configurações
+                    </Button>
+                  </NavLink>
                 </div>
-              </NavLink>
+              )}
             </div>
 
             {/* Info do usuário */}
@@ -1555,31 +1572,35 @@ const PerfilUsuario = () => {
 
               {/* Stats */}
               <div className="mt-5 flex gap-8 text-sm">
-                <FriendsDialog />
-                <FollowersDialog />
+                <FriendsDialog euUsuario={euUsuario} />
+                <FollowersDialog euUsuario={euUsuario} />
               </div>
             </div>
-
-            {/* Botões */}
-            <div className="flex gap-3">
-              <Button className="bg-linear-purple rounded-full px-8 font-semibold shadow-lg hover:shadow-xl">
-                Seguir
-              </Button>
-              <NavLink to={`/mensagens/1`}>
-                <Button
-                  variant="outline"
-                  className="rounded-full border-purple-300 text-purple-700 hover:bg-purple-50"
-                >
-                  Mensagem
+            {!euUsuario && (
+              <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
+                {/* Botão de Reportar — versão mais leve */}
+                <ReportDialog />
+                {/* Seguir */}
+                <Button className="bg-linear-purple rounded-full px-8 font-semibold shadow-md hover:shadow-lg">
+                  Seguir
                 </Button>
-              </NavLink>
-            </div>
+                {/* Mensagem */}
+                <NavLink to={`/mensagens/1`}>
+                  <Button
+                    variant="outline"
+                    className="rounded-full border-purple-300 text-purple-700 hover:bg-purple-50"
+                  >
+                    Mensagem
+                  </Button>
+                </NavLink>
+              </div>
+            )}
           </div>
         </div>
       </motion.header>
       <Separator className="mb-4" />
       {/* Feed de Posts - Um abaixo do outro */}
-      <main className="mx-auto px-5">
+      <main className="">
         <div className="flex flex-col space-y-24">
           {posts.slice(0, visibleCount).map((post, index) => {
             const isLoaded = index < loadedCount

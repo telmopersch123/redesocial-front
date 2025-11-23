@@ -1,4 +1,4 @@
-import { Users } from 'lucide-react'
+import { Trash2, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
   Avatar,
@@ -173,8 +173,10 @@ const amigos: Persons[] = [
   { id: 7, nome: 'Laura Mendes', avatar: '' },
   { id: 8, nome: 'Rafael Lima', avatar: '' },
 ]
-
-export function FriendsDialog() {
+interface PropsFriends {
+  euUsuario: boolean
+}
+export function FriendsDialog({ euUsuario }: PropsFriends) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState<string>('')
   const [amigosFiltrados, setAmigosFiltrados] = useState(amigos)
@@ -227,7 +229,7 @@ export function FriendsDialog() {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-md rounded-2xl border bg-background/95 p-6 shadow-xl backdrop-blur-sm">
+      <DialogContent className="w-[98%] max-w-md rounded-2xl border bg-background/95 p-6 shadow-xl backdrop-blur-sm sm:w-full">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-semibold text-foreground">
             Amigos de Carlos Almeida
@@ -255,7 +257,7 @@ export function FriendsDialog() {
             return (
               <div key={amigo.id + '-' + index}>
                 {isLoaded ? (
-                  <div className="flex items-center gap-4 rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50">
+                  <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50">
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={amigo.avatar} alt={amigo.nome} />
                       <AvatarFallback className="bg-linear-purple font-medium text-white">
@@ -276,6 +278,16 @@ export function FriendsDialog() {
                     <Button size="sm" className="bg-linear-purple rounded-full">
                       Ver perfil
                     </Button>
+                    {euUsuario && (
+                      <Button
+                        className="ml-auto w-full im:w-[50px]"
+                        size="icon"
+                        variant="destructive"
+                        title="Remover"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 ) : (
                   <FollowerSkeleton />

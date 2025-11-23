@@ -48,7 +48,7 @@ const ConfigCommunity = ({
 
   return (
     <div
-      className={`mx-auto mb-4 mt-12 px-5 ${methodW_fullscreen ? 'w-full' : 'w-[calc(100vw-0rem)] md:w-[calc(100vw-20rem)]'}`}
+      className={`mx-auto mb-4 mt-12 px-5 ${methodW_fullscreen ? 'w-[1000px]' : 'w-[calc(100vw-0rem)] md:w-[calc(100vw-20rem)]'}`}
     >
       {/* Título */}
       <div className="flex flex-col items-center justify-between gap-1 sm:flex-row">

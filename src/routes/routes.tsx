@@ -37,7 +37,10 @@ export default function AppRoutes() {
         <Route path="/autocuidado" element={<SelfCarePage />} />
         <Route path="/usuarios">
           <Route index element={<Users />} />
-          <Route path="perfil/:id" element={<PerfilPage />} />
+          <Route path="perfil/:id">
+            <Route index element={<PerfilPage />} />
+            <Route path="config" element={<ConfigPerfilPage />} />
+          </Route>
         </Route>
       </Route>
     </Routes>

@@ -74,7 +74,7 @@ const ConfigPerfilPage = () => {
 
   return (
     <>
-      <div className="mb-2 mt-12 flex min-h-screen w-[calc(100vw-1rem)] flex-col space-y-3 overflow-auto overflow-y-auto md:w-[calc(100vw-20rem)] xl:w-auto 2xl:flex-row 2xl:items-start 2xl:space-x-3 2xl:space-y-0">
+      <div className="mb-2 mt-5 flex h-screen w-[calc(100vw-1rem)] flex-col space-y-3 overflow-y-auto md:w-[calc(100vw-20rem)] xl:w-auto 2xl:flex-row 2xl:items-start 2xl:space-x-3 2xl:space-y-0">
         <div className="flex flex-col justify-end space-y-1 2xl:w-1/3">
           <UserPerfilComponent
             file={file}
