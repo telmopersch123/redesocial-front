@@ -1,8 +1,17 @@
 import { format } from 'date-fns'
-import { ArrowLeft, Check, MessageCircle, MessageSquare } from 'lucide-react'
+import {
+  ArrowLeft,
+  CheckCheck,
+  Fullscreen,
+  MessageCircle,
+  MessageSquare,
+} from 'lucide-react'
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { EmojiInput } from '../components/componentsPages/componentsMensagens/EmojiInput'
+import { GalleryDialog } from '../components/componentsPages/componentsMensagens/GalleryDialog'
 import { MessageForms } from '../components/formCustomer/MessageForms'
+import { TooltipComponent } from '../components/globalcomponents/tooltipComponent'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { useLimitForms } from '../hooks/useLimitForms'
@@ -62,8 +71,9 @@ const mensagensFicticias: Record<number, MSG[]> = {
     },
     {
       id: '2',
-      texto: 'Tudo sim! E contigo?',
-      remetente: 'outro',
+      texto:
+        'Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥',
+      remetente: 'eu',
       data: new Date(2025, 10, 20, 10, 21),
     },
     {
@@ -97,9 +107,12 @@ const mensagensFicticias: Record<number, MSG[]> = {
 
 const MessagePage = () => {
   const [selectedChat, setSelectedChat] = useState<number | null>(null)
+  const [image, setImage] = useState<string>('')
   const [contatMessage, setContatMessage] = useState<boolean>(false)
   const [chatMenssage, setChatMessage] = useState<boolean>(false)
+  const [fullscreen, setFullscreen] = useState<boolean>(false)
   const [inputText, setInputText] = useState('')
+  const [open, setOpen] = useState<boolean>(false)
   const [messages, setMessages] = useState<MSG[]>([])
   const messageInput = useLimitForms(5000)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -130,6 +143,7 @@ const MessagePage = () => {
     setSelectedChat(null)
     setContatMessage(false)
   }, [])
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < responsive && selectedChat !== null) {
@@ -148,6 +162,7 @@ const MessagePage = () => {
 
     return () => window.removeEventListener('resize', handleResize)
   }, [selectedChat])
+
   const handleOpen = (id: number) => {
     if (selectedChat === id) {
       return
@@ -176,6 +191,7 @@ const MessagePage = () => {
       setSelectedChat(null)
     }
   }, [idUser])
+
   const handleSendMessage = () => {
     if (inputText.trim() === '' || inputText.length > 5000) return
 
@@ -197,6 +213,22 @@ const MessagePage = () => {
       })
     }
   }
+  const handleFullScreen = () => {
+    setContatMessage((valor) => !valor)
+    setFullscreen((valor) => !valor)
+  }
+  const handleAddEmoji = (emoji: string) => {
+    setInputText((prevInput) => prevInput + emoji)
+  }
+  useEffect(() => {
+    if (localStorage.getItem('selectedImage')) {
+      const stored = JSON.parse(localStorage.getItem('selectedImage') || '{}')
+      if (!stored) return
+      setImage(stored.path)
+    } else {
+      setImage('')
+    }
+  }, [open])
   const contactSelect = contatos.find((c) => c.id === selectedChat)
 
   return (
@@ -263,143 +295,201 @@ const MessagePage = () => {
         </div>
       </div>
       {/* ===== ÁREA DO CHAT ===== */}
-
       <div
-        className={`mt-10 min-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-gray-300 bg-white md:mt-0 md:w-full lg:w-3/4 ${
-          chatMenssage ? 'flex' : 'hidden'
-        } shadow-lg`}
+        className={`relative mt-10 min-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-gray-300 md:mt-0 md:w-full lg:w-3/4 ${image ? '' : 'bg-white'} ${fullscreen ? '!w-full' : ''} ${chatMenssage ? 'flex' : 'hidden'} shadow-xl`}
       >
         {selectedChat !== null ? (
-          <div className="relative flex flex-1 flex-col p-6">
-            {/* HEADER DO CHAT — Clean e sereno */}
-            <div className="flex items-center gap-4 border-b border-gray-100 pb-4">
-              <button
-                onClick={() => {
-                  setSelectedChat(null)
-                  setContatMessage(false)
+          <>
+            {image && (
+              <div
+                className="absolute inset-0 -z-10 bg-cover bg-center bg-no-repeat"
+                style={{
+                  backgroundImage: `url(${image})`,
+                  imageRendering: 'auto',
                 }}
-                className="flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-gray-100 md:hidden"
-              >
-                <ArrowLeft className="h-5 w-5 text-gray-600" />
-              </button>
-
-              <img
-                src={`https://i.pravatar.cc/56?img=${contactSelect?.avatar}`}
-                alt={contactSelect?.nome}
-                className="h-12 w-12 rounded-full object-cover shadow-md ring-4 ring-white"
               />
-
-              <div className="flex-1">
-                <h2 className="text-lg font-semibold text-gray-900">
-                  {contactSelect?.nome}
-                </h2>
-                <p className="text-xs text-gray-500">Online</p>
-              </div>
-            </div>
-
-            {/* MENSAGENS — Fundo sereno + scroll invisível */}
-            <div className="chat-messages invisivel-scroll max-h-[calc(100vh-11rem)] flex-1 space-y-5 overflow-y-auto bg-gradient-to-b from-gray-50/70 to-white p-5">
-              {messages.length === 0 ? (
-                <div className="flex h-full flex-col items-center justify-center text-center">
-                  <div className="mb-4 rounded-full bg-gray-100 p-5">
-                    <MessageCircle className="h-10 w-10 text-gray-300" />
-                  </div>
-                  <p className="font-medium text-gray-500">
-                    Nenhuma mensagem ainda
-                  </p>
-                  <p className="mt-1 text-sm text-gray-400">
-                    Comece a conversa!
-                  </p>
-                </div>
-              ) : (
-                <>
-                  {messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`animate fade-in flex slide-in-from-bottom-1 ${msg.remetente === 'eu' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div
-                        className={`group relative max-w-[75%] rounded-2xl px-4 py-3 shadow-sm transition-all hover:shadow-md ${
-                          msg.remetente === 'eu'
-                            ? 'rounded-br-none bg-gradient-to-r from-blue-500 to-blue-600 text-white'
-                            : 'rounded-bl-none border border-gray-200 bg-white text-gray-800'
-                        }`}
-                      >
-                        <p
-                          className={`break-words text-sm leading-relaxed ${msg.texto.length > 80 ? 'text-justify' : 'text-left'}`}
-                        >
-                          {msg.texto}
-                        </p>
-
-                        <div className="mt-1 flex items-center justify-end gap-1">
-                          <span
-                            className={`text-xs ${msg.remetente === 'eu' ? 'text-blue-100' : 'text-gray-400'} font-medium`}
-                          >
-                            {format(msg.data, 'HH:mm')}
-                          </span>
-                          {msg.remetente === 'eu' && (
-                            <Check className="h-4 w-4 text-blue-100" />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </>
-              )}
-            </div>
-
-            {/* INPUT — Elegante, fixo no fundo, com foco suave */}
+            )}
             <div
-              className={`absolute inset-x-0 bottom-1 m-auto w-[99.5%] truncate rounded-2xl border border-gray-300 bg-white/80 !py-3 text-sm shadow-sm !ring-0 backdrop-blur-sm transition-all placeholder:text-gray-400 focus:border-blue-500 ${
-                inputText.length > 5000 ? '!border-red-600' : ''
-              }`}
+              className={`absolute right-2 top-2 z-10 flex justify-end space-x-2 border-gray-100`}
             >
-              <div className="relative flex">
-                <Button
-                  className="ml-2 shadow-[0_0_0_2px] shadow-black/5 transition-shadow"
-                  variant="ghost"
+              <TooltipComponent
+                Tag={
+                  <Button
+                    onClick={() => {
+                      handleFullScreen()
+                    }}
+                    className="hidden items-center justify-end bg-black/20 text-white shadow-[0_0px_1px_white] hover:text-white dm:flex"
+                  >
+                    <Fullscreen className="h-5 w-5" />
+                  </Button>
+                }
+                description="Tela cheia"
+              />
+              <GalleryDialog open={open} setOpen={setOpen} />
+            </div>
+
+            <div className="relative flex flex-1 flex-col sm:mt-6 sm:pl-6">
+              {/* HEADER DO CHAT — Clean e sereno */}
+              <div className="flex items-center gap-4 rounded-none border-b border-white/20 bg-white/40 p-5 pb-4 shadow-[0_4px_20px_rgba(0,0,0,0.05)] backdrop-blur-md sm:rounded-s-full">
+                <button
+                  onClick={() => {
+                    setSelectedChat(null)
+                    setContatMessage(false)
+                  }}
+                  className="flex h-9 w-9 items-center justify-center rounded-full transition-all hover:bg-white/60 hover:shadow-sm dm:hidden"
                 >
-                  ☺️
-                </Button>
-                <Input
-                  ref={inputRef}
-                  type="text"
-                  value={inputText}
-                  onChange={(e) => {
-                    messageInput.handleChange(e)
-                    setInputText(e.target.value)
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault()
-                      handleSendMessage()
-                    }
-                  }}
-                  placeholder="Digite uma mensagem..."
-                  className={`w-[calc(100%-4rem)] truncate !border-none !text-lg !shadow-none !outline-none !ring-0 focus:!outline-none`}
+                  <ArrowLeft className="h-5 w-5 text-gray-700" />
+                </button>
+
+                <img
+                  src={`https://i.pravatar.cc/56?img=${contactSelect?.avatar}`}
+                  alt={contactSelect?.nome}
+                  className="h-12 w-12 rounded-full object-cover shadow-lg ring-2 ring-white/60"
                 />
 
-                {inputText.length > 5000 && (
-                  <div className="absolute -bottom-[0.8rem] left-16 flex items-center px-2">
-                    <MessageForms
-                      error={messageInput.error}
-                      valueLength={messageInput.value.length}
-                      maxLength={messageInput.maxLength}
-                    />
-                  </div>
-                )}
+                <div className="flex-1">
+                  <h2 className="text-lg font-semibold tracking-tight text-gray-900">
+                    {contactSelect?.nome}
+                  </h2>
 
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={!inputText.trim() || inputText.length > 5000}
-                  className="bg-linear-purple mr-2 rounded-xl px-6 py-3.5 font-medium text-white transition-all hover:shadow-md active:scale-95 disabled:opacity-50"
-                >
-                  Enviar
-                </Button>
+                  <p
+                    style={{ textShadow: '0px 1px 1px rgba(255,255,255,0.4)' }}
+                    className="inline-flex items-center gap-1 rounded-full bg-green-50/70 px-2 py-0.5 text-[11px] font-medium text-green-700 shadow-sm"
+                  >
+                    <span className="block h-2 w-2 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]"></span>
+                    Online
+                  </p>
+                </div>
+              </div>
+
+              {/* MENSAGENS — Fundo sereno + scroll invisível */}
+              <div className="chat-messages invisivel-scroll flex-1 space-y-6 overflow-y-auto bg-gradient-to-b pb-8">
+                <div className="scrollbar-invisible mr-1 flex h-[730px] flex-col space-y-4 overflow-y-auto pb-10 pt-1">
+                  {messages.length === 0 ? (
+                    <div className="m-auto flex h-full flex-col items-center justify-center text-center">
+                      <div className="flex flex-col items-center justify-center rounded-md p-10 text-center backdrop-blur-md">
+                        <div className="mb-5 rounded-full bg-gradient-to-br from-gray-100 to-gray-50 p-6 shadow-inner">
+                          <MessageCircle className="h-12 w-12 text-gray-300" />
+                        </div>
+                        <p
+                          style={{}}
+                          className="text-lg font-semibold text-black"
+                        >
+                          Nenhuma mensagem ainda
+                        </p>
+                        <p className="mt-2 font-mono text-sm font-semibold text-black/70">
+                          Comece a conversa!
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {messages.map((msg) => (
+                        <div
+                          key={msg.id}
+                          className={`animate-fade-in flex slide-in-from-bottom-1 ${
+                            msg.remetente === 'eu'
+                              ? 'justify-end'
+                              : 'justify-start'
+                          }`}
+                        >
+                          <div
+                            className={`group relative max-w-[75%] rounded-2xl px-5 py-3.5 shadow-sm transition-all duration-200 hover:shadow-lg ${
+                              msg.remetente === 'eu'
+                                ? 'rounded-br-md bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-blue-500/20'
+                                : 'ml-2 rounded-bl-md bg-white text-gray-800 shadow-gray-100 ring-1 ring-gray-200/80 sm:ml-9'
+                            }`}
+                          >
+                            <p
+                              className={`break-words text-sm leading-relaxed ${
+                                msg.texto.length > 80
+                                  ? 'text-justify'
+                                  : 'text-left'
+                              }`}
+                            >
+                              {msg.texto}
+                            </p>
+
+                            <div className="mt-2 flex items-center justify-end gap-1.5">
+                              <span
+                                className={`text-xs font-medium tracking-tight ${
+                                  msg.remetente === 'eu'
+                                    ? 'text-blue-100'
+                                    : 'text-gray-400'
+                                }`}
+                              >
+                                {format(msg.data, 'HH:mm')}
+                              </span>
+                              {msg.remetente === 'eu' && (
+                                <CheckCheck className="h-3.5 w-3.5 text-blue-100 opacity-90" />
+                              )}
+                            </div>
+
+                            {/* Pequeno triângulo de fala (opcional, mas fica lindo) */}
+                            {msg.remetente === 'eu' ? (
+                              <div className="absolute -right-1 top-3 h-3 w-3 rotate-45 bg-gradient-to-r from-blue-500 to-blue-600"></div>
+                            ) : (
+                              <div className="absolute -left-1 top-3 h-3 w-3 rotate-45 bg-white ring-1 ring-gray-200/80"></div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                      <div ref={messagesEndRef} />
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* INPUT — Elegante, fixo no fundo, com foco suave */}
+
+              <div
+                className={`absolute inset-x-0 bottom-1 m-auto w-[98%] rounded-2xl border border-gray-300 bg-white/80 !py-3 text-sm shadow-sm !ring-0 backdrop-blur-sm transition-all placeholder:text-gray-400 focus:border-blue-500 ${
+                  inputText.length > 5000 ? '!border-red-600' : ''
+                }`}
+              >
+                <div className="relative flex">
+                  <div className="border-1 ml-1 rounded-md border">
+                    <EmojiInput onSelect={handleAddEmoji} />
+                  </div>
+                  <Input
+                    ref={inputRef}
+                    type="text"
+                    value={inputText}
+                    onChange={(e) => {
+                      messageInput.handleChange(e)
+                      setInputText(e.target.value)
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        handleSendMessage()
+                      }
+                    }}
+                    placeholder="Digite uma mensagem..."
+                    className={`w-[calc(100%-4rem)] truncate !border-none !text-lg !shadow-none !outline-none !ring-0 focus:!outline-none`}
+                  />
+
+                  {inputText.length > 5000 && (
+                    <div className="absolute -bottom-[0.8rem] left-16 flex items-center px-2">
+                      <MessageForms
+                        error={messageInput.error}
+                        valueLength={messageInput.value.length}
+                        maxLength={messageInput.maxLength}
+                      />
+                    </div>
+                  )}
+
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={!inputText.trim() || inputText.length > 5000}
+                    className="bg-linear-purple mr-2 rounded-xl px-6 py-3.5 font-medium text-white transition-all hover:shadow-md active:scale-95 disabled:opacity-50"
+                  >
+                    Enviar
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
+          </>
         ) : (
           /* TELA INICIAL — Quando nada selecionado */
           <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
