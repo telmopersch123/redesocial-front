@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { Edit2 } from 'lucide-react'
 import { useState } from 'react'
 import { NavLink, useParams } from 'react-router-dom'
+import BlockedConfirmDialog from '../components/componentsPages/componentsPerfil/BlockedConfirmDialog'
 import { FollowersDialog } from '../components/componentsPages/componentsPerfil/FollowersDialog'
 import { FriendsDialog } from '../components/componentsPages/componentsPerfil/FriendsDialog'
 import ReportDialog from '../components/componentsPages/componentsPerfil/ReportDialog'
@@ -1546,7 +1547,7 @@ const PerfilUsuario = () => {
                 )}
               </div>
 
-              {euUsuario && (
+              {euUsuario ? (
                 <div className="mt-2">
                   <NavLink to="config">
                     <Button className="cursor-pointer select-none rounded-lg bg-white text-sm font-medium text-gray-700 shadow-md backdrop-blur-sm transition-all duration-700 hover:scale-[105%] hover:bg-white/80 hover:text-[#6b4de6] hover:shadow-lg">
@@ -1554,6 +1555,8 @@ const PerfilUsuario = () => {
                     </Button>
                   </NavLink>
                 </div>
+              ) : (
+                <BlockedConfirmDialog />
               )}
             </div>
 

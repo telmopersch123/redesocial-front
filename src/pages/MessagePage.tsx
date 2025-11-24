@@ -59,7 +59,13 @@ const contatos = [
     avatar: 15,
   },
 ]
-
+const FicticiostatusUser: ('online' | 'offline')[] = [
+  'online',
+  'offline',
+  'online',
+  'offline',
+  'online',
+]
 const mensagensFicticias: Record<number, MSG[]> = {
   1: [
     {
@@ -352,13 +358,24 @@ const MessagePage = () => {
                     {contactSelect?.nome}
                   </h2>
 
-                  <p
-                    style={{ textShadow: '0px 1px 1px rgba(255,255,255,0.4)' }}
-                    className="inline-flex items-center gap-1 rounded-full bg-green-50/70 px-2 py-0.5 text-[11px] font-medium text-green-700 shadow-sm"
+                  <div
+                    style={{
+                      textShadow: '0px 1px 1px rgba(255,255,255,0.4)',
+                    }}
+                    className={`$ inline-flex items-center gap-1 rounded-full bg-green-50/70 px-2 py-0.5 text-[11px] font-medium shadow-sm`}
                   >
-                    <span className="block h-2 w-2 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.6)]"></span>
-                    Online
-                  </p>
+                    {FicticiostatusUser[0] !== 'online' ? (
+                      <>
+                        <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                        <p className="rounded-full text-green-500">Online</p>
+                      </>
+                    ) : (
+                      <>
+                        <span className="h-1.5 w-1.5 rounded-full bg-gray-500"></span>
+                        <p className="rounded-full text-gray-500">Offline</p>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 

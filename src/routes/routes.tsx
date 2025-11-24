@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 
 import { AppLayout } from '../AppLayout'
+import AuthenticadorPage from '../pages/AuthenticadorPage'
 import AreaCommunitiesUserPage from '../pages/community/AreaCommunitiesUserPage'
 import CommunityPage from '../pages/community/CommunityPage'
 import ConfigCommunity from '../pages/community/ConfigCommunity'
@@ -16,6 +17,7 @@ import Users from '../pages/Users'
 export default function AppRoutes() {
   return (
     <Routes>
+      <Route path="/auth" element={<AuthenticadorPage />} />
       <Route element={<AppLayout />}>
         <Route path="/" element={<FeedPage />} />
         <Route path="/comunidades">

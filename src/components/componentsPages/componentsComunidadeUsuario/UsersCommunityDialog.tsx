@@ -10,6 +10,7 @@ import {
   Trash2,
   UserPlus,
   Users,
+  VolumeOff,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
@@ -32,6 +33,8 @@ import {
 } from '../..//ui/select'
 import { Separator } from '../..//ui/separator'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
+import { Checkbox } from '../../ui/checkbox'
+import { ConfirmationRemoveUserDialog } from './ConfirmationRemoveUserDialog'
 
 type User = {
   id: number
@@ -128,13 +131,14 @@ const sampleUsers: User[] = [
 const PAGE_SIZE = 6
 
 const ficticioAdminComunidade = false
-const ficticioModeradorComunidade = false
+const ficticioModeradorComunidade = true
 
 const UsersCommunityDialog = () => {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | User['role']>('all')
-  const [selected, setSelected] = useState<number[]>([])
+  const [selectedRemove, setSelectedRemove] = useState<number[]>([])
+  const [selectedMuted, setSelectedMuted] = useState<number[]>([])
   const [page, setPage] = useState(1)
   const [users, setUsers] = useState<User[]>(sampleUsers)
 
@@ -156,8 +160,8 @@ const UsersCommunityDialog = () => {
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   // responsavel por selecionar ou desselecionar um item
-  const toggleSelect = (id: number) => {
-    setSelected((prev) =>
+  const toggleSelectMuted = (id: number) => {
+    setSelectedMuted((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     )
   }
@@ -165,8 +169,8 @@ const UsersCommunityDialog = () => {
   // responsavel por selecionar ou desselecionar todos os itens da página
   const selectAllPage = () => {
     const ids = pageItems.map((u) => u.id)
-    const allSelected = ids.every((id) => selected.includes(id))
-    setSelected((prev) =>
+    const allSelected = ids.every((id) => selectedRemove.includes(id))
+    setSelectedRemove((prev) =>
       allSelected
         ? prev.filter((id) => !ids.includes(id))
         : [...new Set([...prev, ...ids])]
@@ -175,9 +179,9 @@ const UsersCommunityDialog = () => {
 
   // responsavel por remover os itens selecionados
   const removeSelected = () => {
-    if (!selected.length) return
-    setUsers((prev) => prev.filter((u) => !selected.includes(u.id)))
-    setSelected([])
+    if (!selectedRemove.length) return
+    setUsers((prev) => prev.filter((u) => !selectedRemove.includes(u.id)))
+    setSelectedRemove([])
   }
 
   // responsavel por promover um usuário
@@ -354,31 +358,45 @@ const UsersCommunityDialog = () => {
                             >
                               <RotateCcw className="h-4 w-4" />
                             </Button>
-
-                            <input
-                              type="checkbox"
-                              checked={selected.includes(u.id)}
-                              onChange={() => toggleSelect(u.id)}
-                              className="h-4 w-4 rounded border-gray-300"
-                              title="Selecionar"
-                            />
                           </>
                         )}
                         {(ficticioAdminComunidade ||
                           ficticioModeradorComunidade) && (
-                          <Button
-                            size="icon"
-                            variant="destructive"
-                            onClick={() => {
-                              setUsers((prev) =>
-                                prev.filter((x) => x.id !== u.id)
-                              )
-                              setSelected((s) => s.filter((id) => id !== u.id))
-                            }}
-                            title="Remover"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          <>
+                            <TooltipComponent
+                              Tag={
+                                <Checkbox
+                                  onClick={() => toggleSelectMuted(u.id)}
+                                  icon={
+                                    <VolumeOff className="h-4 w-4 text-red-600" />
+                                  }
+                                  className="h-5 w-5 rounded-md border border-gray-300 shadow-sm transition-all duration-200 hover:border-indigo-400 hover:bg-indigo-50 data-[state=checked]:border-indigo-600 data-[state=checked]:bg-indigo-600 data-[state=checked]:text-white data-[state=checked]:hover:bg-indigo-700"
+                                />
+                              }
+                              description="Silênciar usuario"
+                            />
+
+                            <ConfirmationRemoveUserDialog
+                              userName={u.name}
+                              onConfirm={() => {
+                                setUsers((prev) =>
+                                  prev.filter((x) => x.id !== u.id)
+                                )
+                                setSelectedRemove((s) =>
+                                  s.filter((id) => id !== u.id)
+                                )
+                              }}
+                              trigger={
+                                <Button
+                                  size="icon"
+                                  variant="destructive"
+                                  title="Remover"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              }
+                            />
+                          </>
                         )}
                       </div>
                     </div>
@@ -402,9 +420,10 @@ const UsersCommunityDialog = () => {
                   <Button
                     variant="destructive"
                     onClick={removeSelected}
-                    disabled={!selected.length}
+                    disabled={!selectedRemove.length}
                   >
-                    <Trash2 className="h-4 w-4" /> Remover ({selected.length})
+                    <Trash2 className="h-4 w-4" /> Remover (
+                    {selectedRemove.length})
                   </Button>
                 </div>
               )}

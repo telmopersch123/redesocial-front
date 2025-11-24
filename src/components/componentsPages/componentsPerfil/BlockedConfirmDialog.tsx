@@ -1,0 +1,52 @@
+import { UserX } from 'lucide-react'
+import { Button } from '../../../components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../../../components/ui/dialog'
+
+const BlockedConfirmDialog = () => {
+  return (
+    <Dialog>
+      {/* TRIGGER */}
+      <DialogTrigger asChild>
+        <Button className="mt-2 flex items-center gap-1.5 rounded-md border border-red-500 bg-transparent px-2.5 py-1.5 text-xs font-medium text-red-600 transition-all hover:bg-red-600 hover:text-white">
+          <UserX className="h-3.5 w-3.5" />
+          Bloquear
+        </Button>
+      </DialogTrigger>
+
+      {/* CONTENT */}
+      <DialogContent className="rounded-xl sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-red-600">Bloquear usuário?</DialogTitle>
+          <DialogDescription className="text-sm text-gray-600">
+            Tem certeza que deseja bloquear este usuário? Ambos deixarão de
+            poder trocar mensagens e não verão mais os posts um do outro.
+          </DialogDescription>
+        </DialogHeader>
+
+        <DialogFooter className="mt-4 flex justify-end gap-2">
+          <Button
+            variant="outline"
+            className="border-gray-300 text-gray-700 hover:bg-gray-100"
+          >
+            Cancelar
+          </Button>
+
+          <Button className="flex items-center gap-1.5 bg-red-600 text-white hover:bg-red-700">
+            <UserX className="h-4 w-4" />
+            Bloquear
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+export default BlockedConfirmDialog
