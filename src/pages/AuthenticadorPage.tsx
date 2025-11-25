@@ -7,8 +7,9 @@ const AuthenticadorPage = () => {
   const [isLogin, setIsLogin] = useState(true)
 
   return (
-    <div className="flex min-h-screen w-screen flex-col overflow-hidden bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100">
-      {/* Conteúdo principal */}
+    <div
+      className={`scrollbar-invisible flex min-h-screen w-[calc(100vw-10px)] flex-col overflow-hidden bg-[linear-gradient(to_right,#f5f3ff,#fdf2f8,#eef2ff,#ffffff)]`}
+    >
       <main className="flex flex-1 items-center justify-center px-4 py-8 sm:py-12">
         <div className="w-full max-w-5xl">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
@@ -102,7 +103,6 @@ const AuthenticadorPage = () => {
         </div>
       </main>
 
-      {/* Footer sempre no final */}
       <motion.footer
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
