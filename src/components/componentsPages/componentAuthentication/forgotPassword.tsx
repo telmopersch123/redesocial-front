@@ -63,10 +63,6 @@ const ForgotPassword = ({
     if (value.length === 0 && index > 0) {
       codeRefs[index - 1].current?.focus()
     }
-
-    // if (newCode.every((digit) => digit !== '')) {
-
-    // }
   }
 
   const handleClickForgotPassword = () => {
