@@ -2,17 +2,21 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import LoginComponent from '../components/componentsPages/componentAuthentication/LoginComponent'
 import RegisterComponent from '../components/componentsPages/componentAuthentication/RegisterComponent'
+import ForgotPassword from '../components/componentsPages/componentAuthentication/forgotPassword'
+import ResetPasswordComponent from '../components/componentsPages/componentAuthentication/updatePassword'
 
 const AuthenticadorPage = () => {
+  const [permissionCode, setPermissionCode] = useState<boolean>(false)
   const [isLogin, setIsLogin] = useState(true)
+  const [forgotPassword, setForgotPassword] = useState(false)
 
   return (
     <div
       className={`scrollbar-invisible flex min-h-screen w-[calc(100vw-10px)] flex-col overflow-hidden bg-[linear-gradient(to_right,#f5f3ff,#fdf2f8,#eef2ff,#ffffff)]`}
     >
       <main className="flex flex-1 items-center justify-center px-4 py-8 sm:py-12">
-        <div className="w-full max-w-5xl">
-          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <div className="h-auto w-full max-w-5xl tm:h-[1100px]">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
             <motion.header
               initial={{ opacity: 0, x: -60 }}
               animate={{ opacity: 1, x: 0 }}
@@ -72,17 +76,45 @@ const AuthenticadorPage = () => {
               <div className="w-full max-w-md">
                 <AnimatePresence mode="wait">
                   {isLogin ? (
-                    <motion.div
-                      key="login"
-                      initial={{ opacity: 0, y: 40 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -40 }}
-                      transition={{ duration: 0.45, ease: 'easeOut' }}
-                    >
-                      <LoginComponent
-                        onSwitchToRegister={() => setIsLogin(false)}
-                      />
-                    </motion.div>
+                    forgotPassword ? (
+                      permissionCode ? (
+                        <motion.div
+                          key="login"
+                          initial={{ opacity: 0, y: 40 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -40 }}
+                          transition={{ duration: 0.45, ease: 'easeOut' }}
+                        >
+                          <ResetPasswordComponent />
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="login"
+                          initial={{ opacity: 0, y: 40 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -40 }}
+                          transition={{ duration: 0.45, ease: 'easeOut' }}
+                        >
+                          <ForgotPassword
+                            setPermissionCode={setPermissionCode}
+                            setForgotPassword={setForgotPassword}
+                          />
+                        </motion.div>
+                      )
+                    ) : (
+                      <motion.div
+                        key="login"
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -40 }}
+                        transition={{ duration: 0.45, ease: 'easeOut' }}
+                      >
+                        <LoginComponent
+                          setForgotPassword={setForgotPassword}
+                          onSwitchToRegister={() => setIsLogin(false)}
+                        />
+                      </motion.div>
+                    )
                   ) : (
                     <motion.div
                       key="register"
@@ -99,18 +131,17 @@ const AuthenticadorPage = () => {
                 </AnimatePresence>
               </div>
             </motion.div>
+            <motion.footer
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2, duration: 1 }}
+              className="mt-0 text-center text-sm font-medium text-purple-600/75 transition-all duration-150 tm:absolute tm:bottom-1/3 tm:text-right"
+            >
+              © 2025 Tess • Feito com muito amor e acolhimento
+            </motion.footer>
           </div>
         </div>
       </main>
-
-      <motion.footer
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.2, duration: 1 }}
-        className="mt-auto py-8 text-center text-sm font-medium text-purple-600/75"
-      >
-        © 2025 Tess • Feito com muito amor e acolhimento
-      </motion.footer>
     </div>
   )
 }

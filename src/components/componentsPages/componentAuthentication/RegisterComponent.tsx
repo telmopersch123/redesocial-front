@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { PasswordRequirements } from '../../../auth/PasswordRequirements'
 import { Button } from '../../../components/ui/button'
 import {
   Card,
@@ -23,14 +24,17 @@ import { RadioGroup, RadioGroupItem } from '../../ui/radio-group'
 interface RegisterComponentProps {
   onSwitchToLogin: () => void
 }
+export const hasNumber = (password: string) => /\d/.test(password)
+export const hasSpecialChar = (password: string) =>
+  /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)
+export const hasMinLength = (password: string) => password.length >= 6
 
 const RegisterComponent = ({ onSwitchToLogin }: RegisterComponentProps) => {
-  const [showPassword, setShowPassword] = useState(false)
-
   const {
     control,
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -43,6 +47,9 @@ const RegisterComponent = ({ onSwitchToLogin }: RegisterComponentProps) => {
       sexo: 'feminino',
     },
   })
+  const [showPassword, setShowPassword] = useState(false)
+  const [focusPassword, setFocusPassword] = useState(false)
+  const password = watch('password', '')
 
   function onSubmit(data: RegisterFormData) {
     console.log(data)
@@ -73,14 +80,14 @@ const RegisterComponent = ({ onSwitchToLogin }: RegisterComponentProps) => {
               <span className="text-red-500">{errors.name.message}</span>
             )}
           </div>
-          {/* SEXO do usuario */}
+
           <div className="space-y-2">
             <Label>Sexo</Label>
 
             <Controller
-              name="sexo" // <-- nome do campo no formulário
-              control={control} // <-- você vai precisar adicionar "control" no useForm
-              defaultValue="feminino" // opcional: valor padrão
+              name="sexo"
+              control={control}
+              defaultValue="feminino"
               render={({ field }) => (
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -140,6 +147,9 @@ const RegisterComponent = ({ onSwitchToLogin }: RegisterComponentProps) => {
               <Input
                 {...register('password')}
                 id="password"
+                value={password}
+                onFocus={() => setFocusPassword(true)}
+                onBlur={() => setFocusPassword(false)}
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 className="h-12 pl-11 pr-12"
@@ -156,6 +166,15 @@ const RegisterComponent = ({ onSwitchToLogin }: RegisterComponentProps) => {
                 )}
               </button>
             </div>
+
+            <PasswordRequirements
+              password={password}
+              focusPassword={focusPassword}
+              hasNumber={hasNumber}
+              hasSpecialChar={hasSpecialChar}
+              hasMinLength={hasMinLength}
+            />
+
             {errors.password && (
               <p className="text-sm text-red-500">{errors.password.message}</p>
             )}
@@ -232,20 +251,19 @@ const RegisterComponent = ({ onSwitchToLogin }: RegisterComponentProps) => {
           >
             Criar minha conta
           </Button>
-
-          <div className="pt-4 text-center">
-            <span className="text-sm text-muted-foreground">
-              Já tem uma conta?{' '}
-              <button
-                onClick={onSwitchToLogin}
-                className="font-bold text-purple-600 hover:text-purple-700"
-              >
-                Fazer login
-              </button>
-            </span>
-          </div>
         </CardContent>
       </form>
+      <div className="py-4 text-center">
+        <span className="text-sm text-muted-foreground">
+          Já tem uma conta?{' '}
+          <button
+            onClick={onSwitchToLogin}
+            className="font-bold text-purple-600 hover:text-purple-700"
+          >
+            Fazer login
+          </button>
+        </span>
+      </div>
       <CardFooter className="rounded-2xl border-t bg-muted/50 py-5 text-center">
         <p className="text-xs text-muted-foreground">
           Seus dados estão 100% seguros

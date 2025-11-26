@@ -1,0 +1,137 @@
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+
+import { Eye, EyeOff } from 'lucide-react'
+
+import { PasswordRequirements } from '../../../auth/PasswordRequirements'
+import { Button } from '../../../components/ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../../../components/ui/card'
+import { Input } from '../../../components/ui/input'
+import { Label } from '../../../components/ui/label'
+import {
+  resetSchema,
+  type ResetFormData,
+} from '../../../lib/validatorSchemas/autoSchemaAutenticator'
+import { hasMinLength, hasNumber, hasSpecialChar } from './RegisterComponent'
+
+const ResetPasswordComponent = () => {
+  const [showPassword, setShowPassword] = useState(false)
+  const [focusPassword, setFocusPassword] = useState(false)
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<ResetFormData>({
+    resolver: zodResolver(resetSchema),
+  })
+  const password = watch('password', '')
+  const onSubmit = (data: ResetFormData) => {
+    console.log('Nova senha:', data.password)
+  }
+
+  return (
+    <Card className="m-auto mt-44 w-full max-w-md border-0 shadow-2xl">
+      <CardHeader className="bg-linear-purple relative rounded-md py-10 text-center text-white">
+        <CardTitle className="text-3xl font-bold">Redefinir senha</CardTitle>
+        <CardDescription className="text-white/90">
+          Crie uma nova senha segura para sua conta
+        </CardDescription>
+      </CardHeader>
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <CardContent className="space-y-6 pt-8">
+          <div className="space-y-2">
+            <Label htmlFor="password">Nova senha</Label>
+
+            <div className="relative">
+              <Input
+                {...register('password')}
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                className="h-12 pr-12"
+                onFocus={() => setFocusPassword(true)}
+                onBlur={() => setFocusPassword(false)}
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPassword ? (
+                  <Eye className="h-5 w-5" />
+                ) : (
+                  <EyeOff className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+
+            {errors.password && (
+              <p className="text-sm text-red-500">{errors.password.message}</p>
+            )}
+
+            <PasswordRequirements
+              password={password}
+              focusPassword={focusPassword}
+              hasNumber={hasNumber}
+              hasSpecialChar={hasSpecialChar}
+              hasMinLength={hasMinLength}
+            />
+          </div>
+
+          {/* CONFIRMAR SENHA */}
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirmar senha</Label>
+
+            <div className="relative">
+              <Input
+                {...register('confirmPassword')}
+                id="confirmPassword"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="••••••••"
+                className="h-12 pr-12"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPassword ? (
+                  <Eye className="h-5 w-5" />
+                ) : (
+                  <EyeOff className="h-5 w-5" />
+                )}
+              </button>
+            </div>
+
+            {errors.confirmPassword && (
+              <p className="text-sm text-red-500">
+                {errors.confirmPassword.message}
+              </p>
+            )}
+          </div>
+
+          {/* BOTÃO */}
+          <Button
+            type="submit"
+            className="bg-linear-purple h-12 w-full text-white shadow-lg shadow-purple-300/30 transition-all hover:shadow-purple-400/40"
+          >
+            Salvar nova senha
+          </Button>
+        </CardContent>
+      </form>
+    </Card>
+  )
+}
+
+export default ResetPasswordComponent

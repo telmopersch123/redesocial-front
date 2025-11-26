@@ -1,6 +1,8 @@
 // src/components/auth/LoginComponent.tsx
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { Button } from '../../../components/ui/button'
 import {
   Card,
@@ -13,13 +15,36 @@ import {
 import { Checkbox } from '../../../components/ui/checkbox'
 import { Input } from '../../../components/ui/input'
 import { Label } from '../../../components/ui/label'
+import {
+  loginSchema,
+  type LoginFormData,
+} from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 
 interface LoginComponentProps {
   onSwitchToRegister: () => void
+  setForgotPassword: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const LoginComponent = ({ onSwitchToRegister }: LoginComponentProps) => {
+const LoginComponent = ({
+  onSwitchToRegister,
+  setForgotPassword,
+}: LoginComponentProps) => {
   const [showPassword, setShowPassword] = useState(false)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  })
+
+  function onSubmit(data: LoginFormData) {
+    console.log(data)
+  }
   return (
     <Card className="m-auto w-full max-w-md border-0 shadow-2xl">
       <CardHeader className="bg-linear-purple rounded-md py-10 text-center text-white">
@@ -30,19 +55,23 @@ const LoginComponent = ({ onSwitchToRegister }: LoginComponentProps) => {
           Acesse sua conta agora
         </CardDescription>
       </CardHeader>
-      <form onSubmit={(e) => e.preventDefault()}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-6 pt-8">
           <div className="space-y-2">
             <Label htmlFor="email">E-mail</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
               <Input
+                {...register('email')}
                 id="email"
                 type="email"
                 placeholder="seu@email.com"
                 className="h-12 pl-11"
               />
             </div>
+            {errors.email && (
+              <p className="text-red-500">{errors.email.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -50,6 +79,7 @@ const LoginComponent = ({ onSwitchToRegister }: LoginComponentProps) => {
             <div className="relative">
               <Lock className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
               <Input
+                {...register('password')}
                 id="password"
                 type="password"
                 placeholder="••••••••"
@@ -67,6 +97,9 @@ const LoginComponent = ({ onSwitchToRegister }: LoginComponentProps) => {
                 )}
               </button>
             </div>
+            {errors.password && (
+              <p className="text-red-500">{errors.password.message}</p>
+            )}
           </div>
 
           <div className="flex items-center justify-between">
@@ -76,28 +109,33 @@ const LoginComponent = ({ onSwitchToRegister }: LoginComponentProps) => {
                 Lembrar-me
               </Label>
             </div>
-            <a href="#" className="text-sm text-purple-600 hover:underline">
+            <a
+              onClick={() => setForgotPassword(true)}
+              className="cursor-pointer text-sm text-purple-600 hover:underline"
+            >
               Esqueceu a senha?
             </a>
           </div>
 
-          <Button className="bg-linear-purple h-12 w-full text-lg font-bold text-white shadow-lg hover:opacity-90">
+          <Button
+            type="submit"
+            className="bg-linear-purple h-12 w-full text-lg font-bold text-white shadow-lg hover:opacity-90"
+          >
             Entrar na conta
           </Button>
-
-          <div className="pt-4 text-center">
-            <span className="text-sm text-muted-foreground">
-              Ainda não tem conta?{' '}
-              <button
-                onClick={onSwitchToRegister}
-                className="font-bold text-purple-600 hover:text-purple-700"
-              >
-                Criar agora
-              </button>
-            </span>
-          </div>
         </CardContent>
       </form>
+      <div className="py-4 text-center">
+        <span className="text-sm text-muted-foreground">
+          Ainda não tem conta?{' '}
+          <button
+            onClick={onSwitchToRegister}
+            className="font-bold text-purple-600 hover:text-purple-700"
+          >
+            Criar agora
+          </button>
+        </span>
+      </div>
       <CardFooter className="rounded-2xl border-t bg-muted/50 py-5 text-center">
         <p className="text-xs text-muted-foreground">
           Seus dados estão 100% seguros
