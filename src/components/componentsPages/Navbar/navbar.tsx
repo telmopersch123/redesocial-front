@@ -82,9 +82,9 @@ export function AppSidebar() {
   }, [location.pathname])
   return (
     <div
-      className={` ${(pathname === '/' && '2xl:w-[132px]') || (pathname === '/comunidades/comunidade-do-usuario' && '2xl:w-[130px]') || (pathname === `/perfil/${id}` && '2xl:w-[130px]')} `}
+      className={` ${(pathname === '/' && '2xl:w-[134px]') || (pathname === '/comunidades/comunidade-do-usuario' && '2xl:w-[134px]') || (pathname === `/perfil/${id}` && '2xl:w-[130px]')} `}
     >
-      <Sidebar className="border-r border-muted">
+      <Sidebar side="left" className="border-r border-muted">
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel className="my-4 mt-6 px-3 pb-4">
@@ -113,7 +113,7 @@ export function AppSidebar() {
             </SidebarGroupLabel>
             <Separator />
             <SidebarGroupContent className="pt-3">
-              <SidebarMenu className="space-y-1 px-2">
+              <SidebarMenu className="space-y-1">
                 {items.map((item) => {
                   const isActive = active === item.title
                   return (

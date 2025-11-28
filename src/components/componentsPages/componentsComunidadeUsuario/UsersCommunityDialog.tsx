@@ -204,10 +204,7 @@ const UsersCommunityDialog = () => {
 
   return (
     <>
-      {open && (
-        <div className="fixed inset-0 z-40 flex h-screen items-center justify-center !overflow-hidden bg-black/80"></div>
-      )}
-      <Dialog modal={false} open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={setOpen}>
         <TooltipComponent
           Tag={
             <DialogTrigger asChild>

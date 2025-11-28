@@ -9,12 +9,14 @@ export default {
         om: '450px',
         sm: '640px',
         md: '768px',
+        ym: '860px',
         lg: '1024px',
         xl: '1280px',
-        ym: '850px',
+
         dm: '1000px',
         tm: '1340px',
         ny: '1640px',
+        vm: '1800px',
       },
       borderRadius: {
         lg: 'var(--radius)',

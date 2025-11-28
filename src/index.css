@@ -16,6 +16,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html,
+body {
+  overflow-y: scroll !important;
+  inset: 0;
+  width: 100%;
+}
+
 body {
   margin: 0;
 
@@ -53,6 +60,7 @@ body[data-state='open'] {
   scrollbar-width: none; /* scroll mais fino */
   scrollbar-color: rgba(224, 196, 247, 0) transparent;
 }
+
 @layer base {
   :root {
     --background: 0 0% 100%;

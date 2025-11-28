@@ -15,6 +15,7 @@ interface PostCardProps {
 }
 const CardsPostComponent = ({ posts, valuePost, setPosts }: PostCardProps) => {
   const [novoComentario, setNovoComentario] = useState('')
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   const handleLike = (id: number) => {
     setPosts(
@@ -85,7 +86,10 @@ const CardsPostComponent = ({ posts, valuePost, setPosts }: PostCardProps) => {
               className="h-full w-full object-cover"
             />
             {valuePost.video && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+              <div
+                onClick={() => setDialogOpen(true)}
+                className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/30"
+              >
                 <div className="bg-linear-purple rounded-full p-4 shadow-xl backdrop-blur-sm transition-transform hover:scale-110">
                   <Play className="h-10 w-10 text-white" />
                 </div>
@@ -116,6 +120,8 @@ const CardsPostComponent = ({ posts, valuePost, setPosts }: PostCardProps) => {
               setNovoComentario={setNovoComentario}
               setPosts={setPosts}
               posts={posts}
+              open={dialogOpen}
+              onOpenChange={setDialogOpen}
             />
             <button className="flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-blue-600">
               <Share2 className="h-5 w-5" />

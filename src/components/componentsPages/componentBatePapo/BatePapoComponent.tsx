@@ -156,8 +156,8 @@ export const BatePapoSidebar = () => {
 
         <Sidebar
           side="right"
-          className={`fixed z-[30] w-96 border-l transition-all duration-300 ${
-            isCollapsed ? 'w-0 overflow-hidden' : 'w-96'
+          className={`fixed z-[30] border-l transition-all duration-300 ${
+            isCollapsed ? 'w-0 overflow-hidden' : 'w-92'
           }`}
         >
           <MemoizedSidebarInner
@@ -180,7 +180,7 @@ export const BatePapoSidebar = () => {
         <SheetTrigger asChild>
           <Button
             size="icon"
-            className={`bg-linear-purple hover:scale-11 fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-2xl`}
+            className={`bg-linear-purple hover:scale-11 fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-2xl`}
           >
             <MessageCircle className="h-7 w-7" />
             <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
