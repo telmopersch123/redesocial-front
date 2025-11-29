@@ -4,6 +4,7 @@ import {
   MessageCircleX,
   Play,
   Send,
+  X,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useLimitForms } from '../../../hooks/useLimitForms'
@@ -137,7 +138,7 @@ const PostComponentDialog = ({
         } ${nivel >= 2 ? 'border-none pl-0' : ''} w-full`}
       >
         <div className="relative flex w-full flex-col gap-3 rounded-lg bg-black/[0.02] p-3 sm:flex-row sm:items-start">
-          <div className="w-full rounded-xl border border-gray-100 bg-white px-4 py-3 shadow-sm sm:w-auto sm:max-w-full">
+          <div className="w-full rounded-xl border border-gray-100 bg-white px-4 py-3 shadow-sm">
             <div className="flex w-full items-start justify-between gap-2">
               <div className="flex items-center gap-3">
                 <div
@@ -269,8 +270,19 @@ const PostComponentDialog = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="flex h-[95vh] flex-col -space-y-10 rounded-xl p-0 sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw] xl:max-w-[75vw] 2xl:max-w-[70vw]">
+      <DialogContent className="flex h-[95vh] flex-col -space-y-10 overflow-hidden rounded-xl p-0 sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw] xl:max-w-[75vw] 2xl:max-w-[70vw] [&>button]:hidden">
         <DialogHeader className="flex flex-col p-4">
+          <div className="absolute right-5 top-2 flex items-center justify-end p-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full transition-all duration-200 hover:bg-red-100 hover:text-red-600 active:scale-90"
+              onClick={() => onOpenChange(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-sm font-bold text-white">
               <p aria-hidden>{valuePost.avatar}</p>
@@ -307,11 +319,9 @@ const PostComponentDialog = ({
           <Separator className="m-0" />
         </DialogHeader>
 
-        <div
-          className={`flex h-[calc(100vh-320px)] flex-col gap-3 p-4 2xl:flex-row 2xl:items-stretch`}
-        >
+        <div className="flex min-h-0 flex-1 flex-col justify-between p-4 2xl:flex-row">
           {(valuePost.imagem || valuePost.video) && (
-            <div className="z-10 h-[200px] 2xl:order-1 2xl:h-auto 2xl:w-1/2">
+            <div className="z-10 md:h-1/2 2xl:h-auto 2xl:w-1/2">
               <div className="bg-linear-purple relative flex items-center justify-center overflow-hidden rounded-md md:h-[500px] 2xl:h-full">
                 <div className="p-1">
                   <img
@@ -331,59 +341,64 @@ const PostComponentDialog = ({
             </div>
           )}
 
-          <div className="order-1 -mb-28 flex min-h-0 w-full flex-col 2xl:order-2 2xl:h-full 2xl:w-1/2">
-            <div className="min-h-0 flex-1 overflow-y-auto pr-2">
-              {valuePost.comentarios.map((c) => (
-                <ComentarioItem key={c.id} comentario={c} />
-              ))}
-            </div>
-
-            <div className="mt-3 w-full rounded-xl bg-white p-2">
-              <form
-                className="flex w-full items-center gap-2"
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  adicionarComentario(valuePost.id)
-                }}
+          <div
+            className={`flex h-full flex-col overflow-y-auto 2xl:max-h-full ${valuePost.imagem === undefined && valuePost.video === undefined ? '2xl:w-full' : 'md:max-h-[48vh] 2xl:w-1/2'}`}
+          >
+            <div className="relative h-full md:h-2/3 md:max-h-full 2xl:h-full">
+              <div className="space-y-4 pb-10 pt-8 2xl:pb-10 2xl:pt-0">
+                {valuePost.comentarios.map((c) => (
+                  <ComentarioItem key={c.id} comentario={c} />
+                ))}
+              </div>
+              <div
+                className={` ${valuePost.imagem === undefined && valuePost.video === undefined ? '2xl:w-full' : '2xl:w-1/2'} !fixed !bottom-0 right-0 mt-3 w-full rounded-xl bg-white p-2`}
               >
-                <Input
-                  placeholder="Escreva um comentário..."
-                  value={novoComentario}
-                  onChange={(e) => {
-                    setNovoComentario(e.target.value)
-                    comentarios.handleChange(e)
+                <form
+                  className="flex w-full items-center gap-2"
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    adicionarComentario(valuePost.id)
                   }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      adicionarComentario(valuePost.id)
-                    }
-                  }}
-                  className={`flex-1 rounded-full border ${
-                    comentarios.error
-                      ? '!border-rose-300 focus:!ring-rose-500'
-                      : 'focus:border-transparent focus:!ring-purple-600'
-                  }`}
-                  aria-label="Novo comentário"
-                />
-
-                <Button
-                  type="submit"
-                  size="icon"
-                  onClick={() => adicionarComentario(valuePost.id)}
-                  disabled={!novoComentario.trim() || !!comentarios.error}
-                  className="bg-linear-purple rounded-full text-white hover:shadow-md disabled:opacity-50"
                 >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </form>
+                  <Input
+                    placeholder="Escreva um comentário..."
+                    value={novoComentario}
+                    onChange={(e) => {
+                      setNovoComentario(e.target.value)
+                      comentarios.handleChange(e)
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        adicionarComentario(valuePost.id)
+                      }
+                    }}
+                    className={`flex-1 rounded-full border ${
+                      comentarios.error
+                        ? '!border-rose-300 focus:!ring-rose-500'
+                        : 'focus:border-transparent focus:!ring-purple-600'
+                    }`}
+                    aria-label="Novo comentário"
+                  />
 
-              {comentarios.error && (
-                <p className="mt-2 text-center text-sm text-rose-600">
-                  Uau rsrs! Você escreveu bastante! Envie a mensagem atual para
-                  continuar.
-                </p>
-              )}
+                  <Button
+                    type="submit"
+                    size="icon"
+                    onClick={() => adicionarComentario(valuePost.id)}
+                    disabled={!novoComentario.trim() || !!comentarios.error}
+                    className="bg-linear-purple rounded-full text-white hover:shadow-md disabled:opacity-50"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </form>
+
+                {comentarios.error && (
+                  <p className="mt-2 text-center text-sm text-rose-600">
+                    Uau rsrs! Você escreveu bastante! Envie a mensagem atual
+                    para continuar.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </div>
