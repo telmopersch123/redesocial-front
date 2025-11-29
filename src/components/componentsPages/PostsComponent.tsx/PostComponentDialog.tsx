@@ -163,7 +163,7 @@ const PostComponentDialog = ({
                 {euUser && (
                   <TooltipComponent
                     Tag={
-                      <Button className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-600 text-white hover:!bg-red-700/90">
+                      <Button className="absolute right-0 top-0 flex h-8 w-8 items-center justify-center rounded-full bg-purple-600 text-white hover:!bg-red-700/90">
                         <MessageCircleX />
                       </Button>
                     }
@@ -193,29 +193,31 @@ const PostComponentDialog = ({
         </div>
 
         {estaRespondendo && (
-          <div className="mt-3 w-full">
+          <div className="mt-3 w-full px-3">
             <div className="ml-2 text-xs font-medium text-purple-600">
               Respondendo @{comentario.autor}
             </div>
 
-            <div className="mt-2 flex w-full flex-col gap-2 sm:flex-row">
-              <Input
-                placeholder="Escreva sua resposta..."
-                value={textoResposta}
-                onChange={(e) => setTextoResposta(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    adicionarResposta(comentario.id)
-                    setRespondendoA(null)
-                  }
-                }}
-                className="w-full rounded-full text-sm"
-                autoFocus
-                aria-label={`Resposta para ${comentario.autor}`}
-              />
+            <div className="mt-2 flex w-full flex-col flex-wrap justify-start gap-2 ym:flex-row ym:justify-between">
+              <div className="w-full ym:w-[60%]">
+                <Input
+                  placeholder="Escreva sua resposta..."
+                  value={textoResposta}
+                  onChange={(e) => setTextoResposta(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      adicionarResposta(comentario.id)
+                      setRespondendoA(null)
+                    }
+                  }}
+                  className="w-full rounded-full text-sm"
+                  autoFocus
+                  aria-label={`Resposta para ${comentario.autor}`}
+                />
+              </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex w-full items-center justify-start gap-2 ym:w-[30%] ym:justify-end">
                 <Button
                   size="icon"
                   className="bg-linear-purple rounded-full text-white hover:shadow-md"
@@ -322,12 +324,12 @@ const PostComponentDialog = ({
         <div className="flex min-h-0 flex-1 flex-col justify-between p-4 2xl:flex-row">
           {(valuePost.imagem || valuePost.video) && (
             <div className="z-10 md:h-1/2 2xl:h-auto 2xl:w-1/2">
-              <div className="bg-linear-purple relative flex items-center justify-center overflow-hidden rounded-md md:h-[500px] 2xl:h-full">
+              <div className="bg-linear-purple relative flex items-center justify-center overflow-hidden rounded-md md:w-auto 2xl:h-full">
                 <div className="p-1">
                   <img
                     src={valuePost.imagem}
                     alt={valuePost.community || 'Imagem do post'}
-                    className="max-h-[400px] w-full max-w-full rounded-md object-contain shadow-[0_0_10px_3px_rgba(0,0,0,0.3)] 2xl:max-h-[70vh]"
+                    className="max-h-[250px] w-full max-w-full rounded-md object-contain shadow-[0_0_10px_3px_rgba(0,0,0,0.3)] 2xl:max-h-[calc(65vh-70px)]"
                   />
                 </div>
                 {valuePost.video && (
