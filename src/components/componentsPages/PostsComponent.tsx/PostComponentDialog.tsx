@@ -14,6 +14,7 @@ import {
 import { Input } from '../../ui/input'
 import { Separator } from '../../ui/separator'
 import CommentItem from './ComentarioItemComponent'
+import ActionsPost from './components/SavePostButton'
 
 const euUser = true
 
@@ -36,6 +37,7 @@ const PostComponentDialog = ({
   open,
   onOpenChange,
 }: PostProp) => {
+  const [dialogOpen, setDialogOpen] = useState(false)
   const comentarios = useLimitForms(5000)
   const pathname = useLocation().pathname
   const { id } = useParams()
@@ -118,11 +120,13 @@ const PostComponentDialog = ({
         <div className="fixed inset-0 z-[60] h-screen w-screen bg-black/50" />
       )}
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogTrigger className="rounded-md px-4 py-2 text-white">
+        <DialogTrigger
+          className={`rounded-md px-4 py-2 text-white ${pathname.includes(`perfil/${id}/config`) ? 'hidden' : ''}`}
+        >
           <Button
             variant="ghost"
             size="sm"
-            className={`flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600 ${pathname.includes(`perfil/${id}/config`) ? 'hidden' : ''}`}
+            className={`flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600`}
             aria-label={`Abrir comentários (${valuePost.comentarios.length})`}
           >
             <MessageCircle />
@@ -154,7 +158,7 @@ const PostComponentDialog = ({
 
             <div className={`relative w-full`}>
               <div className="max-w-full overflow-y-auto break-all pr-2">
-                <DialogTitle className="text-md h-[100px] p-0 font-medium leading-relaxed 2xl:h-[200px]">
+                <DialogTitle className="text-md h-[100px] p-0 font-medium leading-relaxed 2xl:h-[120px]">
                   {valuePost.conteudo}
                   kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
                   kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
@@ -182,21 +186,43 @@ const PostComponentDialog = ({
           <div className="flex min-h-0 flex-1 flex-col justify-between p-4 2xl:flex-row">
             {(valuePost.imagem || valuePost.video) && (
               <div className="z-10 md:h-1/2 2xl:h-auto 2xl:w-1/2">
-                <div className="bg-linear-purple relative flex items-center justify-center overflow-hidden rounded-md md:w-auto 2xl:h-full">
-                  <div className="p-1">
-                    <img
-                      src={valuePost.imagem}
-                      alt={valuePost.community || 'Imagem do post'}
-                      className="max-h-[250px] w-full max-w-full rounded-md object-contain shadow-[0_0_10px_3px_rgba(0,0,0,0.3)] 2xl:max-h-[calc(65vh-70px)]"
-                    />
-                  </div>
-                  {valuePost.video && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                      <div className="bg-linear-purple rounded-full p-4 shadow-xl backdrop-blur-sm transition-transform hover:scale-110">
-                        <Play className="h-10 w-10 text-white" />
-                      </div>
+                <div
+                  className={`bg-linear-purple relative flex items-center justify-center overflow-hidden rounded-md md:w-auto 2xl:h-full ${pathname.includes(`perfil/${id}/config`) && open === true ? 'flex-col' : 'flex-row'}`}
+                >
+                  <div>
+                    <div className="p-1">
+                      <img
+                        src={valuePost.imagem}
+                        alt={valuePost.community || 'Imagem do post'}
+                        className="max-h-[250px] w-full max-w-full rounded-md object-contain shadow-[0_0_10px_3px_rgba(0,0,0,0.3)] 2xl:max-h-[calc(65vh-70px)]"
+                      />
                     </div>
-                  )}
+                    {valuePost.video && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <div className="bg-linear-purple rounded-full p-4 shadow-xl backdrop-blur-sm transition-transform hover:scale-110">
+                          <Play className="h-10 w-10 text-white" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    {pathname.includes(`perfil/${id}/config`) &&
+                      open === true && (
+                        <ActionsPost
+                          valuePost={valuePost}
+                          novoComentario={novoComentario}
+                          setNovoComentario={setNovoComentario}
+                          setPosts={setPosts}
+                          posts={posts}
+                          dialogOpen={dialogOpen}
+                          setDialogOpen={setDialogOpen}
+                          validated={
+                            pathname.includes(`perfil/${id}/config`) &&
+                            open === true
+                          }
+                        />
+                      )}
+                  </div>
                 </div>
               </div>
             )}
