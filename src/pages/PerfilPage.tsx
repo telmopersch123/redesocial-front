@@ -13,7 +13,7 @@ import { Button } from '../components/ui/button'
 import { Separator } from '../components/ui/separator'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
 import type { Post } from '../types'
-const postsFicticiosGlobal: Post[] = [
+export const postsFicticiosGlobal: Post[] = [
   {
     id: 1,
     typePosts: 'Ansioso',
@@ -1492,7 +1492,7 @@ const postsFicticiosGlobal: Post[] = [
   },
 ]
 
-const euUsuario = false
+const euUsuario = true
 
 const PerfilUsuario = () => {
   const { id } = useParams()

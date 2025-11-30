@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { postsFicticiosGlobal } from '../../../../pages/FeedPage'
+import type { Post } from '../../../../types'
 import { Button } from '../../../ui/button'
 import {
   Dialog,
@@ -13,6 +15,8 @@ import {
 } from '../../../ui/dialog'
 import { Label } from '../../../ui/label'
 import { Switch } from '../../../ui/switch'
+import PostComponentDialog from '../../PostsComponent.tsx/PostComponentDialog'
+import AcitivyComponent from './AcitivyComponent'
 import ConfirmDialog2Etapas from './ConfirmTwoStepsDialog'
 import DialogConfirmRemoveAccount from './DialogConfirmRemoveAccount'
 import DialogEditNome from './EditNomeDialog'
@@ -26,12 +30,45 @@ interface DialogConfigProps {
   setNomeUser?: (nomeUser: string) => void
 }
 
+const savedVideos = [
+  {
+    id: '1',
+    title: 'Como criar animações com Tailwind',
+    thumbnail: 'https://via.placeholder.com/300x180?text=Video+1',
+    duration: '12:45',
+  },
+  {
+    id: '2',
+    title: 'React + Shadcn para iniciantes',
+    thumbnail: 'https://via.placeholder.com/300x180?text=Video+2',
+    duration: '08:20',
+  },
+]
+
+const likedVideos = [
+  {
+    id: '3',
+    title: 'Criando UI moderna com Framer Motion',
+    thumbnail: 'https://via.placeholder.com/300x180?text=Video+3',
+    duration: '06:10',
+  },
+  {
+    id: '4',
+    title: 'Consumindo APIs REST com React',
+    thumbnail: 'https://via.placeholder.com/300x180?text=Video+4',
+    duration: '10:25',
+  },
+]
+
 export function ConfigDialog({
   open,
   setOpen,
   nomeUser,
   setNomeUser,
 }: DialogConfigProps) {
+  const [novoComentario, setNovoComentario] = useState('')
+  const [posts, setPosts] = useState<Post[]>([postsFicticiosGlobal[2]])
+  const [dialogOpen, setDialogOpen] = useState(false)
   const [notifications, setNotifications] = useState(true)
   const [darkMode, setDarkMode] = useState(false)
   const [twoFactor, setTwoFactor] = useState(false)
@@ -252,8 +289,16 @@ export function ConfigDialog({
                 </div>
               </div>
             </div>
-          ) : (
+          ) : tab === 2 ? (
             <OptionsCommunity />
+          ) : (
+            tab === 3 && (
+              <AcitivyComponent
+                setDialogOpen={setDialogOpen}
+                savedVideos={savedVideos}
+                likedVideos={likedVideos}
+              />
+            )
           )}
 
           {tab === 1 && (
@@ -268,6 +313,21 @@ export function ConfigDialog({
           )}
         </DialogContent>
       </Dialog>
+      {posts.map((valuePost) => (
+        <>
+          <div key={valuePost.id} className="absolute">
+            <PostComponentDialog
+              valuePost={valuePost}
+              novoComentario={novoComentario}
+              setNovoComentario={setNovoComentario}
+              setPosts={setPosts}
+              posts={posts}
+              open={dialogOpen}
+              onOpenChange={setDialogOpen}
+            />
+          </div>
+        </>
+      ))}
     </>
   )
 }

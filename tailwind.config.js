@@ -12,7 +12,6 @@ export default {
         ym: '860px',
         lg: '1024px',
         xl: '1280px',
-
         dm: '1000px',
         tm: '1340px',
         ny: '1640px',

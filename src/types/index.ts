@@ -41,3 +41,12 @@ export interface Post {
   salvo: boolean
   tags: string[]
 }
+
+////
+export type ComentarioPost = {
+  id: number
+  autor: string
+  texto: string
+  respostas?: Comentario[]
+  respondendoPara?: string | null
+}

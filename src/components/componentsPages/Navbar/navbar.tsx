@@ -61,7 +61,7 @@ export function AppSidebar() {
 
     const itemPathe = items.find((item) => item.url === pathname)
 
-    if (pathname === `/perfil/${id}`) {
+    if (pathname === `/perfil/${id}` || pathname === `/perfil/${id}/config`) {
       setActive('Perfil')
     } else if (
       pathname === `/usuarios/perfil/${id}` ||
