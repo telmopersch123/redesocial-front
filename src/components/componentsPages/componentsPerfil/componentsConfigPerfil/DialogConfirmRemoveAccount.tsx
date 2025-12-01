@@ -10,10 +10,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../../ui/dialog'
+import { openOnly } from './ConfigDialog'
 
-const DialogConfirmRemoveAccount = () => {
+interface DialogConfirmRemoveAccountProps {
+  open: boolean
+  setOpen: React.Dispatch<React.SetStateAction<boolean[]>>
+}
+
+const DialogConfirmRemoveAccount = ({
+  open,
+  setOpen,
+}: DialogConfirmRemoveAccountProps) => {
   return (
-    <Dialog modal={false}>
+    <Dialog
+      open={open}
+      onOpenChange={(value) => {
+        if (value) {
+          openOnly({ index: 1, setOpenDialog: setOpen })
+        } else {
+          setOpen((prev) => prev.map(() => false))
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button
           variant="destructive"
@@ -23,7 +41,7 @@ const DialogConfirmRemoveAccount = () => {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="w-[90%] rounded-2xl im:max-w-sm">
+      <DialogContent className="z-[70] w-[90%] rounded-2xl im:max-w-sm">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">
             Confirmar remoção da conta

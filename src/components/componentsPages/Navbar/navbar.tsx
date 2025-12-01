@@ -84,7 +84,7 @@ export function AppSidebar() {
     <div
       className={` ${(pathname === '/' && '2xl:w-[134px]') || (pathname === '/comunidades/comunidade-do-usuario' && '2xl:w-[134px]') || (pathname === `/perfil/${id}` && '2xl:w-[130px]')} `}
     >
-      <Sidebar side="left" className="z-[9999] border-r border-muted">
+      <Sidebar side="left" className="border-r border-muted">
         <SidebarContent>
           <SidebarGroup>
             <SidebarGroupLabel className="my-4 mt-6 px-3 pb-4">

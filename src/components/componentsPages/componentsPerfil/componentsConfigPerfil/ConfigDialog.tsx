@@ -56,6 +56,14 @@ const likedVideos = [
   },
 ]
 
+interface OpenOnlyProps {
+  index: number
+  setOpenDialog: React.Dispatch<React.SetStateAction<boolean[]>>
+}
+export const openOnly = ({ index, setOpenDialog }: OpenOnlyProps) => {
+  setOpenDialog((prev) => prev.map((_, i) => i === index))
+}
+
 export function ConfigDialog({
   open,
   setOpen,
@@ -70,12 +78,11 @@ export function ConfigDialog({
   const [twoFactor, setTwoFactor] = useState(false)
   const [anonMode, setAnonMode] = useState(false)
   const [showStatus, setShowStatus] = useState(true)
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
   const [tab, setTab] = useState(1)
-
+  const [openDialog, setOpenDialog] = useState([false, false, false, false])
   const handleTwoFactorChange = (checked: boolean) => {
     if (!checked && twoFactor) {
-      setConfirmDialogOpen(true)
+      openOnly({ index: 2, setOpenDialog })
     } else {
       setTwoFactor(checked)
     }
@@ -83,11 +90,15 @@ export function ConfigDialog({
 
   const confirmDisableTwoFactor = () => {
     setTwoFactor(false)
-    setConfirmDialogOpen(false)
+    setOpenDialog((prev) => prev.map(() => false))
   }
 
   return (
     <>
+      {openDialog.some((item) => item === true) && (
+        <div className="fixed inset-0 z-[60] h-screen w-screen bg-black/50" />
+      )}
+
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <div>
@@ -123,8 +134,8 @@ export function ConfigDialog({
               twoFactor={twoFactor}
               handleTwoFactorChange={handleTwoFactorChange}
               confirmDisableTwoFactor={confirmDisableTwoFactor}
-              confirmDialogOpen={confirmDialogOpen}
-              setConfirmDialogOpen={setConfirmDialogOpen}
+              open={openDialog}
+              setOpen={setOpenDialog}
             />
           ) : tab === 2 ? (
             <OptionsCommunity />
@@ -139,7 +150,7 @@ export function ConfigDialog({
           )}
 
           {tab === 1 && (
-            <DialogFooter className="mt-6">
+            <DialogFooter className="mt-6 gap-2">
               <DialogClose asChild>
                 <Button variant="outline">Cancelar</Button>
               </DialogClose>

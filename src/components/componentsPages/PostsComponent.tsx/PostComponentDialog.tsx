@@ -11,10 +11,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../ui/dialog'
-import { Input } from '../../ui/input'
 import { Separator } from '../../ui/separator'
 import CommentItem from './ComentarioItemComponent'
+import MentionInput from './components/MentionsInput'
 import ActionsPost from './components/SavePostButton'
+import ListMarcation from './ListMarcation'
 
 const euUser = true
 
@@ -27,7 +28,18 @@ export interface PostProp {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
-
+export const usuariosMentions = [
+  'ana',
+  'anderson',
+  'andre',
+  'telmo',
+  'maria',
+  'joao',
+  'jose',
+  'mariana',
+  'carlos',
+  'paula',
+]
 const PostComponentDialog = ({
   valuePost,
   novoComentario,
@@ -37,7 +49,10 @@ const PostComponentDialog = ({
   open,
   onOpenChange,
 }: PostProp) => {
+  const [clickedMention, setClickedMention] = useState(false)
+  const [sugestoes, setSugestoes] = useState<string[]>(usuariosMentions)
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [openMarcation, setOpenMarcation] = useState(false)
   const comentarios = useLimitForms(5000)
   const pathname = useLocation().pathname
   const { id } = useParams()
@@ -112,6 +127,24 @@ const PostComponentDialog = ({
         return p
       })
     )
+  }
+
+  const handleMarcation = (text: string) => {
+    const cursorWord = text.split(/\s+/).pop() || ''
+    if (cursorWord.startsWith('@')) {
+      const termo = cursorWord.slice(1).toLocaleLowerCase()
+
+      const filtrados = usuariosMentions.filter((nome) =>
+        nome.toLowerCase().startsWith(termo)
+      )
+
+      setSugestoes(filtrados)
+      setClickedMention(false)
+      setOpenMarcation(true)
+    } else {
+      setSugestoes([])
+      setOpenMarcation(false)
+    }
   }
 
   return (
@@ -253,28 +286,27 @@ const PostComponentDialog = ({
                     className="flex w-full items-center gap-2"
                     onSubmit={(e) => {
                       e.preventDefault()
-                      adicionarComentario(valuePost.id)
                     }}
                   >
-                    <Input
-                      placeholder="Escreva um comentário..."
+                    {openMarcation && (
+                      <ListMarcation
+                        clickedMention={clickedMention}
+                        setClickedMention={setClickedMention}
+                        sugestoes={sugestoes}
+                        setNovoComentario={setNovoComentario}
+                      />
+                    )}
+
+                    <MentionInput
+                      clickedMention={clickedMention}
                       value={novoComentario}
                       onChange={(e) => {
                         setNovoComentario(e.target.value)
                         comentarios.handleChange(e)
+                        handleMarcation(e.target.value)
                       }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault()
-                          adicionarComentario(valuePost.id)
-                        }
-                      }}
-                      className={`flex-1 rounded-full border ${
-                        comentarios.error
-                          ? '!border-rose-300 focus:!ring-rose-500'
-                          : 'focus:border-transparent focus:!ring-purple-600'
-                      }`}
-                      aria-label="Novo comentário"
+                      onEnter={() => adicionarComentario(valuePost.id)}
+                      error={comentarios.error}
                     />
 
                     <Button

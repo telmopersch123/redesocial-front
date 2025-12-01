@@ -8,25 +8,31 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../../../ui/dialog'
+import { openOnly } from './ConfigDialog'
 
 interface Dialog2EtapasProps {
-  confirmDialogOpen: boolean
-  setConfirmDialogOpen: (confirmDialogOpen: boolean) => void
+  open: boolean
+  setOpen: React.Dispatch<React.SetStateAction<boolean[]>>
   confirmDisableTwoFactor: () => void
 }
 
 const ConfirmTwoStepsDialog = ({
-  confirmDialogOpen,
-  setConfirmDialogOpen,
+  open,
+  setOpen,
   confirmDisableTwoFactor,
 }: Dialog2EtapasProps) => {
   return (
     <Dialog
-      modal={false}
-      open={confirmDialogOpen}
-      onOpenChange={setConfirmDialogOpen}
+      open={open}
+      onOpenChange={(value) => {
+        if (value) {
+          openOnly({ index: 2, setOpenDialog: setOpen })
+        } else {
+          setOpen((prev) => prev.map(() => false))
+        }
+      }}
     >
-      <DialogContent className="w-[90%] rounded-2xl bg-background/95 p-6 shadow-2xl backdrop-blur-sm data-[state=open]:animate-in md:w-[50%]">
+      <DialogContent className="z-[70] w-[90%] rounded-2xl bg-background/95 p-6 shadow-2xl backdrop-blur-sm data-[state=open]:animate-in md:w-[50%]">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-foreground">
             Desativar autenticação em duas etapas?
@@ -42,7 +48,9 @@ const ConfirmTwoStepsDialog = ({
             <Button
               variant="outline"
               className="mt-2 sm:mt-0"
-              onClick={() => setConfirmDialogOpen(false)}
+              onClick={(value) =>
+                setOpen(value ? [false, false, false] : [false, false, false])
+              }
             >
               Cancelar
             </Button>

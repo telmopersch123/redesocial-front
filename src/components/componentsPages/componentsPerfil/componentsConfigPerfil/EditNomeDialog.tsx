@@ -15,21 +15,37 @@ import {
 import { Input } from '../../../ui/input'
 
 interface DialogEditNomeProps {
+  open: boolean
+  setOpen: React.Dispatch<React.SetStateAction<boolean[]>>
   nomeUser: string | null
   setNomeUser: (nomeUser: string) => void
 }
 
-const EditNomeDialog = ({ nomeUser, setNomeUser }: DialogEditNomeProps) => {
+const EditNomeDialog = ({
+  nomeUser,
+  setNomeUser,
+  open,
+  setOpen,
+}: DialogEditNomeProps) => {
   const nameUserControl = useLimitForms(50)
   return (
-    <Dialog modal={false}>
+    <Dialog
+      open={open}
+      onOpenChange={(value) => {
+        if (value) {
+          setOpen((prev) => prev.map((_, i) => i === 3))
+        } else {
+          setOpen((prev) => prev.map(() => false))
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm">
           <Edit2 className="mr-1 h-3 w-3" />
           Editar
         </Button>
       </DialogTrigger>
-      <DialogContent className="w-[90%] rounded-md sm:w-full sm:max-w-md">
+      <DialogContent className="z-[70] w-[90%] rounded-md sm:w-full sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Editar nome</DialogTitle>
           <DialogDescription>
