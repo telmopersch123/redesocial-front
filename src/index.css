@@ -60,6 +60,17 @@ body[data-state='open'] {
   scrollbar-width: none; /* scroll mais fino */
   scrollbar-color: rgba(224, 196, 247, 0) transparent;
 }
+/* REMOVE SPINNERS NO CHROME / EDGE / SAFARI */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* REMOVE SPINNERS NO FIREFOX */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
 
 @layer base {
   :root {

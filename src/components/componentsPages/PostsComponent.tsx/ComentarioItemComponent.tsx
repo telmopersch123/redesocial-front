@@ -1,9 +1,14 @@
 import { CornerDownRight, MessageCircleX, Send } from 'lucide-react'
+
+import { useState } from 'react'
+import { useMentionLogic } from '../../../context/openMentions'
 import { useLimitForms } from '../../../hooks/useLimitForms'
 import type { ComentarioPost } from '../../../types'
+import { formatMentions } from '../../../utils/formatMentions'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 import { Button } from '../../ui/button'
-import { Input } from '../../ui/input'
+import MentionInput from './components/MentionsInput'
+import ListMarcation from './ListMarcation'
 
 interface ComentarioItemProps {
   comentario: ComentarioPost
@@ -11,7 +16,7 @@ interface ComentarioItemProps {
   respondendoA: number | null
   setRespondendoA: React.Dispatch<React.SetStateAction<number | null>>
   textoResposta: string
-  setTextoResposta: (texto: string) => void
+  setTextoResposta: React.Dispatch<React.SetStateAction<string>>
   adicionarResposta: (comentarioId: number) => void
   euUser: boolean
 }
@@ -26,8 +31,14 @@ const CommentItem = ({
   adicionarResposta,
   euUser,
 }: ComentarioItemProps) => {
+  const [clickedMention, setClickedMention] = useState(false)
   const comentarios = useLimitForms(5000)
+  const openMarcation = useState(false)
+  const { getMatches, sugestoes, setActiveInputId, activeInputId } =
+    useMentionLogic()
   const estaRespondendo = respondendoA === comentario.id
+  const idInput = 'comment-' + comentario.id
+  const userId = 12
 
   return (
     <div
@@ -84,9 +95,12 @@ const CommentItem = ({
             </div>
           </div>
 
-          <p className="mt-3 break-words text-sm leading-relaxed text-gray-700">
-            {comentario.texto}
-          </p>
+          <p
+            dangerouslySetInnerHTML={{
+              __html: formatMentions(comentario.texto, userId || ''),
+            }}
+            className="mt-3 break-words text-sm leading-relaxed text-gray-700"
+          />
         </div>
       </div>
 
@@ -102,33 +116,37 @@ const CommentItem = ({
             )}
           </div>
 
-          <div className="mt-2 flex w-full flex-col flex-wrap justify-start gap-2 ym:flex-row ym:justify-between">
-            <div className="w-full ym:w-[60%]">
-              <Input
-                placeholder="Escreva sua resposta..."
+          <div className="mt-2 flex w-full flex-col items-end gap-2 om:flex-row">
+            <div className="w-full">
+              {activeInputId === idInput &&
+                clickedMention &&
+                sugestoes.length > 0 &&
+                openMarcation && (
+                  <ListMarcation
+                    setClickedMention={setClickedMention}
+                    sugestoes={sugestoes}
+                    setNovoComentario={setTextoResposta}
+                  />
+                )}
+              <MentionInput
                 value={textoResposta}
                 onChange={(e) => {
                   setTextoResposta(e.target.value)
                   comentarios.handleChange(e)
+                  setActiveInputId(idInput)
+                  getMatches(e.target.value, idInput, setClickedMention)
                 }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    adicionarResposta(comentario.id)
-                    setRespondendoA(null)
-                  }
+                onEnter={() => {
+                  adicionarResposta(comentario.id)
+                  setRespondendoA(null)
+                  setActiveInputId(null)
                 }}
-                className={`w-full rounded-full text-sm ${
-                  comentarios.error && textoResposta.trim() !== ''
-                    ? '!border-rose-300 focus:!ring-rose-500'
-                    : 'focus:border-transparent focus:!ring-purple-600'
-                }`}
-                autoFocus
+                error={comentarios.error}
                 aria-label={`Resposta para ${comentario.autor}`}
               />
             </div>
 
-            <div className="flex w-full items-center justify-end gap-2 ym:w-[30%] ym:justify-end">
+            <div className="flex w-fit items-center gap-2">
               <Button
                 size="icon"
                 className="bg-linear-purple rounded-full text-white hover:shadow-md"

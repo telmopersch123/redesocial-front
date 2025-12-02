@@ -28,6 +28,7 @@ import { Textarea } from '../../components/ui/textarea'
 import { useLimitForms } from '../../hooks/useLimitForms'
 
 const CreateCommunityPage = () => {
+  const [limitUsers, setLimitUsers] = useState<number>(100)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isPrivate, setIsPrivate] = useState(false)
   const [coverImage, setCoverImage] = useState<string | null>(null)
@@ -256,6 +257,47 @@ const CreateCommunityPage = () => {
                 valueLength={prohibitedCommunity.value.length}
                 maxLength={prohibitedCommunity.maxLength}
               />
+            </div>
+            {/* LIMITE DE USUÁRIOS */}
+
+            <div className="w-full space-y-2">
+              <label className="text-sm font-semibold text-gray-800">
+                Limite de membros
+              </label>
+
+              <div className="flex items-center gap-4">
+                {/* SLIDER */}
+                <input
+                  type="range"
+                  min={1}
+                  max={999}
+                  value={limitUsers}
+                  onChange={(e) => setLimitUsers(Number(e.target.value))}
+                  className="h-2 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-gray-700"
+                />
+
+                {/* INPUT BONITO */}
+                <div className="relative">
+                  <input
+                    type="number"
+                    min={1}
+                    max={999}
+                    value={limitUsers}
+                    onChange={(e) => {
+                      const v = Number(e.target.value)
+                      if (v >= 1 && v <= 999) setLimitUsers(v)
+                    }}
+                    className="w-20 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm font-medium shadow-sm outline-none transition-all focus:border-gray-500 focus:ring-2 focus:ring-gray-300"
+                  />
+                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                    /999
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-xs text-gray-500">
+                Defina o total máximo de membros da comunidade.
+              </p>
             </div>
 
             <Separator />

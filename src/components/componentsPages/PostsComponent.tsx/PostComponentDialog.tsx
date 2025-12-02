@@ -1,6 +1,8 @@
 import { MessageCircle, Play, Send, X } from 'lucide-react'
 import { useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
+
+import { useMentionLogic } from '../../../context/openMentions'
 import { useLimitForms } from '../../../hooks/useLimitForms'
 import type { ComentarioPost, Post } from '../../../types'
 import { Button } from '../../ui/button'
@@ -28,18 +30,7 @@ export interface PostProp {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
-export const usuariosMentions = [
-  'ana',
-  'anderson',
-  'andre',
-  'telmo',
-  'maria',
-  'joao',
-  'jose',
-  'mariana',
-  'carlos',
-  'paula',
-]
+
 const PostComponentDialog = ({
   valuePost,
   novoComentario,
@@ -49,13 +40,17 @@ const PostComponentDialog = ({
   open,
   onOpenChange,
 }: PostProp) => {
-  const [clickedMention, setClickedMention] = useState(false)
-  const [sugestoes, setSugestoes] = useState<string[]>(usuariosMentions)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [openMarcation, setOpenMarcation] = useState(false)
+  const { getMatches, sugestoes, setActiveInputId, activeInputId } =
+    useMentionLogic()
+  const [clickedMention, setClickedMention] = useState(false)
+  const idInput = 'comment-' + valuePost.id
+  const openMarcation = useState(false)
   const comentarios = useLimitForms(5000)
   const pathname = useLocation().pathname
   const { id } = useParams()
+
+  console.log(valuePost.imagem, valuePost.video)
 
   const adicionarComentario = (postId: number) => {
     if (!novoComentario.trim()) return
@@ -127,24 +122,6 @@ const PostComponentDialog = ({
         return p
       })
     )
-  }
-
-  const handleMarcation = (text: string) => {
-    const cursorWord = text.split(/\s+/).pop() || ''
-    if (cursorWord.startsWith('@')) {
-      const termo = cursorWord.slice(1).toLocaleLowerCase()
-
-      const filtrados = usuariosMentions.filter((nome) =>
-        nome.toLowerCase().startsWith(termo)
-      )
-
-      setSugestoes(filtrados)
-      setClickedMention(false)
-      setOpenMarcation(true)
-    } else {
-      setSugestoes([])
-      setOpenMarcation(false)
-    }
   }
 
   return (
@@ -261,7 +238,7 @@ const PostComponentDialog = ({
             )}
 
             <div
-              className={`flex h-full flex-col overflow-y-auto 2xl:max-h-full ${valuePost.imagem === undefined && valuePost.video === undefined ? '2xl:w-full' : 'md:max-h-[48vh] 2xl:w-1/2'}`}
+              className={`flex h-full flex-col overflow-y-auto 2xl:max-h-full ${valuePost.imagem === undefined && (valuePost.video === false || valuePost.video === undefined) ? '2xl:w-full' : 'md:max-h-[48vh] 2xl:w-1/2'}`}
             >
               <div className="relative h-full md:h-2/3 md:max-h-full 2xl:h-full">
                 <div className="space-y-4 pb-10 pt-8 2xl:pb-10 2xl:pt-0">
@@ -279,8 +256,9 @@ const PostComponentDialog = ({
                     />
                   ))}
                 </div>
+
                 <div
-                  className={` ${valuePost.imagem === undefined && valuePost.video === undefined ? '2xl:w-full' : '2xl:w-1/2'} !fixed !bottom-0 right-0 mt-3 w-full rounded-xl bg-white p-2`}
+                  className={` ${valuePost.imagem === undefined && (valuePost.video === false || valuePost.video === undefined) ? '2xl:w-full' : '2xl:w-1/2'} !fixed !bottom-0 right-0 mt-3 w-full rounded-xl bg-white p-2`}
                 >
                   <form
                     className="flex w-full items-center gap-2"
@@ -288,31 +266,39 @@ const PostComponentDialog = ({
                       e.preventDefault()
                     }}
                   >
-                    {openMarcation && (
-                      <ListMarcation
-                        clickedMention={clickedMention}
-                        setClickedMention={setClickedMention}
-                        sugestoes={sugestoes}
-                        setNovoComentario={setNovoComentario}
-                      />
-                    )}
+                    {activeInputId === idInput &&
+                      clickedMention &&
+                      sugestoes.length > 0 &&
+                      openMarcation && (
+                        <ListMarcation
+                          setClickedMention={setClickedMention}
+                          sugestoes={sugestoes}
+                          setNovoComentario={setNovoComentario}
+                        />
+                      )}
 
                     <MentionInput
-                      clickedMention={clickedMention}
                       value={novoComentario}
                       onChange={(e) => {
                         setNovoComentario(e.target.value)
                         comentarios.handleChange(e)
-                        handleMarcation(e.target.value)
+                        getMatches(e.target.value, idInput, setClickedMention)
+                        setActiveInputId(idInput)
                       }}
-                      onEnter={() => adicionarComentario(valuePost.id)}
+                      onEnter={() => {
+                        setActiveInputId(null)
+                        adicionarComentario(valuePost.id)
+                      }}
                       error={comentarios.error}
                     />
 
                     <Button
                       type="submit"
                       size="icon"
-                      onClick={() => adicionarComentario(valuePost.id)}
+                      onClick={() => {
+                        adicionarComentario(valuePost.id)
+                        setClickedMention(false)
+                      }}
                       disabled={!novoComentario.trim() || !!comentarios.error}
                       className="bg-linear-purple rounded-full text-white hover:shadow-md disabled:opacity-50"
                     >

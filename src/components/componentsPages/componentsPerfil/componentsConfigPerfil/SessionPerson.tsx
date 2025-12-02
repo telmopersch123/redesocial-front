@@ -1,4 +1,5 @@
 import type React from 'react'
+import { useState } from 'react'
 import { Button } from '../../../ui/button'
 import { Label } from '../../../ui/label'
 import { Switch } from '../../../ui/switch'
@@ -41,6 +42,7 @@ const SessionPerson = ({
   open,
   setOpen,
 }: SessionPersonProps) => {
+  const [mentions, setMentions] = useState(true)
   return (
     <>
       <div className="flex flex-col gap-6">
@@ -189,6 +191,15 @@ const SessionPerson = ({
           </div>
           <div>
             <ListUsersBlock open={open[0]} setOpen={setOpen} />
+          </div>
+          <div className="flex items-center justify-between rounded-xl border border-border/50 bg-muted/40 p-3 shadow-sm transition-all hover:shadow-md">
+            <div>
+              <Label className="text-sm font-medium">Permitir Menção</Label>
+              <p className="text-xs text-muted-foreground">
+                Permitir que outras pessoas te mencionem em postagens.
+              </p>
+            </div>
+            <Switch checked={mentions} onCheckedChange={setMentions} />
           </div>
         </div>
 

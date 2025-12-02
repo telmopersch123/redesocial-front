@@ -3,19 +3,16 @@ import { Popover, PopoverContent } from '@radix-ui/react-popover'
 import { PopoverTrigger } from '../../ui/popover'
 
 interface ListMarcationProps {
-  clickedMention: boolean
   setClickedMention: React.Dispatch<React.SetStateAction<boolean>>
   setNovoComentario: React.Dispatch<React.SetStateAction<string>>
   sugestoes: string[]
 }
 
 const ListMarcation = ({
-  clickedMention,
   setClickedMention,
   setNovoComentario,
   sugestoes,
 }: ListMarcationProps) => {
-  if (clickedMention) return null
   return (
     <Popover open={true}>
       <PopoverTrigger asChild>
@@ -33,7 +30,7 @@ const ListMarcation = ({
             <button
               key={i}
               onClick={() => {
-                setClickedMention(true)
+                setClickedMention(false)
                 setNovoComentario((prev) => {
                   const partes = prev.split(/\s+/) // pega palavras
                   partes[partes.length - 1] = `@${nome}` // substitui a última (a que tem @)
