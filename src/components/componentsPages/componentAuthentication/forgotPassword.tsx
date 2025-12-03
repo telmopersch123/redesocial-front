@@ -92,7 +92,6 @@ const ForgotPassword = ({
 
     if (verificationCode.every((digit) => digit !== '')) {
       setPermissionCode(true)
-      console.log('Preencheu todos os campos')
     }
   }
 

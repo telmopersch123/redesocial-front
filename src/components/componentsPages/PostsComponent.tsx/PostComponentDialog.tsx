@@ -50,8 +50,6 @@ const PostComponentDialog = ({
   const pathname = useLocation().pathname
   const { id } = useParams()
 
-  console.log(valuePost.imagem, valuePost.video)
-
   const adicionarComentario = (postId: number) => {
     if (!novoComentario.trim()) return
 
@@ -270,11 +268,13 @@ const PostComponentDialog = ({
                       clickedMention &&
                       sugestoes.length > 0 &&
                       openMarcation && (
-                        <ListMarcation
-                          setClickedMention={setClickedMention}
-                          sugestoes={sugestoes}
-                          setNovoComentario={setNovoComentario}
-                        />
+                        <div className="absolute z-10">
+                          <ListMarcation
+                            setClickedMention={setClickedMention}
+                            sugestoes={sugestoes}
+                            setNovoComentario={setNovoComentario}
+                          />
+                        </div>
                       )}
 
                     <MentionInput

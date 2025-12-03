@@ -5,8 +5,8 @@ import { useLocation } from 'react-router-dom'
 import { Sidebar } from '../../..//components/ui/sidebar'
 import { Button } from '../../ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '../../ui/sheet'
+import NotificationComponent from '../componentNotification/NotificationComponent'
 import { MemoizedSidebarInner } from './SideBarInner'
-
 export interface Conversa {
   id: number
   nome: string
@@ -153,11 +153,18 @@ export const BatePapoSidebar = () => {
             className={`h-6 w-6 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`}
           />
         </Button>
-
+        <div
+          className="fixed top-3 z-[999] transition-all duration-300"
+          style={{
+            right: isCollapsed ? '80px' : '400px',
+          }}
+        >
+          <NotificationComponent />
+        </div>
         <Sidebar
           side="right"
           className={`fixed z-[30] border-l transition-all duration-300 ${
-            isCollapsed ? 'w-0 overflow-hidden' : 'w-92'
+            isCollapsed ? 'w-0 overflow-hidden' : 'w-96'
           }`}
         >
           <MemoizedSidebarInner
@@ -176,6 +183,9 @@ export const BatePapoSidebar = () => {
 
   return (
     <>
+      <div className="fixed right-5 top-3 z-[999] transition-all duration-300">
+        <NotificationComponent />
+      </div>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <Button

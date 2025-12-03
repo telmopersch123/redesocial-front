@@ -117,7 +117,7 @@ const CommentItem = ({
           </div>
 
           <div className="mt-2 flex w-full flex-col items-end gap-2 om:flex-row">
-            <div className="w-full">
+            <div className="relative w-full">
               {activeInputId === idInput &&
                 clickedMention &&
                 sugestoes.length > 0 &&

@@ -45,6 +45,11 @@ export function OpenMentionsProvider({ children }: { children: ReactNode }) {
     }
     const termo = lastWord.slice(1).toLowerCase()
 
+    if (termo.length === 0) {
+      setSugestoes([])
+      setClickedMention(false)
+      return
+    }
     const encontrados = usuariosMentions.filter((nome) =>
       nome.toLowerCase().startsWith(termo)
     )

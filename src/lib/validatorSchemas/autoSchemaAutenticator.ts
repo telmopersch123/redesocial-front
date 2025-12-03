@@ -58,6 +58,28 @@ export const registerSchema = z
     message: 'As senhas não coincidem',
     path: ['confirmPassword'],
   })
+
+export const createCommunitySchema = z.object({
+  nameComunity: z
+    .string()
+    .min(10, 'Nome muito curto, escreva pelo menos 10 caracteres')
+    .max(50, 'Nome muito longo'),
+  description: z
+    .string()
+    .min(50, 'Descrição muito curta, escreva pelo menos 50 caracteres')
+    .max(256, 'Descrição muito longa'),
+  category: z.string().min(1, 'Selecione uma categoria'),
+})
+
+export const postDialogSchema = z.object({
+  feeling: z.string().min(1, 'Selecione um sentimento'),
+  description: z
+    .string()
+    .min(10, 'Descrição muito curta, escreva pelo menos 10 caracteres')
+    .max(5000, 'Descrição muito longa'),
+})
+export type PostDialogSchema = z.infer<typeof postDialogSchema>
+export type CreateCommunityFormData = z.infer<typeof createCommunitySchema>
 export type ResetFormData = z.infer<typeof resetSchema>
 export type LoginFormData = z.infer<typeof loginSchema>
 export type RegisterFormData = z.infer<typeof registerSchema>

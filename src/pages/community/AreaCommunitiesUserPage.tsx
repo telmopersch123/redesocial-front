@@ -1546,7 +1546,7 @@ export const postsFicticiosCommunity: Post[] = [
   },
 ]
 
-const ficticioAdminComunidade = false
+const ficticioAdminComunidade = true
 
 export default function AreaCommunitiesUserPage() {
   const { filtro } = useComunidades()

@@ -779,7 +779,7 @@ const FeedPage = () => {
 
   return (
     <>
-      <div className="mb-4 mt-12 w-[99vw] px-0.5 sm:px-5 md:w-[calc(100vw-20rem)] 2xl:w-full">
+      <div className="mb-4 mt-12 w-[99vw] px-0.5 sm:px-5 md:w-[calc(100vw-20rem)] 2xl:w-[1000px]">
         <img
           src="/logo.png"
           alt="Logo da Rede Social"

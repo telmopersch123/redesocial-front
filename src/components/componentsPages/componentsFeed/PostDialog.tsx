@@ -1,7 +1,13 @@
+import { zodResolver } from '@hookform/resolvers/zod'
 import { CircleX, Fullscreen, ImageIcon, VideoIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import { useLimitForms } from '../../../hooks/useLimitForms'
+import {
+  postDialogSchema,
+  type PostDialogSchema,
+} from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 import { MessageForms } from '../../formCustomer/MessageForms'
 import { Button } from '../../ui/button'
 import {
@@ -43,7 +49,17 @@ export function PostDialog() {
   const [comunidadeSelecionada, setComunidadeSelecionada] = useState<
     string | null
   >(null)
-
+  const {
+    control,
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isValid },
+  } = useForm<PostDialogSchema>({
+    resolver: zodResolver(postDialogSchema),
+    mode: 'onChange',
+  })
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -145,23 +161,41 @@ export function PostDialog() {
                   >
                     Como você está se sentindo?
                   </Label>
-                  <Select>
-                    <SelectTrigger
-                      id="sentimento"
-                      className="rounded-lg border border-gray-300 bg-white shadow-sm focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff]"
-                    >
-                      <SelectValue placeholder="Selecione um sentimento" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="feliz">😊 Feliz</SelectItem>
-                      <SelectItem value="esperancoso">
-                        🌱 Esperançoso
-                      </SelectItem>
-                      <SelectItem value="ansioso">😰 Ansioso</SelectItem>
-                      <SelectItem value="agradecido">🙏 Agradecido</SelectItem>
-                      <SelectItem value="triste">😢 Triste</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="feeling"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={(v) => field.onChange(v)}
+                      >
+                        <SelectTrigger
+                          id="sentimento"
+                          className="rounded-lg border border-gray-300 bg-white shadow-sm"
+                        >
+                          <SelectValue placeholder="Selecione um sentimento" />
+                        </SelectTrigger>
+
+                        <SelectContent>
+                          <SelectItem value="feliz">😊 Feliz</SelectItem>
+                          <SelectItem value="esperancoso">
+                            🌱 Esperançoso
+                          </SelectItem>
+                          <SelectItem value="ansioso">😰 Ansioso</SelectItem>
+                          <SelectItem value="agradecido">
+                            🙏 Agradecido
+                          </SelectItem>
+                          <SelectItem value="triste">😢 Triste</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+
+                  {errors.feeling && (
+                    <p className="text-xs text-red-500">
+                      {errors.feeling.message}
+                    </p>
+                  )}
                 </div>
 
                 {/* Textarea */}
@@ -173,12 +207,23 @@ export function PostDialog() {
                     O que está no seu coração?
                   </Label>
                   <Textarea
+                    {...register('description')}
                     id="pensamentos"
                     value={value}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      handleChange(e)
+                      setValue('description', e.target.value, {
+                        shouldValidate: true,
+                      })
+                    }}
                     placeholder="Escreva seus pensamentos, sentimentos ou o que quiser compartilhar..."
                     className="min-h-[120px] resize-none rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-900 shadow-sm transition-all hover:border-[#a5c9ff]/40 focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff]"
                   />
+                  {errors.description && (
+                    <p className="mt-1 text-xs text-red-500">
+                      {errors.description.message}
+                    </p>
+                  )}
                   <MessageForms
                     error={error}
                     valueLength={value.length}
@@ -403,6 +448,7 @@ export function PostDialog() {
                 </DialogClose>
                 <Button
                   type="submit"
+                  disabled={!isValid || !!error}
                   className="bg-linear-purple rounded-lg px-5 py-2 font-semibold text-white shadow-md transition-all hover:opacity-90"
                 >
                   Publicar

@@ -16,14 +16,17 @@ const ListMarcation = ({
   return (
     <Popover open={true}>
       <PopoverTrigger asChild>
-        <button className="bg-transparent"></button>
+        <span
+          className="pointer-events-none absolute left-0 top-0 h-0 w-0 opacity-0"
+          aria-hidden="true"
+        />
       </PopoverTrigger>
       <PopoverContent
         forceMount
         side="top"
         align="start"
         sideOffset={5}
-        className="z-[9999] mb-5 max-h-[200px] w-60 overflow-y-auto rounded bg-white p-3 shadow"
+        className="z-[9999] mb-5 max-h-[200px] w-60 overflow-y-auto rounded bg-white shadow"
       >
         <div className="space-y-1">
           {sugestoes.map((nome, i) => (
