@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { PostCardSkeleton } from '../components/componentsPages/componentsPerfil/Skeleton'
 import CardsPostComponent from '../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
+import PostComponentDialog from '../components/componentsPages/PostsComponent.tsx/PostComponentDialog'
 import { Button } from '../components/ui/button'
 import { useCriarPostDialog } from '../context/ContextDialogPost'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
@@ -743,6 +744,8 @@ export const postsFicticiosGlobal: Post[] = [
 ]
 
 const FeedPage = () => {
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [novoComentario, setNovoComentario] = useState('')
   const [posts, setPosts] = useState<Post[]>(postsFicticiosGlobal)
   const { open, setPostCommunity } = useCriarPostDialog()
   const [selectedFeeling, setSelectedFeeling] =
@@ -858,6 +861,20 @@ const FeedPage = () => {
           )}
         </div>
       </div>
+
+      {posts.map((valuePost) => (
+        <div key={valuePost.id} className="absolute">
+          <PostComponentDialog
+            valuePost={valuePost}
+            novoComentario={novoComentario}
+            setNovoComentario={setNovoComentario}
+            setPosts={setPosts}
+            posts={posts}
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+          />
+        </div>
+      ))}
     </>
   )
 }
