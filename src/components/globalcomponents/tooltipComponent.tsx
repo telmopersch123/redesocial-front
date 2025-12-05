@@ -13,7 +13,7 @@ export function TooltipComponent({
   return (
     <Tooltip>
       <TooltipTrigger asChild>{Element}</TooltipTrigger>
-      <TooltipContent className="z-[80] bg-purple-600 font-medium">
+      <TooltipContent className="z-[90] bg-purple-600 font-medium">
         <p>{description}</p>
       </TooltipContent>
     </Tooltip>

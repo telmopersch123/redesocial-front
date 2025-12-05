@@ -6,7 +6,7 @@ import React, { useState } from 'react'
 import type { Post } from '../../../types'
 import { Badge } from '../../ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
-import ActionsPost from './components/SavePostButton'
+import ActionsPost from './components/ActionsPostComponent'
 
 interface PostCardProps {
   posts: Post[]
@@ -91,7 +91,6 @@ const CardsPostComponent = ({ posts, valuePost, setPosts }: PostCardProps) => {
           setPosts={setPosts}
           posts={posts}
           dialogOpen={dialogOpen}
-          setDialogOpen={setDialogOpen}
         />
       </CardContent>
     </Card>

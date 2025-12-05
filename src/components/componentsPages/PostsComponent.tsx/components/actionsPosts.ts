@@ -3,7 +3,7 @@ import type { Post } from '../../../../types'
 export interface ActionsPostsPropsHandleLike {
   id: number
   setPosts: React.Dispatch<React.SetStateAction<Post[]>>
-  posts: Post[]
+  posts: Post[] | Post
 }
 
 export const handleLike = ({
@@ -11,17 +11,21 @@ export const handleLike = ({
   setPosts,
   posts,
 }: ActionsPostsPropsHandleLike) => {
-  setPosts(
-    posts.map((p: Post) =>
-      p.id === id ? { ...p, likes: p.likes + (p.likes % 2 === 0 ? 1 : -1) } : p
+  if (Array.isArray(posts)) {
+    setPosts(
+      posts.map((p: Post) =>
+        p.id === id
+          ? { ...p, likes: p.likes + (p.likes % 2 === 0 ? 1 : -1) }
+          : p
+      )
     )
-  )
+  }
 }
 
 export interface ActionsPostsPropsHandleSave {
   id: number
   setPosts: React.Dispatch<React.SetStateAction<Post[]>>
-  posts: Post[]
+  posts: Post[] | Post
 }
 
 export const handleSalvar = ({
@@ -29,7 +33,9 @@ export const handleSalvar = ({
   setPosts,
   posts,
 }: ActionsPostsPropsHandleSave) => {
-  setPosts(
-    posts.map((p: Post) => (p.id === id ? { ...p, salvo: !p.salvo } : p))
-  )
+  if (Array.isArray(posts)) {
+    setPosts(
+      posts.map((p: Post) => (p.id === id ? { ...p, salvo: !p.salvo } : p))
+    )
+  }
 }

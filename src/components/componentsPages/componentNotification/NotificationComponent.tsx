@@ -3,6 +3,7 @@ import {
   Bell,
   Heart,
   MessageCircle,
+  Trash2,
   UserPlus,
   Users,
 } from 'lucide-react'
@@ -13,7 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '../../../components/ui/popover'
-import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
+import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 
 type Notification = {
   id: number
@@ -39,6 +40,7 @@ const iconForType = {
 }
 
 const NotificationComponent = () => {
+  const { setOpenDialogPostNotification } = useCriarPostDialog()
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: 1,
@@ -66,43 +68,36 @@ const NotificationComponent = () => {
   const unreadCount = notifications.filter((n) => !n.read).length
 
   const markAllAsRead = () => {
-    setNotifications((prev) =>
-      prev.map((n) => ({
-        ...n,
-        read: true,
-      }))
-    )
+    setNotifications([])
+  }
+
+  const handleRemoveNotification = (id: number) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id))
   }
 
   return (
     <Popover>
-      <TooltipComponent
-        Tag={
-          <PopoverTrigger asChild>
-            <Button variant="ghost" className="relative hover:bg-transparent">
-              <Bell
-                style={{
-                  filter: ' drop-shadow(0 0 5px rgba(255,255,255,0.8))',
-                }}
-                className="!h-6 !w-6 text-purple-600"
-              />
+      <PopoverTrigger>
+        <Button variant="ghost" className="relative hover:bg-transparent">
+          <Bell
+            style={{
+              filter: ' drop-shadow(0 0 5px rgba(255,255,255,0.8))',
+            }}
+            className="!h-6 !w-6 text-purple-600"
+          />
 
-              {unreadCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-4 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-                  {unreadCount}
-                </span>
-              )}
-            </Button>
-          </PopoverTrigger>
-        }
-        description="Notificações"
-      />
+          {unreadCount > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-4 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+              {unreadCount}
+            </span>
+          )}
+        </Button>
+      </PopoverTrigger>
 
       <PopoverContent
         align="end"
         className="w-80 overflow-hidden rounded-xl p-0 shadow-xl animate-in fade-in slide-in-from-top-2"
       >
-        {/* Header */}
         <div className="flex items-center justify-between border-b p-3">
           <h3 className="text-sm font-semibold">Notificações</h3>
           {unreadCount > 0 && (
@@ -115,7 +110,6 @@ const NotificationComponent = () => {
           )}
         </div>
 
-        {/* Lista de notificações */}
         <div className="max-h-80 space-y-2 overflow-y-auto p-2">
           {notifications.length === 0 ? (
             <p className="py-4 text-center text-sm text-gray-500">
@@ -124,14 +118,26 @@ const NotificationComponent = () => {
           ) : (
             notifications.map((n) => (
               <div
+                onClick={() => handleRemoveNotification(n.id)}
                 key={n.id}
-                className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-all ${n.read ? 'bg-white' : 'border-purple-200 bg-purple-50'}`}
+                className={`relative flex cursor-pointer items-start gap-3 rounded-lg border transition-all`}
               >
-                <div className="mt-1">{iconForType[n.type]}</div>
+                <div
+                  className="w-full p-3"
+                  onClick={() => setOpenDialogPostNotification(true)}
+                >
+                  <div className="mt-1">{iconForType[n.type]}</div>
 
-                <div className="flex flex-col">
-                  <span className="text-sm">{n.text}</span>
-                  <span className="text-xs text-gray-500">{n.time}</span>
+                  <div className="flex flex-col">
+                    <span className="text-sm">{n.text}</span>
+                    <span className="text-xs text-gray-500">{n.time}</span>
+                  </div>
+                </div>
+                <div
+                  onClick={() => handleRemoveNotification(n.id)}
+                  className="absolute right-1 top-1 rounded-md bg-red-600 p-2 transition-colors hover:bg-red-400"
+                >
+                  <Trash2 className="h-4 w-4 text-white" />
                 </div>
               </div>
             ))

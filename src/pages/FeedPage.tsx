@@ -744,10 +744,15 @@ export const postsFicticiosGlobal: Post[] = [
 ]
 
 const FeedPage = () => {
-  const [dialogOpen, setDialogOpen] = useState(false)
   const [novoComentario, setNovoComentario] = useState('')
+
   const [posts, setPosts] = useState<Post[]>(postsFicticiosGlobal)
-  const { open, setPostCommunity } = useCriarPostDialog()
+  const {
+    open,
+    setPostCommunity,
+    setOpenDialogPostNotification,
+    openDialogPostNotification,
+  } = useCriarPostDialog()
   const [selectedFeeling, setSelectedFeeling] =
     useState<keyof typeof gradientMap>('Todos')
 
@@ -782,6 +787,17 @@ const FeedPage = () => {
 
   return (
     <>
+      <div className="fixed">
+        <PostComponentDialog
+          valuePost={posts[0]}
+          novoComentario={novoComentario}
+          setNovoComentario={setNovoComentario}
+          setPosts={setPosts}
+          posts={posts}
+          open={openDialogPostNotification}
+          onOpenChange={setOpenDialogPostNotification}
+        />
+      </div>
       <div className="mb-4 mt-12 w-[99vw] px-0.5 sm:px-5 md:w-[calc(100vw-20rem)] 2xl:w-[1000px]">
         <img
           src="/logo.png"
@@ -861,20 +877,6 @@ const FeedPage = () => {
           )}
         </div>
       </div>
-
-      {posts.map((valuePost) => (
-        <div key={valuePost.id} className="absolute">
-          <PostComponentDialog
-            valuePost={valuePost}
-            novoComentario={novoComentario}
-            setNovoComentario={setNovoComentario}
-            setPosts={setPosts}
-            posts={posts}
-            open={dialogOpen}
-            onOpenChange={setDialogOpen}
-          />
-        </div>
-      ))}
     </>
   )
 }

@@ -16,8 +16,9 @@ import {
 import { Separator } from '../../ui/separator'
 import CommentItem from './ComentarioItemComponent'
 import MentionInput from './components/MentionsInput'
-import ActionsPost from './components/SavePostButton'
+
 import ListMarcation from './ListMarcation'
+import ActionsPost from './components/ActionsPostComponent'
 
 const euUser = true
 
@@ -40,7 +41,6 @@ const PostComponentDialog = ({
   open,
   onOpenChange,
 }: PostProp) => {
-  const [dialogOpen, setDialogOpen] = useState(false)
   const { getMatches, sugestoes, setActiveInputId, activeInputId } =
     useMentionLogic()
   const [clickedMention, setClickedMention] = useState(false)
@@ -222,8 +222,6 @@ const PostComponentDialog = ({
                           setNovoComentario={setNovoComentario}
                           setPosts={setPosts}
                           posts={posts}
-                          dialogOpen={dialogOpen}
-                          setDialogOpen={setDialogOpen}
                           validated={
                             pathname.includes(`perfil/${id}/config`) &&
                             open === true

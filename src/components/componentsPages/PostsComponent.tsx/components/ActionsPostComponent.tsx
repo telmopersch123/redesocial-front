@@ -1,4 +1,5 @@
 import { Bookmark, Heart, Share2 } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import type { Post } from '../../../../types'
 import { TooltipComponent } from '../../../globalcomponents/tooltipComponent'
 import { Button } from '../../../ui/button'
@@ -12,8 +13,7 @@ interface ActionsPostProps {
   setNovoComentario: React.Dispatch<React.SetStateAction<string>>
   setPosts: React.Dispatch<React.SetStateAction<Post[]>>
   posts: Post[]
-  dialogOpen: boolean
-  setDialogOpen: React.Dispatch<React.SetStateAction<boolean>>
+  dialogOpen?: boolean
   validated?: boolean
 }
 
@@ -24,9 +24,16 @@ const ActionsPost = ({
   setPosts,
   posts,
   dialogOpen,
-  setDialogOpen,
   validated,
 }: ActionsPostProps) => {
+  const [openDialog, setOpenDialog] = useState(false)
+
+  useEffect(() => {
+    if (dialogOpen) {
+      setOpenDialog(true)
+    }
+  }, [dialogOpen])
+
   return (
     <>
       <div className="relative">
@@ -58,9 +65,10 @@ const ActionsPost = ({
               setNovoComentario={setNovoComentario}
               setPosts={setPosts}
               posts={posts}
-              open={dialogOpen}
-              onOpenChange={setDialogOpen}
+              open={openDialog}
+              onOpenChange={setOpenDialog}
             />
+
             <Button
               variant="ghost"
               className="flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-blue-600"

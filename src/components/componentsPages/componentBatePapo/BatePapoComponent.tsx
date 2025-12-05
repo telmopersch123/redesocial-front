@@ -79,6 +79,7 @@ const ROTAS_COM_SIDEBAR = ['/', '/comunidades/comunidade-do-usuario']
 export const BatePapoSidebar = () => {
   const { pathname } = useLocation()
   const [isCollapsed, setIsCollapsed] = useState(false)
+
   const [conversations, setConversations] = useState(conversasFicticias)
   const [originalConversations] = useState(conversasFicticias)
   const [search, setSearch] = useState('')
@@ -154,7 +155,7 @@ export const BatePapoSidebar = () => {
           />
         </Button>
         <div
-          className="fixed top-3 z-[999] transition-all duration-300"
+          className="fixed top-3 z-[60] transition-all duration-300"
           style={{
             right: isCollapsed ? '80px' : '400px',
           }}
