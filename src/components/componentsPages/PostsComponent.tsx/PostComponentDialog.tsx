@@ -30,6 +30,7 @@ export interface PostProp {
   posts: Post[]
   open: boolean
   onOpenChange: (open: boolean) => void
+  typePost?: string
 }
 
 const PostComponentDialog = ({
@@ -40,6 +41,7 @@ const PostComponentDialog = ({
   posts,
   open,
   onOpenChange,
+  typePost,
 }: PostProp) => {
   const { getMatches, sugestoes, setActiveInputId, activeInputId } =
     useMentionLogic()
@@ -134,7 +136,7 @@ const PostComponentDialog = ({
           <Button
             variant="ghost"
             size="sm"
-            className={`flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600`}
+            className={`flex ${typePost === 'NotificaçãoDialog' ? 'hidden' : ''} items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600`}
             aria-label={`Abrir comentários (${valuePost.comentarios.length})`}
           >
             <MessageCircle />

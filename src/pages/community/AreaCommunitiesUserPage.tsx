@@ -6,10 +6,12 @@ import { NavLink } from 'react-router-dom'
 import { Button } from '../../components/ui/button'
 
 import CardsPostCommunityComponent from '../../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
+import PostComponentDialog from '../../components/componentsPages/PostsComponent.tsx/PostComponentDialog'
 import UsersCommunityDialog from '../../components/componentsPages/componentsComunidadeUsuario/UsersCommunityDialog'
 import { PostCardSkeleton } from '../../components/componentsPages/componentsPerfil/Skeleton'
 import { TooltipComponent } from '../../components/globalcomponents/tooltipComponent'
 import { useComunidades } from '../../context/CommunityContext'
+import { useCriarPostDialog } from '../../context/ContextDialogPost'
 import { useInfiniteScroll } from '../../hooks/effectsSkeletons'
 import type { Post } from '../../types'
 
@@ -1551,9 +1553,13 @@ const ficticioAdminComunidade = true
 export default function AreaCommunitiesUserPage() {
   const { filtro } = useComunidades()
   const [posts, setPosts] = useState<Post[]>(postsFicticiosCommunity)
-
+  const [novoComentario, setNovoComentario] = useState('')
   const [visibleCount, setVisibleCount] = useState(10)
   const [loadedCount, setLoadedCount] = useState(10)
+
+  const { setOpenDialogPostNotification, openDialogPostNotification } =
+    useCriarPostDialog()
+
   const hasMore = visibleCount < posts.length
   const { loadMoreRef } = useInfiniteScroll({
     totalItems: posts.length,
@@ -1575,6 +1581,18 @@ export default function AreaCommunitiesUserPage() {
 
   return (
     <>
+      <div className="fixed">
+        <PostComponentDialog
+          valuePost={posts[0]}
+          novoComentario={novoComentario}
+          setNovoComentario={setNovoComentario}
+          setPosts={setPosts}
+          posts={posts}
+          open={openDialogPostNotification}
+          onOpenChange={setOpenDialogPostNotification}
+          typePost={'NotificaçãoDialog'}
+        />
+      </div>
       <div className="mb-4 mt-12 w-[99vw] !overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] 2xl:w-[850px]">
         <main className={`transition-all duration-300`}>
           <div className="absolute right-4 top-4 flex flex-row-reverse gap-2 md:left-[270px] md:right-auto md:flex-row">

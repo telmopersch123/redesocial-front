@@ -155,7 +155,7 @@ export const BatePapoSidebar = () => {
           />
         </Button>
         <div
-          className="fixed top-3 z-[60] transition-all duration-300"
+          className="fixed top-3 z-30 transition-all duration-300"
           style={{
             right: isCollapsed ? '80px' : '400px',
           }}

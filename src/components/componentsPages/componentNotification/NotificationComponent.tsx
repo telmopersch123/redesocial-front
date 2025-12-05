@@ -81,7 +81,7 @@ const NotificationComponent = () => {
         <Button variant="ghost" className="relative hover:bg-transparent">
           <Bell
             style={{
-              filter: ' drop-shadow(0 0 5px rgba(255,255,255,0.8))',
+              filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.8))',
             }}
             className="!h-6 !w-6 text-purple-600"
           />

@@ -796,6 +796,7 @@ const FeedPage = () => {
           posts={posts}
           open={openDialogPostNotification}
           onOpenChange={setOpenDialogPostNotification}
+          typePost={'NotificaçãoDialog'}
         />
       </div>
       <div className="mb-4 mt-12 w-[99vw] px-0.5 sm:px-5 md:w-[calc(100vw-20rem)] 2xl:w-[1000px]">
