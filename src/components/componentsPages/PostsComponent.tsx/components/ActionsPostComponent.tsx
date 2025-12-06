@@ -38,8 +38,9 @@ const ActionsPost = ({
     <>
       <div className="relative">
         {!validated && (
-          <div className="pointer-events-auto absolute -right-2 z-50 h-full w-8 bg-gradient-to-tr from-white via-white/80 to-transparent dark:from-[#1a1a1a] dark:via-[#1a1a1a]/80 dark:to-transparent dm:hidden" />
+          <div className="pointer-events-auto absolute -right-2 z-50 h-full w-32 bg-gradient-to-r from-transparent via-white/20 to-white dark:bg-gradient-to-r dark:from-transparent dark:via-[#1a1a1a]/20 dark:to-[#1a1a1a] dm:hidden" />
         )}
+
         <div
           className={` ${
             validated

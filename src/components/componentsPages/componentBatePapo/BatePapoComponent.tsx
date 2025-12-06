@@ -197,12 +197,9 @@ export const BatePapoSidebar = () => {
             <MessageCircle className="h-8 w-8" />
 
             {/* Badge de mensagens não lidas */}
-            <span className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border-4 border-white bg-red-500 text-sm font-bold text-white shadow-lg dark:border-zinc-950">
-              3
+            <span className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border-4 border-white bg-red-500 text-sm font-bold text-white shadow-lg dark:border-[#1a1a1a]">
+              2
             </span>
-
-            {/* Animação de pulsação */}
-            <span className="absolute inset-0 animate-ping rounded-full bg-purple-600 opacity-40" />
           </Button>
         </SheetTrigger>
 

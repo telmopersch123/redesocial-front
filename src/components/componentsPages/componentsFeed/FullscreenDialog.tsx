@@ -20,7 +20,7 @@ const FullscreenDialog = ({
           <img
             src={file!}
             alt="Fullscreen"
-            className="max-h-full max-w-full rounded-xl object-contain shadow-2xl dark:shadow-black/60"
+            className="h-full max-h-[800px] w-full min-w-[400px] max-w-[800px] rounded-xl object-contain shadow-2xl dark:shadow-black/60"
           />
           <Button
             onClick={() => setIsFullscreen(false)}

@@ -4,32 +4,27 @@
 
 /* ===== Scroll custom ===== */
 
-/* reserva o espaço do scroll e o torna invisível até o hover */
 .scroll-show::-webkit-scrollbar {
-  height: 8px; /* mantém o espaço fixo */
+  height: 8px;
   background: transparent;
 }
 
-/* thumb invisível por padrão */
 .scroll-show::-webkit-scrollbar-thumb {
   background: transparent;
   border-radius: 9999px;
   transition: background 0.3s ease;
 }
 
-/* quando passar o mouse, ele aparece */
 .scroll-show:hover::-webkit-scrollbar-thumb {
   background: rgba(100, 100, 100, 0.5);
 }
 
-/* === DARK MODE para scrollbar === */
 .dark .scroll-show:hover::-webkit-scrollbar-thumb {
   background: rgba(180, 180, 180, 0.4);
 }
 
-/* Firefox */
 .scroll-show {
-  scrollbar-width: thin; /* reserva o espaço */
+  scrollbar-width: thin;
   scrollbar-color: transparent transparent;
 }
 
@@ -37,13 +32,11 @@
   scrollbar-color: rgba(100, 100, 100, 0.4) transparent;
 }
 
-/* Firefox dark mode */
 .dark .scroll-show:hover {
   scrollbar-color: rgba(180, 180, 180, 0.4) transparent;
 }
-
-/* Invisível */
 .invisivel-scroll {
+  overflow: auto;
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
 }

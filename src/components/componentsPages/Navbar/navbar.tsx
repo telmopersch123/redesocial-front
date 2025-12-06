@@ -207,7 +207,9 @@ export function AppSidebar() {
                             ? 'bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-500'
                             : 'border-zinc-300 text-zinc-700 hover:bg-purple-50 hover:text-purple-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-purple-400'
                         }`}
-                        onClick={() => setFiltro(c)}
+                        onClick={() => {
+                          setFiltro(c)
+                        }}
                       >
                         <MessageCircleHeart className="mr-2 h-4 w-4" />
                         {c}

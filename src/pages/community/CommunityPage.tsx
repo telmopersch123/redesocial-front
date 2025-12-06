@@ -5,15 +5,97 @@ import { NavLink, Outlet } from 'react-router-dom'
 import CardsCommunityComponent from '../../components/componentsPages/componentsComunidade/CardsCommunityComponent'
 import PaginationComponent from '../../components/componentsPages/componentsComunidade/PaginationComponent'
 import { Button } from '../../components/ui/button'
+import { FilterCommunity } from './filterComponent'
+export const communities = [
+  {
+    id: 1,
+    emoji: '😰',
+    title: 'Ansiedade Social',
+    description:
+      'Um espaço seguro para compartilhar experiências e apoio mútuo.',
+    members: 523,
+    posts: 1200,
+    isPrivate: true,
+  },
+  {
+    id: 2,
+    emoji: '🔥',
+    title: 'Produtividade Máxima',
+    description: 'Comunidade focada em hábitos, foco e alta performance.',
+    members: 3870,
+    posts: 8540,
+    isPrivate: false,
+  },
+  {
+    id: 3,
+    emoji: '🎮',
+    title: 'Gamers do Brasil',
+    description: 'Para quem ama jogos e quer fazer novas amizades.',
+    members: 19400,
+    posts: 32000,
+    isPrivate: false,
+  },
+  {
+    id: 4,
+    emoji: '💪',
+    title: 'Motivação Diária',
+    description: 'Desafios, frases e apoio diário para sua jornada.',
+    members: 1200,
+    posts: 5500,
+    isPrivate: false,
+  },
+  {
+    id: 5,
+    emoji: '🧠',
+    title: 'Psicologia & Vida',
+    description: 'Discussões sobre comportamento humano e autoconhecimento.',
+    members: 880,
+    posts: 2100,
+    isPrivate: true,
+  },
+  {
+    id: 6,
+    emoji: '🐶',
+    title: 'Amantes de Pets',
+    description: 'Compartilhe fotos, dicas e momentos com seus pets!',
+    members: 4500,
+    posts: 15000,
+    isPrivate: false,
+  },
+  {
+    id: 7,
+    emoji: '📚',
+    title: 'Clube do Livro',
+    description: 'Indicações, resenhas e conversas sobre literatura.',
+    members: 310,
+    posts: 880,
+    isPrivate: true,
+  },
+]
 
 const CommunityPage = () => {
   const [currentPage, setCurrentPage] = useState(1)
+  const [filters, setFilters] = useState({
+    privacy: 'all',
+    minMembers: null as number | null,
+    maxMembers: null as number | null,
+  })
 
   const itemsPerPage = 6
-  const itemsSimulator = 15
+
+  const filteredCommunities = communities.filter((community) => {
+    if (filters.privacy === 'public' && community.isPrivate) return false
+    if (filters.privacy === 'private' && !community.isPrivate) return false
+    if (filters.minMembers !== null && community.members < filters.minMembers)
+      return false
+    if (filters.maxMembers !== null && community.members > filters.maxMembers)
+      return false
+    return true
+  })
+
   // calcula quais itens mostrar com base na página atual
   const startIndex = (currentPage - 1) * itemsPerPage
-  const currentItems = [...Array(itemsSimulator)].slice(
+  const currentItems = filteredCommunities.slice(
     startIndex,
     startIndex + itemsPerPage
   )
@@ -44,6 +126,10 @@ const CommunityPage = () => {
               Criar comunidade
             </Button>
           </NavLink>
+
+          <div>
+            <FilterCommunity onApply={setFilters} />
+          </div>
         </div>
       </div>
 
@@ -56,20 +142,22 @@ const CommunityPage = () => {
           transition={{ duration: 0.3, ease: 'easeOut' }}
           className="mt-10 grid min-h-[650px] grid-cols-1 gap-6 gap-y-14 ym:grid-cols-2 xl:grid-cols-3"
         >
-          {currentItems.map((_, index) => (
+          {currentItems.map((communities, index) => (
             <div key={index} className="h-[280px] w-full">
-              <CardsCommunityComponent />
+              <CardsCommunityComponent valuesComunity={communities} />
             </div>
           ))}
         </motion.div>
       </AnimatePresence>
 
       {/* paginação */}
-      <div className="mt-10 flex justify-center text-muted-foreground">
+      <div
+        className={`mt-10 flex justify-center text-muted-foreground ${filteredCommunities.length < 6 && currentItems.length < 6 ? 'hidden' : ''}`}
+      >
         <PaginationComponent
           setCurrentPage={setCurrentPage}
           currentPage={currentPage}
-          itemsSimulator={itemsSimulator}
+          itemsSimulator={communities.length}
           itemsPerPage={itemsPerPage}
         />
       </div>

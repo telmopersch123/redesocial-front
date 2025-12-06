@@ -40,8 +40,8 @@ export function PostDialog() {
   const [file, setFile] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [typeError, setTypeError] = useState('')
-  const [postDestino, setPostDestino] = useState<'geral' | 'comunidade'>(
-    'geral'
+  const [postDestino, setPostDestino] = useState<'geral' | 'comunidade'>(() =>
+    postCommunity ? 'comunidade' : 'geral'
   )
   const [tagInput, setTagInput] = useState<string>('')
   const [tags, setTags] = useState<string[]>([])
@@ -52,9 +52,7 @@ export function PostDialog() {
   const {
     control,
     register,
-    handleSubmit,
     setValue,
-    watch,
     formState: { errors, isValid },
   } = useForm<PostDialogSchema>({
     resolver: zodResolver(postDialogSchema),
@@ -65,6 +63,8 @@ export function PostDialog() {
   useEffect(() => {
     if (postCommunity) {
       setPostDestino('comunidade')
+    } else {
+      setPostDestino('geral')
     }
   }, [postCommunity])
 
@@ -115,7 +115,7 @@ export function PostDialog() {
     setUploadType(null)
     setIsFullscreen(false)
     setAnonimo(false)
-    setPostDestino('geral')
+
     setComunidadeSelecionada(null)
 
     if (fileInputRef.current) fileInputRef.current.value = ''
@@ -234,6 +234,7 @@ export function PostDialog() {
                     Onde deseja publicar?
                   </Label>
                   <Select
+                    defaultValue={'comunidade'}
                     value={postDestino}
                     onValueChange={(v: 'geral' | 'comunidade') =>
                       setPostDestino(v)

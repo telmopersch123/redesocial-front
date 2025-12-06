@@ -46,7 +46,7 @@ const Users = () => {
   }
 
   return (
-    <div className="mx-auto mt-12 w-[calc(100vw-2rem)] max-w-3xl space-y-8 rounded-2xl bg-gradient-to-br from-zinc-50/80 via-white to-purple-50/30 p-6 shadow-xl backdrop-blur-sm dark:from-zinc-900/80 dark:via-zinc-900 dark:to-purple-900/20 md:w-[calc(100vw-20rem)] md:p-10">
+    <div className="m-auto w-[calc(100vw-2rem)] max-w-[90%] space-y-8 rounded-2xl bg-gradient-to-br from-zinc-50/80 via-white to-purple-50/30 p-6 shadow-xl backdrop-blur-sm dark:from-transparent dark:via-transparent md:w-[calc(100vw-20rem)] md:p-10">
       {/* Título e Input de Pesquisa */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -154,9 +154,6 @@ const Users = () => {
               <h3 className="mt-6 text-xl font-semibold text-zinc-700 dark:text-zinc-300">
                 Nenhum usuário encontrado
               </h3>
-              <p className="mt-2 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
-                Digite um nome e pressione Enter para buscar.
-              </p>
             </motion.div>
           )}
         </AnimatePresence>
