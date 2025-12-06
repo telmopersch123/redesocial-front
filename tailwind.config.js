@@ -1,9 +1,17 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: ['class'],
+  darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {
+      colors: {
+        dm: '#121212',
+        'dm-light': '#1C1C1E',
+        'dm-card': '#1A1A1A',
+        'dm-border': '#2A2A2A',
+        'dm-text': '#E5E5E5',
+        'dm-muted': '#9E9E9E',
+      },
       screens: {
         im: '400px',
         om: '470px',

@@ -14,23 +14,23 @@ interface ActivityComponentProps {
   setDialogOpen: (open: boolean) => void
 }
 
-const ActivityComponent = ({
+export const ActivityComponent = ({
   savedVideos,
   likedVideos,
   setDialogOpen,
 }: ActivityComponentProps) => {
-  const [tab, setTab] = useState<'saved' | 'liked' | 'comment' | null>(null)
-
-  if (!tab) {
-    setTab('saved')
-  }
+  const [tab, setTab] = useState<'saved' | 'liked' | 'comment'>('saved')
 
   return (
     <div className="flex w-full flex-col gap-6">
-      <div className="flex w-full items-center justify-center gap-3 border-b pb-4">
+      <div className="flex w-full items-center justify-center gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-800">
         <Button
           variant="ghost"
-          className={`flex items-center gap-2 ${tab === 'saved' ? 'bg-blue-400 text-white' : ''}`}
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-all ${
+            tab === 'saved'
+              ? 'bg-purple-600 text-white shadow-md dark:bg-purple-600'
+              : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
+          }`}
           onClick={() => setTab('saved')}
         >
           <Bookmark className="h-5 w-5" />
@@ -39,15 +39,24 @@ const ActivityComponent = ({
 
         <Button
           variant="ghost"
-          className={`flex items-center gap-2 ${tab === 'liked' ? 'bg-red-600 text-white' : ''}`}
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-all ${
+            tab === 'liked'
+              ? 'bg-red-600 text-white shadow-md dark:bg-red-600'
+              : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
+          }`}
           onClick={() => setTab('liked')}
         >
           <Heart className="h-5 w-5" />
           <span className="hidden sm:block">Curtidos</span>
         </Button>
+
         <Button
-          variant={`${tab === 'comment' ? 'default' : 'ghost'}`}
-          className="flex items-center gap-2"
+          variant="ghost"
+          className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-all ${
+            tab === 'comment'
+              ? 'bg-purple-600 text-white shadow-md dark:bg-purple-600'
+              : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
+          }`}
           onClick={() => setTab('comment')}
         >
           <MessageCircleMore className="h-5 w-5" />
@@ -55,37 +64,28 @@ const ActivityComponent = ({
         </Button>
       </div>
 
-      {!tab && (
-        <SavedVideosList
-          setDialogOpen={setDialogOpen}
-          savedVideos={savedVideos}
-        />
-      )}
-
+      {/* Conteúdo das abas */}
       {tab === 'saved' && (
         <SavedVideosList
-          setDialogOpen={setDialogOpen}
           savedVideos={savedVideos}
+          setDialogOpen={setDialogOpen}
         />
       )}
       {tab === 'liked' && (
         <LikedVideosList
-          setDialogOpen={setDialogOpen}
           likedVideos={likedVideos}
+          setDialogOpen={setDialogOpen}
         />
       )}
-
       {tab === 'comment' && (
         <CommentedVideosList
+          videos={likedVideos}
           setDialogOpen={setDialogOpen}
-          likedVideos={likedVideos}
         />
       )}
     </div>
   )
 }
-
-export default ActivityComponent
 
 const SavedVideosList = ({
   savedVideos,
@@ -100,7 +100,7 @@ const SavedVideosList = ({
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {savedVideos.map((video) => (
-        <VideoCard setDialogOpen={setDialogOpen} key={video.id} video={video} />
+        <VideoCard key={video.id} video={video} setDialogOpen={setDialogOpen} />
       ))}
     </div>
   )
@@ -114,33 +114,31 @@ const LikedVideosList = ({
   setDialogOpen: (open: boolean) => void
 }) => {
   if (!likedVideos.length)
-    return <EmptyState message="Você ainda não curtiu nenhum vídeo ainda." />
+    return <EmptyState message="Você ainda não curtiu nenhum vídeo." />
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {likedVideos.map((video) => (
-        <VideoCard setDialogOpen={setDialogOpen} key={video.id} video={video} />
+        <VideoCard key={video.id} video={video} setDialogOpen={setDialogOpen} />
       ))}
     </div>
   )
 }
 
 const CommentedVideosList = ({
-  likedVideos,
+  videos,
   setDialogOpen,
 }: {
-  likedVideos: Video[]
+  videos: Video[]
   setDialogOpen: (open: boolean) => void
 }) => {
-  if (!likedVideos.length)
-    return (
-      <EmptyState message="Você ainda não comentou em nenhum vídeo ainda." />
-    )
+  if (!videos.length)
+    return <EmptyState message="Você ainda não comentou em nenhum vídeo." />
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-      {likedVideos.map((video) => (
-        <VideoCard setDialogOpen={setDialogOpen} key={video.id} video={video} />
+      {videos.map((video) => (
+        <VideoCard key={video.id} video={video} setDialogOpen={setDialogOpen} />
       ))}
     </div>
   )
@@ -156,16 +154,16 @@ const VideoCard = ({
   return (
     <div
       onClick={() => setDialogOpen(true)}
-      className="group flex cursor-pointer flex-col overflow-hidden rounded-lg border bg-white shadow-sm transition hover:shadow-md"
+      className="group flex cursor-pointer flex-col overflow-hidden rounded-lg border bg-white shadow-sm transition-all hover:shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
     >
       <div className="h-28 w-full overflow-hidden sm:h-32">
         <img
           src={video.thumbnail}
           alt={video.title}
-          className="h-full w-full object-cover transition group-hover:scale-105"
+          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
         />
       </div>
-      <div className="line-clamp-2 p-2 text-xs font-medium text-gray-700">
+      <div className="line-clamp-2 p-3 text-xs font-medium text-zinc-700 dark:text-zinc-300">
         {video.title}
       </div>
     </div>
@@ -173,7 +171,7 @@ const VideoCard = ({
 }
 
 const EmptyState = ({ message }: { message: string }) => (
-  <div className="flex w-full items-center justify-center py-10 text-sm text-gray-500">
-    {message}
+  <div className="flex w-full items-center justify-center py-16 text-center">
+    <p className="text-sm text-zinc-500 dark:text-zinc-400">{message}</p>
   </div>
 )

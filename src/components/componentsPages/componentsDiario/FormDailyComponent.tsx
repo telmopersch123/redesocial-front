@@ -48,14 +48,14 @@ const FormDailyComponent = () => {
             key={item.id}
             variant="outline"
             onClick={() => setActive(item.id)}
-            className={`flex h-[100px] flex-col items-center rounded-2xl bg-white p-5 shadow-md transition-all duration-300 hover:scale-105 ${
+            className={`flex h-[100px] flex-col items-center rounded-2xl border bg-white p-5 shadow-md transition-all duration-300 hover:scale-105 dark:border-zinc-700 dark:bg-zinc-900 ${
               active === item.id
-                ? 'border-[#a5c9ff] ring-2 ring-[#a5c9ff]'
-                : 'border-[#d3d3d3] ring-2 ring-[#d3d3d3]'
+                ? 'border-purple-500 ring-2 ring-purple-500/30 dark:ring-purple-500/50'
+                : 'border-zinc-300 dark:border-zinc-700'
             }`}
           >
             <span className="text-3xl">{item.emoji}</span>
-            <span className="mt-2 text-sm font-medium text-gray-700">
+            <span className="mt-2 text-sm font-medium text-zinc-800 dark:text-zinc-200">
               {item.label}
             </span>
           </Button>
@@ -65,9 +65,11 @@ const FormDailyComponent = () => {
       <div className="mt-10 flex w-full flex-col gap-8 sm:flex-row">
         {/* Energia */}
         <div className="w-full">
-          <p className="mb-2 text-sm font-medium">
+          <p className="mb-2 text-sm font-medium text-zinc-800 dark:text-zinc-200">
             Nível de energia:{' '}
-            <span className="text-muted-foreground">{valorEnergia}</span>
+            <span className="text-zinc-500 dark:text-zinc-400">
+              {valorEnergia}
+            </span>
           </p>
           <input
             type="range"
@@ -76,12 +78,12 @@ const FormDailyComponent = () => {
             step="1"
             value={valorEnergia}
             onChange={(e) => setValorEnergia(Number(e.target.value))}
-            className="h-2 w-full cursor-pointer appearance-none rounded-lg border-[1px] border-[#1a1a1a6b] accent-[#b8e6d5]"
+            className="h-2 w-full cursor-pointer appearance-none rounded-lg border border-zinc-300 accent-emerald-500 dark:border-zinc-700"
             style={{
-              background: `linear-gradient(to right, #b8e6d5 ${(valorEnergia - 1) * 25}%, rgb(59, 59, 59) ${(valorEnergia - 1) * 25}%)`,
+              background: `linear-gradient(to right, #94f3c0 ${(valorEnergia - 1) * 25}%, #27272a ${(valorEnergia - 1) * 25}%)`,
             }}
           />
-          <div className="mt-1 flex justify-between text-xs text-gray-400">
+          <div className="mt-1 flex justify-between text-xs text-zinc-500 dark:text-zinc-400">
             <span>Baixa</span>
             <span>Alta</span>
           </div>
@@ -89,9 +91,11 @@ const FormDailyComponent = () => {
 
         {/* Ansiedade */}
         <div className="w-full">
-          <p className="mb-2 text-sm font-medium">
+          <p className="mb-2 text-sm font-medium text-zinc-800 dark:text-zinc-200">
             Nível de ansiedade:{' '}
-            <span className="text-muted-foreground">{valorAnsiedade}</span>
+            <span className="text-zinc-500 dark:text-zinc-400">
+              {valorAnsiedade}
+            </span>
           </p>
           <input
             type="range"
@@ -100,12 +104,12 @@ const FormDailyComponent = () => {
             step="1"
             value={valorAnsiedade}
             onChange={(e) => setValorAnsiedade(Number(e.target.value))}
-            className="h-2 w-full cursor-pointer appearance-none rounded-lg border-[1px] border-[#1a1a1a6b] accent-[#ffd4a3]"
+            className="h-2 w-full cursor-pointer appearance-none rounded-lg border border-zinc-300 accent-orange-400 dark:border-zinc-700"
             style={{
-              background: `linear-gradient(to right, #ffd4a3 ${(valorAnsiedade - 1) * 25}%, rgb(59, 59, 59) ${(valorAnsiedade - 1) * 25}%)`,
+              background: `linear-gradient(to right, #fed7aa ${(valorAnsiedade - 1) * 25}%, #27272a ${(valorAnsiedade - 1) * 25}%)`,
             }}
           />
-          <div className="mt-1 flex justify-between text-xs text-gray-400">
+          <div className="mt-1 flex justify-between text-xs text-zinc-500 dark:text-zinc-400">
             <span>Baixa</span>
             <span>Alta</span>
           </div>
@@ -115,15 +119,15 @@ const FormDailyComponent = () => {
       <div className="flex w-full flex-col gap-6">
         {/* Notas e Reflexões */}
         <div className="flex flex-col">
-          <p className="text-base font-semibold text-black">
+          <p className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
             Notas e reflexões
           </p>
           <Textarea
             value={notas.value}
             onChange={notas.handleChange}
-            className="mt-2 h-32 max-h-[400px] w-full rounded-lg border border-gray-200 bg-white p-3 text-sm text-muted-foreground shadow-sm transition-all duration-200 hover:text-black focus:!border-[#a5c9ff] focus:outline-none focus:ring-1 focus:!ring-[#a5c9ff]"
+            className="mt-2 h-32 max-h-[400px] w-full rounded-lg border border-zinc-300 bg-white p-3 text-sm text-zinc-700 shadow-sm transition-all duration-200 placeholder:text-zinc-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:placeholder:text-zinc-500"
             placeholder="Escreva suas notas aqui..."
-          ></Textarea>
+          />
           <MessageForms
             error={notas.error}
             valueLength={notas.value.length}
@@ -133,15 +137,15 @@ const FormDailyComponent = () => {
 
         {/* Gratidão */}
         <div className="flex flex-col">
-          <p className="text-base font-semibold text-black">
-            Pelo que você é grato hoje? 🙏
+          <p className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+            Pelo que você é grato hoje?
           </p>
           <Textarea
             value={gratidao.value}
             onChange={gratidao.handleChange}
-            className="mt-2 h-32 max-h-[400px] w-full rounded-lg border-gray-200 bg-white p-3 text-sm text-muted-foreground shadow-sm transition-all duration-200 hover:text-black focus:!border-[#a5c9ff] focus:outline-none focus:ring-1 focus:!ring-[#a5c9ff]"
+            className="mt-2 h-32 max-h-[400px] w-full rounded-lg border border-zinc-300 bg-white p-3 text-sm text-zinc-700 shadow-sm transition-all duration-200 placeholder:text-zinc-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:placeholder:text-zinc-500"
             placeholder="Escreva suas notas aqui..."
-          ></Textarea>
+          />
           <MessageForms
             error={gratidao.error}
             valueLength={gratidao.value.length}
@@ -149,21 +153,21 @@ const FormDailyComponent = () => {
           />
         </div>
 
-        {/* Atividades e botão */}
+        {/* Atividades de autocuidado */}
         <div className="mt-4 flex w-full flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="w-full">
-            <p className="mb-2 text-base font-semibold text-black">
+            <p className="mb-2 text-base font-semibold text-zinc-900 dark:text-zinc-100">
               Atividades de autocuidado
             </p>
-            <div className="flex flex-wrap gap-2 rounded-xl bg-[#f8f5f2] p-4 shadow-sm">
+            <div className="flex flex-wrap gap-2 rounded-xl bg-zinc-50 p-4 shadow-sm dark:bg-zinc-800/50">
               {atividadesAutocuidado.map((atividade) => (
                 <span
                   key={atividade.id}
                   onClick={() => toggleActive(atividade.id)}
-                  className={`cursor-pointer rounded-full bg-white px-4 py-1 text-sm font-medium shadow-sm transition-all duration-200 hover:bg-[#a5c9ff] hover:text-white ${
+                  className={`cursor-pointer rounded-full px-4 py-1.5 text-sm font-medium shadow-sm transition-all duration-200 hover:bg-purple-600 hover:text-white ${
                     activeList?.includes(atividade.id)
-                      ? 'bg-linear-purple text-white'
-                      : 'text-black'
+                      ? 'bg-gradient-to-r from-purple-600 to-violet-600 text-white'
+                      : 'bg-white text-zinc-800 dark:bg-zinc-700 dark:text-zinc-200'
                   }`}
                 >
                   {atividade.nome}
@@ -171,11 +175,12 @@ const FormDailyComponent = () => {
               ))}
             </div>
           </div>
+
+          <Button className="bg-linear-purple mt-4 flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:opacity-90 sm:mt-0">
+            <HouseHeart className="h-4 w-4" />
+            Salvar Registro
+          </Button>
         </div>
-        <button className="bg-linear-purple mt-4 flex items-center justify-center gap-2 rounded-xl !p-4 py-2 text-sm font-semibold text-white transition-all duration-300 hover:opacity-90 sm:mt-0">
-          <HouseHeart className="h-4 w-4" />
-          Salvar Registro
-        </button>
       </div>
     </div>
   )

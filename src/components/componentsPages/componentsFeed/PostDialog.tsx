@@ -136,16 +136,16 @@ export function PostDialog() {
         }}
       >
         <form>
-          <DialogContent className="!z-40 w-[95%] !overflow-y-auto rounded-2xl bg-white p-6 shadow-xl sm:max-w-[520px]">
+          <DialogContent className="!z-40 w-[95%] !overflow-y-auto rounded-2xl bg-white p-6 shadow-xl dark:bg-[#1a1a1a] dark:shadow-black/60 sm:max-w-[520px]">
             <div className="max-h-[80vh] overflow-y-auto p-6">
               <DialogHeader className="space-y-2 text-center">
                 <DialogTitle asChild>
-                  <h1 className="text-2xl font-bold text-gray-800">
+                  <h1 className="text-2xl font-bold text-gray-800 dark:text-zinc-100">
                     Compartilhe como você está se sentindo
                   </h1>
                 </DialogTitle>
                 <DialogDescription asChild>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground dark:text-zinc-400">
                     Este é um espaço seguro para expressar seus pensamentos e
                     emoções.
                   </p>
@@ -153,11 +153,10 @@ export function PostDialog() {
               </DialogHeader>
 
               <div className="mt-6 flex flex-col gap-6">
-                {/* Select de sentimento */}
                 <div className="flex flex-col gap-2">
                   <Label
                     htmlFor="sentimento"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-sm font-medium text-gray-700 dark:text-zinc-200"
                   >
                     Como você está se sentindo?
                   </Label>
@@ -171,12 +170,12 @@ export function PostDialog() {
                       >
                         <SelectTrigger
                           id="sentimento"
-                          className="rounded-lg border border-gray-300 bg-white shadow-sm"
+                          className="rounded-lg border border-gray-300 bg-white shadow-sm dark:border-[#3a3a3a] dark:bg-[#242424] dark:text-zinc-100"
                         >
                           <SelectValue placeholder="Selecione um sentimento" />
                         </SelectTrigger>
 
-                        <SelectContent>
+                        <SelectContent className="dark:bg-[#2a2a2a] dark:text-zinc-100">
                           <SelectItem value="feliz">😊 Feliz</SelectItem>
                           <SelectItem value="esperancoso">
                             🌱 Esperançoso
@@ -198,11 +197,10 @@ export function PostDialog() {
                   )}
                 </div>
 
-                {/* Textarea */}
                 <div className="flex flex-col gap-2">
                   <Label
                     htmlFor="pensamentos"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-sm font-medium text-gray-700 dark:text-zinc-200"
                   >
                     O que está no seu coração?
                   </Label>
@@ -217,7 +215,7 @@ export function PostDialog() {
                       })
                     }}
                     placeholder="Escreva seus pensamentos, sentimentos ou o que quiser compartilhar..."
-                    className="min-h-[120px] resize-none rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-900 shadow-sm transition-all hover:border-[#a5c9ff]/40 focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff]"
+                    className="min-h-[120px] resize-none rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-900 shadow-sm transition-all hover:border-[#a5c9ff]/40 focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#242424] dark:text-zinc-100"
                   />
                   {errors.description && (
                     <p className="mt-1 text-xs text-red-500">
@@ -231,9 +229,8 @@ export function PostDialog() {
                   />
                 </div>
 
-                {/* NOVO BLOCO — Destino do post */}
-                <div className="flex flex-col gap-3 rounded-xl bg-[#f8f5f2] p-4 shadow-sm">
-                  <Label className="text-sm font-medium text-gray-800">
+                <div className="flex flex-col gap-3 rounded-xl bg-[#f8f5f2] p-4 shadow-sm dark:bg-[#242424]">
+                  <Label className="text-sm font-medium text-gray-800 dark:text-zinc-200">
                     Onde deseja publicar?
                   </Label>
                   <Select
@@ -242,10 +239,10 @@ export function PostDialog() {
                       setPostDestino(v)
                     }
                   >
-                    <SelectTrigger className="rounded-lg border border-gray-300 bg-white shadow-sm focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff]">
+                    <SelectTrigger className="rounded-lg border border-gray-300 bg-white shadow-sm focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-zinc-100">
                       <SelectValue placeholder="Escolha o destino do post" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="dark:bg-[#2a2a2a] dark:text-zinc-100">
                       <SelectItem disabled={postCommunity} value="geral">
                         🌍 Post geral (todos podem ver)
                       </SelectItem>
@@ -257,17 +254,17 @@ export function PostDialog() {
 
                   {postDestino === 'comunidade' && (
                     <div className="mt-2 flex flex-col gap-2 transition-all">
-                      <Label className="text-sm font-medium text-gray-700">
+                      <Label className="text-sm font-medium text-gray-700 dark:text-zinc-200">
                         Escolha uma comunidade
                       </Label>
                       <Select
                         value={comunidadeSelecionada || undefined}
                         onValueChange={setComunidadeSelecionada}
                       >
-                        <SelectTrigger className="rounded-lg border border-gray-300 bg-white shadow-sm focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff]">
+                        <SelectTrigger className="rounded-lg border border-gray-300 bg-white shadow-sm focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-zinc-100">
                           <SelectValue placeholder="Selecione uma comunidade" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="dark:bg-[#2a2a2a] dark:text-zinc-100">
                           <SelectItem value="mindfulness">
                             🌸 Mindfulness
                           </SelectItem>
@@ -284,9 +281,8 @@ export function PostDialog() {
                   )}
                 </div>
 
-                {/* Upload de mídia */}
-                <div className="flex flex-col gap-3 rounded-xl bg-[#f8f5f2] p-4 shadow-sm">
-                  <Label className="text-sm font-medium text-gray-800">
+                <div className="flex flex-col gap-3 rounded-xl bg-[#f8f5f2] p-4 shadow-sm dark:bg-[#242424]">
+                  <Label className="text-sm font-medium text-gray-800 dark:text-zinc-200">
                     Adicionar mídia (opcional)
                   </Label>
 
@@ -296,7 +292,7 @@ export function PostDialog() {
                         type="button"
                         onClick={() => handleSelectType('image')}
                         variant="outline"
-                        className={`flex items-center gap-2 rounded-lg border-gray-300 px-4 py-2 text-sm font-medium shadow-sm transition-all hover:border-[#a5c9ff] hover:text-[#a5c9ff] ${
+                        className={`flex items-center gap-2 rounded-lg border-gray-300 px-4 py-2 text-sm font-medium shadow-sm transition-all hover:border-[#a5c9ff] hover:text-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-zinc-100 ${
                           uploadType === 'image'
                             ? 'border-[#a5c9ff] text-[#a5c9ff]'
                             : ''
@@ -305,11 +301,12 @@ export function PostDialog() {
                         <ImageIcon className="h-4 w-4" />
                         Imagem
                       </Button>
+
                       <Button
                         type="button"
                         onClick={() => handleSelectType('video')}
                         variant="outline"
-                        className={`flex items-center gap-2 rounded-lg border-gray-300 px-4 py-2 text-sm font-medium shadow-sm transition-all hover:border-[#a5c9ff] hover:text-[#a5c9ff] ${
+                        className={`flex items-center gap-2 rounded-lg border-gray-300 px-4 py-2 text-sm font-medium shadow-sm transition-all hover:border-[#a5c9ff] hover:text-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-zinc-100 ${
                           uploadType === 'video'
                             ? 'border-[#a5c9ff] text-[#a5c9ff]'
                             : ''
@@ -320,7 +317,7 @@ export function PostDialog() {
                       </Button>
                     </div>
                   ) : (
-                    <div className="relative flex flex-col items-center justify-center rounded-lg border border-gray-300 bg-white p-3 shadow-sm">
+                    <div className="relative flex flex-col items-center justify-center rounded-lg border border-gray-300 bg-white p-3 shadow-sm dark:border-[#3a3a3a] dark:bg-[#2a2a2a]">
                       {uploadType === 'image' && (
                         <>
                           <img
@@ -339,6 +336,7 @@ export function PostDialog() {
                           </Button>
                         </>
                       )}
+
                       {uploadType === 'video' && (
                         <video
                           src={file}
@@ -346,6 +344,7 @@ export function PostDialog() {
                           className="max-h-60 w-full rounded-lg"
                         />
                       )}
+
                       <Button
                         type="button"
                         onClick={removeFile}
@@ -357,6 +356,7 @@ export function PostDialog() {
                       </Button>
                     </div>
                   )}
+
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -371,11 +371,11 @@ export function PostDialog() {
                     className="hidden"
                   />
                 </div>
-                {/* Campo de Tags */}
+
                 <div className="flex flex-col gap-2">
                   <Label
                     htmlFor="tags"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-sm font-medium text-gray-700 dark:text-zinc-200"
                   >
                     Adicione tags (pressione Enter)
                   </Label>
@@ -392,10 +392,9 @@ export function PostDialog() {
                     }}
                     onKeyDown={handleAddTag}
                     placeholder="Ex: Felicidade, Motivação"
-                    className="rounded-lg border border-gray-300 bg-white p-2 text-sm shadow-sm focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff]"
+                    className="rounded-lg border border-gray-300 bg-white p-2 text-sm shadow-sm focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#242424] dark:text-zinc-100"
                   />
                   {typeError && <ErrorsPostDialog errors={typeError} />}
-                  {/* Exibir tags adicionadas */}
                   <div className="mt-2 flex flex-wrap gap-2">
                     {tags.map((tag) => (
                       <span
@@ -415,16 +414,15 @@ export function PostDialog() {
                   </div>
                 </div>
 
-                {/* Publicar anonimamente */}
-                <div className="flex justify-between rounded-xl bg-[#f8f5f2] p-4 shadow-sm">
+                <div className="flex justify-between rounded-xl bg-[#f8f5f2] p-4 shadow-sm dark:bg-[#242424]">
                   <div className="flex flex-col">
                     <Label
                       htmlFor="anonimo"
-                      className="text-base font-medium text-gray-800"
+                      className="text-base font-medium text-gray-800 dark:text-zinc-100"
                     >
                       Publicar anonimamente
                     </Label>
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-gray-500 dark:text-zinc-400">
                       Seu nome não será exibido.
                     </p>
                   </div>
@@ -441,7 +439,7 @@ export function PostDialog() {
                 <DialogClose asChild>
                   <Button
                     variant="outline"
-                    className="rounded-lg border-gray-300 bg-white px-5 py-2 font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-100"
+                    className="rounded-lg border-gray-300 bg-white px-5 py-2 font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-100 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-zinc-100 dark:hover:bg-[#3a3a3a]"
                   >
                     Cancelar
                   </Button>

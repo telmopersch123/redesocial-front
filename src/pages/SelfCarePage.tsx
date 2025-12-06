@@ -23,10 +23,10 @@ const SelfCarePage = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25, delay: 0.05 }}
         >
-          <h1 className="text-center text-xl font-bold text-gray-800 md:text-left md:text-4xl">
+          <h1 className="text-center text-xl font-bold text-zinc-800 dark:text-zinc-100 md:text-left md:text-4xl">
             Autocuidado
           </h1>
-          <p className="mt-3 whitespace-normal break-words text-center text-base text-gray-500 text-muted-foreground md:text-left md:text-lg lg:text-xl">
+          <p className="mt-3 whitespace-normal break-words text-center text-base text-zinc-500 dark:text-zinc-400 md:text-left md:text-lg lg:text-xl">
             Recursos e práticas para seu bem-estar emocional
           </p>
         </motion.div>
@@ -47,8 +47,9 @@ const SelfCarePage = () => {
           transition={{ duration: 0.25, delay: 0.15 }}
           className="flex flex-col gap-4"
         >
-          <h2 className="flex items-center gap-2 truncate font-semibold text-[#a5c9ff]">
-            <Wind className="shrink-0" /> <span>Exercícios de Respiração</span>
+          <h2 className="flex items-center gap-2 font-semibold text-purple-500 dark:text-purple-400">
+            <Wind className="h-5 w-5 shrink-0" />{' '}
+            <span>Exercícios de Respiração</span>
           </h2>
 
           <div className="space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
@@ -57,15 +58,15 @@ const SelfCarePage = () => {
                 tempo: '2 minutos',
                 metodo: 'Respiração 4-4-4',
                 desc: 'Inspire por 4 segundos, segure por 4, expire por 4',
-                cor: '#f3f7fe',
+                cor: '#e0eaff',
                 corIcon: '#a5c9ff',
               },
               {
                 tempo: '5 minutos',
                 metodo: 'Respiração Profunda',
                 desc: 'Respirações lentas e profundas para acalmar a mente',
-                cor: '#f5fbf9',
-                corIcon: '#b8e6d5',
+                cor: '#e6f7f4',
+                corIcon: '#94f3c0',
               },
             ].map((ex, i) => (
               <motion.div
@@ -73,28 +74,32 @@ const SelfCarePage = () => {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, delay: 0.2 + i * 0.05 }}
-                className="flex flex-col gap-2 rounded-2xl bg-white p-4 shadow-md transition-shadow hover:shadow-lg"
+                className="flex flex-col gap-3 rounded-2xl bg-white p-5 shadow-md transition-shadow hover:shadow-xl dark:bg-zinc-900 dark:shadow-zinc-800"
               >
                 <div className="flex items-center justify-between">
                   <div
-                    className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl p-3"
+                    className="flex h-14 w-14 items-center justify-center rounded-xl"
                     style={{ backgroundColor: ex.cor }}
                   >
-                    <Wind className="h-6 w-6" style={{ color: ex.corIcon }} />
+                    <Wind className="h-7 w-7" style={{ color: ex.corIcon }} />
                   </div>
-                  <p className="truncate rounded-full bg-[#f8f5f2] px-1 text-xs font-medium text-gray-700 text-muted-foreground">
+                  <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
                     {ex.tempo}
-                  </p>
+                  </span>
                 </div>
-                <p className="truncate font-semibold">{ex.metodo}</p>
-                <p className="truncate text-sm text-gray-500">{ex.desc}</p>
+                <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  {ex.metodo}
+                </h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  {ex.desc}
+                </p>
                 <Button
                   onClick={() => {
                     setTypeBreathing(ex.metodo)
                     setOpen(true)
                   }}
-                  className="w-full truncate"
-                  style={{ backgroundColor: ex.corIcon, color: '#fff' }}
+                  className="w-full font-medium text-white"
+                  style={{ backgroundColor: ex.corIcon }}
                 >
                   Iniciar Exercício
                 </Button>

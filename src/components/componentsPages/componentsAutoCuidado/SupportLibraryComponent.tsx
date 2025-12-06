@@ -9,7 +9,7 @@ const SupportLibraryComponent = forwardRef<
   return (
     <div
       ref={ref}
-      className="flex min-h-[200px] cursor-pointer flex-col rounded-2xl bg-white shadow-md transition-shadow hover:shadow-lg"
+      className="flex min-h-[200px] cursor-pointer flex-col rounded-2xl bg-white shadow-md transition-shadow hover:shadow-lg dark:bg-zinc-900 dark:shadow-zinc-800"
     >
       <div
         className="flex h-12 w-full items-center justify-center rounded-t-2xl"
@@ -29,11 +29,17 @@ const SupportLibraryComponent = forwardRef<
           >
             {categoria}
           </span>
-          <span className="truncate text-xs text-gray-500">{tempo}</span>
+          <span className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+            {tempo}
+          </span>
         </div>
 
-        <h3 className="font-semibold text-gray-800">{titulo}</h3>
-        <p className="truncate text-sm text-gray-500">{desc}</p>
+        <h3 className="font-semibold text-zinc-800 dark:text-zinc-100">
+          {titulo}
+        </h3>
+        <p className="truncate text-sm text-zinc-600 dark:text-zinc-400">
+          {desc}
+        </p>
       </div>
     </div>
   )

@@ -34,51 +34,62 @@ const SidebarInner = ({
   conversations: Conversa[]
 }) => {
   return (
-    <div className={`flex min-h-screen flex-col`}>
-      <SidebarHeader className="border-b p-4">
+    <div className="flex min-h-screen flex-col bg-white dark:bg-zinc-900">
+      {/* Header */}
+      <SidebarHeader className="border-b border-zinc-200 p-5 dark:border-zinc-800">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="rounded-xl bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 p-1 shadow-sm">
-                <div className="rounded-lg bg-white p-2">
-                  <MessageCircle className="h-8 w-8 text-purple-600" />
+              <div className="rounded-xl bg-gradient-to-br from-purple-100 via-pink-100 to-violet-100 p-1 shadow-md dark:from-purple-900/50 dark:via-purple-800/50 dark:to-violet-900/50">
+                <div className="rounded-lg bg-white p-2 dark:bg-zinc-900">
+                  <MessageCircle className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                 </div>
               </div>
             </div>
             <div>
-              <h2 className="text-lg font-bold tracking-tight">Mensagens</h2>
-              <p className="text-xs text-muted-foreground">3 não lidas</p>
+              <h2 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+                Mensagens
+              </h2>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                3 não lidas
+              </p>
             </div>
           </div>
         </div>
 
-        <div className="relative mt-4">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+        {/* Barra de busca */}
+        <div className="relative mt-5">
+          <Search className="absolute left-3.5 top-3.5 h-4 w-4 text-zinc-500 dark:text-zinc-400" />
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Buscar conversa..."
-            className="bg-muted/50 pl-10 focus:ring-purple-500"
-            autoFocus={false}
+            className="h-11 rounded-xl border-zinc-300 bg-zinc-50 pl-11 text-sm focus:ring-2 focus:ring-purple-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
           />
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="h-full">
-        <ScrollArea className="im:w-auto">
-          <SidebarMenu className="space-y-3 p-3">
+      {/* Lista de Conversas */}
+      <SidebarContent className="flex-1">
+        <ScrollArea className="h-full">
+          <SidebarMenu className="space-y-2 p-3">
             {conversations.map((conversa) => (
-              <NavLink key={conversa.id} to={`/mensagens/${conversa.id}`}>
+              <NavLink
+                key={conversa.id}
+                to={`/mensagens/${conversa.id}`}
+                className="block"
+              >
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
-                    className="h-[65px] w-full justify-start gap-3 rounded-lg p-3 transition-all hover:bg-gradient-to-r hover:from-[#f0f3fc] hover:via-[#f0f2fb] hover:to-[#f0f1fb] hover:text-[#3d3a64]"
+                    className="h-auto w-full justify-start gap-3 rounded-xl p-3 transition-all hover:bg-zinc-100 data-[state=open]:bg-zinc-100 dark:hover:bg-zinc-800 dark:data-[state=open]:bg-zinc-800"
                   >
                     <div className="flex w-full cursor-pointer items-center gap-3">
-                      <div className="relative">
-                        <Avatar className="h-12 w-12 ring-2 ring-background">
+                      {/* Avatar + Status Online */}
+                      <div className="relative flex-shrink-0">
+                        <Avatar className="h-12 w-12 ring-4 ring-white dark:ring-zinc-900">
                           <AvatarImage src={conversa.avatar} />
-                          <AvatarFallback>
+                          <AvatarFallback className="bg-purple-200 text-purple-800 dark:bg-purple-900/60 dark:text-purple-300">
                             {conversa.nome
                               .split(' ')
                               .map((n) => n[0])
@@ -86,15 +97,18 @@ const SidebarInner = ({
                           </AvatarFallback>
                         </Avatar>
                         {conversa.online && (
-                          <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background bg-green-500" />
+                          <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-4 border-white bg-emerald-500 shadow-md dark:border-zinc-900" />
                         )}
                       </div>
 
-                      <div className="flex-1">
-                        <div className="flex flex-col justify-between im:flex-row">
-                          <p className="font-medium">{conversa.nome}</p>
+                      {/* Conteúdo */}
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <p className="font-semibold text-zinc-900 dark:text-zinc-100">
+                            {conversa.nome}
+                          </p>
                           {conversa.ultimaMensagem && (
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-xs text-zinc-500 dark:text-zinc-400">
                               {formatDistanceToNow(
                                 conversa.ultimaMensagem.data,
                                 {
@@ -107,28 +121,30 @@ const SidebarInner = ({
                         </div>
 
                         {conversa.ultimaMensagem ? (
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2 text-sm">
                             {conversa.ultimaMensagem.enviadaPorMim && (
-                              <span className="text-xs">Você: </span>
+                              <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                                Você:{' '}
+                              </span>
                             )}
-                            <span className="w-[50%] truncate im:w-60">
+                            <span className="truncate text-zinc-600 dark:text-zinc-300">
                               {conversa.ultimaMensagem.texto}
                             </span>
                             {conversa.ultimaMensagem.naoLida && (
-                              <Badge className="bg-linear-purple ml-2 flex h-5 w-5 justify-center rounded-full p-0 text-xs text-white">
-                                1
+                              <Badge className="ml-auto h-5 w-5 rounded-full bg-gradient-to-r from-purple-600 to-violet-600 p-0 text-[10px] font-bold text-white shadow-md">
+                                {conversa.ultimaMensagem.naoLida}
                               </Badge>
                             )}
                           </div>
                         ) : (
-                          <p className="text-sm italic text-muted-foreground">
+                          <p className="text-sm italic text-zinc-500 dark:text-zinc-400">
                             Nenhuma mensagem ainda
                           </p>
                         )}
                       </div>
                     </div>
                   </SidebarMenuButton>
-                  <Separator className="mt-2" />
+                  <Separator className="dark:bg-zinc-800" />
                 </SidebarMenuItem>
               </NavLink>
             ))}
@@ -136,8 +152,9 @@ const SidebarInner = ({
         </ScrollArea>
       </SidebarContent>
 
-      <SidebarFooter className="border-t p-4 text-center">
-        <p className="text-xs text-muted-foreground">
+      {/* Footer */}
+      <SidebarFooter className="border-t border-zinc-200 p-5 text-center dark:border-zinc-800">
+        <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
           Tess • Apoio emocional 24h
         </p>
       </SidebarFooter>

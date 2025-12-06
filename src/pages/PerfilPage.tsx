@@ -1521,14 +1521,14 @@ const PerfilUsuario = () => {
       <motion.header
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="from-purple-50/60 via-white to-pink-50/40 px-5 pb-10 pt-8"
+        className="bg-gradient-to-b px-5 pb-10 pt-8"
       >
         <div>
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end">
             {/* Avatar com hover de edição */}
             <div className="flex flex-col items-center">
               <div className="group relative">
-                <Avatar className="h-28 w-28 shadow-2xl ring-4 ring-white sm:h-32 sm:w-32">
+                <Avatar className="h-28 w-28 shadow-2xl ring-4 ring-white dark:ring-zinc-900 sm:h-32 sm:w-32">
                   <AvatarImage
                     src="https://i.pravatar.cc/300"
                     alt="Carlos Almeida"
@@ -1540,7 +1540,7 @@ const PerfilUsuario = () => {
                 {euUsuario && (
                   <NavLink to="config">
                     <div className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center rounded-full bg-black/50 opacity-0 backdrop-blur-sm transition-all group-hover:opacity-100">
-                      <Edit2 className="h-8 w-8 text-white" />{' '}
+                      <Edit2 className="h-8 w-8 text-white" />
                       <p className="text-white">Editar</p>
                     </div>
                   </NavLink>
@@ -1550,7 +1550,7 @@ const PerfilUsuario = () => {
               {euUsuario ? (
                 <div className="mt-2">
                   <NavLink to="config">
-                    <Button className="cursor-pointer select-none rounded-lg bg-white text-sm font-medium text-gray-700 shadow-md backdrop-blur-sm transition-all duration-700 hover:scale-[105%] hover:bg-white/80 hover:text-[#6b4de6] hover:shadow-lg">
+                    <Button className="cursor-pointer select-none rounded-lg bg-white text-sm font-medium text-zinc-700 shadow-md backdrop-blur-sm transition-all duration-700 hover:scale-[105%] hover:bg-white/80 hover:text-purple-600 hover:shadow-lg dark:bg-zinc-800 dark:text-zinc-200 dark:hover:text-purple-400">
                       Configurações
                     </Button>
                   </NavLink>
@@ -1562,13 +1562,13 @@ const PerfilUsuario = () => {
 
             {/* Info do usuário */}
             <div className="flex-1">
-              <h1 className="text-2xl font-extrabold text-gray-900 sm:text-3xl">
+              <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100 sm:text-3xl">
                 Carlos Almeida {id}
               </h1>
-              <p className="text-lg font-medium text-purple-600">
+              <p className="text-lg font-medium text-purple-600 dark:text-purple-400">
                 @carlosalmeida
               </p>
-              <p className="mt-2 text-gray-600">
+              <p className="mt-2 text-zinc-600 dark:text-zinc-300">
                 Aqui compartilho minha jornada com a ansiedade e o crescimento
                 pessoal
               </p>
@@ -1579,19 +1579,17 @@ const PerfilUsuario = () => {
                 <FollowersDialog euUsuario={euUsuario} />
               </div>
             </div>
+
             {!euUsuario && (
               <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
-                {/* Botão de Reportar — versão mais leve */}
                 <ReportDialog />
-                {/* Seguir */}
                 <Button className="bg-linear-purple rounded-full px-8 font-semibold shadow-md hover:shadow-lg">
                   Seguir
                 </Button>
-                {/* Mensagem */}
                 <NavLink to={`/mensagens/1`}>
                   <Button
                     variant="outline"
-                    className="rounded-full border-purple-300 text-purple-700 hover:bg-purple-50"
+                    className="rounded-full border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30"
                   >
                     Mensagem
                   </Button>
@@ -1601,9 +1599,11 @@ const PerfilUsuario = () => {
           </div>
         </div>
       </motion.header>
-      <Separator className="mb-4" />
-      {/* Feed de Posts - Um abaixo do outro */}
-      <main className="">
+
+      <Separator className="mb-4 dark:bg-zinc-800" />
+
+      {/* Feed de Posts */}
+      <main>
         <div className="flex flex-col space-y-24">
           {posts.slice(0, visibleCount).map((post, index) => {
             const isLoaded = index < loadedCount

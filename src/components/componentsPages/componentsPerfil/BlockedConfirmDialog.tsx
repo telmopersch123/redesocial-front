@@ -15,17 +15,19 @@ const BlockedConfirmDialog = () => {
     <Dialog>
       {/* TRIGGER */}
       <DialogTrigger asChild>
-        <Button className="mt-2 flex items-center gap-1.5 rounded-md border border-red-500 bg-transparent px-2.5 py-1.5 text-xs font-medium text-red-600 transition-all hover:bg-red-600 hover:text-white">
+        <Button className="mt-2 flex items-center gap-1.5 rounded-md border border-red-500 bg-transparent px-2.5 py-1.5 text-xs font-medium text-red-600 transition-all hover:bg-red-600 hover:text-white dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600">
           <UserX className="h-3.5 w-3.5" />
           Bloquear
         </Button>
       </DialogTrigger>
 
       {/* CONTENT */}
-      <DialogContent className="rounded-xl sm:max-w-md">
+      <DialogContent className="rounded-xl bg-white dark:bg-zinc-900 sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-red-600">Bloquear usuário?</DialogTitle>
-          <DialogDescription className="text-sm text-gray-600">
+          <DialogTitle className="text-red-600 dark:text-red-500">
+            Bloquear usuário?
+          </DialogTitle>
+          <DialogDescription className="text-sm text-zinc-600 dark:text-zinc-400">
             Tem certeza que deseja bloquear este usuário? Ambos deixarão de
             poder trocar mensagens e não verão mais os posts um do outro.
           </DialogDescription>
@@ -34,12 +36,12 @@ const BlockedConfirmDialog = () => {
         <DialogFooter className="mt-4 flex justify-end gap-2">
           <Button
             variant="outline"
-            className="border-gray-300 text-gray-700 hover:bg-gray-100"
+            className="border-zinc-300 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             Cancelar
           </Button>
 
-          <Button className="flex items-center gap-1.5 bg-red-600 text-white hover:bg-red-700">
+          <Button className="flex items-center gap-1.5 bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500">
             <UserX className="h-4 w-4" />
             Bloquear
           </Button>

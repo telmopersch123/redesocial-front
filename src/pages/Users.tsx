@@ -46,7 +46,7 @@ const Users = () => {
   }
 
   return (
-    <div className="mx-auto mt-12 w-[calc(100vw-2rem)] max-w-3xl space-y-8 rounded-2xl bg-gradient-to-br from-gray-50/80 via-white to-purple-50/30 p-6 shadow-xl backdrop-blur-sm md:w-[calc(100vw-20rem)] md:p-10">
+    <div className="mx-auto mt-12 w-[calc(100vw-2rem)] max-w-3xl space-y-8 rounded-2xl bg-gradient-to-br from-zinc-50/80 via-white to-purple-50/30 p-6 shadow-xl backdrop-blur-sm dark:from-zinc-900/80 dark:via-zinc-900 dark:to-purple-900/20 md:w-[calc(100vw-20rem)] md:p-10">
       {/* Título e Input de Pesquisa */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -56,11 +56,11 @@ const Users = () => {
       >
         <Label
           htmlFor="searchUsers"
-          className="block text-3xl font-extrabold tracking-tight text-gray-800 md:text-4xl"
+          className="block text-3xl font-extrabold tracking-tight text-zinc-800 dark:text-zinc-100 md:text-4xl"
         >
           Conecte-se com outros membros
         </Label>
-        <p className="text-sm text-gray-600 md:text-base">
+        <p className="text-sm text-zinc-600 dark:text-zinc-400 md:text-base">
           Encontre pessoas incríveis na nossa comunidade
         </p>
 
@@ -78,13 +78,13 @@ const Users = () => {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={searchUsers}
             autoComplete="off"
-            className="h-14 rounded-xl border border-gray-200/80 bg-white/90 pl-14 pr-5 text-base shadow-inner transition-all duration-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20"
+            className="h-14 rounded-xl border border-zinc-200/80 bg-white/90 pl-14 pr-5 text-base shadow-inner transition-all duration-300 focus:border-purple-500 focus:ring-4 focus:ring-purple-500/20 dark:border-zinc-700 dark:bg-zinc-800/90 dark:text-zinc-100 dark:focus:border-purple-500 dark:focus:ring-purple-500/30"
           />
         </div>
       </motion.div>
 
       {/* Lista de Usuários ou Estado Vazio */}
-      <div className="h-[720px] overflow-y-auto rounded-2xl bg-white/60 p-4 shadow-inner md:p-6">
+      <div className="h-[720px] overflow-y-auto rounded-2xl bg-white/60 p-4 shadow-inner dark:bg-zinc-900/70 md:p-6">
         <AnimatePresence mode="wait">
           {usersSurveyed.length > 0 ? (
             <motion.div
@@ -101,25 +101,25 @@ const Users = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.08, duration: 0.4 }}
                 >
-                  <Card className="group flex flex-col items-center gap-5 rounded-2xl border border-transparent bg-white/90 p-5 shadow-[0_0px_10px_0px_rgba(0,0,0,0.1)] transition-all duration-300 hover:border-purple-300 hover:bg-purple-50/50 hover:shadow-lg om:flex-row">
+                  <Card className="group flex flex-col items-center gap-5 rounded-2xl border border-transparent bg-white/90 p-5 shadow-md transition-all duration-300 hover:border-purple-300 hover:bg-purple-50/50 hover:shadow-lg dark:bg-zinc-800/70 dark:hover:border-purple-700 dark:hover:bg-purple-900/30 om:flex-row">
                     <div className="flex w-full items-center justify-between gap-3">
-                      <Avatar className="h-16 w-16 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200">
+                      <Avatar className="h-16 w-16 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800">
                         {user.avatar ? (
                           <AvatarImage src={user.avatar} alt={user.name} />
                         ) : (
-                          <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md">
+                          <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md dark:from-purple-600 dark:to-pink-600">
                             <User className="h-8 w-8" />
                           </AvatarFallback>
                         )}
                       </Avatar>
 
                       <div className="flex-1">
-                        <h3 className="text-lg font-bold text-gray-900 transition-colors group-hover:text-purple-700">
+                        <h3 className="text-lg font-bold text-zinc-900 transition-colors group-hover:text-purple-700 dark:text-zinc-100 dark:group-hover:text-purple-400">
                           {user.name}
                         </h3>
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
+                        <div className="flex items-center gap-1 text-sm text-zinc-500 dark:text-zinc-400">
                           <UsersIcon className="h-4 w-4" />
-                          <span className="text-sm text-gray-500">
+                          <span>
                             {user.friendsCount} amigo
                             {user.friendsCount !== 1 ? 's' : ''}
                           </span>
@@ -128,7 +128,7 @@ const Users = () => {
                     </div>
 
                     <NavLink to={`perfil/${user.id}`}>
-                      <Button className="h-[50px] w-full rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-purple-700 hover:shadow-md active:scale-95 om:w-fit">
+                      <Button className="h-[50px] w-full rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-purple-700 hover:shadow-md active:scale-95 dark:bg-purple-600 dark:hover:bg-purple-500 om:w-fit">
                         Perfil
                       </Button>
                     </NavLink>
@@ -151,10 +151,10 @@ const Users = () => {
                   className="h-full w-full sm:h-[500px] sm:w-[500px]"
                 />
               </div>
-              <h3 className="mt-6 text-xl font-semibold text-gray-700">
+              <h3 className="mt-6 text-xl font-semibold text-zinc-700 dark:text-zinc-300">
                 Nenhum usuário encontrado
               </h3>
-              <p className="mt-2 max-w-sm text-sm text-gray-500">
+              <p className="mt-2 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
                 Digite um nome e pressione Enter para buscar.
               </p>
             </motion.div>
@@ -163,8 +163,7 @@ const Users = () => {
       </div>
 
       {/* Rodapé */}
-
-      <div className="text-center text-xs text-gray-400">
+      <div className="text-center text-xs text-zinc-400 dark:text-zinc-500">
         {usersSurveyed.length > 0
           ? `${usersSurveyed.length} membro${usersSurveyed.length > 1 ? 's' : ''} encontrado${usersSurveyed.length > 1 ? 's' : ''}`
           : 'Digite um nome e pressione Enter para buscar'}

@@ -18,12 +18,18 @@ const feelings: Array<keyof typeof gradientMap> = [
 ]
 
 const gradientMap = {
-  Todos: 'from-gray-100 via-gray-50 to-gray-100',
-  Feliz: 'from-yellow-100 via-yellow-50 to-amber-100',
-  Esperançoso: 'from-green-100 via-emerald-50 to-green-200',
-  Ansioso: 'from-violet-100 via-purple-50 to-violet-200',
-  Agradecido: 'from-sky-100 via-blue-50 to-indigo-100',
-  Triste: 'from-blue-200 via-slate-50 to-blue-300',
+  Todos:
+    'from-gray-100 via-gray-50 to-gray-100 dark:from-[#1a1a1a] dark:via-[#1c1c1c] dark:to-[#1a1a1a]',
+  Feliz:
+    'from-yellow-100 via-yellow-50 to-amber-100 dark:from-[#2a2a1a] dark:via-[#2f2f1c] dark:to-[#2a2a1a]',
+  Esperançoso:
+    'from-green-100 via-emerald-50 to-green-200 dark:from-[#1a2a1a] dark:via-[#1c2f1c] dark:to-[#1a2a1a]',
+  Ansioso:
+    'from-violet-100 via-purple-50 to-violet-200 dark:from-[#221a2a] dark:via-[#251c30] dark:to-[#221a2a]',
+  Agradecido:
+    'from-sky-100 via-blue-50 to-indigo-100 dark:from-[#1a1f2a] dark:via-[#1c2230] dark:to-[#1a1f2a]',
+  Triste:
+    'from-blue-200 via-slate-50 to-blue-300 dark:from-[#1a1e2a] dark:via-[#1c2030] dark:to-[#1a1e2a]',
 }
 
 const emojiMap: Record<string, string> = {
@@ -799,6 +805,7 @@ const FeedPage = () => {
           typePost={'NotificaçãoDialog'}
         />
       </div>
+
       <div className="mb-4 mt-12 w-[99vw] px-0.5 sm:px-5 md:w-[calc(100vw-20rem)] 2xl:w-[1000px]">
         <img
           src="/logo.png"
@@ -807,7 +814,8 @@ const FeedPage = () => {
           height={100}
           className="mx-auto rounded-2xl md:hidden"
         />
-        <p className="text-1xl text-muted-foreground sm:text-left">
+
+        <p className="text-1xl text-muted-foreground dark:text-gray-300 sm:text-left">
           Um espaço seguro para compartilhar e apoiar 💙
         </p>
 
@@ -820,8 +828,9 @@ const FeedPage = () => {
         >
           + Como você está se sentindo?
         </Button>
+
         <div
-          className="m-auto mt-3 flex w-full justify-between overflow-x-auto whitespace-nowrap rounded-lg bg-white/50 p-2 shadow-sm backdrop-blur-md"
+          className="m-auto mt-3 flex w-full justify-between overflow-x-auto whitespace-nowrap rounded-lg bg-white/50 p-2 shadow-sm backdrop-blur-md dark:bg-white/10"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {feelings.map((feeling: keyof typeof gradientMap) => {
@@ -835,15 +844,16 @@ const FeedPage = () => {
                 }}
                 className={`m-1 cursor-pointer rounded-full px-5 py-2 font-semibold transition-all duration-300 ${
                   isSelected
-                    ? `bg-gradient-to-r ${gradientMap[feeling]} scale-105 text-gray-800 shadow-md`
-                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-                }`}
+                    ? `bg-gradient-to-r ${gradientMap[feeling]} scale-105 text-gray-800 shadow-md dark:text-white`
+                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white'
+                } `}
               >
                 {emojiMap[feeling]} {feeling}
               </p>
             )
           })}
         </div>
+
         <div className="mt-12 space-y-24">
           {posts.length > 0 ? (
             posts.slice(0, visibleCount).map((post: Post, index: number) => {
@@ -865,14 +875,15 @@ const FeedPage = () => {
             })
           ) : (
             <div className="flex flex-col items-center">
-              <p className="m-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#eeeefa] p-3 text-4xl">
+              <p className="m-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#eeeefa] p-3 text-4xl dark:bg-white/10">
                 🌱
               </p>
-              <p className="mt-5 text-xs font-semibold text-muted-foreground sm:text-xl">
+              <p className="mt-5 text-xs font-semibold text-muted-foreground dark:text-gray-300 sm:text-xl">
                 Nenhum post ainda. Seja o primeiro a compartilhar!
               </p>
             </div>
           )}
+
           {visibleCount < posts.length && (
             <div ref={loadMoreRef} className="col-span-2 h-10" />
           )}

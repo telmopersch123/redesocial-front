@@ -12,16 +12,16 @@ const NavbarConfig = ({ activeId, setActiveId }: NavbarConfigProps) => {
   ]
 
   return (
-    <nav className="flex w-full flex-wrap items-center justify-center gap-2 border-b bg-white py-4">
+    <nav className="flex w-full flex-wrap items-center justify-center gap-2 border-b bg-white py-4 dark:border-zinc-800 dark:bg-zinc-900">
       {items.map((item) => (
         <Button
           key={item.id}
           onClick={() => setActiveId(item.id)}
-          className={`w-[calc(90%/3)] justify-center rounded-xl bg-white px-12 py-2 text-sm font-medium transition-all ${
+          className={`w-[calc(90%/3)] justify-center rounded-xl px-12 py-2 text-sm font-medium transition-all ${
             activeId === item.id
               ? 'bg-linear-purple text-white shadow-md'
-              : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-          } `}
+              : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
+          }`}
         >
           {item.label}
         </Button>

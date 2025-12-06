@@ -127,7 +127,7 @@ const PostComponentDialog = ({
   return (
     <>
       {pathname.includes(`perfil/${id}/config`) && open === true && (
-        <div className="fixed inset-0 z-[60] h-screen w-screen bg-black/50" />
+        <div className="fixed inset-0 z-[60] h-screen w-screen bg-black/50 dark:bg-black/80" />
       )}
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogTrigger
@@ -136,21 +136,20 @@ const PostComponentDialog = ({
           <Button
             variant="ghost"
             size="sm"
-            className={`flex ${typePost === 'NotificaçãoDialog' ? 'hidden' : ''} items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600`}
-            aria-label={`Abrir comentários (${valuePost.comentarios.length})`}
+            className={`flex ${typePost === 'NotificaçãoDialog' ? 'hidden' : ''} items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400`}
           >
             <MessageCircle />
             {valuePost.comentarios.length}
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="z-[70] flex h-[95vh] flex-col -space-y-10 overflow-hidden rounded-xl p-0 sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw] xl:max-w-[75vw] 2xl:max-w-[70vw] [&>button]:hidden">
-          <DialogHeader className="flex flex-col p-4">
+        <DialogContent className="!z-[70] flex h-[95vh] flex-col -space-y-10 overflow-hidden rounded-xl bg-white p-0 dark:bg-[#0f0f17] sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw] xl:max-w-[75vw] 2xl:max-w-[70vw] [&>button]:hidden">
+          <DialogHeader className="flex flex-col bg-white p-4 dark:bg-transparent">
             <div className="absolute right-5 top-2 flex items-center justify-end p-2">
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-full transition-all duration-200 hover:bg-red-100 hover:text-red-600 active:scale-90"
+                className="h-8 w-8 rounded-full text-gray-600 transition-all duration-200 hover:bg-red-100 hover:text-red-600 active:scale-90 dark:text-gray-400 dark:hover:bg-red-900/40"
                 onClick={() => onOpenChange(false)}
               >
                 <X className="h-5 w-5" />
@@ -161,43 +160,38 @@ const PostComponentDialog = ({
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-sm font-bold text-white">
                 <p aria-hidden>{valuePost.avatar}</p>
               </div>
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                 {valuePost.autor}
               </p>
             </div>
 
-            <div className={`relative w-full`}>
+            <div className="relative w-full">
               <div className="max-w-full overflow-y-auto break-all pr-2">
-                <DialogTitle className="text-md h-[100px] p-0 font-medium leading-relaxed 2xl:h-[120px]">
+                <DialogTitle className="text-md h-[100px] p-0 font-medium leading-relaxed text-gray-900 dark:text-gray-100 2xl:h-[120px]">
                   {valuePost.conteudo}
-                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
-                  kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
+                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
+                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
+                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
+                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
+                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
+                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
+                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
+                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
+                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
                 </DialogTitle>
-
-                <div className="pointer-events-none absolute -bottom-1 left-0 h-10 w-full bg-gradient-to-t from-white to-transparent" />
+                <div className="pointer-events-none absolute -bottom-2 left-0 h-10 w-full bg-gradient-to-t from-white to-transparent dark:from-[#0f0f17] dark:to-transparent" />
               </div>
             </div>
 
-            <Separator className="m-0" />
+            <Separator className="m-0 border-t border-gray-200 dark:border-gray-700" />
           </DialogHeader>
 
           <div className="flex min-h-0 flex-1 flex-col justify-between p-4 2xl:flex-row">
             {(valuePost.imagem || valuePost.video) && (
               <div className="z-10 md:h-1/2 2xl:h-auto 2xl:w-1/2">
                 <div
-                  className={`bg-linear-purple relative flex items-center justify-center overflow-hidden rounded-md md:w-auto 2xl:h-full ${pathname.includes(`perfil/${id}/config`) && open === true ? 'flex-col' : 'flex-row'}`}
+                  className={`relative flex items-center justify-center overflow-hidden rounded-md bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/10 dark:to-indigo-900/10 md:w-auto 2xl:h-full ${pathname.includes(`perfil/${id}/config`) && open === true ? 'flex-col' : 'flex-row'}`}
                 >
                   <div>
                     <div className="p-1">
@@ -207,14 +201,16 @@ const PostComponentDialog = ({
                         className="max-h-[250px] w-full max-w-full rounded-md object-contain shadow-[0_0_10px_3px_rgba(0,0,0,0.3)] 2xl:max-h-[calc(65vh-70px)]"
                       />
                     </div>
+
                     {valuePost.video && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                        <div className="bg-linear-purple rounded-full p-4 shadow-xl backdrop-blur-sm transition-transform hover:scale-110">
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 dark:bg-black/50">
+                        <div className="rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 p-4 shadow-xl backdrop-blur-sm transition-transform hover:scale-110">
                           <Play className="h-10 w-10 text-white" />
                         </div>
                       </div>
                     )}
                   </div>
+
                   <div>
                     {pathname.includes(`perfil/${id}/config`) &&
                       open === true && (
@@ -236,7 +232,12 @@ const PostComponentDialog = ({
             )}
 
             <div
-              className={`flex h-full flex-col overflow-y-auto 2xl:max-h-full ${valuePost.imagem === undefined && (valuePost.video === false || valuePost.video === undefined) ? '2xl:w-full' : 'md:max-h-[48vh] 2xl:w-1/2'}`}
+              className={`flex h-full flex-col overflow-y-auto bg-white dark:bg-[#0f0f17] 2xl:max-h-full ${
+                valuePost.imagem === undefined &&
+                (valuePost.video === false || valuePost.video === undefined)
+                  ? '2xl:w-full'
+                  : 'md:max-h-[48vh] 2xl:w-1/2'
+              }`}
             >
               <div className="relative h-full md:h-2/3 md:max-h-full 2xl:h-full">
                 <div className="space-y-4 pb-10 pt-8 2xl:pb-10 2xl:pt-0">
@@ -256,19 +257,22 @@ const PostComponentDialog = ({
                 </div>
 
                 <div
-                  className={` ${valuePost.imagem === undefined && (valuePost.video === false || valuePost.video === undefined) ? '2xl:w-full' : '2xl:w-1/2'} !fixed !bottom-0 right-0 mt-3 w-full rounded-xl bg-white p-2`}
+                  className={`!fixed !bottom-0 right-0 mt-3 w-full rounded-xl bg-white p-2 shadow-lg dark:bg-transparent ${
+                    valuePost.imagem === undefined &&
+                    (valuePost.video === false || valuePost.video === undefined)
+                      ? '2xl:w-full'
+                      : '2xl:w-1/2'
+                  }`}
                 >
                   <form
                     className="flex w-full items-center gap-2"
-                    onSubmit={(e) => {
-                      e.preventDefault()
-                    }}
+                    onSubmit={(e) => e.preventDefault()}
                   >
                     {activeInputId === idInput &&
                       clickedMention &&
                       sugestoes.length > 0 &&
                       openMarcation && (
-                        <div className="absolute z-10">
+                        <div className="absolute -top-1 z-10 translate-y-[-100%]">
                           <ListMarcation
                             setClickedMention={setClickedMention}
                             sugestoes={sugestoes}
@@ -300,14 +304,14 @@ const PostComponentDialog = ({
                         setClickedMention(false)
                       }}
                       disabled={!novoComentario.trim() || !!comentarios.error}
-                      className="bg-linear-purple rounded-full text-white hover:shadow-md disabled:opacity-50"
+                      className="rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-white hover:shadow-md disabled:opacity-50"
                     >
                       <Send className="h-4 w-4" />
                     </Button>
                   </form>
 
                   {comentarios.error && (
-                    <p className="mt-2 text-center text-sm text-rose-600">
+                    <p className="mt-2 text-center text-sm text-rose-600 dark:text-rose-400">
                       Uau rsrs! Você escreveu bastante! Envie a mensagem atual
                       para continuar.
                     </p>

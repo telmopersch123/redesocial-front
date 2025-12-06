@@ -8,7 +8,6 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
-  DialogOverlay,
   DialogTitle,
   DialogTrigger,
 } from '../../ui/dialog'
@@ -19,34 +18,34 @@ const DialogHelp = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="mx-auto w-full max-w-xs rounded-2xl bg-[linear-gradient(to_right,#b8e6d6,#b3dedf,#aed6ed,#a9d0f4,#a6caff)] p-4 font-semibold text-black/70 shadow-lg transition-all hover:shadow-xl active:shadow-md">
-          <Phone className="mr-2 inline h-5 w-5" />
+        <Button className="mx-auto w-full max-w-xs rounded-2xl bg-gradient-to-r from-emerald-200 via-teal-200 to-purple-200 p-5 font-bold text-black/80 shadow-xl transition-all hover:shadow-2xl active:scale-95 dark:from-emerald-800 dark:via-teal-800 dark:to-purple-800 dark:text-white">
+          <Phone className="mr-2 h-5 w-5" />
           Preciso de Ajuda
         </Button>
       </DialogTrigger>
-      <DialogOverlay className="fixed inset-0 bg-white/40 backdrop-blur-sm" />
-      <DialogContent className="w-[90%] rounded-2xl shadow-2xl sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-center text-xl font-semibold text-foreground">
+
+      <DialogContent className="w-[90%] max-w-md rounded-3xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-950">
+        <DialogHeader className="text-center">
+          <DialogTitle className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
             Como podemos ajudar?
           </DialogTitle>
-          <DialogDescription className="text-center text-base text-muted-foreground">
+          <DialogDescription className="mt-2 text-base text-zinc-600 dark:text-zinc-400">
             Você não está sozinho. Estamos aqui para você.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-4 flex flex-col gap-3">
+        <div className="mt-6 flex flex-col gap-4">
           {/* Ligar para CVV */}
-          <div className="flex cursor-pointer items-center gap-3 rounded-2xl bg-[linear-gradient(to_right,#a6c9ff,#b8c0ff,#c7b9ff)] p-4 shadow-lg transition-all hover:scale-[1.03] hover:shadow-xl">
-            <Phone className="h-6 w-6 !text-white" />
+          <div className="flex cursor-pointer items-center gap-4 rounded-2xl bg-gradient-to-r from-purple-600 to-violet-600 p-5 shadow-lg transition-all hover:scale-[1.02] hover:shadow-2xl">
+            <Phone className="h-7 w-7 text-white" />
             <div>
-              <p className="text-base font-semibold !text-white">
+              <p className="text-lg font-bold text-white">
                 Ligar para CVV -{' '}
-                <span className="rounded-md bg-card-foreground/10 p-0.5 text-sm font-semibold">
+                <span className="inline-block rounded-lg bg-white/20 px-2 py-1 text-base font-extrabold">
                   188
                 </span>
               </p>
-              <p className="text-sm !text-white">
+              <p className="text-sm text-white/90">
                 Centro de Valorização da Vida
               </p>
             </div>
@@ -59,30 +58,26 @@ const DialogHelp = () => {
               setOpenBreathing(true)
               setTypeBreathing('Respiração Profunda')
             }}
-            className="flex cursor-pointer items-center gap-3 rounded-2xl bg-[linear-gradient(to_right,#b7e5d5,#b0dae8,#a5cafe)] p-4 shadow-lg transition-all hover:scale-[1.03] hover:shadow-xl"
+            className="flex cursor-pointer items-center gap-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 p-5 shadow-lg transition-all hover:scale-[1.02] hover:shadow-2xl dark:from-emerald-700 dark:to-teal-800"
           >
-            <Wind className="h-6 w-6 text-foreground/80" />
+            <Wind className="h-7 w-7 text-white" />
             <div>
-              <p className="text-base font-semibold text-foreground">
+              <p className="text-lg font-bold text-white">
                 Exercício de Respiração
               </p>
-              <p className="text-sm text-muted-foreground">
-                Acalme sua mente agora
-              </p>
+              <p className="text-sm text-white/90">Acalme sua mente agora</p>
             </div>
           </div>
 
           {/* Recursos de Apoio */}
           <NavLink onClick={() => setOpen(false)} to="/autocuidado">
-            <div className="flex cursor-pointer items-center gap-3 rounded-2xl bg-[linear-gradient(to_right,#e7ddff,#d4c7ff,#c7baff)] p-4 shadow-lg transition-all hover:scale-[1.03] hover:shadow-xl">
-              <BookOpenText className="h-6 w-6 text-foreground/80" />
+            <div className="flex cursor-pointer items-center gap-4 rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 p-5 shadow-lg transition-all hover:scale-[1.02] hover:shadow-2xl dark:from-purple-700 dark:to-pink-700">
+              <BookOpenText className="h-7 w-7 text-white" />
               <div>
-                <p className="text-base font-semibold text-foreground">
+                <p className="text-lg font-bold text-white">
                   Recursos de Apoio
                 </p>
-                <p className="text-sm text-muted-foreground">
-                  Artigos e exercícios
-                </p>
+                <p className="text-sm text-white/90">Artigos e exercícios</p>
               </div>
             </div>
           </NavLink>

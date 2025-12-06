@@ -80,10 +80,10 @@ const NotificationComponent = () => {
       <PopoverTrigger>
         <Button variant="ghost" className="relative hover:bg-transparent">
           <Bell
+            className="!h-6 !w-6 text-purple-600 dark:text-purple-400"
             style={{
               filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.8))',
             }}
-            className="!h-6 !w-6 text-purple-600"
           />
 
           {unreadCount > 0 && (

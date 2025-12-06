@@ -31,19 +31,22 @@ const OptionsCommunity = () => {
       {communities.map((c) => (
         <div
           key={c.id}
-          className="flex items-center gap-4 rounded-xl border bg-white p-3 shadow-sm transition-all hover:shadow-md"
+          className="flex items-center gap-4 rounded-xl border bg-white p-3 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-zinc-800"
         >
           {/* Avatar da comunidade */}
           <img
             src={c.image}
             alt={c.name}
-            className="h-14 w-14 rounded-full object-cover"
+            className="h-14 w-14 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
           />
+
           <div className="flex flex-1 flex-col">
-            <h3 className="font-semibold text-foreground">{c.name}</h3>
+            <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">
+              {c.name}
+            </h3>
 
             {/* Dono / Moderador */}
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1 text-xs text-zinc-600 dark:text-zinc-400">
               {c.role === 'Owner' ? (
                 <>
                   <Crown size={14} className="text-yellow-500" />
@@ -51,7 +54,10 @@ const OptionsCommunity = () => {
                 </>
               ) : (
                 <>
-                  <Shield size={14} className="text-purple-500" />
+                  <Shield
+                    size={14}
+                    className="text-purple-500 dark:text-purple-400"
+                  />
                   <span>Moderador</span>
                 </>
               )}

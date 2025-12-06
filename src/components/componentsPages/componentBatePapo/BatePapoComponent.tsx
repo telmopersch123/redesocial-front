@@ -155,7 +155,7 @@ export const BatePapoSidebar = () => {
           />
         </Button>
         <div
-          className="fixed top-3 z-30 transition-all duration-300"
+          className="fixed top-3 !z-30 transition-all duration-300"
           style={{
             right: isCollapsed ? '80px' : '400px',
           }}
@@ -184,23 +184,32 @@ export const BatePapoSidebar = () => {
 
   return (
     <>
-      <div className="fixed right-5 top-3 z-[999] transition-all duration-300">
+      <div className="fixed right-5 top-3 z-50 transition-all duration-300">
         <NotificationComponent />
       </div>
+
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <Button
             size="icon"
-            className={`bg-linear-purple hover:scale-11 fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-2xl`}
+            className="hover:shadow-3xl fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-gradient-to-br from-purple-600 to-violet-700 text-white shadow-2xl transition-all hover:scale-110 hover:from-purple-500 hover:to-violet-600 active:scale-95"
           >
-            <MessageCircle className="h-7 w-7" />
-            <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+            <MessageCircle className="h-8 w-8" />
+
+            {/* Badge de mensagens não lidas */}
+            <span className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border-4 border-white bg-red-500 text-sm font-bold text-white shadow-lg dark:border-zinc-950">
               3
             </span>
+
+            {/* Animação de pulsação */}
+            <span className="absolute inset-0 animate-ping rounded-full bg-purple-600 opacity-40" />
           </Button>
         </SheetTrigger>
 
-        <SheetContent side="right" className="w-72 p-0 im:w-auto">
+        <SheetContent
+          side="right"
+          className="w-full max-w-sm border-l border-zinc-200 bg-white p-0 dark:border-zinc-800 dark:bg-zinc-950 sm:w-96"
+        >
           <MemoizedSidebarInner
             search={search}
             onSearchChange={(value) => {

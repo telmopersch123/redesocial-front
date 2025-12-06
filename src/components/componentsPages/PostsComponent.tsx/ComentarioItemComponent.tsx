@@ -43,11 +43,13 @@ const CommentItem = ({
   return (
     <div
       className={`${
-        nivel === 1 ? 'border-l-2 border-purple-200 pl-4 sm:pl-6' : ''
+        nivel === 1
+          ? 'border-l-4 border-purple-200 pl-4 dark:border-purple-900/50 sm:pl-6'
+          : ''
       } ${nivel >= 2 ? 'border-none pl-0' : ''} w-full`}
     >
-      <div className="relative flex w-full flex-col gap-3 rounded-lg bg-black/[0.02] p-3 sm:flex-row sm:items-start">
-        <div className="w-full rounded-xl border border-gray-100 bg-white px-4 py-3 shadow-sm">
+      <div className="relative flex w-full flex-col gap-3 rounded-lg p-3 sm:flex-row sm:items-start">
+        <div className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <div className="flex w-full items-start justify-between gap-2">
             <div className="flex items-center gap-3">
               <div
@@ -56,12 +58,12 @@ const CommentItem = ({
               />
 
               <div className="flex flex-col">
-                <p className="text-sm font-semibold text-gray-900">
+                <p className="text-sm font-semibold text-gray-900 dark:text-zinc-100">
                   {comentario.autor}
                 </p>
 
                 {comentario.respondendoPara && (
-                  <p className="mt-0.5 text-xs font-medium text-purple-500">
+                  <p className="mt-0.5 text-xs font-medium text-purple-400">
                     ↳ @{comentario.respondendoPara}
                   </p>
                 )}
@@ -83,7 +85,7 @@ const CommentItem = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="flex items-center justify-center text-xs text-purple-600 hover:bg-purple-50"
+                className="flex items-center justify-center text-xs text-purple-500 hover:bg-purple-500/10 dark:text-purple-400 dark:hover:bg-purple-500/20"
                 onClick={() => {
                   setRespondendoA(comentario.id)
                   setTextoResposta('')
@@ -99,17 +101,17 @@ const CommentItem = ({
             dangerouslySetInnerHTML={{
               __html: formatMentions(comentario.texto, userId || ''),
             }}
-            className="mt-3 break-words text-sm leading-relaxed text-gray-700"
+            className="mt-3 break-words text-sm leading-relaxed text-gray-700 dark:text-zinc-300"
           />
         </div>
       </div>
 
       {estaRespondendo && (
         <div className="mt-3 w-full px-3">
-          <div className="ml-2 flex items-end gap-2 text-xs font-medium text-purple-600">
+          <div className="ml-2 flex items-end gap-2 text-xs font-medium text-purple-500 dark:text-purple-400">
             <span> Respondendo @{comentario.autor} </span>
             {comentarios.error && textoResposta.trim() !== '' && (
-              <span className="mt-2 text-start text-sm text-rose-600">
+              <span className="mt-2 text-start text-sm text-rose-500 dark:text-rose-400">
                 Uau rsrs! Você escreveu bastante! Envie a mensagem atual para
                 continuar.
               </span>

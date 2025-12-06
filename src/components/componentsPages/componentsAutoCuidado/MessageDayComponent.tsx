@@ -46,16 +46,20 @@ const MessageDayComponent = () => {
   }, [])
 
   return (
-    <div className="flex h-[180px] flex-col gap-4 rounded-2xl bg-[#F3F7FE] p-5 text-center shadow-md transition-shadow hover:shadow-lg">
+    <div className="flex h-[180px] flex-col gap-4 rounded-2xl bg-[#F3F7FE] p-5 text-center shadow-md transition-shadow hover:shadow-lg dark:bg-zinc-900 dark:shadow-zinc-800">
       <div className="flex flex-col gap-2">
-        <p className="truncate text-sm font-medium text-muted-foreground">
+        <p className="truncate text-sm font-medium text-zinc-600 dark:text-zinc-400">
           Afirmação do Dia
         </p>
         <div className="flex h-[50px] items-center justify-center">
           <h2
-            className={`flex justify-center text-sm font-bold italic text-black/80 2xl:text-lg ${loading ? '' : 'duration-500 animate-in slide-in-from-bottom'}`}
+            className={`flex justify-center text-sm font-bold italic text-zinc-900 dark:text-zinc-100 2xl:text-lg ${loading ? '' : 'duration-500 animate-in slide-in-from-bottom'}`}
           >
-            {loading ? <Loader2 className="animate-spin" /> : message}
+            {loading ? (
+              <Loader2 className="h-5 w-5 animate-spin text-purple-500" />
+            ) : (
+              message
+            )}
           </h2>
         </div>
       </div>
@@ -64,9 +68,9 @@ const MessageDayComponent = () => {
           setLoading(true)
           fetchMessage()
         }}
-        className="m-auto flex w-fit items-center gap-2 rounded-full bg-white text-[#a5d3ff] hover:bg-gray-100"
+        className="m-auto flex w-fit items-center gap-2 rounded-full bg-white text-[#a5d3ff] shadow-sm hover:bg-zinc-100 dark:bg-zinc-800 dark:text-purple-400 dark:hover:bg-zinc-700"
       >
-        <Sparkles className="shrink-0" />
+        <Sparkles className="h-4 w-4 shrink-0" />
         <span className="truncate">Nova Afirmação</span>
       </Button>
     </div>

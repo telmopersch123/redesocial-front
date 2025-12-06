@@ -7,17 +7,16 @@ import { GraphicsMidiaDialog } from '../components/componentsPages/componentsDia
 const DiaryPage = () => {
   return (
     <div className="mb-4 mt-12 w-[calc(100vw-0rem)] px-5 md:w-[calc(100vw-20rem)]">
-      {/* Título + Descrição - RÁPIDO */}
-
+      {/* Título + Descrição */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
-        <h1 className="text-center text-xl font-bold text-gray-800 md:text-left md:text-4xl">
+        <h1 className="text-center text-xl font-bold text-zinc-800 dark:text-zinc-100 md:text-left md:text-4xl">
           Diário Emocional
         </h1>
-        <p className="mt-3 whitespace-normal break-words text-center text-base text-gray-500 text-muted-foreground md:text-left md:text-lg lg:text-xl">
+        <p className="mt-3 whitespace-normal break-words text-center text-base text-zinc-500 dark:text-zinc-400 md:text-left md:text-lg lg:text-xl">
           Registre seus sentimentos e acompanhe sua jornada
         </p>
       </motion.div>
@@ -35,22 +34,21 @@ const DiaryPage = () => {
           transition={{ duration: 0.25, delay: 0.1 }}
           className="flex w-full flex-col justify-between gap-2 dm:flex-row dm:items-center xl:w-[400px] xl:flex-col xl:items-stretch xl:justify-start"
         >
-          {/* Calendário - RÁPIDO */}
-
+          {/* Calendário */}
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.25, delay: 0.15 }}
-            className="m-0 flex max-h-[400px] flex-col items-center rounded-2xl border py-4 shadow-sm dm:w-1/2 xl:my-0 xl:w-auto"
+            className="m-0 flex max-h-[400px] flex-col items-center rounded-2xl border border-zinc-200 bg-white py-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dm:w-1/2 xl:my-0 xl:w-auto"
           >
-            <div className="flex items-center gap-2 p-1 text-muted-foreground">
-              <CalendarHeart />
-              <h2>Selecione uma data</h2>
+            <div className="flex items-center gap-2 p-1 text-zinc-600 dark:text-zinc-400">
+              <CalendarHeart className="h-5 w-5" />
+              <h2 className="font-medium">Selecione uma data</h2>
             </div>
             <CalendaryComponent />
           </motion.div>
 
-          {/* Gráfico - RÁPIDO */}
+          {/* Gráfico */}
           <motion.div
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -60,14 +58,19 @@ const DiaryPage = () => {
           </motion.div>
         </motion.div>
 
+        {/* Formulário do dia */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.25, delay: 0.12 }}
-          className="mt-5 flex w-full flex-col space-y-3 rounded-2xl border p-5 xl:!mt-0"
+          className="mt-5 flex w-full flex-col space-y-3 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 xl:!mt-0"
         >
-          <h2 className="text-xl font-semibold">6 de novembro de 2025</h2>
-          <p className="text-muted-foreground">Como você está se sentindo?</p>
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
+            6 de novembro de 2025
+          </h2>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            Como você está se sentindo?
+          </p>
           <FormDailyComponent />
         </motion.div>
       </motion.div>

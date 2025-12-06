@@ -53,19 +53,19 @@ const ConfigCommunity = ({
       {/* Título */}
       <div className="flex flex-col items-center justify-between gap-1 sm:flex-row">
         <div className="flex flex-col space-y-4">
-          <h1 className="text-center text-xl font-bold text-gray-800 md:text-left md:text-4xl">
+          <h1 className="text-center text-xl font-bold text-zinc-800 dark:text-zinc-100 md:text-left md:text-4xl">
             Configurações da Comunidade
           </h1>
-          <p className="mt-3 whitespace-normal break-words text-center text-base text-gray-500 text-muted-foreground md:text-left md:text-lg lg:text-xl">
+          <p className="mt-3 whitespace-normal break-words text-center text-base text-zinc-500 dark:text-zinc-400 md:text-left md:text-lg lg:text-xl">
             Gerencie como sua comunidade funciona
           </p>
         </div>
-        {/* Botão de retorno */}
+
         {!showButtonReturn && (
           <Button
             variant="outline"
             onClick={() => navigation(-1)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 border-zinc-300 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
           >
             <ArrowLeft size={16} />
             Voltar
@@ -74,17 +74,18 @@ const ConfigCommunity = ({
       </div>
 
       {/* --- CARD: Informações básicas --- */}
-      <Card className="mt-12 border border-black/5 shadow-sm">
+      <Card className="mt-12 border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <CardHeader>
-          <CardTitle>Informações básicas</CardTitle>
+          <CardTitle className="text-zinc-900 dark:text-zinc-100">
+            Informações básicas
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Foto */}
-          <p className="text-center text-sm font-semibold text-muted-foreground">
+          <p className="text-center text-sm font-semibold text-zinc-600 dark:text-zinc-400">
             Capa da Comunidade
           </p>
           <div className="flex flex-col items-center gap-4">
-            {/* Container da imagem */}
             <div className="relative flex h-[100px] w-[240px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-500/60 to-indigo-500/60 shadow-lg ring-2 ring-purple-300/40 transition-all duration-300 hover:shadow-xl im:h-[150px] im:w-[340px]">
               {imagePreview ? (
                 <img
@@ -97,17 +98,15 @@ const ConfigCommunity = ({
               )}
             </div>
 
-            {/* Botão */}
             <Button
               onClick={() => inputRef.current?.click()}
               variant="outline"
-              className="flex gap-2 transition-all hover:bg-purple-600 hover:text-white"
+              className="flex gap-2 transition-all hover:bg-purple-600 hover:text-white dark:hover:bg-purple-600"
             >
               <Upload size={16} />
               Alterar foto
             </Button>
 
-            {/* Input hidden */}
             <input
               ref={inputRef}
               type="file"
@@ -119,12 +118,12 @@ const ConfigCommunity = ({
 
           {/* Nome */}
           <div className="space-y-1">
-            <Label>Nome da comunidade</Label>
+            <Label className="text-zinc-800 dark:text-zinc-200">
+              Nome da comunidade
+            </Label>
             <Input
               onChange={nameCommunity.handleChange}
-              className={
-                nameCommunity.error ? 'border-red-500 focus:!ring-red-500' : ''
-              }
+              className={`border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${nameCommunity.error ? 'border-red-500 focus:ring-red-500' : ''}`}
               placeholder="Ex: Programadores Brasil"
             />
             <MessageForms
@@ -136,10 +135,12 @@ const ConfigCommunity = ({
 
           {/* Descrição */}
           <div className="space-y-1">
-            <Label>Descrição</Label>
+            <Label className="text-zinc-800 dark:text-zinc-200">
+              Descrição
+            </Label>
             <Textarea
               onChange={descriptionCommunity.handleChange}
-              className={`max-h-[500px] ${descriptionCommunity.error ? 'border-red-500 focus:!ring-red-500' : ''}`}
+              className={`max-h-[500px] border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${descriptionCommunity.error ? 'border-red-500 focus:ring-red-500' : ''}`}
               placeholder="Sobre o que é sua comunidade?"
             />
             <MessageForms
@@ -151,12 +152,14 @@ const ConfigCommunity = ({
 
           {/* Categoria */}
           <div className="space-y-1">
-            <Label>Categoria</Label>
+            <Label className="text-zinc-800 dark:text-zinc-200">
+              Categoria
+            </Label>
             <Select>
-              <SelectTrigger>
+              <SelectTrigger className="border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800">
                 <SelectValue placeholder="Selecione uma categoria" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
                 <SelectItem value="ansiedade">
                   Sobre como vencer a Ansiedade
                 </SelectItem>
@@ -175,34 +178,37 @@ const ConfigCommunity = ({
       </Card>
 
       {/* --- CARD: Administração --- */}
-      <Card className="border border-black/5 shadow-sm">
+      <Card className="border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <CardHeader>
-          <CardTitle>Administração</CardTitle>
+          <CardTitle className="text-zinc-900 dark:text-zinc-100">
+            Administração
+          </CardTitle>
         </CardHeader>
-
         <CardContent className="space-y-6">
-          {/* Quem pode postar */}
           <div className="space-y-1">
-            <Label>Quem pode postar?</Label>
+            <Label className="text-zinc-800 dark:text-zinc-200">
+              Quem pode postar?
+            </Label>
             <Select>
-              <SelectTrigger>
+              <SelectTrigger className="border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800">
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
                 <SelectItem value="todos">Todos os membros</SelectItem>
                 <SelectItem value="admins">Somente administradores</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {/* Quem pode comentar */}
           <div className="space-y-1">
-            <Label>Quem pode comentar?</Label>
+            <Label className="text-zinc-800 dark:text-zinc-200">
+              Quem pode comentar?
+            </Label>
             <Select>
-              <SelectTrigger>
+              <SelectTrigger className="border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800">
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
                 <SelectItem value="todos">Todos os membros</SelectItem>
                 <SelectItem value="admins">Somente administradores</SelectItem>
               </SelectContent>
@@ -212,19 +218,21 @@ const ConfigCommunity = ({
       </Card>
 
       {/* --- CARD: Segurança e Regras --- */}
-      <Card className="border border-black/5 shadow-sm">
+      <Card className="border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <CardHeader>
-          <CardTitle>Segurança & Regras</CardTitle>
+          <CardTitle className="text-zinc-900 dark:text-zinc-100">
+            Segurança & Regras
+          </CardTitle>
         </CardHeader>
-
         <CardContent className="space-y-4">
-          {/* Palavras proibidas */}
           <div className="space-y-1">
-            <Label>Palavras proibidas</Label>
+            <Label className="text-zinc-800 dark:text-zinc-200">
+              Palavras proibidas
+            </Label>
             <Textarea
-              className={`max-h-[500px] ${prohibitedCommunity.error ? 'border-red-500 focus:!ring-red-500' : ''}`}
+              className={`max-h-[500px] border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${prohibitedCommunity.error ? 'border-red-500 focus:ring-red-500' : ''}`}
               onChange={prohibitedCommunity.handleChange}
-              placeholder="Separe por vírgulas para a identificação precisa das palavras, ok? Ex: palavrão1, palavrão2, palavrão3..."
+              placeholder="Separe por vírgulas..."
             />
             <MessageForms
               error={prohibitedCommunity.error}
@@ -233,11 +241,12 @@ const ConfigCommunity = ({
             />
           </div>
 
-          {/* Regras */}
           <div className="space-y-1">
-            <Label>Regras da comunidade</Label>
+            <Label className="text-zinc-800 dark:text-zinc-200">
+              Regras da comunidade
+            </Label>
             <Textarea
-              className={`max-h-[500px] ${rulesCommunity.error ? 'border-red-500 focus:!ring-red-500' : ''}`}
+              className={`max-h-[500px] border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${rulesCommunity.error ? 'border-red-500 focus:ring-red-500' : ''}`}
               onChange={rulesCommunity.handleChange}
               placeholder="Liste as regras que os membros devem seguir."
             />
@@ -248,19 +257,18 @@ const ConfigCommunity = ({
             />
           </div>
 
-          {/* Privacidade */}
-          <div className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+          <div className="flex items-center justify-between rounded-lg bg-zinc-50 p-4 dark:bg-zinc-800/50">
             <div className="flex items-center gap-3">
               {isPrivate ? (
-                <Lock className="h-6 w-6 text-purple-600" />
+                <Lock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               ) : (
-                <Globe className="h-6 w-6 text-purple-600" />
+                <Globe className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               )}
               <div>
-                <p className="text-sm font-medium text-gray-800">
+                <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100">
                   {isPrivate ? 'Comunidade privada' : 'Comunidade pública'}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
                   {isPrivate
                     ? 'Somente membros aprovados podem ver e interagir com as postagens.'
                     : 'Qualquer usuário pode participar e visualizar as postagens.'}
@@ -270,7 +278,7 @@ const ConfigCommunity = ({
             <Button
               onClick={() => setIsPrivate(!isPrivate)}
               variant="outline"
-              className="rounded-full border-purple-300 text-purple-600 hover:bg-purple-100"
+              className="rounded-full border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30"
             >
               {isPrivate ? 'Tornar pública' : 'Tornar privada'}
             </Button>
