@@ -163,19 +163,17 @@ export function ConfigDialog({
         </DialogContent>
       </Dialog>
       {posts.map((valuePost) => (
-        <>
-          <div key={valuePost.id} className="absolute">
-            <PostComponentDialog
-              valuePost={valuePost}
-              novoComentario={novoComentario}
-              setNovoComentario={setNovoComentario}
-              setPosts={setPosts}
-              posts={posts}
-              open={dialogOpen}
-              onOpenChange={setDialogOpen}
-            />
-          </div>
-        </>
+        <div key={valuePost.id} className="absolute">
+          <PostComponentDialog
+            valuePost={valuePost}
+            novoComentario={novoComentario}
+            setNovoComentario={setNovoComentario}
+            setPosts={setPosts}
+            posts={posts}
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+          />
+        </div>
       ))}
     </>
   )

@@ -43,7 +43,7 @@ const DialogReportPost = () => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <TooltipComponent description="Denunciar Post">
           <Button
             variant="ghost"

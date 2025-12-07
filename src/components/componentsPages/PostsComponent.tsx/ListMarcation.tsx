@@ -1,6 +1,4 @@
-import { Popover, PopoverContent } from '@radix-ui/react-popover'
-
-import { PopoverTrigger } from '../../ui/popover'
+import { Popover, PopoverContent, PopoverTrigger } from '../../ui/popover'
 
 interface ListMarcationProps {
   setClickedMention: React.Dispatch<React.SetStateAction<boolean>>
@@ -15,7 +13,7 @@ const ListMarcation = ({
 }: ListMarcationProps) => {
   return (
     <Popover open={true}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger>
         <span
           className="pointer-events-none absolute left-0 top-0 h-0 w-0 opacity-0"
           aria-hidden="true"

@@ -77,7 +77,7 @@ const NotificationComponent = () => {
 
   return (
     <Popover>
-      <PopoverTrigger>
+      <PopoverTrigger asChild>
         <Button variant="ghost" className="relative hover:bg-transparent">
           <Bell
             className="!h-6 !w-6 text-purple-600 dark:text-purple-400"

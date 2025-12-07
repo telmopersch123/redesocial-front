@@ -1,6 +1,6 @@
 import { CircleX } from 'lucide-react'
 import { Button } from '../../ui/button'
-import { Dialog, DialogContent } from '../../ui/dialog'
+import { Dialog, DialogContent, DialogTitle } from '../../ui/dialog'
 
 interface DialogFullscreenProps {
   isFullscreen: boolean
@@ -16,6 +16,7 @@ const FullscreenDialog = ({
   return (
     <Dialog open={isFullscreen} onOpenChange={setIsFullscreen}>
       <DialogContent className="fixed flex items-center justify-center border-none bg-transparent p-0 shadow-none [&>button]:hidden dark:[&>button]:hidden">
+        <DialogTitle className="h-0 w-0"></DialogTitle>
         <div className="m-1 flex items-center justify-center">
           <img
             src={file!}

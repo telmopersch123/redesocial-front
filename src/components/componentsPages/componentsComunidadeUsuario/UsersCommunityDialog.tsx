@@ -138,7 +138,7 @@ const UsersCommunityDialog = () => {
   const [query, setQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | User['role']>('all')
   const [selectedRemove, setSelectedRemove] = useState<number[]>([])
-  const [selectedMuted, setSelectedMuted] = useState<number[]>([])
+  const [_, setSelectedMuted] = useState<number[]>([])
   const [page, setPage] = useState(1)
   const [users, setUsers] = useState<User[]>(sampleUsers)
 

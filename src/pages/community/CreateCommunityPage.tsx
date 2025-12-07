@@ -49,7 +49,7 @@ const CreateCommunityPage = () => {
     register,
     control,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<CreateCommunityFormData>({
     resolver: zodResolver(createCommunitySchema),
     defaultValues: {
@@ -83,8 +83,6 @@ const CreateCommunityPage = () => {
   function onSubmit(data: CreateCommunityFormData) {
     console.log(data)
   }
-
-  console.log(descriptionCommunity.value.length >= 256)
 
   return (
     <>

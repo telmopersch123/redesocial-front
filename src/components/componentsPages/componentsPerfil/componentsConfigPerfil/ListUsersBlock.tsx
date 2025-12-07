@@ -34,50 +34,6 @@ const ListUsersBlock = ({ open, setOpen }: ListUsersBlockProps) => {
       name: 'Carlos Lima',
       avatar: 'https://i.pravatar.cc/150?img=45',
     },
-    { id: 1, name: 'João Silva', avatar: 'https://i.pravatar.cc/150?img=12' },
-    {
-      id: 2,
-      name: 'Maria Souza',
-      avatar: 'https://i.pravatar.cc/150?img=31',
-    },
-    {
-      id: 3,
-      name: 'Carlos Lima',
-      avatar: 'https://i.pravatar.cc/150?img=45',
-    },
-    { id: 1, name: 'João Silva', avatar: 'https://i.pravatar.cc/150?img=12' },
-    {
-      id: 2,
-      name: 'Maria Souza',
-      avatar: 'https://i.pravatar.cc/150?img=31',
-    },
-    {
-      id: 3,
-      name: 'Carlos Lima',
-      avatar: 'https://i.pravatar.cc/150?img=45',
-    },
-    { id: 1, name: 'João Silva', avatar: 'https://i.pravatar.cc/150?img=12' },
-    {
-      id: 2,
-      name: 'Maria Souza',
-      avatar: 'https://i.pravatar.cc/150?img=31',
-    },
-    {
-      id: 3,
-      name: 'Carlos Lima',
-      avatar: 'https://i.pravatar.cc/150?img=45',
-    },
-    { id: 1, name: 'João Silva', avatar: 'https://i.pravatar.cc/150?img=12' },
-    {
-      id: 2,
-      name: 'Maria Souza',
-      avatar: 'https://i.pravatar.cc/150?img=31',
-    },
-    {
-      id: 3,
-      name: 'Carlos Lima',
-      avatar: 'https://i.pravatar.cc/150?img=45',
-    },
   ])
   return (
     <>

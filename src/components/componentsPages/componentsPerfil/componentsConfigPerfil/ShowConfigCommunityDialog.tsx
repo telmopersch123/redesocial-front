@@ -1,6 +1,12 @@
 import ConfigCommunity from '../../../../pages/community/ConfigCommunity'
 import { Button } from '../../../ui/button'
-import { Dialog, DialogContent, DialogTrigger } from '../../../ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '../../../ui/dialog'
 
 const ShowCommunityDialog = () => {
   return (
@@ -16,6 +22,9 @@ const ShowCommunityDialog = () => {
           onWheel={(e) => e.stopPropagation()}
           className="h-[calc(100vh-4rem)] w-fit overflow-y-auto rounded-2xl p-4"
         >
+          <DialogHeader className="h-0 w-0">
+            <DialogTitle className="h-0 w-0"></DialogTitle>
+          </DialogHeader>
           {/* Conteúdo real */}
 
           <ConfigCommunity methodW_fullscreen={true} showButtonReturn={true} />

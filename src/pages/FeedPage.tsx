@@ -131,60 +131,7 @@ export const postsFicticiosGlobal: Post[] = [
     tags: ['Produtividade', 'Trabalho', 'Vídeo'],
   },
   {
-    id: 1,
-    typePosts: 'Feliz',
-    community: '',
-    autor: 'Lucas Ferreira',
-    avatar: 'LF',
-    friend: true,
-    conteudo:
-      'Acabei de terminar um projeto que estava empacado há semanas. Sensação incrível!',
-    imagem:
-      'https://cotia.sp.gov.br/wp-content/uploads/2025/10/projeto-felicidade_secom-cotia-5.jpeg',
-    data: new Date('2025-11-12T09:30:00'),
-    likes: 34,
-    comentarios: [
-      { id: 1, autor: 'Carla', texto: 'Parabéns! O esforço vale a pena.' },
-      { id: 2, autor: 'Anônimo', texto: 'Que motivador!' },
-    ],
-    salvo: false,
-    tags: ['Felicidade', 'Projeto', 'Motivação'],
-  },
-  {
-    id: 2,
-    typePosts: 'Agradecido',
-    community: '',
-    autor: 'Fernanda Costa',
-    avatar: 'FC',
-    friend: false,
-    conteudo:
-      'Hoje acordei inspirada e escrevi algumas páginas do meu diário. É ótimo refletir sobre a vida!',
-    data: new Date('2025-11-11T08:15:00'),
-    likes: 28,
-    comentarios: [],
-    salvo: true,
-    tags: ['Gratidão', 'Reflexão', 'Diário'],
-  },
-  {
-    id: 3,
-    typePosts: 'Feliz',
-    community: '',
-    autor: 'Rafael Almeida',
-    avatar: 'RA',
-    friend: false,
-    conteudo: 'Nada como um café forte e música boa para começar o dia.',
-    imagem:
-      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80',
-    data: new Date('2025-11-10T07:50:00'),
-    likes: 45,
-    comentarios: [
-      { id: 1, autor: 'Ana', texto: 'Perfeito! Também adoro começar assim.' },
-    ],
-    salvo: false,
-    tags: ['Felicidade', 'Café', 'Manhã'],
-  },
-  {
-    id: 4,
+    id: 6,
     typePosts: 'Ansioso',
     community: '',
     autor: 'Juliana Mendes',
@@ -198,7 +145,7 @@ export const postsFicticiosGlobal: Post[] = [
     tags: ['Ansiedade', 'Culinária', 'Vegano'],
   },
   {
-    id: 5,
+    id: 76,
     typePosts: 'Triste',
     community: '',
     autor: 'Gabriel Santos',
@@ -219,60 +166,7 @@ export const postsFicticiosGlobal: Post[] = [
     tags: ['Produtividade', 'Trabalho', 'Vídeo'],
   },
   {
-    id: 1,
-    typePosts: 'Feliz',
-    community: '',
-    autor: 'Lucas Ferreira',
-    avatar: 'LF',
-    friend: true,
-    conteudo:
-      'Acabei de terminar um projeto que estava empacado há semanas. Sensação incrível!',
-    imagem:
-      'https://cotia.sp.gov.br/wp-content/uploads/2025/10/projeto-felicidade_secom-cotia-5.jpeg',
-    data: new Date('2025-11-12T09:30:00'),
-    likes: 34,
-    comentarios: [
-      { id: 1, autor: 'Carla', texto: 'Parabéns! O esforço vale a pena.' },
-      { id: 2, autor: 'Anônimo', texto: 'Que motivador!' },
-    ],
-    salvo: false,
-    tags: ['Felicidade', 'Projeto', 'Motivação'],
-  },
-  {
-    id: 2,
-    typePosts: 'Agradecido',
-    community: '',
-    autor: 'Fernanda Costa',
-    avatar: 'FC',
-    friend: false,
-    conteudo:
-      'Hoje acordei inspirada e escrevi algumas páginas do meu diário. É ótimo refletir sobre a vida!',
-    data: new Date('2025-11-11T08:15:00'),
-    likes: 28,
-    comentarios: [],
-    salvo: true,
-    tags: ['Gratidão', 'Reflexão', 'Diário'],
-  },
-  {
-    id: 3,
-    typePosts: 'Feliz',
-    community: '',
-    autor: 'Rafael Almeida',
-    avatar: 'RA',
-    friend: false,
-    conteudo: 'Nada como um café forte e música boa para começar o dia.',
-    imagem:
-      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80',
-    data: new Date('2025-11-10T07:50:00'),
-    likes: 45,
-    comentarios: [
-      { id: 1, autor: 'Ana', texto: 'Perfeito! Também adoro começar assim.' },
-    ],
-    salvo: false,
-    tags: ['Felicidade', 'Café', 'Manhã'],
-  },
-  {
-    id: 4,
+    id: 87,
     typePosts: 'Ansioso',
     community: '',
     autor: 'Juliana Mendes',
@@ -286,7 +180,7 @@ export const postsFicticiosGlobal: Post[] = [
     tags: ['Ansiedade', 'Culinária', 'Vegano'],
   },
   {
-    id: 5,
+    id: 34,
     typePosts: 'Triste',
     community: '',
     autor: 'Gabriel Santos',
@@ -307,60 +201,7 @@ export const postsFicticiosGlobal: Post[] = [
     tags: ['Produtividade', 'Trabalho', 'Vídeo'],
   },
   {
-    id: 1,
-    typePosts: 'Feliz',
-    community: '',
-    autor: 'Lucas Ferreira',
-    avatar: 'LF',
-    friend: true,
-    conteudo:
-      'Acabei de terminar um projeto que estava empacado há semanas. Sensação incrível!',
-    imagem:
-      'https://cotia.sp.gov.br/wp-content/uploads/2025/10/projeto-felicidade_secom-cotia-5.jpeg',
-    data: new Date('2025-11-12T09:30:00'),
-    likes: 34,
-    comentarios: [
-      { id: 1, autor: 'Carla', texto: 'Parabéns! O esforço vale a pena.' },
-      { id: 2, autor: 'Anônimo', texto: 'Que motivador!' },
-    ],
-    salvo: false,
-    tags: ['Felicidade', 'Projeto', 'Motivação'],
-  },
-  {
-    id: 2,
-    typePosts: 'Agradecido',
-    community: '',
-    autor: 'Fernanda Costa',
-    avatar: 'FC',
-    friend: false,
-    conteudo:
-      'Hoje acordei inspirada e escrevi algumas páginas do meu diário. É ótimo refletir sobre a vida!',
-    data: new Date('2025-11-11T08:15:00'),
-    likes: 28,
-    comentarios: [],
-    salvo: true,
-    tags: ['Gratidão', 'Reflexão', 'Diário'],
-  },
-  {
-    id: 3,
-    typePosts: 'Feliz',
-    community: '',
-    autor: 'Rafael Almeida',
-    avatar: 'RA',
-    friend: false,
-    conteudo: 'Nada como um café forte e música boa para começar o dia.',
-    imagem:
-      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80',
-    data: new Date('2025-11-10T07:50:00'),
-    likes: 45,
-    comentarios: [
-      { id: 1, autor: 'Ana', texto: 'Perfeito! Também adoro começar assim.' },
-    ],
-    salvo: false,
-    tags: ['Felicidade', 'Café', 'Manhã'],
-  },
-  {
-    id: 4,
+    id: 65,
     typePosts: 'Ansioso',
     community: '',
     autor: 'Juliana Mendes',
@@ -374,7 +215,7 @@ export const postsFicticiosGlobal: Post[] = [
     tags: ['Ansiedade', 'Culinária', 'Vegano'],
   },
   {
-    id: 5,
+    id: 43,
     typePosts: 'Triste',
     community: '',
     autor: 'Gabriel Santos',
@@ -395,60 +236,7 @@ export const postsFicticiosGlobal: Post[] = [
     tags: ['Produtividade', 'Trabalho', 'Vídeo'],
   },
   {
-    id: 1,
-    typePosts: 'Feliz',
-    community: '',
-    autor: 'Lucas Ferreira',
-    avatar: 'LF',
-    friend: true,
-    conteudo:
-      'Acabei de terminar um projeto que estava empacado há semanas. Sensação incrível!',
-    imagem:
-      'https://cotia.sp.gov.br/wp-content/uploads/2025/10/projeto-felicidade_secom-cotia-5.jpeg',
-    data: new Date('2025-11-12T09:30:00'),
-    likes: 34,
-    comentarios: [
-      { id: 1, autor: 'Carla', texto: 'Parabéns! O esforço vale a pena.' },
-      { id: 2, autor: 'Anônimo', texto: 'Que motivador!' },
-    ],
-    salvo: false,
-    tags: ['Felicidade', 'Projeto', 'Motivação'],
-  },
-  {
-    id: 2,
-    typePosts: 'Agradecido',
-    community: '',
-    autor: 'Fernanda Costa',
-    avatar: 'FC',
-    friend: false,
-    conteudo:
-      'Hoje acordei inspirada e escrevi algumas páginas do meu diário. É ótimo refletir sobre a vida!',
-    data: new Date('2025-11-11T08:15:00'),
-    likes: 28,
-    comentarios: [],
-    salvo: true,
-    tags: ['Gratidão', 'Reflexão', 'Diário'],
-  },
-  {
-    id: 3,
-    typePosts: 'Feliz',
-    community: '',
-    autor: 'Rafael Almeida',
-    avatar: 'RA',
-    friend: false,
-    conteudo: 'Nada como um café forte e música boa para começar o dia.',
-    imagem:
-      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80',
-    data: new Date('2025-11-10T07:50:00'),
-    likes: 45,
-    comentarios: [
-      { id: 1, autor: 'Ana', texto: 'Perfeito! Também adoro começar assim.' },
-    ],
-    salvo: false,
-    tags: ['Felicidade', 'Café', 'Manhã'],
-  },
-  {
-    id: 4,
+    id: 431,
     typePosts: 'Ansioso',
     community: '',
     autor: 'Juliana Mendes',
@@ -462,7 +250,7 @@ export const postsFicticiosGlobal: Post[] = [
     tags: ['Ansiedade', 'Culinária', 'Vegano'],
   },
   {
-    id: 5,
+    id: 765,
     typePosts: 'Triste',
     community: '',
     autor: 'Gabriel Santos',
@@ -482,270 +270,7 @@ export const postsFicticiosGlobal: Post[] = [
     salvo: true,
     tags: ['Produtividade', 'Trabalho', 'Vídeo'],
   },
-  {
-    id: 1,
-    typePosts: 'Feliz',
-    community: '',
-    autor: 'Lucas Ferreira',
-    avatar: 'LF',
-    friend: true,
-    conteudo:
-      'Acabei de terminar um projeto que estava empacado há semanas. Sensação incrível!',
-    imagem:
-      'https://cotia.sp.gov.br/wp-content/uploads/2025/10/projeto-felicidade_secom-cotia-5.jpeg',
-    data: new Date('2025-11-12T09:30:00'),
-    likes: 34,
-    comentarios: [
-      { id: 1, autor: 'Carla', texto: 'Parabéns! O esforço vale a pena.' },
-      { id: 2, autor: 'Anônimo', texto: 'Que motivador!' },
-    ],
-    salvo: false,
-    tags: ['Felicidade', 'Projeto', 'Motivação'],
-  },
-  {
-    id: 2,
-    typePosts: 'Agradecido',
-    community: '',
-    autor: 'Fernanda Costa',
-    avatar: 'FC',
-    friend: false,
-    conteudo:
-      'Hoje acordei inspirada e escrevi algumas páginas do meu diário. É ótimo refletir sobre a vida!',
-    data: new Date('2025-11-11T08:15:00'),
-    likes: 28,
-    comentarios: [],
-    salvo: true,
-    tags: ['Gratidão', 'Reflexão', 'Diário'],
-  },
-  {
-    id: 3,
-    typePosts: 'Feliz',
-    community: '',
-    autor: 'Rafael Almeida',
-    avatar: 'RA',
-    friend: false,
-    conteudo: 'Nada como um café forte e música boa para começar o dia.',
-    imagem:
-      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80',
-    data: new Date('2025-11-10T07:50:00'),
-    likes: 45,
-    comentarios: [
-      { id: 1, autor: 'Ana', texto: 'Perfeito! Também adoro começar assim.' },
-    ],
-    salvo: false,
-    tags: ['Felicidade', 'Café', 'Manhã'],
-  },
-  {
-    id: 4,
-    typePosts: 'Ansioso',
-    community: '',
-    autor: 'Juliana Mendes',
-    avatar: 'JM',
-    friend: false,
-    conteudo: 'Aprendi uma nova receita vegana e ficou deliciosa! 🍲',
-    data: new Date('2025-11-09T18:40:00'),
-    likes: 19,
-    comentarios: [],
-    salvo: false,
-    tags: ['Ansiedade', 'Culinária', 'Vegano'],
-  },
-  {
-    id: 5,
-    typePosts: 'Triste',
-    community: '',
-    autor: 'Gabriel Santos',
-    avatar: 'GS',
-    friend: true,
-    conteudo:
-      'Gravei um vídeo compartilhando dicas de produtividade que tenho usado no trabalho. Espero que ajude alguém!',
-    video: true,
-    imagem:
-      'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80',
-    data: new Date('2025-11-08T14:20:00'),
-    likes: 52,
-    comentarios: [
-      { id: 1, autor: 'Luiza', texto: 'Muito útil, obrigado!' },
-      { id: 2, autor: 'Anônimo', texto: 'Já salvei para assistir depois.' },
-    ],
-    salvo: true,
-    tags: ['Produtividade', 'Trabalho', 'Vídeo'],
-  },
-  {
-    id: 1,
-    typePosts: 'Feliz',
-    community: '',
-    autor: 'Lucas Ferreira',
-    avatar: 'LF',
-    friend: true,
-    conteudo:
-      'Acabei de terminar um projeto que estava empacado há semanas. Sensação incrível!',
-    imagem:
-      'https://cotia.sp.gov.br/wp-content/uploads/2025/10/projeto-felicidade_secom-cotia-5.jpeg',
-    data: new Date('2025-11-12T09:30:00'),
-    likes: 34,
-    comentarios: [
-      { id: 1, autor: 'Carla', texto: 'Parabéns! O esforço vale a pena.' },
-      { id: 2, autor: 'Anônimo', texto: 'Que motivador!' },
-    ],
-    salvo: false,
-    tags: ['Felicidade', 'Projeto', 'Motivação'],
-  },
-  {
-    id: 2,
-    typePosts: 'Agradecido',
-    community: '',
-    autor: 'Fernanda Costa',
-    avatar: 'FC',
-    friend: false,
-    conteudo:
-      'Hoje acordei inspirada e escrevi algumas páginas do meu diário. É ótimo refletir sobre a vida!',
-    data: new Date('2025-11-11T08:15:00'),
-    likes: 28,
-    comentarios: [],
-    salvo: true,
-    tags: ['Gratidão', 'Reflexão', 'Diário'],
-  },
-  {
-    id: 3,
-    typePosts: 'Feliz',
-    community: '',
-    autor: 'Rafael Almeida',
-    avatar: 'RA',
-    friend: false,
-    conteudo: 'Nada como um café forte e música boa para começar o dia.',
-    imagem:
-      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80',
-    data: new Date('2025-11-10T07:50:00'),
-    likes: 45,
-    comentarios: [
-      { id: 1, autor: 'Ana', texto: 'Perfeito! Também adoro começar assim.' },
-    ],
-    salvo: false,
-    tags: ['Felicidade', 'Café', 'Manhã'],
-  },
-  {
-    id: 4,
-    typePosts: 'Ansioso',
-    community: '',
-    autor: 'Juliana Mendes',
-    avatar: 'JM',
-    friend: false,
-    conteudo: 'Aprendi uma nova receita vegana e ficou deliciosa! 🍲',
-    data: new Date('2025-11-09T18:40:00'),
-    likes: 19,
-    comentarios: [],
-    salvo: false,
-    tags: ['Ansiedade', 'Culinária', 'Vegano'],
-  },
-  {
-    id: 5,
-    typePosts: 'Triste',
-    community: '',
-    autor: 'Gabriel Santos',
-    avatar: 'GS',
-    friend: true,
-    conteudo:
-      'Gravei um vídeo compartilhando dicas de produtividade que tenho usado no trabalho. Espero que ajude alguém!',
-    video: true,
-    imagem:
-      'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80',
-    data: new Date('2025-11-08T14:20:00'),
-    likes: 52,
-    comentarios: [
-      { id: 1, autor: 'Luiza', texto: 'Muito útil, obrigado!' },
-      { id: 2, autor: 'Anônimo', texto: 'Já salvei para assistir depois.' },
-    ],
-    salvo: true,
-    tags: ['Produtividade', 'Trabalho', 'Vídeo'],
-  },
-  {
-    id: 1,
-    typePosts: 'Feliz',
-    community: '',
-    autor: 'Lucas Ferreira',
-    avatar: 'LF',
-    friend: true,
-    conteudo:
-      'Acabei de terminar um projeto que estava empacado há semanas. Sensação incrível!',
-    imagem:
-      'https://cotia.sp.gov.br/wp-content/uploads/2025/10/projeto-felicidade_secom-cotia-5.jpeg',
-    data: new Date('2025-11-12T09:30:00'),
-    likes: 34,
-    comentarios: [
-      { id: 1, autor: 'Carla', texto: 'Parabéns! O esforço vale a pena.' },
-      { id: 2, autor: 'Anônimo', texto: 'Que motivador!' },
-    ],
-    salvo: false,
-    tags: ['Felicidade', 'Projeto', 'Motivação'],
-  },
-  {
-    id: 2,
-    typePosts: 'Agradecido',
-    community: '',
-    autor: 'Fernanda Costa',
-    avatar: 'FC',
-    friend: false,
-    conteudo:
-      'Hoje acordei inspirada e escrevi algumas páginas do meu diário. É ótimo refletir sobre a vida!',
-    data: new Date('2025-11-11T08:15:00'),
-    likes: 28,
-    comentarios: [],
-    salvo: true,
-    tags: ['Gratidão', 'Reflexão', 'Diário'],
-  },
-  {
-    id: 3,
-    typePosts: 'Feliz',
-    community: '',
-    autor: 'Rafael Almeida',
-    avatar: 'RA',
-    friend: false,
-    conteudo: 'Nada como um café forte e música boa para começar o dia.',
-    imagem:
-      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80',
-    data: new Date('2025-11-10T07:50:00'),
-    likes: 45,
-    comentarios: [
-      { id: 1, autor: 'Ana', texto: 'Perfeito! Também adoro começar assim.' },
-    ],
-    salvo: false,
-    tags: ['Felicidade', 'Café', 'Manhã'],
-  },
-  {
-    id: 4,
-    typePosts: 'Ansioso',
-    community: '',
-    autor: 'Juliana Mendes',
-    avatar: 'JM',
-    friend: false,
-    conteudo: 'Aprendi uma nova receita vegana e ficou deliciosa! 🍲',
-    data: new Date('2025-11-09T18:40:00'),
-    likes: 19,
-    comentarios: [],
-    salvo: false,
-    tags: ['Ansiedade', 'Culinária', 'Vegano'],
-  },
-  {
-    id: 5,
-    typePosts: 'Triste',
-    community: '',
-    autor: 'Gabriel Santos',
-    avatar: 'GS',
-    friend: true,
-    conteudo:
-      'Gravei um vídeo compartilhando dicas de produtividade que tenho usado no trabalho. Espero que ajude alguém!',
-    video: true,
-    imagem:
-      'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80',
-    data: new Date('2025-11-08T14:20:00'),
-    likes: 52,
-    comentarios: [
-      { id: 1, autor: 'Luiza', texto: 'Muito útil, obrigado!' },
-      { id: 2, autor: 'Anônimo', texto: 'Já salvei para assistir depois.' },
-    ],
-    salvo: true,
-    tags: ['Produtividade', 'Trabalho', 'Vídeo'],
-  },
+
   ...postsFicticiosCommunity,
 ]
 
@@ -859,10 +384,9 @@ const FeedPage = () => {
             posts.slice(0, visibleCount).map((post: Post, index: number) => {
               const isLoaded = index < loadedCount
               return (
-                <>
+                <div key={post.id}>
                   {isLoaded ? (
                     <CardsPostComponent
-                      key={post.id}
                       posts={posts}
                       valuePost={post}
                       setPosts={setPosts}
@@ -870,7 +394,7 @@ const FeedPage = () => {
                   ) : (
                     <PostCardSkeleton />
                   )}
-                </>
+                </div>
               )
             })
           ) : (

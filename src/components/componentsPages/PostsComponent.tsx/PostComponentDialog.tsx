@@ -132,6 +132,7 @@ const PostComponentDialog = ({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogTrigger
           className={`rounded-md px-4 py-2 text-white ${pathname.includes(`perfil/${id}/config`) ? 'hidden' : ''}`}
+          asChild
         >
           <Button
             variant="ghost"

@@ -184,7 +184,7 @@ export const BatePapoSidebar = () => {
 
   return (
     <>
-      <div className="fixed right-5 top-3 z-50 transition-all duration-300">
+      <div className="fixed right-5 top-3 z-40 transition-all duration-300">
         <NotificationComponent />
       </div>
 
@@ -192,7 +192,7 @@ export const BatePapoSidebar = () => {
         <SheetTrigger asChild>
           <Button
             size="icon"
-            className="hover:shadow-3xl fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full bg-gradient-to-br from-purple-600 to-violet-700 text-white shadow-2xl transition-all hover:scale-110 hover:from-purple-500 hover:to-violet-600 active:scale-95"
+            className="hover:shadow-3xl fixed bottom-6 right-6 z-40 h-16 w-16 rounded-full bg-gradient-to-br from-purple-600 to-violet-700 text-white shadow-2xl transition-all hover:scale-110 hover:from-purple-500 hover:to-violet-600 active:scale-95"
           >
             <MessageCircle className="h-8 w-8" />
 

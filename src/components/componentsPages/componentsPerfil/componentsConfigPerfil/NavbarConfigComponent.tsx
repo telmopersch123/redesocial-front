@@ -20,7 +20,7 @@ const NavbarConfig = ({ activeId, setActiveId }: NavbarConfigProps) => {
           className={`w-[calc(90%/3)] justify-center rounded-xl px-12 py-2 text-sm font-medium transition-all ${
             activeId === item.id
               ? 'bg-linear-purple text-white shadow-md'
-              : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
+              : 'bg-white text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
           }`}
         >
           {item.label}
