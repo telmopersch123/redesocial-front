@@ -1,4 +1,4 @@
-import { Check, Image, ImageIcon, ImageOff, X } from 'lucide-react'
+import { Check, ImageIcon, ImageOff, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Button } from '../../../components/ui/button'
 import {
@@ -9,10 +9,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '../../../components/ui/dialog'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 import { GalleryItem } from './ItemsGallery'
+
 interface propsGallery {
   open: boolean
   setOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -25,6 +25,7 @@ export type SelectedImage = {
 
 export function GalleryDialog({ open, setOpen }: propsGallery) {
   const [selected, setSelected] = useState<SelectedImage | null>(null)
+  const [limparValue, setLimparValue] = useState(false)
   const wallpapers = useMemo(
     () => Array.from({ length: 10 }, (_, i) => `/papel${i + 1}.jpg`),
     []
@@ -40,16 +41,6 @@ export function GalleryDialog({ open, setOpen }: propsGallery) {
   }, [open])
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <TooltipComponent
-        Tag={
-          <DialogTrigger asChild>
-            <Button className="flex items-center justify-end bg-black/20 text-white shadow-[0_0px_1px_white] hover:text-white">
-              <Image className="h-5 w-5" />
-            </Button>
-          </DialogTrigger>
-        }
-        description="Galeria de Imagens"
-      />
       <DialogContent className="flex h-[92vh] w-[96vw] max-w-7xl flex-col overflow-hidden rounded-md bg-white p-0 dark:bg-gray-950">
         <DialogHeader className="shrink-0 border-b border-gray-200/70 bg-gradient-to-br from-indigo-50/70 via-white to-purple-50/40 px-8 pb-6 pt-8 dark:border-gray-800 dark:from-gray-900 dark:to-purple-950/20">
           <DialogTitle className="flex items-center gap-3 text-3xl font-light tracking-tight text-gray-900 dark:text-white">
@@ -84,7 +75,7 @@ export function GalleryDialog({ open, setOpen }: propsGallery) {
             Tag={
               <Button
                 onClick={() => {
-                  localStorage.removeItem('selectedImage')
+                  setLimparValue(true)
                   setSelected(null)
                 }}
               >
@@ -103,7 +94,10 @@ export function GalleryDialog({ open, setOpen }: propsGallery) {
             <Button
               size="lg"
               onClick={() => {
-                if (selected !== null)
+                if (limparValue) {
+                  localStorage.removeItem('selectedImage')
+                }
+                if (selected !== null) {
                   localStorage.setItem(
                     'selectedImage',
                     JSON.stringify({
@@ -111,6 +105,7 @@ export function GalleryDialog({ open, setOpen }: propsGallery) {
                       path: selected.url,
                     })
                   )
+                }
               }}
               className="bg-gradient-to-r from-indigo-600 to-purple-600 px-10 font-medium shadow-lg hover:from-indigo-700 hover:to-purple-700 hover:shadow-xl"
             >

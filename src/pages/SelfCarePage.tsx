@@ -10,7 +10,7 @@ const SelfCarePage = () => {
   const { setOpen, setTypeBreathing } = useBreathing()
 
   return (
-    <div className="mb-4 mt-12 flex w-[calc(100vw-0rem)] flex-col px-5 md:w-[calc(100vw-20rem)]">
+    <div className="mb-4 mt-5 flex w-[calc(100vw-0rem)] flex-col px-5 md:w-[calc(100vw-20rem)]">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}

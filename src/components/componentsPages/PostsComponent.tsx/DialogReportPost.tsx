@@ -47,7 +47,7 @@ const DialogReportPost = () => {
         <TooltipComponent description="Denunciar Post">
           <Button
             variant="ghost"
-            className="flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-red-600"
+            className="flex items-center gap-1.5 text-sm font-medium transition-all hover:text-red-600"
             onClick={() => onOpenChange(true)}
           >
             <Flag className="h-5 w-5" />
@@ -55,9 +55,7 @@ const DialogReportPost = () => {
           </Button>
         </TooltipComponent>
       </DialogTrigger>
-      {open && (
-        <div className="fixed inset-0 z-[70] h-screen w-screen bg-black/50" />
-      )}
+
       <DialogContent className="z-[80] w-[95%] rounded-md border-none om:max-w-md">
         <DialogHeader>
           <DialogTitle>Denunciar Post</DialogTitle>

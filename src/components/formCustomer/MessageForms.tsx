@@ -1,5 +1,5 @@
 interface CharacterCounterProps {
-  error: string
+  error: string | null
   valueLength: number
   maxLength: number
 }

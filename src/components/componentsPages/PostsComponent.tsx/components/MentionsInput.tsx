@@ -37,10 +37,10 @@ const MentionInput = ({
           caretColor: '#6b21a8',
         }}
         placeholder="Escreva um comentário..."
-        className={`relative w-full rounded-full border bg-transparent p-2 text-sm ${
+        className={`! relative w-full rounded-full border bg-transparent p-2 text-sm ${
           error
             ? '!border-rose-300 focus:!ring-rose-500'
-            : 'focus:border-transparent focus:!ring-purple-600'
+            : 'focus:!ring-purple-600'
         }`}
       />
     </div>

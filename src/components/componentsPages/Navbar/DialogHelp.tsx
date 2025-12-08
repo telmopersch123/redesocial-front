@@ -36,20 +36,22 @@ const DialogHelp = () => {
 
         <div className="mt-6 flex flex-col gap-4">
           {/* Ligar para CVV */}
-          <div className="flex cursor-pointer items-center gap-4 rounded-2xl bg-gradient-to-r from-purple-600 to-violet-600 p-5 shadow-lg transition-all hover:scale-[1.02] hover:shadow-2xl">
-            <Phone className="h-7 w-7 text-white" />
-            <div>
-              <p className="text-lg font-bold text-white">
-                Ligar para CVV -{' '}
-                <span className="inline-block rounded-lg bg-white/20 px-2 py-1 text-base font-extrabold">
-                  188
-                </span>
-              </p>
-              <p className="text-sm text-white/90">
-                Centro de Valorização da Vida
-              </p>
+          <a href="tel:188" className="block">
+            <div className="flex cursor-pointer items-center gap-4 rounded-2xl bg-gradient-to-r from-purple-600 to-violet-600 p-5 shadow-lg transition-all hover:scale-[1.02] hover:shadow-2xl active:scale-95">
+              <Phone className="h-7 w-7 text-white" />
+              <div>
+                <p className="text-lg font-bold text-white">
+                  Ligar para CVV –{' '}
+                  <span className="inline-block rounded-lg bg-white/20 px-2 py-1 text-base font-extrabold">
+                    188
+                  </span>
+                </p>
+                <p className="text-sm text-white/90">
+                  Centro de Valorização da Vida
+                </p>
+              </div>
             </div>
-          </div>
+          </a>
 
           {/* Exercício de Respiração */}
           <div

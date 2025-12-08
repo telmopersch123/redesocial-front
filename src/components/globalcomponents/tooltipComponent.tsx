@@ -1,4 +1,9 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../ui/tooltip'
 
 export function TooltipComponent({
   Tag,
@@ -11,11 +16,15 @@ export function TooltipComponent({
 }) {
   const Element = Tag ?? children
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>{Element}</TooltipTrigger>
-      <TooltipContent className="z-[90] bg-purple-600 font-medium">
-        <p>{description}</p>
-      </TooltipContent>
-    </Tooltip>
+    <TooltipProvider delayDuration={150}>
+      <Tooltip disableHoverableContent>
+        <TooltipTrigger asChild tabIndex={-1}>
+          {Element}
+        </TooltipTrigger>
+        <TooltipContent className="z-[90] bg-purple-600 font-medium">
+          <p>{description}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }

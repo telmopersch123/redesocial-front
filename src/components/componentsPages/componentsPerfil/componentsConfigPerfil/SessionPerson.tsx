@@ -207,10 +207,13 @@ const SessionPerson = ({
         <div className="flex flex-col gap-3">
           <h3 className="text-base font-medium text-foreground">Conta</h3>
 
-          <div className="flex items-start justify-between rounded-xl border border-red-300/40 bg-red-50/40 p-4 shadow-sm transition-all hover:bg-red-50 hover:shadow-md">
+          <div className="flex items-start justify-between rounded-xl border border-red-300/40 bg-red-50/40 p-4 shadow-sm transition-all hover:bg-red-50 hover:shadow-md dark:border-red-900/40 dark:bg-red-900/20 dark:hover:bg-red-900/30">
             <div className="max-w-[75%]">
-              <p className="text-sm font-medium text-red-700">Remover conta</p>
-              <p className="mt-1 text-xs leading-relaxed text-red-600/80">
+              <p className="text-sm font-medium text-red-700 dark:text-red-300">
+                Remover conta
+              </p>
+
+              <p className="mt-1 text-xs leading-relaxed text-red-600/80 dark:text-red-400/70">
                 Sua conta será permanentemente excluída, incluindo posts,
                 mensagens e todas as informações associadas.
               </p>

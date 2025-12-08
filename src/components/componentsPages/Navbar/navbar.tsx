@@ -93,7 +93,7 @@ export function AppSidebar() {
     >
       <Sidebar
         side="left"
-        className="border-r border-zinc-200 dark:border-zinc-800"
+        className="z-40 border-r border-zinc-200 dark:border-zinc-800"
       >
         <SidebarContent>
           <SidebarGroup>

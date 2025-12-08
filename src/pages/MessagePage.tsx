@@ -3,6 +3,7 @@ import {
   ArrowLeft,
   CheckCheck,
   Fullscreen,
+  Image,
   MessageCircle,
   MessageSquare,
 } from 'lucide-react'
@@ -329,12 +330,24 @@ const MessagePage = () => {
                 }
                 description="Tela cheia"
               />
+              <TooltipComponent
+                Tag={
+                  <Button
+                    onClick={() => setOpen(true)}
+                    variant="ghost"
+                    className="flex items-center justify-end bg-black/20 text-white shadow-[0_0px_1px_white] hover:text-white"
+                  >
+                    <Image className="h-5 w-5" />
+                  </Button>
+                }
+                description="Galeria"
+              />
               <GalleryDialog open={open} setOpen={setOpen} />
             </div>
 
-            <div className="relative flex flex-1 flex-col sm:mt-6 sm:pl-6">
+            <div className="flex flex-1 flex-col">
               {/* HEADER DO CHAT */}
-              <div className="flex items-center gap-4 rounded-none border-b border-zinc-200 bg-white/40 p-5 pb-4 shadow-sm backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-900/60 sm:rounded-s-full">
+              <div className="flex items-center gap-4 rounded-none border-b border-zinc-200 bg-white/40 p-5 pb-4 shadow-sm backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-900/60">
                 <button
                   onClick={() => {
                     setSelectedChat(null)
@@ -378,7 +391,7 @@ const MessagePage = () => {
 
               {/* MENSAGENS */}
               <div className="chat-messages invisivel-scroll flex-1 space-y-6 overflow-y-auto bg-gradient-to-b pb-8">
-                <div className="scrollbar-invisible mr-1 flex h-[730px] flex-col space-y-4 overflow-y-auto pb-10 pt-1">
+                <div className="scrollbar-invisible mr-1 flex h-[calc(100vh-11.5rem)] flex-col space-y-4 overflow-y-auto pb-8 pt-1 md:pb-0">
                   {messages.length === 0 ? (
                     <div className="m-auto flex h-full flex-col items-center justify-center text-center">
                       <div className="flex flex-col items-center justify-center rounded-md p-10 text-center backdrop-blur-md">
@@ -401,7 +414,7 @@ const MessagePage = () => {
                           className={`animate-fade-in flex slide-in-from-bottom-1 ${
                             msg.remetente === 'eu'
                               ? 'justify-end'
-                              : 'justify-start'
+                              : 'ml-1.5 justify-start sm:-ml-5'
                           }`}
                         >
                           <div
@@ -442,8 +455,7 @@ const MessagePage = () => {
                 </div>
               </div>
 
-              {/* INPUT */}
-              <div className="absolute inset-x-0 bottom-1 m-auto w-[98%] rounded-2xl border border-zinc-300 bg-white/80 py-3 text-sm shadow-sm backdrop-blur-sm transition-all placeholder:text-zinc-400 focus-within:border-purple-500 dark:border-zinc-700 dark:bg-zinc-900/80 dark:placeholder:text-zinc-500">
+              <div className="absolute inset-x-0 bottom-0.5 m-auto w-[99%] rounded-2xl border border-zinc-300 bg-white/80 py-3 text-sm shadow-sm backdrop-blur-sm transition-all placeholder:text-zinc-400 focus-within:border-purple-500 dark:border-zinc-700 dark:bg-zinc-900/80 dark:placeholder:text-zinc-500">
                 <div className="relative flex">
                   <div className="ml-1">
                     <EmojiInput onSelect={handleAddEmoji} />

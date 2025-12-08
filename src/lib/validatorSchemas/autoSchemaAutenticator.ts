@@ -71,6 +71,18 @@ export const createCommunitySchema = z.object({
   category: z.string().min(1, 'Selecione uma categoria'),
 })
 
+export const configCommunitySchema = z.object({
+  nameComunity: z
+    .string()
+    .min(10, 'Nome muito curto, escreva pelo menos 10 caracteres')
+    .max(50, 'Nome muito longo'),
+  description: z
+    .string()
+    .min(50, 'Descrição muito curta, escreva pelo menos 50 caracteres')
+    .max(256, 'Descrição muito longa'),
+  category: z.string().min(1, 'Selecione uma categoria'),
+})
+
 export const postDialogSchema = z.object({
   feeling: z.string().min(1, 'Selecione um sentimento'),
   description: z
@@ -80,6 +92,7 @@ export const postDialogSchema = z.object({
 })
 export type PostDialogSchema = z.infer<typeof postDialogSchema>
 export type CreateCommunityFormData = z.infer<typeof createCommunitySchema>
+export type ConfigCommunityFormData = z.infer<typeof configCommunitySchema>
 export type ResetFormData = z.infer<typeof resetSchema>
 export type LoginFormData = z.infer<typeof loginSchema>
 export type RegisterFormData = z.infer<typeof registerSchema>

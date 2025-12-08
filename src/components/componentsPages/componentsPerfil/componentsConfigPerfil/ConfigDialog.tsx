@@ -163,7 +163,7 @@ export function ConfigDialog({
         </DialogContent>
       </Dialog>
       {posts.map((valuePost) => (
-        <div key={valuePost.id} className="absolute">
+        <div key={valuePost.id} className="absolute hidden">
           <PostComponentDialog
             valuePost={valuePost}
             novoComentario={novoComentario}

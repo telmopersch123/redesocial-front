@@ -6,7 +6,7 @@ import { GraphicsMidiaDialog } from '../components/componentsPages/componentsDia
 
 const DiaryPage = () => {
   return (
-    <div className="mb-4 mt-12 w-[calc(100vw-0rem)] px-5 md:w-[calc(100vw-20rem)]">
+    <div className="mb-4 mt-5 w-[calc(100vw-0rem)] px-5 md:w-[calc(100vw-20rem)]">
       {/* Título + Descrição */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}

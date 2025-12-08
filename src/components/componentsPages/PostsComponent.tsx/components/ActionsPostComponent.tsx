@@ -34,25 +34,48 @@ const ActionsPost = ({
     }
   }, [dialogOpen])
 
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Post da Comunidade',
+      text: 'Dá uma olhada neste post!',
+      url: `${window.location.origin}/post/${valuePost.id}`,
+    }
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData)
+        console.log('Compartilhado com sucesso!')
+      } catch (err) {
+        console.log('Compartilhamento cancelado')
+      }
+    } else {
+      navigator.clipboard.writeText(shareData.url)
+      alert(
+        'Seu navegador não suporta compartilhamento. O link do post foi copiado!'
+      )
+    }
+  }
+
   return (
     <>
       <div className="relative">
         {!validated && (
-          <div className="pointer-events-auto absolute -right-2 z-50 h-full w-32 bg-gradient-to-r from-transparent via-white/20 to-white dark:bg-gradient-to-r dark:from-transparent dark:via-[#1a1a1a]/20 dark:to-[#1a1a1a] dm:hidden" />
+          <div className="pointer-events-auto absolute -right-0.5 z-20 h-full w-12 bg-gradient-to-r from-transparent via-white/20 to-white dark:bg-gradient-to-r dark:from-transparent dark:via-[#1a1a1a]/20 dark:to-[#1a1a1a] dm:hidden" />
         )}
 
         <div
-          className={` ${
+          className={`${
             validated
-              ? 'my-3 grid grid-cols-2 gap-1 border-t border-gray-100 px-2 pt-3 dark:border-gray-700 om:flex om:flex-wrap om:items-center om:justify-between'
-              : 'my-3 flex items-center justify-between overflow-x-auto border-t border-gray-100 px-2 pr-10 pt-3 dark:border-gray-700 dm:pr-0'
+              ? 'my-3 grid grid-cols-2 gap-1 border-t border-gray-200 px-2 pt-3 dark:border-gray-700 om:flex om:flex-wrap om:items-center om:justify-between'
+              : 'my-3 flex items-center justify-between overflow-x-auto border-t border-gray-200 px-2 pr-10 pt-3 dark:border-gray-700 dm:pr-0'
           }`}
         >
+          {/* LEFT BLOCK */}
           <div
-            className={` ${
+            className={`${
               validated
-                ? 'flex flex-col items-center gap-4 bg-white/5 py-2 shadow-md dark:bg-white/5 dark:shadow-black/20 om:flex-row om:bg-transparent om:py-0 om:shadow-none'
-                : 'flex items-center gap-0 om:gap-4'
+                ? 'flex flex-col items-center gap-4 rounded-lg bg-white/40 py-2 shadow-sm backdrop-blur-md dark:bg-white/10 dark:shadow-black/30 om:flex-row om:bg-transparent om:py-0 om:shadow-none'
+                : 'flex items-center gap-2 om:gap-4'
             }`}
           >
             <Button
@@ -83,6 +106,7 @@ const ActionsPost = ({
 
             <Button
               variant="ghost"
+              onClick={handleShare}
               className="flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
             >
               <Share2 className="h-5 w-5" />
@@ -90,10 +114,11 @@ const ActionsPost = ({
             </Button>
           </div>
 
+          {/* RIGHT BLOCK */}
           <div
-            className={` ${
+            className={`${
               validated
-                ? 'flex flex-col items-center gap-4 bg-white/5 py-2 shadow-md dark:bg-white/5 dark:shadow-black/10 om:flex-row om:bg-transparent om:py-0 om:shadow-none'
+                ? 'flex flex-col items-center gap-4 rounded-lg bg-white/40 py-2 shadow-sm backdrop-blur-md dark:bg-white/10 dark:shadow-black/20 om:flex-row om:bg-transparent om:py-0 om:shadow-none'
                 : 'flex w-full items-center justify-end gap-4'
             }`}
           >
@@ -102,18 +127,18 @@ const ActionsPost = ({
             <TooltipComponent
               description={valuePost.salvo ? 'Desmarcar Post' : 'Salvar Post'}
             >
-              <Button
+              <button
                 onClick={() =>
                   handleSalvar({ id: valuePost.id, setPosts, posts })
                 }
-                className={`transition-all ${
+                className={`rounded-md p-2 transition-all duration-300 ${
                   valuePost.salvo
-                    ? 'bg-purple-400 text-white hover:!bg-transparent hover:text-purple-400 dark:bg-purple-500 dark:hover:bg-transparent dark:hover:text-purple-300'
-                    : '!bg-transparent text-purple-600 hover:!bg-purple-400 hover:text-white dark:text-purple-400 dark:hover:bg-purple-500'
+                    ? 'bg-purple-500 text-white dark:bg-purple-600'
+                    : 'bg-transparent text-purple-600 dark:text-purple-400'
                 }`}
               >
-                <Bookmark className="h-5 w-5" />
-              </Button>
+                <Bookmark className="h-4 w-4" />
+              </button>
             </TooltipComponent>
           </div>
         </div>

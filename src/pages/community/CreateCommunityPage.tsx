@@ -86,7 +86,7 @@ const CreateCommunityPage = () => {
 
   return (
     <>
-      <div className="mb-4 mt-12 flex w-[calc(100vw-0rem)] flex-col px-5 md:w-[calc(100vw-20rem)]">
+      <div className="mb-4 flex w-[calc(100vw-0rem)] flex-col px-5 md:w-[calc(100vw-20rem)]">
         <div className="space-y-4">
           <h1 className="text-center text-xl font-bold text-zinc-800 dark:text-zinc-100 md:text-left md:text-4xl">
             Criar nova comunidade
@@ -263,7 +263,10 @@ const CreateCommunityPage = () => {
                           onChange={handleFileSelect}
                         />
                         <Button
-                          onClick={() => inputRef.current?.click()}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            inputRef.current?.click()
+                          }}
                           className="bg-linear-purple text-white hover:shadow-md"
                         >
                           Escolher arquivo
@@ -411,7 +414,10 @@ const CreateCommunityPage = () => {
                   </div>
                 </div>
                 <Button
-                  onClick={() => setIsPrivate(!isPrivate)}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    setIsPrivate(!isPrivate)
+                  }}
                   variant="outline"
                   className="rounded-full border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30"
                 >

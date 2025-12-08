@@ -101,11 +101,11 @@ const CommunityPage = () => {
   )
 
   return (
-    <div className="mb-4 mt-12 w-full p-2 md:w-[calc(100vw-20rem)]">
+    <div className="mb-4 mt-5 w-full p-2 md:w-[calc(100vw-20rem)]">
       <Outlet />
       <div className="items-left flex flex-col flex-wrap items-center justify-between gap-2 sm:flex-row sm:items-end">
         <div className="min-w-0 max-w-[90%]">
-          <h1 className="text-center text-xl font-bold text-gray-800 md:text-left md:text-4xl">
+          <h1 className="text-center text-xl font-bold md:text-left md:text-4xl">
             Comunidades
           </h1>
           <p className="mt-3 whitespace-normal break-words text-center text-base text-gray-500 text-muted-foreground md:text-left md:text-lg lg:text-xl">

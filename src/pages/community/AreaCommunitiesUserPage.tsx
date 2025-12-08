@@ -148,7 +148,7 @@ export default function AreaCommunitiesUserPage() {
           typePost={'NotificaçãoDialog'}
         />
       </div>
-      <div className="mb-4 mt-12 w-[99vw] !overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] 2xl:w-[850px]">
+      <div className="mb-4 mt-5 w-[99vw] !overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] 2xl:w-[850px]">
         <main className={`transition-all duration-300`}>
           <div className="absolute right-4 top-4 flex flex-row-reverse gap-2 md:left-[270px] md:right-auto md:flex-row">
             {ficticioAdminComunidade && (

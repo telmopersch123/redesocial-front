@@ -8,7 +8,6 @@ import {
   RotateCcw,
   Search,
   Trash2,
-  UserPlus,
   Users,
   VolumeOff,
 } from 'lucide-react'
@@ -35,6 +34,7 @@ import { Separator } from '../..//ui/separator'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 import { Checkbox } from '../../ui/checkbox'
 import { ConfirmationRemoveUserDialog } from './ConfirmationRemoveUserDialog'
+import InvitationDialog from './InvitationDialog'
 
 type User = {
   id: number
@@ -265,13 +265,9 @@ const UsersCommunityDialog = () => {
                   </SelectContent>
                 </Select>
               </div>
-
-              <Button
-                className="bg-linear-purple inline-flex items-center gap-2 text-white hover:opacity-90"
-                onClick={() => alert('Tela de convite (implementar)')}
-              >
-                <UserPlus className="h-4 w-4" /> Convidar
-              </Button>
+              <div>
+                <InvitationDialog />
+              </div>
             </div>
 
             <Separator className="dark:bg-zinc-800" />

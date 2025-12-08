@@ -1516,7 +1516,7 @@ const PerfilUsuario = () => {
   })
 
   return (
-    <div className="mb-4 mt-12 min-h-screen w-[99vw] overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] xl:px-5 2xl:w-full">
+    <div className="mb-4 min-h-screen w-[99vw] overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] xl:px-5 2xl:w-full">
       {/* Header do Perfil */}
       <motion.header
         initial={{ opacity: 0, y: 20 }}

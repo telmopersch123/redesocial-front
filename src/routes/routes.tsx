@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom'
 
 import { AppLayout } from '../AppLayout'
+import RouterPost from '../components/componentsPages/PostsComponent.tsx/RouterPost'
 import AuthenticadorPage from '../pages/AuthenticadorPage'
 import AreaCommunitiesUserPage from '../pages/community/AreaCommunitiesUserPage'
 import CommunityPage from '../pages/community/CommunityPage'
@@ -33,6 +34,7 @@ export default function AppRoutes() {
           <Route path="config" element={<ConfigPerfilPage />} />
         </Route>
         ////
+        <Route path="/post/:id" element={<RouterPost />} />
         <Route path="/mensagens" element={<MessagePage />} />
         <Route path="/mensagens/:id" element={<MessagePage />} />
         <Route path="/diario" element={<DiaryPage />} />

@@ -137,7 +137,7 @@ const PostComponentDialog = ({
           <Button
             variant="ghost"
             size="sm"
-            className={`flex ${typePost === 'NotificaçãoDialog' ? 'hidden' : ''} items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400`}
+            className={`flex ${typePost === 'NotificaçãoDialog' || pathname.includes(`perfil/${id}/config`) ? 'hidden' : ''} items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400`}
           >
             <MessageCircle />
             {valuePost.comentarios.length}
@@ -258,7 +258,7 @@ const PostComponentDialog = ({
                 </div>
 
                 <div
-                  className={`!fixed !bottom-0 right-0 mt-3 w-full rounded-xl bg-white p-2 shadow-lg dark:bg-transparent ${
+                  className={`!fixed !bottom-0 right-0 mt-3 w-full rounded-xl bg-white p-2 shadow-lg dark:bg-[#0f0f17] ${
                     valuePost.imagem === undefined &&
                     (valuePost.video === false || valuePost.video === undefined)
                       ? '2xl:w-full'
