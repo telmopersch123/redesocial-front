@@ -140,7 +140,9 @@ const UsersCommunityDialog = () => {
   const [selectedRemove, setSelectedRemove] = useState<number[]>([])
   const [_, setSelectedMuted] = useState<number[]>([])
   const [page, setPage] = useState(1)
+  const pathname = window.location.pathname
   const [users, setUsers] = useState<User[]>(sampleUsers)
+  console.log(pathname)
 
   // responsavel por filtrar os usuários com base na no nome e cargo
   const filtered = useMemo(() => {
@@ -265,7 +267,9 @@ const UsersCommunityDialog = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
+              <div
+                className={`${pathname === '/comunidades/comunidades-do-usuario' ? 'hidden' : ''}`}
+              >
                 <InvitationDialog />
               </div>
             </div>

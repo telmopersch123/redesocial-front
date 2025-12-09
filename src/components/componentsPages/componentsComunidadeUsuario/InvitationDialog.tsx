@@ -1,5 +1,6 @@
 import { Check, Copy, UserPlus } from 'lucide-react'
 import { useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { Button } from '../../../components/ui/button'
 import {
   Dialog,
@@ -15,6 +16,7 @@ const InvitationDialog = () => {
   const [invite, setInvite] = useState<any>(null)
   const [inviteLink, setInviteLink] = useState('')
   const [copied, setCopied] = useState(false)
+  const { communityName } = useParams()
   function generateInviteToken() {
     return crypto.randomUUID().replace(/-/g, '').slice(0, 20)
   }
@@ -32,7 +34,7 @@ const InvitationDialog = () => {
       maxUses: 1,
       uses: 0,
     }
-    const link = `${window.location.origin}/comunidades/comunidade-do-usuario/${token}`
+    const link = `${window.location.origin}/comunidades/comunidades-do-usuario/${communityName}/${token}`
     setInviteLink(link)
     setInvite(inviteData)
     setCopied(false)

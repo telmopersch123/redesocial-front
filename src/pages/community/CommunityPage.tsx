@@ -1,7 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { PlusCircle, Users } from 'lucide-react'
-import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { toast, Toaster } from 'sonner'
 import CardsCommunityComponent from '../../components/componentsPages/componentsComunidade/CardsCommunityComponent'
 import PaginationComponent from '../../components/componentsPages/componentsComunidade/PaginationComponent'
 import { Button } from '../../components/ui/button'
@@ -74,6 +75,7 @@ export const communities = [
 ]
 
 const CommunityPage = () => {
+  const location = useLocation()
   const [currentPage, setCurrentPage] = useState(1)
   const [filters, setFilters] = useState({
     privacy: 'all',
@@ -100,68 +102,79 @@ const CommunityPage = () => {
     startIndex + itemsPerPage
   )
 
+  useEffect(() => {
+    if (location.state?.communityError === 'not-found') {
+      toast.error('Comunidade não encontrada, ou foi removida!')
+
+      window.history.replaceState({}, document.title)
+    }
+  }, [location.state])
+
   return (
-    <div className="mb-4 mt-5 w-full p-2 md:w-[calc(100vw-20rem)]">
-      <Outlet />
-      <div className="items-left flex flex-col flex-wrap items-center justify-between gap-2 sm:flex-row sm:items-end">
-        <div className="min-w-0 max-w-[90%]">
-          <h1 className="text-center text-xl font-bold md:text-left md:text-4xl">
-            Comunidades
-          </h1>
-          <p className="mt-3 whitespace-normal break-words text-center text-base text-gray-500 text-muted-foreground md:text-left md:text-lg lg:text-xl">
-            Encontre apoio em grupos com interesses comuns
-          </p>
-        </div>
-        <div className="flex flex-col items-center gap-2 md:flex-row">
-          <NavLink to="comunidade-do-usuario">
-            <Button className="bg-linear-purple transition-shadow duration-300 ease-in-out hover:shadow-md">
-              <Users className="mr-2 h-4 w-4" />
-              Minhas comunidades
-            </Button>
-          </NavLink>
+    <>
+      <Toaster position="top-right" />
+      <div className="mb-4 mt-5 w-full p-2 md:w-[calc(100vw-20rem)]">
+        <Outlet />
+        <div className="items-left flex flex-col flex-wrap items-center justify-between gap-2 sm:flex-row sm:items-end">
+          <div className="min-w-0 max-w-[90%]">
+            <h1 className="text-center text-xl font-bold md:text-left md:text-4xl">
+              Comunidades
+            </h1>
+            <p className="mt-3 whitespace-normal break-words text-center text-base text-gray-500 text-muted-foreground md:text-left md:text-lg lg:text-xl">
+              Encontre apoio em grupos com interesses comuns
+            </p>
+          </div>
+          <div className="flex flex-col items-center gap-2 md:flex-row">
+            <NavLink to="comunidades-do-usuario">
+              <Button className="bg-linear-purple transition-shadow duration-300 ease-in-out hover:shadow-md">
+                <Users className="mr-2 h-4 w-4" />
+                Minhas comunidades
+              </Button>
+            </NavLink>
 
-          <NavLink to="criar">
-            <Button className="bg-linear-purple transition-shadow duration-300 ease-in-out hover:shadow-md">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Criar comunidade
-            </Button>
-          </NavLink>
+            <NavLink to="criar">
+              <Button className="bg-linear-purple transition-shadow duration-300 ease-in-out hover:shadow-md">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Criar comunidade
+              </Button>
+            </NavLink>
 
-          <div>
-            <FilterCommunity onApply={setFilters} />
+            <div>
+              <FilterCommunity onApply={setFilters} />
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* cards */}
-      <AnimatePresence>
-        <motion.div
-          initial={{ opacity: 0, height: 0, y: 20 }} // começa 20px abaixo
-          animate={{ opacity: 1, height: 'auto', y: 0 }} // sobe para a posição normal
-          exit={{ opacity: 0, height: 0, y: 20 }} // sai descendo
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="mt-10 grid min-h-[650px] grid-cols-1 gap-6 gap-y-14 ym:grid-cols-2 xl:grid-cols-3"
+        {/* cards */}
+        <AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, height: 0, y: 20 }} // começa 20px abaixo
+            animate={{ opacity: 1, height: 'auto', y: 0 }} // sobe para a posição normal
+            exit={{ opacity: 0, height: 0, y: 20 }} // sai descendo
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="mt-10 grid min-h-[650px] grid-cols-1 gap-6 gap-y-14 ym:grid-cols-2 xl:grid-cols-3"
+          >
+            {currentItems.map((communities, index) => (
+              <div key={index} className="h-[280px] w-full">
+                <CardsCommunityComponent valuesComunity={communities} />
+              </div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* paginação */}
+        <div
+          className={`mt-10 flex justify-center text-muted-foreground ${filteredCommunities.length < 6 && currentItems.length < 6 ? 'hidden' : ''}`}
         >
-          {currentItems.map((communities, index) => (
-            <div key={index} className="h-[280px] w-full">
-              <CardsCommunityComponent valuesComunity={communities} />
-            </div>
-          ))}
-        </motion.div>
-      </AnimatePresence>
-
-      {/* paginação */}
-      <div
-        className={`mt-10 flex justify-center text-muted-foreground ${filteredCommunities.length < 6 && currentItems.length < 6 ? 'hidden' : ''}`}
-      >
-        <PaginationComponent
-          setCurrentPage={setCurrentPage}
-          currentPage={currentPage}
-          itemsSimulator={communities.length}
-          itemsPerPage={itemsPerPage}
-        />
+          <PaginationComponent
+            setCurrentPage={setCurrentPage}
+            currentPage={currentPage}
+            itemsSimulator={communities.length}
+            itemsPerPage={itemsPerPage}
+          />
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

@@ -1,7 +1,7 @@
 // components/BatePapoSidebar.tsx
 import { ChevronRight, MessageCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { Sidebar } from '../../..//components/ui/sidebar'
 import { Button } from '../../ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '../../ui/sheet'
@@ -75,11 +75,11 @@ const conversasFicticias: Conversa[] = [
   },
 ]
 const BREAKPOINT = 1640
-const ROTAS_COM_SIDEBAR = ['/', '/comunidades/comunidade-do-usuario']
+
 export const BatePapoSidebar = () => {
   const { pathname } = useLocation()
+  const { communityName, id } = useParams()
   const [isCollapsed, setIsCollapsed] = useState(false)
-
   const [conversations, setConversations] = useState(conversasFicticias)
   const [originalConversations] = useState(conversasFicticias)
   const [search, setSearch] = useState('')
@@ -87,7 +87,12 @@ export const BatePapoSidebar = () => {
 
   const [isOpen, setIsOpen] = useState(true)
   const [isActive, setIsActive] = useState(false)
-
+  const ROTAS_COM_SIDEBAR = [
+    '/',
+    '/comunidades/comunidades-do-usuario',
+    `/comunidades/comunidades-do-usuario/${communityName}`,
+    `/comunidades/comunidades-do-usuario/${communityName}/${id}`,
+  ]
   useEffect(() => {
     const handleResize = () => {
       const desktop = window.innerWidth >= BREAKPOINT

@@ -64,10 +64,10 @@ const ActionsPost = ({
         )}
 
         <div
-          className={`${
+          className={` ${
             validated
-              ? 'my-3 grid grid-cols-2 gap-1 border-t border-gray-200 px-2 pt-3 dark:border-gray-700 om:flex om:flex-wrap om:items-center om:justify-between'
-              : 'my-3 flex items-center justify-between overflow-x-auto border-t border-gray-200 px-2 pr-10 pt-3 dark:border-gray-700 dm:pr-0'
+              ? 'my-3 grid grid-cols-2 gap-1 border-t border-gray-200 px-2 py-2 dark:border-gray-700 om:flex om:flex-wrap om:items-center om:justify-between'
+              : 'my-3 flex items-center justify-between overflow-x-auto border-t border-gray-200 px-2 py-2 pr-10 dark:border-gray-700 dm:pr-0'
           }`}
         >
           {/* LEFT BLOCK */}

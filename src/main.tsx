@@ -12,8 +12,8 @@ import { OpenMentionsProvider } from './context/openMentions.tsx'
 import './index.css'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <ThemeProvider>
         <OpenMentionsProvider>
           <BreathingProvider>
             <ComunidadesProvider>
@@ -25,7 +25,7 @@ createRoot(document.getElementById('root')!).render(
             </ComunidadesProvider>
           </BreathingProvider>
         </OpenMentionsProvider>
-      </BrowserRouter>
-    </ThemeProvider>
+      </ThemeProvider>
+    </BrowserRouter>
   </StrictMode>
 )

@@ -11,7 +11,7 @@ import {
   UsersRound,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { NavLink, useLocation, useParams } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Separator } from '../../ui/separator'
 import {
   Sidebar,
@@ -29,6 +29,10 @@ import DialogHelp from './DialogHelp'
 
 import { useComunidades } from '../../../context/CommunityContext'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
+import {
+  comunidadesFicticias,
+  normalizeURL,
+} from '../../../pages/community/AreaCommunitiesUserPage'
 import { ToggleThemeButton } from '../../../utils/components/toggleTheme'
 import { Button } from '../../ui/button'
 
@@ -41,22 +45,23 @@ const items = [
   { title: 'Diário', url: '/diario', icon: BookHeart },
   { title: 'Autocuidado', url: '/autocuidado', icon: Heart },
 ]
-const comunidades = [
-  'Mindfulness',
-  'Autoajuda',
-  'Fé & Espiritualidade',
-] as const
-export function AppSidebar() {
-  const { open, setPostCommunity } = useCriarPostDialog()
 
+export function AppSidebar() {
+  const navigate = useNavigate()
+  const { open, setPostCommunity } = useCriarPostDialog()
   const [active, setActive] = useState('Feed')
   const { setOpenMobile } = useSidebar()
-  const { isInComunidades, filtro, setFiltro } = useComunidades()
+  const { filtro, setFiltro } = useComunidades()
+
   const location = useLocation()
-
   const pathname = location.pathname
-  const { id } = useParams()
-
+  const { communityName, id } = useParams()
+  let isInComunidades =
+    location.pathname === '/comunidades/comunidades-do-usuario' ||
+    location.pathname ===
+      `/comunidades/comunidades-do-usuario/${communityName}` ||
+    location.pathname ===
+      `/comunidades/comunidades-do-usuario/${communityName}/${id}`
   useEffect(() => {
     setOpenMobile(false)
 
@@ -70,9 +75,12 @@ export function AppSidebar() {
     ) {
       setActive('Usuarios')
     } else if (
-      pathname === '/comunidades/comunidade-do-usuario' ||
+      pathname === '/comunidades/comunidades-do-usuario' ||
+      pathname === `/comunidades/comunidades-do-usuario/${communityName}` ||
+      pathname ===
+        `/comunidades/comunidades-do-usuario/${communityName}/${id}` ||
       pathname === '/comunidades/criar' ||
-      pathname === '/comunidades/comunidade-do-usuario/config'
+      pathname === '/comunidades/comunidades-do-usuario/config'
     ) {
       setActive('Comunidades')
     } else if (pathname === '/mensagens' || pathname === `/mensagens/${id}`) {
@@ -81,11 +89,26 @@ export function AppSidebar() {
       setActive(itemPathe?.title || 'Feed')
     }
   }, [location.pathname])
+
+  useEffect(() => {
+    if (!communityName) {
+      setFiltro('all')
+      return
+    }
+
+    const found = comunidadesFicticias.find(
+      (c) => normalizeURL(c) === communityName.toLowerCase()
+    )
+    setFiltro(found || 'all')
+  })
   return (
     <div
       className={`${
         pathname === '/' ||
-        pathname === '/comunidades/comunidade-do-usuario' ||
+        pathname === '/comunidades/comunidades-do-usuario' ||
+        pathname === `/comunidades/comunidades-do-usuario/${communityName}` ||
+        pathname ===
+          `/comunidades/comunidades-do-usuario/${communityName}/${id}` ||
         pathname === `/perfil/${id}`
           ? '2xl:w-[134px]'
           : ''
@@ -192,13 +215,16 @@ export function AppSidebar() {
                           ? 'bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-500'
                           : 'border-zinc-300 text-zinc-700 hover:bg-purple-50 hover:text-purple-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-purple-400'
                       }`}
-                      onClick={() => setFiltro('all')}
+                      onClick={() => {
+                        setFiltro('all')
+                        navigate('/comunidades/comunidades-do-usuario')
+                      }}
                     >
                       <MessageCircleHeart className="mr-2 h-4 w-4" />
                       Todas
                     </Button>
 
-                    {comunidades.map((c) => (
+                    {comunidadesFicticias.map((c) => (
                       <Button
                         key={c}
                         variant={filtro === c ? 'default' : 'outline'}
@@ -209,6 +235,10 @@ export function AppSidebar() {
                         }`}
                         onClick={() => {
                           setFiltro(c)
+                          const nomeURL = normalizeURL(c)
+                          navigate(
+                            `/comunidades/comunidades-do-usuario/${nomeURL}`
+                          )
                         }}
                       >
                         <MessageCircleHeart className="mr-2 h-4 w-4" />

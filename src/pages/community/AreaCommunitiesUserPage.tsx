@@ -2,7 +2,7 @@
 
 import { MessageCircleHeart, Settings, Users } from 'lucide-react'
 import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { Navigate, NavLink, useLocation, useParams } from 'react-router-dom'
 import { Button } from '../../components/ui/button'
 
 import CardsPostCommunityComponent from '../../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
@@ -102,19 +102,31 @@ export const postsFicticiosCommunity: Post[] = [
     tags: ['Autoajuda', 'Ansiedade', 'Vídeo'],
   },
 ]
+export const comunidadesFicticias = [
+  'Mindfulness',
+  'Autoajuda',
+  'Fé & Espiritualidade',
+]
 
+export const normalizeURL = (s: string) =>
+  s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // remove acentos
+    .replace(/&/g, 'e') // troca & por "e" (opcional, mas recomendado)
+    .replace(/\s+/g, '-') // troca espaços por "-"
+    .toLowerCase()
 const ficticioAdminComunidade = true
 
 export default function AreaCommunitiesUserPage() {
   const { filtro } = useComunidades()
+  const { communityName } = useParams()
   const [posts, setPosts] = useState<Post[]>(postsFicticiosCommunity)
   const [novoComentario, setNovoComentario] = useState('')
   const [visibleCount, setVisibleCount] = useState(10)
   const [loadedCount, setLoadedCount] = useState(10)
-
+  const pathname = useLocation().pathname
   const { setOpenDialogPostNotification, openDialogPostNotification } =
     useCriarPostDialog()
-
   const hasMore = visibleCount < posts.length
   const { loadMoreRef } = useInfiniteScroll({
     totalItems: posts.length,
@@ -130,6 +142,20 @@ export default function AreaCommunitiesUserPage() {
       }, 1000)
     },
   })
+
+  if (communityName) {
+    const comunidadeValida = comunidadesFicticias.some((c) => {
+      return normalizeURL(c) === normalizeURL(communityName || '')
+    })
+    if (!comunidadeValida)
+      return (
+        <Navigate
+          to="/comunidades"
+          replace
+          state={{ communityError: 'not-found' }}
+        />
+      )
+  }
 
   const postsFiltrados =
     filtro === 'all' ? posts : posts.filter((p) => p.community === filtro)
@@ -148,9 +174,11 @@ export default function AreaCommunitiesUserPage() {
           typePost={'NotificaçãoDialog'}
         />
       </div>
-      <div className="mb-4 mt-5 w-[99vw] !overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] 2xl:w-[850px]">
+      <div className="mb-4 mt-14 w-[99vw] !overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] 2xl:w-[850px]">
         <main className={`transition-all duration-300`}>
-          <div className="absolute right-4 top-4 flex flex-row-reverse gap-2 md:left-[270px] md:right-auto md:flex-row">
+          <div
+            className={`absolute right-4 top-4 flex flex-row-reverse gap-2 md:left-[270px] md:right-auto md:flex-row ${pathname === '/comunidades/comunidades-do-usuario' ? 'hidden' : ''}`}
+          >
             {ficticioAdminComunidade && (
               <NavLink to={'config'}>
                 <TooltipComponent
