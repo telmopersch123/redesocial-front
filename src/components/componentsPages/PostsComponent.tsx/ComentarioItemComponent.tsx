@@ -124,11 +124,13 @@ const CommentItem = ({
                 clickedMention &&
                 sugestoes.length > 0 &&
                 openMarcation && (
-                  <ListMarcation
-                    setClickedMention={setClickedMention}
-                    sugestoes={sugestoes}
-                    setNovoComentario={setTextoResposta}
-                  />
+                  <div className="absolute -top-3">
+                    <ListMarcation
+                      setClickedMention={setClickedMention}
+                      sugestoes={sugestoes}
+                      setNovoComentario={setTextoResposta}
+                    />
+                  </div>
                 )}
               <MentionInput
                 value={textoResposta}

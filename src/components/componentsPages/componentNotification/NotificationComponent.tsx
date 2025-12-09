@@ -40,7 +40,8 @@ const iconForType = {
 }
 
 const NotificationComponent = () => {
-  const { setOpenDialogPostNotification } = useCriarPostDialog()
+  const { setOpenDialogPostNotification, setOpenActionPosts } =
+    useCriarPostDialog()
   const [notifications, setNotifications] = useState<Notification[]>([
     {
       id: 1,
@@ -124,7 +125,10 @@ const NotificationComponent = () => {
               >
                 <div
                   className="w-full p-3"
-                  onClick={() => setOpenDialogPostNotification(true)}
+                  onClick={() => {
+                    setOpenActionPosts(true)
+                    setOpenDialogPostNotification(true)
+                  }}
                 >
                   <div className="mt-1">{iconForType[n.type]}</div>
 

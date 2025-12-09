@@ -24,7 +24,7 @@ const ListMarcation = ({
         side="top"
         align="start"
         sideOffset={8}
-        className="z-[9999] mb-4 w-64 rounded-xl border border-zinc-200 bg-white p-2 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
+        className="z-[9999] w-64 rounded-xl border border-zinc-200 bg-white p-2 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900"
       >
         <div className="space-y-1">
           {sugestoes.map((nome, i) => (

@@ -8,6 +8,8 @@ interface CriarPostDialogContextType {
   setPostCommunity: React.Dispatch<React.SetStateAction<boolean>>
   setOpenDialogPostNotification: React.Dispatch<React.SetStateAction<boolean>>
   openDialogPostNotification: boolean
+  openActionPosts: boolean
+  setOpenActionPosts: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const CriarPostDialogContext = createContext<
@@ -17,6 +19,7 @@ const CriarPostDialogContext = createContext<
 export function CriarPostDialogProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false)
   const [postCommunity, setPostCommunity] = useState<boolean>(false)
+  const [openActionPosts, setOpenActionPosts] = useState(false)
   const [openDialogPostNotification, setOpenDialogPostNotification] =
     useState(false)
 
@@ -33,6 +36,8 @@ export function CriarPostDialogProvider({ children }: { children: ReactNode }) {
         setPostCommunity,
         setOpenDialogPostNotification,
         openDialogPostNotification,
+        openActionPosts,
+        setOpenActionPosts,
       }}
     >
       {children}

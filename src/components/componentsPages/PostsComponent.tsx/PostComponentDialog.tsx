@@ -17,6 +17,7 @@ import { Separator } from '../../ui/separator'
 import CommentItem from './ComentarioItemComponent'
 import MentionInput from './components/MentionsInput'
 
+import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import ListMarcation from './ListMarcation'
 import ActionsPost from './components/ActionsPostComponent'
 
@@ -45,6 +46,7 @@ const PostComponentDialog = ({
 }: PostProp) => {
   const { getMatches, sugestoes, setActiveInputId, activeInputId } =
     useMentionLogic()
+  const { openActionPosts, setOpenActionPosts } = useCriarPostDialog()
   const [clickedMention, setClickedMention] = useState(false)
   const idInput = 'comment-' + valuePost.id
   const openMarcation = useState(false)
@@ -129,29 +131,38 @@ const PostComponentDialog = ({
       {pathname.includes(`perfil/${id}/config`) && open === true && (
         <div className="fixed inset-0 z-[60] h-screen w-screen bg-black/50 dark:bg-black/80" />
       )}
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog
+        open={open}
+        onOpenChange={(state) => {
+          onOpenChange(state)
+          if (!state) setOpenActionPosts(false)
+        }}
+      >
         <DialogTrigger
-          className={`rounded-md px-4 py-2 text-white ${pathname.includes(`perfil/${id}/config`) ? 'hidden' : ''}`}
+          className={`rounded-md px-4 py-2 text-white ${pathname.includes(`perfil/${id}/config`) || openActionPosts ? 'hidden' : ''}`}
           asChild
         >
           <Button
             variant="ghost"
             size="sm"
-            className={`flex ${typePost === 'NotificaçãoDialog' || pathname.includes(`perfil/${id}/config`) ? 'hidden' : ''} items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400`}
+            className={`flex ${typePost === 'NotificaçãoDialog' || pathname.includes(`perfil/${id}/config`) || openActionPosts ? 'hidden' : ''} items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400`}
           >
             <MessageCircle />
             {valuePost.comentarios.length}
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="!z-[70] flex h-[95vh] flex-col -space-y-10 overflow-hidden rounded-xl bg-white p-0 dark:bg-[#0f0f17] sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw] xl:max-w-[75vw] 2xl:max-w-[70vw] [&>button]:hidden">
-          <DialogHeader className="flex flex-col bg-white p-4 dark:bg-transparent">
+        <DialogContent className="!z-[70] flex h-[95vh] flex-col -space-y-10 overflow-hidden rounded-xl bg-white p-0 dark:bg-[#1a1a1a] sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw] xl:max-w-[75vw] 2xl:max-w-[70vw] [&>button]:hidden">
+          <DialogHeader className="flex flex-col bg-white p-4 dark:bg-[#1a1a1a]">
             <div className="absolute right-5 top-2 flex items-center justify-end p-2">
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 rounded-full text-gray-600 transition-all duration-200 hover:bg-red-100 hover:text-red-600 active:scale-90 dark:text-gray-400 dark:hover:bg-red-900/40"
-                onClick={() => onOpenChange(false)}
+                onClick={() => {
+                  setOpenActionPosts(false)
+                  onOpenChange(false)
+                }}
               >
                 <X className="h-5 w-5" />
               </Button>
@@ -179,9 +190,8 @@ const PostComponentDialog = ({
                   KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
                   KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
                   KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
-                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
                 </DialogTitle>
-                <div className="pointer-events-none absolute -bottom-2 left-0 h-10 w-full bg-gradient-to-t from-white to-transparent dark:from-[#0f0f17] dark:to-transparent" />
+                <div className="pointer-events-none absolute -bottom-2 left-0 h-10 w-full bg-gradient-to-t from-white to-transparent dark:from-[#1a1a1a] dark:to-transparent" />
               </div>
             </div>
 
@@ -192,7 +202,7 @@ const PostComponentDialog = ({
             {(valuePost.imagem || valuePost.video) && (
               <div className="z-10 md:h-1/2 2xl:h-auto 2xl:w-1/2">
                 <div
-                  className={`relative flex items-center justify-center overflow-hidden rounded-md bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/10 dark:to-indigo-900/10 md:w-auto 2xl:h-full ${pathname.includes(`perfil/${id}/config`) && open === true ? 'flex-col' : 'flex-row'}`}
+                  className={`relative flex items-center justify-center overflow-hidden rounded-md bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/10 dark:to-indigo-900/10 md:w-auto 2xl:h-full ${(pathname.includes(`perfil/${id}/config`) || openActionPosts) && open === true ? 'flex-col' : 'flex-row'}`}
                 >
                   <div>
                     <div className="p-1">
@@ -213,27 +223,28 @@ const PostComponentDialog = ({
                   </div>
 
                   <div>
-                    {pathname.includes(`perfil/${id}/config`) &&
-                      open === true && (
-                        <ActionsPost
-                          valuePost={valuePost}
-                          novoComentario={novoComentario}
-                          setNovoComentario={setNovoComentario}
-                          setPosts={setPosts}
-                          posts={posts}
-                          validated={
-                            pathname.includes(`perfil/${id}/config`) &&
-                            open === true
-                          }
-                        />
-                      )}
+                    {(pathname.includes(`perfil/${id}/config`) ||
+                      (openActionPosts && open === true)) && (
+                      <ActionsPost
+                        valuePost={valuePost}
+                        novoComentario={novoComentario}
+                        setNovoComentario={setNovoComentario}
+                        setPosts={setPosts}
+                        posts={posts}
+                        validated={
+                          (pathname.includes(`perfil/${id}/config`) ||
+                            openActionPosts) &&
+                          open === true
+                        }
+                      />
+                    )}
                   </div>
                 </div>
               </div>
             )}
 
             <div
-              className={`flex h-full flex-col overflow-y-auto bg-white dark:bg-[#0f0f17] 2xl:max-h-full ${
+              className={`flex h-full flex-col overflow-y-auto bg-white dark:bg-[#1a1a1a] 2xl:max-h-full ${
                 valuePost.imagem === undefined &&
                 (valuePost.video === false || valuePost.video === undefined)
                   ? '2xl:w-full'
@@ -242,23 +253,37 @@ const PostComponentDialog = ({
             >
               <div className="relative h-full md:h-2/3 md:max-h-full 2xl:h-full">
                 <div className="space-y-4 pb-10 pt-8 2xl:pb-10 2xl:pt-0">
-                  {valuePost.comentarios.map((c) => (
-                    <CommentItem
-                      key={c.id}
-                      comentario={c}
-                      nivel={0}
-                      respondendoA={respondendoA}
-                      setRespondendoA={setRespondendoA}
-                      textoResposta={textoResposta}
-                      setTextoResposta={setTextoResposta}
-                      adicionarResposta={adicionarResposta}
-                      euUser={euUser}
-                    />
-                  ))}
+                  {valuePost.comentarios.length ? (
+                    valuePost.comentarios.map((c) => (
+                      <CommentItem
+                        key={c.id}
+                        comentario={c}
+                        nivel={0}
+                        respondendoA={respondendoA}
+                        setRespondendoA={setRespondendoA}
+                        textoResposta={textoResposta}
+                        setTextoResposta={setTextoResposta}
+                        adicionarResposta={adicionarResposta}
+                        euUser={euUser}
+                      />
+                    ))
+                  ) : (
+                    <>
+                      <div className="absolute left-1/2 top-1/3 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-1 py-6 text-center">
+                        <p className="text-sm text-muted-foreground">
+                          Ainda não há comentários — que tal começar a conversa?
+                          😊
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Sua voz faz a comunidade crescer 💬✨
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div
-                  className={`!fixed !bottom-0 right-0 mt-3 w-full rounded-xl bg-white p-2 shadow-lg dark:bg-[#0f0f17] ${
+                  className={`!fixed !bottom-0 right-0 mt-3 w-full rounded-xl bg-white p-2 shadow-lg dark:bg-[#1a1a1a] ${
                     valuePost.imagem === undefined &&
                     (valuePost.video === false || valuePost.video === undefined)
                       ? '2xl:w-full'
@@ -273,7 +298,7 @@ const PostComponentDialog = ({
                       clickedMention &&
                       sugestoes.length > 0 &&
                       openMarcation && (
-                        <div className="absolute -top-1 z-10 translate-y-[-100%]">
+                        <div className="absolute -top-1">
                           <ListMarcation
                             setClickedMention={setClickedMention}
                             sugestoes={sugestoes}
