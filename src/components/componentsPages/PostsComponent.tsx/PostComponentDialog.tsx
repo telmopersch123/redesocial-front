@@ -1,5 +1,5 @@
 import { MessageCircle, Play, Send, X } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 
 import { useMentionLogic } from '../../../context/openMentions'
@@ -15,11 +15,11 @@ import {
 } from '../../ui/dialog'
 import { Separator } from '../../ui/separator'
 import CommentItem from './ComentarioItemComponent'
-import MentionInput from './components/MentionsInput'
 
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import ListMarcation from './ListMarcation'
 import ActionsPost from './components/ActionsPostComponent'
+import { MentionInput } from './components/MentionsInput'
 
 const euUser = true
 
@@ -44,8 +44,12 @@ const PostComponentDialog = ({
   onOpenChange,
   typePost,
 }: PostProp) => {
+  const scrollRef = useRef<HTMLDivElement>(null)
   const { getMatches, sugestoes, setActiveInputId, activeInputId } =
     useMentionLogic()
+  const [openReplies, setOpenReplies] = useState<{
+    [commentId: string]: boolean
+  }>({})
   const { openActionPosts, setOpenActionPosts } = useCriarPostDialog()
   const [clickedMention, setClickedMention] = useState(false)
   const idInput = 'comment-' + valuePost.id
@@ -135,7 +139,11 @@ const PostComponentDialog = ({
         open={open}
         onOpenChange={(state) => {
           onOpenChange(state)
-          if (!state) setOpenActionPosts(false)
+          if (!state) {
+            setOpenReplies({})
+
+            setOpenActionPosts(false)
+          }
         }}
       >
         <DialogTrigger
@@ -162,6 +170,7 @@ const PostComponentDialog = ({
                 onClick={() => {
                   setOpenActionPosts(false)
                   onOpenChange(false)
+                  setOpenReplies({})
                 }}
               >
                 <X className="h-5 w-5" />
@@ -244,6 +253,7 @@ const PostComponentDialog = ({
             )}
 
             <div
+              ref={scrollRef}
               className={`flex h-full flex-col overflow-y-auto bg-white dark:bg-[#1a1a1a] 2xl:max-h-full ${
                 valuePost.imagem === undefined &&
                 (valuePost.video === false || valuePost.video === undefined)
@@ -265,6 +275,9 @@ const PostComponentDialog = ({
                         setTextoResposta={setTextoResposta}
                         adicionarResposta={adicionarResposta}
                         euUser={euUser}
+                        setOpenReplies={setOpenReplies}
+                        openReplies={openReplies}
+                        scrollRef={scrollRef}
                       />
                     ))
                   ) : (

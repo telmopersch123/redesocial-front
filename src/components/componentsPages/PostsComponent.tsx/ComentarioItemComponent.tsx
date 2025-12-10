@@ -1,14 +1,27 @@
-import { CornerDownRight, MessageCircleX, Send } from 'lucide-react'
+import {
+  CornerDownRight,
+  Eye,
+  EyeOff,
+  MessageCircleX,
+  Send,
+} from 'lucide-react'
 
-import { useState } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type RefObject,
+  type SetStateAction,
+} from 'react'
 import { useMentionLogic } from '../../../context/openMentions'
 import { useLimitForms } from '../../../hooks/useLimitForms'
 import type { ComentarioPost } from '../../../types'
 import { formatMentions } from '../../../utils/formatMentions'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 import { Button } from '../../ui/button'
-import MentionInput from './components/MentionsInput'
+
 import ListMarcation from './ListMarcation'
+import { MentionInput } from './components/MentionsInput'
 
 interface ComentarioItemProps {
   comentario: ComentarioPost
@@ -19,6 +32,11 @@ interface ComentarioItemProps {
   setTextoResposta: React.Dispatch<React.SetStateAction<string>>
   adicionarResposta: (comentarioId: number) => void
   euUser: boolean
+  openReplies: { [commentId: string]: boolean }
+  setOpenReplies: React.Dispatch<
+    SetStateAction<{ [commentId: string]: boolean }>
+  >
+  scrollRef: RefObject<HTMLDivElement | null>
 }
 
 const CommentItem = ({
@@ -30,9 +48,15 @@ const CommentItem = ({
   setTextoResposta,
   adicionarResposta,
   euUser,
+  openReplies,
+  setOpenReplies,
+  scrollRef,
 }: ComentarioItemProps) => {
   const [clickedMention, setClickedMention] = useState(false)
+
+  const inputRef = useRef<HTMLInputElement>(null)
   const comentarios = useLimitForms(5000)
+
   const openMarcation = useState(false)
   const { getMatches, sugestoes, setActiveInputId, activeInputId } =
     useMentionLogic()
@@ -40,11 +64,72 @@ const CommentItem = ({
   const idInput = 'comment-' + comentario.id
   const userId = 12
 
+  // responsavel por exibir todas as respostas
+  const toggleReplies = (commentId: number) => {
+    setOpenReplies((prev) => {
+      const updated: { [key: string]: boolean } = {
+        ...prev,
+        [commentId]: !prev[commentId],
+      }
+
+      if (!prev[commentId]) {
+        function openChildren(comentario: ComentarioPost) {
+          comentario.respostas?.forEach((r) => {
+            updated[String(r.id)] = true
+            openChildren(r)
+          })
+        }
+
+        const original = comentario
+        openChildren(original)
+      }
+
+      return updated
+    })
+  }
+
+  //useffect responsavel por controlar o focus no input de respostas
+  useEffect(() => {
+    if (respondendoA !== comentario.id) return
+    let observer: MutationObserver | null = null
+
+    function tryFocus() {
+      if (inputRef.current) {
+        requestAnimationFrame(() => {
+          inputRef.current?.scrollIntoView({
+            behavior: 'instant',
+            block: 'center',
+          })
+          scrollRef.current?.scrollBy({
+            top: 80,
+            behavior: 'instant',
+          })
+          inputRef.current?.focus()
+        })
+
+        observer?.disconnect()
+        observer = null
+      }
+    }
+    tryFocus()
+
+    observer = new MutationObserver(() => {
+      tryFocus()
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    })
+
+    return () => observer?.disconnect()
+  }, [respondendoA, comentario.id])
+
   return (
     <div
-      className={`${
+      className={` ${
         nivel === 1
-          ? 'border-l-4 border-purple-200 pl-4 dark:border-purple-900/50 sm:pl-6'
+          ? `border-l-4 border-purple-200 pl-4 dark:border-purple-900/50 sm:pl-6`
           : ''
       } ${nivel >= 2 ? 'border-none pl-0' : ''} w-full`}
     >
@@ -68,6 +153,31 @@ const CommentItem = ({
                   </p>
                 )}
               </div>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-8 gap-2 px-2 text-xs text-muted-foreground transition hover:text-foreground ${
+                  nivel === 0 &&
+                  comentario.respostas &&
+                  comentario.respostas.length > 0
+                    ? 'flex'
+                    : 'hidden'
+                }`}
+                onClick={() => toggleReplies(comentario.id)}
+              >
+                {openReplies[comentario.id] ? (
+                  <>
+                    <EyeOff className="h-4 w-4" />
+                    <span className="hidden sm:inline">Esconder</span>
+                  </>
+                ) : (
+                  <>
+                    <Eye className="h-4 w-4" />
+                    <span className="hidden sm:inline">Respostas</span>
+                  </>
+                )}
+              </Button>
             </div>
 
             <div className="mt-1 flex items-center gap-2">
@@ -140,10 +250,15 @@ const CommentItem = ({
                   setActiveInputId(idInput)
                   getMatches(e.target.value, idInput, setClickedMention)
                 }}
+                ref={inputRef}
                 onEnter={() => {
                   adicionarResposta(comentario.id)
                   setRespondendoA(null)
                   setActiveInputId(null)
+                  setOpenReplies((prev) => ({
+                    ...prev,
+                    [comentario.id]: true,
+                  }))
                 }}
                 error={comentarios.error}
                 aria-label={`Resposta para ${comentario.autor}`}
@@ -157,6 +272,10 @@ const CommentItem = ({
                 onClick={() => {
                   adicionarResposta(comentario.id)
                   setRespondendoA(null)
+                  setOpenReplies((prev) => ({
+                    ...prev,
+                    [comentario.id]: true,
+                  }))
                 }}
                 disabled={!textoResposta.trim() || !!comentarios.error}
                 aria-label="Enviar resposta"
@@ -176,23 +295,28 @@ const CommentItem = ({
         </div>
       )}
 
-      {comentario.respostas && comentario.respostas.length > 0 && (
-        <div className="mt-3 space-y-3">
-          {comentario.respostas.map((resposta) => (
-            <CommentItem
-              key={resposta.id}
-              comentario={resposta}
-              nivel={nivel + 1}
-              respondendoA={respondendoA}
-              setRespondendoA={setRespondendoA}
-              textoResposta={textoResposta}
-              setTextoResposta={setTextoResposta}
-              adicionarResposta={adicionarResposta}
-              euUser={euUser}
-            />
-          ))}
-        </div>
-      )}
+      {comentario.respostas &&
+        comentario.respostas.length > 0 &&
+        openReplies[comentario.id] && (
+          <div className="mt-3 space-y-3">
+            {comentario.respostas.map((resposta) => (
+              <CommentItem
+                key={resposta.id}
+                comentario={resposta}
+                nivel={nivel + 1}
+                respondendoA={respondendoA}
+                setRespondendoA={setRespondendoA}
+                textoResposta={textoResposta}
+                setTextoResposta={setTextoResposta}
+                adicionarResposta={adicionarResposta}
+                euUser={euUser}
+                setOpenReplies={setOpenReplies}
+                openReplies={openReplies}
+                scrollRef={scrollRef}
+              />
+            ))}
+          </div>
+        )}
     </div>
   )
 }
