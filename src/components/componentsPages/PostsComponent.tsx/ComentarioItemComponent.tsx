@@ -97,14 +97,16 @@ const CommentItem = ({
       if (inputRef.current) {
         requestAnimationFrame(() => {
           inputRef.current?.scrollIntoView({
-            behavior: 'instant',
+            behavior: 'smooth',
             block: 'center',
           })
-          scrollRef.current?.scrollBy({
-            top: 80,
-            behavior: 'instant',
-          })
-          inputRef.current?.focus()
+
+          setTimeout(() => {
+            scrollRef.current?.scrollBy({
+              top: 80,
+              behavior: 'smooth',
+            })
+          }, 120) // delay mínimo
         })
 
         observer?.disconnect()
