@@ -46,7 +46,7 @@ const LoginComponent = ({
     console.log(data)
   }
   return (
-    <Card className="m-auto w-full max-w-md border-0 shadow-2xl">
+    <Card className="m-auto w-full max-w-md border-0 bg-white text-black shadow-2xl">
       <CardHeader className="bg-linear-purple rounded-md py-10 text-center text-white">
         <CardTitle className="text-4xl font-bold">
           Bem-vindo de volta!
@@ -56,7 +56,7 @@ const LoginComponent = ({
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent className="space-y-6 pt-8">
+        <CardContent className="space-y-6 bg-white pt-8">
           <div className="space-y-2">
             <Label htmlFor="email">E-mail</Label>
             <div className="relative">
@@ -136,7 +136,7 @@ const LoginComponent = ({
           </button>
         </span>
       </div>
-      <CardFooter className="rounded-2xl border-t bg-muted/50 py-5 text-center">
+      <CardFooter className="rounded-xl border-t border-[#e5e5e5] bg-black/5 py-5 text-center">
         <p className="text-xs text-muted-foreground">
           Seus dados estão 100% seguros
         </p>

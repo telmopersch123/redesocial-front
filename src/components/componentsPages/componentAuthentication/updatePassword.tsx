@@ -38,7 +38,7 @@ const ResetPasswordComponent = () => {
   }
 
   return (
-    <Card className="m-auto mt-44 w-full max-w-md border-0 shadow-2xl">
+    <Card className="m-auto mt-44 w-full max-w-md border-0 bg-white text-black shadow-2xl">
       <CardHeader className="bg-linear-purple relative rounded-md py-10 text-center text-white">
         <CardTitle className="text-3xl font-bold">Redefinir senha</CardTitle>
         <CardDescription className="text-white/90">
@@ -47,7 +47,7 @@ const ResetPasswordComponent = () => {
       </CardHeader>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent className="space-y-6 pt-8">
+        <CardContent className="space-y-6 bg-white pt-8">
           <div className="space-y-2">
             <Label htmlFor="password">Nova senha</Label>
 

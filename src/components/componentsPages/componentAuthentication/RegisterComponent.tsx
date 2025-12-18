@@ -1,7 +1,7 @@
 // src/components/auth/RegisterComponent.tsx
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { PasswordRequirements } from '../../../auth/PasswordRequirements'
 import { Button } from '../../../components/ui/button'
@@ -23,13 +23,17 @@ import {
 import { RadioGroup, RadioGroupItem } from '../../ui/radio-group'
 interface RegisterComponentProps {
   onSwitchToLogin: () => void
+  setShowConfirmPass: React.Dispatch<React.SetStateAction<boolean>>
 }
 export const hasNumber = (password: string) => /\d/.test(password)
 export const hasSpecialChar = (password: string) =>
   /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)
 export const hasMinLength = (password: string) => password.length >= 6
 
-const RegisterComponent = ({ onSwitchToLogin }: RegisterComponentProps) => {
+const RegisterComponent = ({
+  onSwitchToLogin,
+  setShowConfirmPass,
+}: RegisterComponentProps) => {
   const {
     control,
     register,
@@ -49,14 +53,16 @@ const RegisterComponent = ({ onSwitchToLogin }: RegisterComponentProps) => {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [focusPassword, setFocusPassword] = useState(false)
+
   const password = watch('password', '')
 
   function onSubmit(data: RegisterFormData) {
     console.log(data)
+    setShowConfirmPass(true)
   }
 
   return (
-    <Card className="m-auto w-full max-w-md border-0 shadow-2xl">
+    <Card className="m-auto w-full max-w-md border-0 bg-white text-black shadow-2xl">
       <CardHeader className="bg-linear-purple rounded-md py-10 text-center text-white">
         <CardTitle className="text-4xl font-bold">Crie sua conta</CardTitle>
         <CardDescription className="text-lg text-white/90">
@@ -64,7 +70,7 @@ const RegisterComponent = ({ onSwitchToLogin }: RegisterComponentProps) => {
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent className="space-y-6 pt-8">
+        <CardContent className="space-y-6 bg-white pt-8">
           <div className="space-y-2">
             <Label htmlFor="name">Nome completo</Label>
             <div className="relative">
@@ -77,7 +83,7 @@ const RegisterComponent = ({ onSwitchToLogin }: RegisterComponentProps) => {
               />
             </div>
             {errors.name && (
-              <span className="text-red-500">{errors.name.message}</span>
+              <p className="text-sm text-red-500">{errors.name.message}</p>
             )}
           </div>
 
@@ -264,7 +270,7 @@ const RegisterComponent = ({ onSwitchToLogin }: RegisterComponentProps) => {
           </button>
         </span>
       </div>
-      <CardFooter className="rounded-2xl border-t bg-muted/50 py-5 text-center">
+      <CardFooter className="rounded-xl border-t border-[#e5e5e5] bg-black/5 py-5 text-center">
         <p className="text-xs text-muted-foreground">
           Seus dados estão 100% seguros
         </p>

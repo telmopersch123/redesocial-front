@@ -2,11 +2,13 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 import LoginComponent from '../components/componentsPages/componentAuthentication/LoginComponent'
 import RegisterComponent from '../components/componentsPages/componentAuthentication/RegisterComponent'
+import RegisterFinally from '../components/componentsPages/componentAuthentication/RegisterFinally'
 import ForgotPassword from '../components/componentsPages/componentAuthentication/forgotPassword'
 import ResetPasswordComponent from '../components/componentsPages/componentAuthentication/updatePassword'
 
 const AuthenticadorPage = () => {
   const [permissionCode, setPermissionCode] = useState<boolean>(false)
+  const [showConfirmPass, setShowConfirmPass] = useState(false)
   const [isLogin, setIsLogin] = useState(true)
   const [forgotPassword, setForgotPassword] = useState(false)
 
@@ -115,7 +117,7 @@ const AuthenticadorPage = () => {
                         />
                       </motion.div>
                     )
-                  ) : (
+                  ) : !showConfirmPass ? (
                     <motion.div
                       key="register"
                       initial={{ opacity: 0, y: 40 }}
@@ -124,8 +126,19 @@ const AuthenticadorPage = () => {
                       transition={{ duration: 0.45, ease: 'easeOut' }}
                     >
                       <RegisterComponent
+                        setShowConfirmPass={setShowConfirmPass}
                         onSwitchToLogin={() => setIsLogin(true)}
                       />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="registerFinally"
+                      initial={{ opacity: 0, y: 40 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -40 }}
+                      transition={{ duration: 0.45, ease: 'easeOut' }}
+                    >
+                      <RegisterFinally />
                     </motion.div>
                   )}
                 </AnimatePresence>

@@ -90,6 +90,19 @@ export const postDialogSchema = z.object({
     .min(10, 'Descrição muito curta, escreva pelo menos 10 caracteres')
     .max(5000, 'Descrição muito longa'),
 })
+
+export const usernameSchema = z.object({
+  username: z
+    .string()
+    .min(3, 'O nome de usuário deve ter pelo menos 3 caracteres')
+    .max(20, 'O nome de usuário pode ter no máximo 20 caracteres')
+    .regex(
+      /^[a-zA-Z][a-zA-Z0-9._]*$/,
+      'Use apenas letras, números, ponto (.) ou underline (_), começando com letra'
+    ),
+})
+
+export type UsernameFormData = z.infer<typeof usernameSchema>
 export type PostDialogSchema = z.infer<typeof postDialogSchema>
 export type CreateCommunityFormData = z.infer<typeof createCommunitySchema>
 export type ConfigCommunityFormData = z.infer<typeof configCommunitySchema>

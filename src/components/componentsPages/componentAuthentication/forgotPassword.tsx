@@ -96,7 +96,7 @@ const ForgotPassword = ({
   }
 
   return (
-    <Card className="m-auto mt-44 w-full max-w-md border-0 shadow-2xl">
+    <Card className="m-auto mt-44 w-full max-w-md border-0 bg-white text-black shadow-2xl">
       <CardHeader className="bg-linear-purple relative rounded-md py-10 text-center text-white">
         <Button
           type="button"
@@ -111,7 +111,7 @@ const ForgotPassword = ({
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent className="space-y-6 pt-8">
+        <CardContent className="space-y-6 bg-white pt-8">
           <div className="space-y-2">
             <Label htmlFor="email">E-mail</Label>
             <Input
@@ -165,8 +165,8 @@ const ForgotPassword = ({
             {verificationCode.some((digit) => digit === '') && timerForgot > 0
               ? 'Aguarde...'
               : verificationCode.every((digit) => digit !== '')
-                ? 'Valida Código'
-                : 'Enviar Email'}
+                ? 'Validar Código'
+                : 'Enviar Código para o E-mail'}
           </Button>
           {timerForgot > 0 && (
             <div className="mt-6 flex items-center justify-center">
