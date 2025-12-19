@@ -11,6 +11,7 @@ const AuthenticadorPage = () => {
   const [showConfirmPass, setShowConfirmPass] = useState(false)
   const [isLogin, setIsLogin] = useState(true)
   const [forgotPassword, setForgotPassword] = useState(false)
+  const [firstStepData, setFirstStepData] = useState({})
 
   return (
     <div
@@ -126,6 +127,7 @@ const AuthenticadorPage = () => {
                       transition={{ duration: 0.45, ease: 'easeOut' }}
                     >
                       <RegisterComponent
+                        setFirstStepData={setFirstStepData}
                         setShowConfirmPass={setShowConfirmPass}
                         onSwitchToLogin={() => setIsLogin(true)}
                       />
@@ -138,7 +140,7 @@ const AuthenticadorPage = () => {
                       exit={{ opacity: 0, y: -40 }}
                       transition={{ duration: 0.45, ease: 'easeOut' }}
                     >
-                      <RegisterFinally />
+                      <RegisterFinally firstStepData={firstStepData} />
                     </motion.div>
                   )}
                 </AnimatePresence>

@@ -15,10 +15,12 @@ import {
 import { Checkbox } from '../../../components/ui/checkbox'
 import { Input } from '../../../components/ui/input'
 import { Label } from '../../../components/ui/label'
+import { useAuth } from '../../../context/getMe'
 import {
   loginSchema,
   type LoginFormData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
+import { loginUser } from '../../../services/authService'
 
 interface LoginComponentProps {
   onSwitchToRegister: () => void
@@ -29,6 +31,7 @@ const LoginComponent = ({
   onSwitchToRegister,
   setForgotPassword,
 }: LoginComponentProps) => {
+  const { setUser } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const {
     register,
@@ -43,7 +46,16 @@ const LoginComponent = ({
   })
 
   function onSubmit(data: LoginFormData) {
-    console.log(data)
+    async function login() {
+      const loggedUser = await loginUser(data.email, data.password)
+      if (loggedUser) {
+        setUser(loggedUser)
+        window.location.href = '/'
+      } else {
+        alert('Email ou senha incorretos')
+      }
+    }
+    login()
   }
   return (
     <Card className="m-auto w-full max-w-md border-0 bg-white text-black shadow-2xl">
@@ -81,7 +93,7 @@ const LoginComponent = ({
               <Input
                 {...register('password')}
                 id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 className="h-12 pl-11 pr-12"
               />

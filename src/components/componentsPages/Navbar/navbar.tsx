@@ -29,6 +29,7 @@ import DialogHelp from './DialogHelp'
 
 import { useComunidades } from '../../../context/CommunityContext'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
+import { useAuth } from '../../../context/getMe'
 import {
   comunidadesFicticias,
   normalizeURL,
@@ -52,10 +53,10 @@ export function AppSidebar() {
   const [active, setActive] = useState('Feed')
   const { setOpenMobile } = useSidebar()
   const { filtro, setFiltro } = useComunidades()
-
   const location = useLocation()
   const pathname = location.pathname
   const { communityName, id } = useParams()
+  const { user } = useAuth()
   let isInComunidades =
     location.pathname === '/comunidades/comunidades-do-usuario' ||
     location.pathname ===
@@ -101,6 +102,7 @@ export function AppSidebar() {
     )
     setFiltro(found || 'all')
   })
+
   return (
     <div
       className={`${
@@ -253,7 +255,10 @@ export function AppSidebar() {
         </SidebarContent>
 
         <SidebarFooter className="border-t border-zinc-200 p-4 dark:border-zinc-800">
-          <NavLink onClick={() => setActive('Perfil')} to={`/perfil/${0}`}>
+          <NavLink
+            onClick={() => setActive('Perfil')}
+            to={user ? `/perfil/${0}` : '/auth'}
+          >
             <div
               className={`${
                 active === 'Perfil'
@@ -270,7 +275,7 @@ export function AppSidebar() {
                   Meu perfil
                 </span>
                 <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                  Carlos Almeida
+                  {user ? user.name_at : 'Não logado'}
                 </span>
               </div>
             </div>

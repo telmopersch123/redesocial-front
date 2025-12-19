@@ -1,7 +1,9 @@
-import { Images, Trash, User } from 'lucide-react'
+import { Images, LogOut, Trash, User } from 'lucide-react'
 import { useRef } from 'react'
+import { useAuth } from '../../../../context/getMe'
 import { Avatar, AvatarFallback } from '../../../ui/avatar'
 import { Badge } from '../../../ui/badge'
+import { Button } from '../../../ui/button'
 import { Card, CardContent } from '../../../ui/card'
 import { ConfigDialog } from './ConfigDialog'
 
@@ -39,7 +41,7 @@ const UserPerfilComponent = ({
   coresFundos,
 }: UserPerfilComponentProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
-
+  const { user, handleLogout } = useAuth()
   const handleSelect = () => {
     fileInputRef.current?.click()
   }
@@ -67,6 +69,15 @@ const UserPerfilComponent = ({
     <Card>
       <CardContent className="relative flex w-full flex-col items-center gap-5 p-6 im:flex-row">
         {/* AVATAR COM BOTÃO DE REMOVER FORA */}
+        {user && (
+          <Button
+            onClick={handleLogout}
+            className="absolute right-0 top-0 m-2 flex items-center gap-2 rounded-lg border-none bg-red-300 p-3 font-semibold text-white transition-all hover:opacity-80 dark:bg-[#1a1a1a]"
+          >
+            <LogOut size={20} />
+            Sair
+          </Button>
+        )}
         <div
           ref={avatarContainerRef}
           className="group relative"

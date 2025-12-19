@@ -8,24 +8,27 @@ import { SidebarProvider } from './components/ui/sidebar.tsx'
 import BreathingProvider from './context/BreathingContext.tsx'
 import { ComunidadesProvider } from './context/CommunityContext.tsx'
 import { CriarPostDialogProvider } from './context/ContextDialogPost.tsx'
+import { AuthProvider } from './context/getMe.tsx'
 import { OpenMentionsProvider } from './context/openMentions.tsx'
 import './index.css'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <ThemeProvider>
-        <OpenMentionsProvider>
-          <BreathingProvider>
-            <ComunidadesProvider>
-              <SidebarProvider>
-                <CriarPostDialogProvider>
-                  <App />
-                </CriarPostDialogProvider>
-              </SidebarProvider>
-            </ComunidadesProvider>
-          </BreathingProvider>
-        </OpenMentionsProvider>
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          <OpenMentionsProvider>
+            <BreathingProvider>
+              <ComunidadesProvider>
+                <SidebarProvider>
+                  <CriarPostDialogProvider>
+                    <App />
+                  </CriarPostDialogProvider>
+                </SidebarProvider>
+              </ComunidadesProvider>
+            </BreathingProvider>
+          </OpenMentionsProvider>
+        </ThemeProvider>
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>
 )

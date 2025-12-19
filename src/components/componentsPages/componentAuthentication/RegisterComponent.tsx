@@ -24,6 +24,7 @@ import { RadioGroup, RadioGroupItem } from '../../ui/radio-group'
 interface RegisterComponentProps {
   onSwitchToLogin: () => void
   setShowConfirmPass: React.Dispatch<React.SetStateAction<boolean>>
+  setFirstStepData: React.Dispatch<React.SetStateAction<RegisterFormData>>
 }
 export const hasNumber = (password: string) => /\d/.test(password)
 export const hasSpecialChar = (password: string) =>
@@ -33,6 +34,7 @@ export const hasMinLength = (password: string) => password.length >= 6
 const RegisterComponent = ({
   onSwitchToLogin,
   setShowConfirmPass,
+  setFirstStepData,
 }: RegisterComponentProps) => {
   const {
     control,
@@ -56,9 +58,31 @@ const RegisterComponent = ({
 
   const password = watch('password', '')
 
-  function onSubmit(data: RegisterFormData) {
-    console.log(data)
-    setShowConfirmPass(true)
+  async function onSubmit(data: RegisterFormData) {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/register/validate`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        }
+      )
+
+      if (!res.ok) {
+        const error = await res.json()
+        throw new Error(error.message || 'Erro ao validar cadastro')
+      }
+
+      if (res.ok) {
+        console.log('Cadastro avançado com sucesso!')
+      }
+
+      setFirstStepData(data)
+      setShowConfirmPass(true)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (

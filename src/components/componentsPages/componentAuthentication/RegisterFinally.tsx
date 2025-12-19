@@ -19,7 +19,11 @@ import {
   type UsernameFormData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 
-const RegisterFinally = () => {
+interface RegisterFormData {
+  firstStepData: {}
+}
+
+const RegisterFinally = ({ firstStepData }: RegisterFormData) => {
   const {
     register,
     handleSubmit,
@@ -28,14 +32,60 @@ const RegisterFinally = () => {
   } = useForm<UsernameFormData>({
     resolver: zodResolver(usernameSchema),
     defaultValues: {
-      username: '',
+      name_at: '',
     },
   })
 
-  const username = watch('username')
+  const username = watch('name_at')
 
-  function onSubmit(data: UsernameFormData) {
-    console.log('Username escolhido:', data.username)
+  async function onSubmit(data: UsernameFormData) {
+    try {
+      const resCheck = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/username/check`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name_at: data.name_at }),
+        }
+      )
+
+      if (!resCheck.ok) {
+        const error = await resCheck.json()
+        throw new Error(error.message || 'Username indisponível')
+      }
+
+      if (resCheck.ok) {
+        console.log('Username disponível')
+      }
+
+      const registerData = {
+        ...firstStepData,
+        name_at: data.name_at,
+      }
+
+      const resRegister = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/register`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(registerData),
+          credentials: 'include',
+        }
+      )
+
+      if (!resRegister.ok) {
+        const error = await resRegister.json()
+        throw new Error(error.message || 'Erro ao criar usuário')
+      }
+
+      if (resRegister.ok) {
+        console.log('Cadastro criado com sucesso!')
+      }
+
+      window.location.href = '/'
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
@@ -62,21 +112,21 @@ const RegisterFinally = () => {
               <AtSign className="absolute left-3 top-3.5 h-5 w-5 text-muted-foreground" />
 
               <Input
-                {...register('username')}
+                {...register('name_at')}
                 id="username"
                 placeholder="seunome"
                 className="h-12 pl-11"
               />
             </div>
 
-            {username && !errors.username && (
+            {username && !errors.name_at && (
               <p className="flex items-center gap-1 text-sm text-green-600">
                 <CheckCircle className="h-4 w-4" />@{username} está disponível
               </p>
             )}
 
-            {errors.username && (
-              <p className="text-sm text-red-500">{errors.username.message}</p>
+            {errors.name_at && (
+              <p className="text-sm text-red-500">{errors.name_at.message}</p>
             )}
           </div>
 

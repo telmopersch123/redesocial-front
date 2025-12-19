@@ -50,3 +50,11 @@ export type ComentarioPost = {
   respostas?: Comentario[]
   respondendoPara?: string | null
 }
+
+export type UserType = {
+  id: string
+  name: string
+  name_at: string
+  email: string
+  image?: string | null
+}

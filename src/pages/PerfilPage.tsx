@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Edit2 } from 'lucide-react'
 import { useState } from 'react'
-import { NavLink, useParams } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import BlockedConfirmDialog from '../components/componentsPages/componentsPerfil/BlockedConfirmDialog'
 import { FollowersDialog } from '../components/componentsPages/componentsPerfil/FollowersDialog'
 import { FriendsDialog } from '../components/componentsPages/componentsPerfil/FriendsDialog'
@@ -11,6 +11,7 @@ import CardsPostComponent from '../components/componentsPages/PostsComponent.tsx
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Button } from '../components/ui/button'
 import { Separator } from '../components/ui/separator'
+import { useAuth } from '../context/getMe'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
 import type { Post } from '../types'
 export const postsFicticiosGlobal: Post[] = [
@@ -1495,7 +1496,7 @@ export const postsFicticiosGlobal: Post[] = [
 const euUsuario = true
 
 const PerfilUsuario = () => {
-  const { id } = useParams()
+  const { user } = useAuth()
   const [visibleCount, setVisibleCount] = useState(10)
   const [loadedCount, setLoadedCount] = useState(10)
   const [posts, setPosts] = useState<Post[]>(postsFicticiosGlobal)
@@ -1515,7 +1516,7 @@ const PerfilUsuario = () => {
     },
   })
 
-  return (
+  return user ? (
     <div className="mb-4 min-h-screen w-[99vw] overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] xl:px-5 2xl:w-full">
       {/* Header do Perfil */}
       <motion.header
@@ -1563,7 +1564,7 @@ const PerfilUsuario = () => {
             {/* Info do usuário */}
             <div className="flex-1">
               <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100 sm:text-3xl">
-                Carlos Almeida {id}
+                {user && user.name_at}
               </h1>
               <p className="text-lg font-medium text-purple-600 dark:text-purple-400">
                 @carlosalmeida
@@ -1637,6 +1638,34 @@ const PerfilUsuario = () => {
         </div>
       </main>
     </div>
+  ) : (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+        transition={{ duration: 0.5 }}
+        className="fixed inset-0 flex items-center justify-center"
+      >
+        <div className="flex items-center space-x-2 rounded-xl border border-red-300 bg-white px-6 py-4 text-red-600 shadow-lg dark:border-red-700 dark:bg-[#1a1a1a] dark:text-red-400">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-red-600 dark:text-red-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span className="text-lg font-semibold">Usuário não encontrado</span>
+        </div>
+      </motion.div>
+    </AnimatePresence>
   )
 }
 
