@@ -68,12 +68,9 @@ export function AppSidebar() {
 
     const itemPathe = items.find((item) => item.url === pathname)
 
-    if (pathname === `/perfil/${id}` || pathname === `/perfil/${id}/config`) {
+    if (pathname === `/perfil` || pathname === `/perfil/config`) {
       setActive('Perfil')
-    } else if (
-      pathname === `/usuarios/perfil/${id}` ||
-      pathname === `/usuarios/perfil/${id}/config`
-    ) {
+    } else if (pathname === `/usuarios/perfil/${id}`) {
       setActive('Usuarios')
     } else if (
       pathname === '/comunidades/comunidades-do-usuario' ||
@@ -111,7 +108,7 @@ export function AppSidebar() {
         pathname === `/comunidades/comunidades-do-usuario/${communityName}` ||
         pathname ===
           `/comunidades/comunidades-do-usuario/${communityName}/${id}` ||
-        pathname === `/perfil/${id}`
+        pathname === `/perfil`
           ? '2xl:w-[134px]'
           : ''
       }`}
@@ -257,7 +254,7 @@ export function AppSidebar() {
         <SidebarFooter className="border-t border-zinc-200 p-4 dark:border-zinc-800">
           <NavLink
             onClick={() => setActive('Perfil')}
-            to={user ? `/perfil/${0}` : '/auth'}
+            to={user ? `/perfil` : '/auth'}
           >
             <div
               className={`${

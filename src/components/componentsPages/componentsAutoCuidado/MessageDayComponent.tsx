@@ -7,7 +7,7 @@ const MessageDayComponent = () => {
   const [loading, setLoading] = useState(true)
 
   const translate = async (message: string) => {
-    const res = await fetch('http://localhost:4001/translate', {
+    const res = await fetch('/translate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message }),

@@ -31,6 +31,7 @@ const LoginComponent = ({
   onSwitchToRegister,
   setForgotPassword,
 }: LoginComponentProps) => {
+  const [rememberMe, setRememberMe] = useState(false)
   const { setUser } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const {
@@ -50,6 +51,7 @@ const LoginComponent = ({
       const loggedUser = await loginUser(data.email, data.password)
       if (loggedUser) {
         setUser(loggedUser)
+
         window.location.href = '/'
       } else {
         alert('Email ou senha incorretos')
@@ -67,7 +69,7 @@ const LoginComponent = ({
           Acesse sua conta agora
         </CardDescription>
       </CardHeader>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)} autoComplete="on" action="#">
         <CardContent className="space-y-6 bg-white pt-8">
           <div className="space-y-2">
             <Label htmlFor="email">E-mail</Label>
@@ -77,6 +79,8 @@ const LoginComponent = ({
                 {...register('email')}
                 id="email"
                 type="email"
+                name="email"
+                autoComplete="username email"
                 placeholder="seu@email.com"
                 className="h-12 pl-11"
               />
@@ -93,6 +97,8 @@ const LoginComponent = ({
               <Input
                 {...register('password')}
                 id="password"
+                name="password"
+                autoComplete="current-password"
                 type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 className="h-12 pl-11 pr-12"
@@ -116,7 +122,11 @@ const LoginComponent = ({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Checkbox id="remember" />
+              <Checkbox
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                id="remember"
+              />
               <Label htmlFor="remember" className="cursor-pointer text-sm">
                 Lembrar-me
               </Label>

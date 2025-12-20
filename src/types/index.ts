@@ -58,3 +58,10 @@ export type UserType = {
   email: string
   image?: string | null
 }
+
+export type UserTypeSearch = {
+  id: number
+  name_at: string
+  image?: string
+  friendsCount: number
+}

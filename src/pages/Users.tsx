@@ -9,40 +9,16 @@ import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
-
-interface User {
-  id: number
-  name: string
-  avatar: string
-  friendsCount: number
-}
-
-const fakeUsers: User[] = [
-  { id: 1, name: 'Telmo Persch', avatar: '', friendsCount: 284 },
-  { id: 2, name: 'Maria Silva', avatar: '', friendsCount: 156 },
-  { id: 3, name: 'João Santos', avatar: '', friendsCount: 89 },
-  { id: 4, name: 'Ana Oliveira', avatar: '', friendsCount: 412 },
-  { id: 5, name: 'Carlos Pereira', avatar: '', friendsCount: 67 },
-  { id: 6, name: 'Irlando Pereira', avatar: '', friendsCount: 203 },
-  { id: 7, name: 'Pietro Santos', avatar: '', friendsCount: 521 },
-  { id: 8, name: 'Telmo Pereira', avatar: '', friendsCount: 98 },
-  { id: 9, name: 'Alfredo', avatar: '', friendsCount: 345 },
-  { id: 10, name: 'Aninha', avatar: '', friendsCount: 178 },
-]
+import { useUserSearch } from '../services/authService'
 
 const Users = () => {
-  const [usersSurveyed, setUsersSurveyed] = useState<User[]>([])
+  const { setQuery, query, results: usersSurveyed } = useUserSearch()
   const [inputValue, setInputValue] = useState('')
 
   const searchUsers = (event?: React.KeyboardEvent<HTMLInputElement>) => {
     if (event && event.key !== 'Enter') return
-    if (inputValue.length <= 2) return
-    if (inputValue.trim() !== '') {
-      const filteredUsers = fakeUsers.filter((user) =>
-        user.name.toLowerCase().includes(inputValue.toLowerCase())
-      )
-      setUsersSurveyed(filteredUsers)
-    }
+    if (inputValue.trim().length <= 2) return
+    setQuery(inputValue)
   }
 
   return (
@@ -104,8 +80,8 @@ const Users = () => {
                   <Card className="group flex flex-col items-center gap-5 rounded-2xl border border-transparent bg-white/90 p-5 shadow-md transition-all duration-300 hover:border-purple-300 hover:bg-purple-50/50 hover:shadow-lg dark:bg-zinc-800/70 dark:hover:border-purple-700 dark:hover:bg-purple-900/30 om:flex-row">
                     <div className="flex w-full items-center justify-between gap-3">
                       <Avatar className="h-16 w-16 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800">
-                        {user.avatar ? (
-                          <AvatarImage src={user.avatar} alt={user.name} />
+                        {user.image ? (
+                          <AvatarImage src={user.image} alt={user.name_at} />
                         ) : (
                           <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md dark:from-purple-600 dark:to-pink-600">
                             <User className="h-8 w-8" />
@@ -115,7 +91,7 @@ const Users = () => {
 
                       <div className="flex-1">
                         <h3 className="text-lg font-bold text-zinc-900 transition-colors group-hover:text-purple-700 dark:text-zinc-100 dark:group-hover:text-purple-400">
-                          {user.name}
+                          {user.name_at}
                         </h3>
                         <div className="flex items-center gap-1 text-sm text-zinc-500 dark:text-zinc-400">
                           <UsersIcon className="h-4 w-4" />

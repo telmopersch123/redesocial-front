@@ -37,7 +37,7 @@ export default function AppRoutes() {
             <Route path="config" element={<ConfigCommunity />} />
           </Route>
         </Route>
-        <Route path="/perfil/:id">
+        <Route path="/perfil">
           <Route index element={<PerfilPage />} />
           <Route path="config" element={<ConfigPerfilPage />} />
         </Route>

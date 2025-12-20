@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { Edit2 } from 'lucide-react'
-import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, useParams } from 'react-router-dom'
 import BlockedConfirmDialog from '../components/componentsPages/componentsPerfil/BlockedConfirmDialog'
 import { FollowersDialog } from '../components/componentsPages/componentsPerfil/FollowersDialog'
 import { FriendsDialog } from '../components/componentsPages/componentsPerfil/FriendsDialog'
@@ -13,7 +13,8 @@ import { Button } from '../components/ui/button'
 import { Separator } from '../components/ui/separator'
 import { useAuth } from '../context/getMe'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
-import type { Post } from '../types'
+import type { Post, UserTypeSearch } from '../types'
+
 export const postsFicticiosGlobal: Post[] = [
   {
     id: 1,
@@ -1493,10 +1494,11 @@ export const postsFicticiosGlobal: Post[] = [
   },
 ]
 
-const euUsuario = true
-
 const PerfilUsuario = () => {
-  const { user } = useAuth()
+  const { user: authUser } = useAuth()
+  const { id } = useParams<{ id?: string }>()
+  const [profileUser, setProfileUser] = useState<UserTypeSearch | null>(null)
+  const [loading, setLoading] = useState(true)
   const [visibleCount, setVisibleCount] = useState(10)
   const [loadedCount, setLoadedCount] = useState(10)
   const [posts, setPosts] = useState<Post[]>(postsFicticiosGlobal)
@@ -1516,7 +1518,42 @@ const PerfilUsuario = () => {
     },
   })
 
-  return user ? (
+  const euUsuario = !id || profileUser?.id === authUser?.id
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        setLoading(true)
+
+        const endpoint = id ? `/auth/users/${id}` : `/auth/me`
+
+        const res = await fetch(`${import.meta.env.VITE_API_URL}${endpoint}`, {
+          credentials: 'include',
+        })
+
+        if (!res.ok) {
+          setProfileUser(null)
+          return
+        }
+
+        const data = await res.json()
+        setProfileUser(data.user)
+      } catch (err) {
+        setProfileUser(null)
+        console.log(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProfile()
+  }, [id])
+
+  if (loading) {
+    return <div>Carregando perfil...</div>
+  }
+
+  return profileUser ? (
     <div className="mb-4 min-h-screen w-[99vw] overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] xl:px-5 2xl:w-full">
       {/* Header do Perfil */}
       <motion.header
@@ -1564,7 +1601,7 @@ const PerfilUsuario = () => {
             {/* Info do usuário */}
             <div className="flex-1">
               <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100 sm:text-3xl">
-                {user && user.name_at}
+                {profileUser && profileUser.name_at}
               </h1>
               <p className="text-lg font-medium text-purple-600 dark:text-purple-400">
                 @carlosalmeida
@@ -1576,8 +1613,8 @@ const PerfilUsuario = () => {
 
               {/* Stats */}
               <div className="mt-5 flex gap-8 text-sm">
-                <FriendsDialog euUsuario={euUsuario} />
-                <FollowersDialog euUsuario={euUsuario} />
+                <FriendsDialog euUsuario={euUsuario || false} />
+                <FollowersDialog euUsuario={euUsuario || false} />
               </div>
             </div>
 
