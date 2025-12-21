@@ -6,6 +6,7 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { logoutUser } from '../services/authService'
 import type { UserType } from '../types'
 
@@ -18,11 +19,15 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<UserType | null>(null)
   const handleLogout = async () => {
-    const success = await logoutUser()
-    if (success) setUser(null) // limpa o usuário globalmente
-    window.location.href = '/auth'
+    await logoutUser()
+
+    setUser(null)
+
+    navigate('/auth', { replace: true })
   }
   useEffect(() => {
     async function fetchUser() {
@@ -30,12 +35,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
           credentials: 'include', // envia o cookie HTTP-only
         })
-        if (!res.ok) return setUser(null)
+        if (!res.ok) {
+          setUser(null)
+          return
+        }
         const data = await res.json()
         setUser(data.user)
-      } catch (error) {
-        console.log(error)
+      } catch {
         setUser(null)
+      } finally {
+        setLoading(false)
       }
     }
 

@@ -3,7 +3,7 @@ import type { UserTypeSearch } from '../types'
 
 export async function logoutUser(): Promise<boolean> {
   try {
-    const res = await fetch(`/auth/logout`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
       method: 'POST',
       credentials: 'include',
     })
@@ -14,13 +14,21 @@ export async function logoutUser(): Promise<boolean> {
   }
 }
 
-export async function loginUser(email: string, password: string) {
+export async function loginUser(
+  email: string,
+  password: string,
+  rememberMe: boolean | undefined
+) {
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
       method: 'POST',
       credentials: 'include', // envia o cookie HTTP-only
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({
+        email,
+        password,
+        rememberMe: rememberMe ?? false,
+      }),
     })
 
     if (!res.ok) throw new Error('Credenciais inválidas')
@@ -72,4 +80,60 @@ export function useUserSearch() {
   }, [debouncedQuery])
 
   return { setQuery, query, results }
+}
+
+export async function sendCodigoToEmail(email: string) {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/send-code`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    })
+
+    if (!res.ok) {
+      throw new Error('Erro ao enviar o email')
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export async function valided_code(email: string, code: string) {
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/auth/validate-code`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code }),
+      }
+    )
+
+    if (!res.ok) {
+      throw new Error('Erro ao validar o codigo')
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export async function resetPasswordCod(email: string, newPassword: string) {
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/auth/reset-password`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, newPassword }),
+      }
+    )
+
+    if (!res.ok) {
+      throw new Error('Erro ao validar o codigo')
+    }
+
+    return true
+  } catch (err) {
+    console.log(err)
+  }
 }

@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 
 import { Eye, EyeOff } from 'lucide-react'
 
+import { useNavigate } from 'react-router-dom'
 import { PasswordRequirements } from '../../../auth/PasswordRequirements'
 import { Button } from '../../../components/ui/button'
 import {
@@ -15,15 +16,19 @@ import {
 } from '../../../components/ui/card'
 import { Input } from '../../../components/ui/input'
 import { Label } from '../../../components/ui/label'
+import { useResetPassword } from '../../../context/ResetPasswordContext'
 import {
   resetSchema,
   type ResetFormData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
+import { resetPasswordCod } from '../../../services/authService'
 import { hasMinLength, hasNumber, hasSpecialChar } from './RegisterComponent'
 
 const ResetPasswordComponent = () => {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [focusPassword, setFocusPassword] = useState(false)
+  const { email } = useResetPassword()
   const {
     register,
     handleSubmit,
@@ -33,8 +38,13 @@ const ResetPasswordComponent = () => {
     resolver: zodResolver(resetSchema),
   })
   const password = watch('password', '')
-  const onSubmit = (data: ResetFormData) => {
-    console.log('Nova senha:', data.password)
+  const onSubmit = async (data: ResetFormData) => {
+    console.log(data)
+    const success = await resetPasswordCod(email, data.password)
+
+    if (success) {
+      navigate('/auth')
+    }
   }
 
   return (

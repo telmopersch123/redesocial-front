@@ -10,25 +10,28 @@ import { ComunidadesProvider } from './context/CommunityContext.tsx'
 import { CriarPostDialogProvider } from './context/ContextDialogPost.tsx'
 import { AuthProvider } from './context/getMe.tsx'
 import { OpenMentionsProvider } from './context/openMentions.tsx'
+import { ResetPasswordProvider } from './context/ResetPasswordContext.tsx'
 import './index.css'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <AuthProvider>
-        <ThemeProvider>
-          <OpenMentionsProvider>
-            <BreathingProvider>
-              <ComunidadesProvider>
-                <SidebarProvider>
-                  <CriarPostDialogProvider>
-                    <App />
-                  </CriarPostDialogProvider>
-                </SidebarProvider>
-              </ComunidadesProvider>
-            </BreathingProvider>
-          </OpenMentionsProvider>
-        </ThemeProvider>
-      </AuthProvider>
+      <ResetPasswordProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <OpenMentionsProvider>
+              <BreathingProvider>
+                <ComunidadesProvider>
+                  <SidebarProvider>
+                    <CriarPostDialogProvider>
+                      <App />
+                    </CriarPostDialogProvider>
+                  </SidebarProvider>
+                </ComunidadesProvider>
+              </BreathingProvider>
+            </OpenMentionsProvider>
+          </ThemeProvider>
+        </AuthProvider>
+      </ResetPasswordProvider>
     </BrowserRouter>
   </StrictMode>
 )

@@ -2,10 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Clock, CornerUpLeft } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { useResetPassword } from '../../../context/ResetPasswordContext'
 import {
   forgotPasswordSchema,
   type ForgotPasswordData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
+import { sendCodigoToEmail, valided_code } from '../../../services/authService'
 import { Button } from '../../ui/button'
 import {
   Card,
@@ -28,9 +30,9 @@ const ForgotPassword = ({
 }: ForgotPasswordProps) => {
   const [timerForgot, setTimerForgot] = useState<number>(0)
   const [hiddenCode, setHiddenCode] = useState<boolean>(false)
-
   const [verificationCode, setVerificationCode] = useState(['', '', '', ''])
   const timerRef = useRef<number | null>(null)
+  const { setEmail, setCode } = useResetPassword()
 
   const codeRefs = Array.from({ length: 4 }, () =>
     useRef<HTMLInputElement>(null)
@@ -87,11 +89,15 @@ const ForgotPassword = ({
     console.log('Form OK:', data)
     if (timerForgot === 0) {
       handleClickForgotPassword()
+      setEmail(data.email)
+      sendCodigoToEmail(data.email)
     }
     setHiddenCode(true)
 
     if (verificationCode.every((digit) => digit !== '')) {
       setPermissionCode(true)
+      setCode(verificationCode.join(''))
+      valided_code(data.email, verificationCode.join(''))
     }
   }
 

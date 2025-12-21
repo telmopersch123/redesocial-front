@@ -2,7 +2,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../../../components/ui/button'
 import {
   Card,
@@ -31,28 +32,35 @@ const LoginComponent = ({
   onSwitchToRegister,
   setForgotPassword,
 }: LoginComponentProps) => {
-  const [rememberMe, setRememberMe] = useState(false)
+  const navigate = useNavigate()
   const { setUser } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
   const {
     register,
     handleSubmit,
     formState: { errors },
+
+    control,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
       password: '',
+      rememberMe: false,
     },
   })
 
   function onSubmit(data: LoginFormData) {
     async function login() {
-      const loggedUser = await loginUser(data.email, data.password)
+      const loggedUser = await loginUser(
+        data.email,
+        data.password,
+        data.rememberMe
+      )
       if (loggedUser) {
         setUser(loggedUser)
 
-        window.location.href = '/'
+        navigate('/')
       } else {
         alert('Email ou senha incorretos')
       }
@@ -122,10 +130,16 @@ const LoginComponent = ({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Checkbox
-                checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                id="remember"
+              <Controller
+                control={control}
+                name="rememberMe"
+                render={({ field }) => (
+                  <Checkbox
+                    id="remember"
+                    onCheckedChange={field.onChange}
+                    checked={field.value}
+                  />
+                )}
               />
               <Label htmlFor="remember" className="cursor-pointer text-sm">
                 Lembrar-me

@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { AtSign, CheckCircle } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../../../components/ui/button'
 import {
   Card,
@@ -24,6 +25,7 @@ interface RegisterFormData {
 }
 
 const RegisterFinally = ({ firstStepData }: RegisterFormData) => {
+  const navigate = useNavigate()
   const {
     register,
     handleSubmit,
@@ -82,7 +84,7 @@ const RegisterFinally = ({ firstStepData }: RegisterFormData) => {
         console.log('Cadastro criado com sucesso!')
       }
 
-      window.location.href = '/'
+      navigate('/')
     } catch (error) {
       console.log(error)
     }

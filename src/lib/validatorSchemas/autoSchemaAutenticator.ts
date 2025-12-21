@@ -33,6 +33,7 @@ export const loginSchema = z.object({
       passwordRegex,
       'A senha deve conter pelo menos um número e um caractere especial'
     ),
+  rememberMe: z.boolean().optional(),
 })
 
 export const registerSchema = z
