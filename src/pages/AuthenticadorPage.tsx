@@ -1,10 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import LoginComponent from '../components/componentsPages/componentAuthentication/LoginComponent'
 import RegisterComponent from '../components/componentsPages/componentAuthentication/RegisterComponent'
 import RegisterFinally from '../components/componentsPages/componentAuthentication/RegisterFinally'
 import ForgotPassword from '../components/componentsPages/componentAuthentication/forgotPassword'
 import ResetPasswordComponent from '../components/componentsPages/componentAuthentication/updatePassword'
+import { useResetPassword } from '../context/ResetPasswordContext'
+import { alertMessage } from '../utils/components/alertMensage'
 
 const AuthenticadorPage = () => {
   const [permissionCode, setPermissionCode] = useState<boolean>(false)
@@ -12,6 +14,18 @@ const AuthenticadorPage = () => {
   const [isLogin, setIsLogin] = useState(true)
   const [forgotPassword, setForgotPassword] = useState(false)
   const [firstStepData, setFirstStepData] = useState({})
+  const { messageConfirm, setMessageConfirm } = useResetPassword()
+
+  useEffect(() => {
+    if (messageConfirm) {
+      alertMessage(
+        'Concluido!',
+        'Sua senha foi alterada com sucesso',
+        'success'
+      )
+      setMessageConfirm(false)
+    }
+  }, [messageConfirm])
 
   return (
     <div
@@ -88,7 +102,11 @@ const AuthenticadorPage = () => {
                           exit={{ opacity: 0, y: -40 }}
                           transition={{ duration: 0.45, ease: 'easeOut' }}
                         >
-                          <ResetPasswordComponent />
+                          <ResetPasswordComponent
+                            setPermissionCode={setPermissionCode}
+                            setForgotPassword={setForgotPassword}
+                            setIsLogin={setIsLogin}
+                          />
                         </motion.div>
                       ) : (
                         <motion.div

@@ -8,6 +8,7 @@ import {
   type ForgotPasswordData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 import { sendCodigoToEmail, valided_code } from '../../../services/authService'
+import { alertMessage } from '../../../utils/components/alertMensage'
 import { Button } from '../../ui/button'
 import {
   Card,
@@ -32,7 +33,7 @@ const ForgotPassword = ({
   const [hiddenCode, setHiddenCode] = useState<boolean>(false)
   const [verificationCode, setVerificationCode] = useState(['', '', '', ''])
   const timerRef = useRef<number | null>(null)
-  const { setEmail, setCode } = useResetPassword()
+  const { setEmail, setCode, setToken } = useResetPassword()
 
   const codeRefs = Array.from({ length: 4 }, () =>
     useRef<HTMLInputElement>(null)
@@ -85,19 +86,39 @@ const ForgotPassword = ({
     }, 1000)
   }
 
-  function onSubmit(data: ForgotPasswordData) {
-    console.log('Form OK:', data)
-    if (timerForgot === 0) {
-      handleClickForgotPassword()
-      setEmail(data.email)
-      sendCodigoToEmail(data.email)
+  async function onSubmit(data: ForgotPasswordData) {
+    const codeStr = verificationCode.join('')
+    if (codeStr.length < 4) {
+      if (timerForgot === 0) {
+        handleClickForgotPassword()
+        setEmail(data.email)
+        await sendCodigoToEmail(data.email)
+        setHiddenCode(true)
+      }
+      return
     }
-    setHiddenCode(true)
-
-    if (verificationCode.every((digit) => digit !== '')) {
-      setPermissionCode(true)
-      setCode(verificationCode.join(''))
-      valided_code(data.email, verificationCode.join(''))
+    try {
+      const result = await valided_code(data.email, codeStr)
+      setToken(result?.resetToken)
+      if (result) {
+        setCode(codeStr)
+        setPermissionCode(true)
+      } else {
+        setPermissionCode(false)
+        alertMessage(
+          ' Código inválido',
+          '  Verifique seu e-mail, enviamos um código para você.',
+          'error'
+        )
+      }
+    } catch (error) {
+      console.log(error)
+      alertMessage(
+        'Algo deu errado. Por favor, tente novamente mais tarde',
+        null,
+        'error'
+      )
+      setPermissionCode(false)
     }
   }
 

@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 
 import { Eye, EyeOff } from 'lucide-react'
 
-import { useNavigate } from 'react-router-dom'
 import { PasswordRequirements } from '../../../auth/PasswordRequirements'
 import { Button } from '../../../components/ui/button'
 import {
@@ -22,13 +21,23 @@ import {
   type ResetFormData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 import { resetPasswordCod } from '../../../services/authService'
+import { alertMessage } from '../../../utils/components/alertMensage'
 import { hasMinLength, hasNumber, hasSpecialChar } from './RegisterComponent'
+interface ResetPassWordProps {
+  setPermissionCode: (value: boolean) => void
+  setIsLogin: (value: boolean) => void
+  setForgotPassword: (value: boolean) => void
+}
 
-const ResetPasswordComponent = () => {
-  const navigate = useNavigate()
+const ResetPasswordComponent = ({
+  setPermissionCode,
+  setIsLogin,
+  setForgotPassword,
+}: ResetPassWordProps) => {
   const [showPassword, setShowPassword] = useState(false)
   const [focusPassword, setFocusPassword] = useState(false)
-  const { email } = useResetPassword()
+  const { email, token, setMessageConfirm } = useResetPassword()
+
   const {
     register,
     handleSubmit,
@@ -40,10 +49,21 @@ const ResetPasswordComponent = () => {
   const password = watch('password', '')
   const onSubmit = async (data: ResetFormData) => {
     console.log(data)
-    const success = await resetPasswordCod(email, data.password)
+    const success = await resetPasswordCod(token, email, data.password)
 
+    if (!success) {
+      alertMessage(
+        'Ops! algo deu errado',
+        'Por favor, tente novamente mais tarde',
+        'error'
+      )
+      setMessageConfirm(false)
+    }
     if (success) {
-      navigate('/auth')
+      setIsLogin(true)
+      setPermissionCode(false)
+      setForgotPassword(false)
+      setMessageConfirm(true)
     }
   }
 

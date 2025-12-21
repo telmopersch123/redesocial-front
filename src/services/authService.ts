@@ -97,8 +97,13 @@ export async function sendCodigoToEmail(email: string) {
     console.log(err)
   }
 }
-
-export async function valided_code(email: string, code: string) {
+interface ValidedCodeResponse {
+  resetToken: string
+}
+export async function valided_code(
+  email: string,
+  code: string
+): Promise<ValidedCodeResponse | null | undefined> {
   try {
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/auth/validate-code`,
@@ -110,21 +115,27 @@ export async function valided_code(email: string, code: string) {
     )
 
     if (!res.ok) {
-      throw new Error('Erro ao validar o codigo')
+      return null
     }
+    const data = await res.json()
+    return { resetToken: data.resetToken }
   } catch (err) {
     console.log(err)
   }
 }
 
-export async function resetPasswordCod(email: string, newPassword: string) {
+export async function resetPasswordCod(
+  resetToken: string | undefined,
+  email: string,
+  newPassword: string
+) {
   try {
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/auth/reset-password`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, newPassword }),
+        body: JSON.stringify({ resetToken, email, newPassword }),
       }
     )
 

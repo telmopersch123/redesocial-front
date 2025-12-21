@@ -61,6 +61,13 @@ input[type='number'] {
   -moz-appearance: textfield;
 }
 
+.sonner-toast {
+  background-color: #ffffff !important;
+  color: #dc2626 !important;
+  border-radius: 0.5rem !important;
+  padding: 1rem !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -105,19 +112,19 @@ input[type='number'] {
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
 
-    --toast-bg: hsl(210 20% 98%);
+    /* --toast-bg: hsl(210 20% 98%);
 
     /* texto delicado */
-    --toast-text: hsl(215 15% 25%);
+    /* --toast-text: hsl(215 15% 25%); */
 
     /* bordas sutis */
-    --toast-border: hsl(215 15% 90%);
+    /* --toast-border: hsl(215 15% 90%); */
 
     /* cores serenas para tipos */
-    --toast-success: hsl(143 40% 40%);
+    /* --toast-success: hsl(143 40% 40%);
     --toast-error: hsl(0 70% 55%);
     --toast-warning: hsl(35 80% 50%);
-    --toast-info: hsl(215 80% 45%);
+    --toast-info: hsl(215 80% 45%); */
   }
 
   .dark {
@@ -180,14 +187,14 @@ input[type='number'] {
     --sidebar-border: oklch(0.24 0 0);
     --sidebar-ring: oklch(0.48 0 0);
 
-    --toast-bg: hsl(215 20% 15%);
+    /* --toast-bg: hsl(215 20% 15%);
     --toast-text: hsl(210 30% 95%);
     --toast-border: hsl(215 15% 25%);
 
     --toast-success: hsl(143 50% 60%);
     --toast-error: hsl(0 70% 65%);
     --toast-warning: hsl(40 90% 65%);
-    --toast-info: hsl(215 90% 75%);
+    --toast-info: hsl(215 90% 75%); */
   }
 }
 

@@ -3,8 +3,12 @@ import { createContext, useContext, useState, type ReactNode } from 'react'
 type ResetPasswordContextData = {
   email: string
   code: string
+  token: string | undefined
+  messageConfirm: boolean
   setEmail: (email: string) => void
   setCode: (code: string) => void
+  setToken: (token: string | undefined) => void
+  setMessageConfirm: (message: boolean) => void
   clear: () => void
 }
 
@@ -13,12 +17,15 @@ const ResetPasswordContext = createContext<ResetPasswordContextData | null>(
 )
 
 export function ResetPasswordProvider({ children }: { children: ReactNode }) {
-  const [email, setEmail] = useState('')
-  const [code, setCode] = useState('')
+  const [email, setEmail] = useState<string>('')
+  const [code, setCode] = useState<string>('')
+  const [token, setToken] = useState<string | undefined>('')
+  const [messageConfirm, setMessageConfirm] = useState<boolean>(false)
 
   function clear() {
     setEmail('')
     setCode('')
+    setToken(undefined)
   }
 
   return (
@@ -26,8 +33,12 @@ export function ResetPasswordProvider({ children }: { children: ReactNode }) {
       value={{
         email,
         code,
+        token,
+        messageConfirm,
         setEmail,
         setCode,
+        setMessageConfirm,
+        setToken,
         clear,
       }}
     >

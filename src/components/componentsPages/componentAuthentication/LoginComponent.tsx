@@ -39,7 +39,6 @@ const LoginComponent = ({
     register,
     handleSubmit,
     formState: { errors },
-
     control,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -59,7 +58,6 @@ const LoginComponent = ({
       )
       if (loggedUser) {
         setUser(loggedUser)
-
         navigate('/')
       } else {
         alert('Email ou senha incorretos')
