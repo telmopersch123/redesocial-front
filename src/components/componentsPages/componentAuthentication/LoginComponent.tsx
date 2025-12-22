@@ -17,6 +17,7 @@ import { Checkbox } from '../../../components/ui/checkbox'
 import { Input } from '../../../components/ui/input'
 import { Label } from '../../../components/ui/label'
 import { useAuth } from '../../../context/getMe'
+import { useResetPassword } from '../../../context/ResetPasswordContext'
 import {
   loginSchema,
   type LoginFormData,
@@ -35,6 +36,7 @@ const LoginComponent = ({
   const navigate = useNavigate()
   const { setUser } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
+  const { setIsLoading } = useResetPassword()
   const {
     register,
     handleSubmit,
@@ -51,16 +53,23 @@ const LoginComponent = ({
 
   function onSubmit(data: LoginFormData) {
     async function login() {
-      const loggedUser = await loginUser(
-        data.email,
-        data.password,
-        data.rememberMe
-      )
-      if (loggedUser) {
-        setUser(loggedUser)
-        navigate('/')
-      } else {
-        alert('Email ou senha incorretos')
+      try {
+        setIsLoading(true)
+        const loggedUser = await loginUser(
+          data.email,
+          data.password,
+          data.rememberMe
+        )
+        if (loggedUser) {
+          setUser(loggedUser)
+          window.location.href = '/'
+        } else {
+          alert('Email ou senha incorretos')
+        }
+      } catch (error) {
+        console.log(error)
+      } finally {
+        setIsLoading(false)
       }
     }
     login()

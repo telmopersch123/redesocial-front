@@ -65,3 +65,12 @@ export type UserTypeSearch = {
   image?: string
   friendsCount: number
 }
+export interface ResetPassWordProps {
+  setPermissionCode: (value: boolean) => void
+  setIsLogin: (value: boolean) => void
+  setForgotPassword: (value: boolean) => void
+}
+
+export interface ValidedCodeResponse {
+  resetToken: string
+}

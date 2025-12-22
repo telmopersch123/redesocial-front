@@ -10,6 +10,8 @@ type ResetPasswordContextData = {
   setToken: (token: string | undefined) => void
   setMessageConfirm: (message: boolean) => void
   clear: () => void
+  setIsLoading: (isLoading: boolean) => void
+  isLoading: boolean
 }
 
 const ResetPasswordContext = createContext<ResetPasswordContextData | null>(
@@ -21,6 +23,7 @@ export function ResetPasswordProvider({ children }: { children: ReactNode }) {
   const [code, setCode] = useState<string>('')
   const [token, setToken] = useState<string | undefined>('')
   const [messageConfirm, setMessageConfirm] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   function clear() {
     setEmail('')
@@ -40,6 +43,8 @@ export function ResetPasswordProvider({ children }: { children: ReactNode }) {
         setMessageConfirm,
         setToken,
         clear,
+        setIsLoading,
+        isLoading,
       }}
     >
       {children}

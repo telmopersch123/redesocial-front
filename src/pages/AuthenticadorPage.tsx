@@ -1,12 +1,13 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { AnalysisRegister } from '../components/componentsPages/componentAuthentication/AnalysisRegister'
+import ForgotPassword from '../components/componentsPages/componentAuthentication/forgotPassword'
 import LoginComponent from '../components/componentsPages/componentAuthentication/LoginComponent'
 import RegisterComponent from '../components/componentsPages/componentAuthentication/RegisterComponent'
-import RegisterFinally from '../components/componentsPages/componentAuthentication/RegisterFinally'
-import ForgotPassword from '../components/componentsPages/componentAuthentication/forgotPassword'
 import ResetPasswordComponent from '../components/componentsPages/componentAuthentication/updatePassword'
 import { useResetPassword } from '../context/ResetPasswordContext'
 import { alertMessage } from '../utils/components/alertMensage'
+import LoadingOverlay from '../utils/components/Loading'
 
 const AuthenticadorPage = () => {
   const [permissionCode, setPermissionCode] = useState<boolean>(false)
@@ -14,7 +15,7 @@ const AuthenticadorPage = () => {
   const [isLogin, setIsLogin] = useState(true)
   const [forgotPassword, setForgotPassword] = useState(false)
   const [firstStepData, setFirstStepData] = useState({})
-  const { messageConfirm, setMessageConfirm } = useResetPassword()
+  const { messageConfirm, setMessageConfirm, isLoading } = useResetPassword()
 
   useEffect(() => {
     if (messageConfirm) {
@@ -31,6 +32,7 @@ const AuthenticadorPage = () => {
     <div
       className={`scrollbar-invisible flex min-h-screen w-[calc(100vw-10px)] flex-col overflow-hidden bg-[linear-gradient(to_right,#f5f3ff,#fdf2f8,#eef2ff,#ffffff)]`}
     >
+      <LoadingOverlay isLoading={isLoading} />
       <main className="flex flex-1 items-center justify-center px-4 py-8 sm:py-12">
         <div className="h-auto w-full max-w-5xl tm:h-[1100px]">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
@@ -151,15 +153,10 @@ const AuthenticadorPage = () => {
                       />
                     </motion.div>
                   ) : (
-                    <motion.div
-                      key="registerFinally"
-                      initial={{ opacity: 0, y: 40 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -40 }}
-                      transition={{ duration: 0.45, ease: 'easeOut' }}
-                    >
-                      <RegisterFinally firstStepData={firstStepData} />
-                    </motion.div>
+                    <AnalysisRegister
+                      firstStepData={firstStepData}
+                      setShowConfirmPass={setShowConfirmPass}
+                    />
                   )}
                 </AnimatePresence>
               </div>

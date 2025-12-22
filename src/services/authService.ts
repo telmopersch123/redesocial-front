@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { UserTypeSearch } from '../types'
+import type { UserTypeSearch, ValidedCodeResponse } from '../types'
 
 export async function logoutUser(): Promise<boolean> {
   try {
@@ -82,6 +82,51 @@ export function useUserSearch() {
   return { setQuery, query, results }
 }
 
+export async function sendCodigoToEmailRegister(email: string) {
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/auth/send-code-register`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      }
+    )
+
+    if (!res.ok) {
+      return false
+    }
+
+    return true
+  } catch (err) {
+    console.log(err)
+  }
+}
+export async function valided_code_register(
+  email: string,
+  code: string
+): Promise<ValidedCodeResponse | null | undefined> {
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/auth/validate-code-register`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code }),
+      }
+    )
+
+    if (!res.ok) {
+      return null
+    }
+    const data = await res.json()
+
+    return { resetToken: data.resetToken }
+  } catch (err) {
+    console.log(err)
+  }
+}
+
 export async function sendCodigoToEmail(email: string) {
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/send-code`, {
@@ -91,14 +136,13 @@ export async function sendCodigoToEmail(email: string) {
     })
 
     if (!res.ok) {
-      throw new Error('Erro ao enviar o email')
+      return false
     }
+
+    return true
   } catch (err) {
     console.log(err)
   }
-}
-interface ValidedCodeResponse {
-  resetToken: string
 }
 export async function valided_code(
   email: string,
@@ -118,6 +162,7 @@ export async function valided_code(
       return null
     }
     const data = await res.json()
+
     return { resetToken: data.resetToken }
   } catch (err) {
     console.log(err)

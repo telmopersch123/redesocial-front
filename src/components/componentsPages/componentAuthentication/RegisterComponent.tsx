@@ -16,10 +16,12 @@ import {
 import { Checkbox } from '../../../components/ui/checkbox'
 import { Input } from '../../../components/ui/input'
 import { Label } from '../../../components/ui/label'
+import { useResetPassword } from '../../../context/ResetPasswordContext'
 import {
   registerSchema,
   type RegisterFormData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
+import { sendCodigoToEmailRegister } from '../../../services/authService'
 import { RadioGroup, RadioGroupItem } from '../../ui/radio-group'
 interface RegisterComponentProps {
   onSwitchToLogin: () => void
@@ -41,6 +43,7 @@ const RegisterComponent = ({
     register,
     handleSubmit,
     watch,
+    setError,
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -55,11 +58,12 @@ const RegisterComponent = ({
   })
   const [showPassword, setShowPassword] = useState(false)
   const [focusPassword, setFocusPassword] = useState(false)
-
+  const { setIsLoading, setEmail } = useResetPassword()
   const password = watch('password', '')
 
   async function onSubmit(data: RegisterFormData) {
     try {
+      setIsLoading(true)
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/register/validate`,
         {
@@ -71,17 +75,26 @@ const RegisterComponent = ({
 
       if (!res.ok) {
         const error = await res.json()
-        throw new Error(error.message || 'Erro ao validar cadastro')
+        setError('email', {
+          type: 'server',
+          message: error.message || 'E-mail inválido',
+        })
+
+        return
       }
 
       if (res.ok) {
-        console.log('Cadastro avançado com sucesso!')
+        const response = await sendCodigoToEmailRegister(data.email)
+        if (!response) throw new Error('Erro ao enviar o email')
+        setEmail(data.email)
+        setFirstStepData(data)
+        setShowConfirmPass(true)
       }
-
-      setFirstStepData(data)
-      setShowConfirmPass(true)
     } catch (error) {
+      setIsLoading(false)
       console.log(error)
+    } finally {
+      setIsLoading(false)
     }
   }
 

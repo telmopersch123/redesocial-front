@@ -33,7 +33,8 @@ const ForgotPassword = ({
   const [hiddenCode, setHiddenCode] = useState<boolean>(false)
   const [verificationCode, setVerificationCode] = useState(['', '', '', ''])
   const timerRef = useRef<number | null>(null)
-  const { setEmail, setCode, setToken } = useResetPassword()
+  const { setEmail, setCode, setToken, setIsLoading } = useResetPassword()
+  const [showMessage, setShowMessage] = useState<boolean>(false)
 
   const codeRefs = Array.from({ length: 4 }, () =>
     useRef<HTMLInputElement>(null)
@@ -90,21 +91,25 @@ const ForgotPassword = ({
     const codeStr = verificationCode.join('')
     if (codeStr.length < 4) {
       if (timerForgot === 0) {
+        await sendCodigoToEmail(data.email)
         handleClickForgotPassword()
         setEmail(data.email)
-        await sendCodigoToEmail(data.email)
         setHiddenCode(true)
+        setShowMessage(false)
       }
       return
     }
     try {
+      setIsLoading(true)
       const result = await valided_code(data.email, codeStr)
       setToken(result?.resetToken)
+
       if (result) {
         setCode(codeStr)
         setPermissionCode(true)
       } else {
         setPermissionCode(false)
+
         alertMessage(
           ' Código inválido',
           '  Verifique seu e-mail, enviamos um código para você.',
@@ -118,7 +123,10 @@ const ForgotPassword = ({
         null,
         'error'
       )
+      setIsLoading(false)
       setPermissionCode(false)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -152,7 +160,7 @@ const ForgotPassword = ({
               <p className="text-red-500">{errors.email.message}</p>
             )}
           </div>
-          {hiddenCode && (
+          {hiddenCode ? (
             <div className="space-y-3 rounded-xl border border-purple-200/40 bg-gradient-to-br from-purple-50/60 to-purple-100/20 p-4 shadow-lg shadow-purple-200/20 backdrop-blur-sm duration-300 animate-in fade-in zoom-in">
               <Label
                 htmlFor="code"
@@ -180,10 +188,21 @@ const ForgotPassword = ({
                 Um código foi enviado para o seu e-mail.
               </p>
             </div>
+          ) : (
+            <>
+              {showMessage && (
+                <div className="rounded-xl border border-purple-300/40 bg-gradient-to-br from-purple-50/60 to-purple-100/20 p-4 shadow-lg shadow-purple-200/20 backdrop-blur-sm animate-in fade-in zoom-in">
+                  <p className="text-center text-sm font-medium text-purple-900 sm:text-base">
+                    Enviaremos um código de verificação para o seu e-mail.
+                  </p>
+                </div>
+              )}
+            </>
           )}
 
           <Button
             type="submit"
+            onClick={() => setShowMessage(true)}
             disabled={
               verificationCode.some((digit) => digit === '') && timerForgot > 0
             }

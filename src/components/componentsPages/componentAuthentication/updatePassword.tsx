@@ -5,16 +5,6 @@ import { useForm } from 'react-hook-form'
 import { Eye, EyeOff } from 'lucide-react'
 
 import { PasswordRequirements } from '../../../auth/PasswordRequirements'
-import { Button } from '../../../components/ui/button'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '../../../components/ui/card'
-import { Input } from '../../../components/ui/input'
-import { Label } from '../../../components/ui/label'
 import { useResetPassword } from '../../../context/ResetPasswordContext'
 import {
   resetSchema,
@@ -22,6 +12,16 @@ import {
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 import { resetPasswordCod } from '../../../services/authService'
 import { alertMessage } from '../../../utils/components/alertMensage'
+import { Button } from '../../ui/button'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '../../ui/card'
+import { Input } from '../../ui/input'
+import { Label } from '../../ui/label'
 import { hasMinLength, hasNumber, hasSpecialChar } from './RegisterComponent'
 interface ResetPassWordProps {
   setPermissionCode: (value: boolean) => void
@@ -36,7 +36,7 @@ const ResetPasswordComponent = ({
 }: ResetPassWordProps) => {
   const [showPassword, setShowPassword] = useState(false)
   const [focusPassword, setFocusPassword] = useState(false)
-  const { email, token, setMessageConfirm } = useResetPassword()
+  const { email, token, setMessageConfirm, setIsLoading } = useResetPassword()
 
   const {
     register,
@@ -48,22 +48,28 @@ const ResetPasswordComponent = ({
   })
   const password = watch('password', '')
   const onSubmit = async (data: ResetFormData) => {
-    console.log(data)
-    const success = await resetPasswordCod(token, email, data.password)
-
-    if (!success) {
-      alertMessage(
-        'Ops! algo deu errado',
-        'Por favor, tente novamente mais tarde',
-        'error'
-      )
-      setMessageConfirm(false)
-    }
-    if (success) {
-      setIsLogin(true)
-      setPermissionCode(false)
-      setForgotPassword(false)
-      setMessageConfirm(true)
+    try {
+      setIsLoading(true)
+      const success = await resetPasswordCod(token, email, data.password)
+      if (!success) {
+        alertMessage(
+          'Ops! algo deu errado',
+          'Por favor, tente novamente mais tarde',
+          'error'
+        )
+        setMessageConfirm(false)
+      }
+      if (success) {
+        setIsLogin(true)
+        setPermissionCode(false)
+        setForgotPassword(false)
+        setMessageConfirm(true)
+      }
+    } catch (err) {
+      setIsLoading(false)
+      console.log(err)
+    } finally {
+      setIsLoading(false)
     }
   }
 

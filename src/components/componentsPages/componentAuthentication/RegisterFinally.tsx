@@ -3,7 +3,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { AtSign, CheckCircle } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
-import { useNavigate } from 'react-router-dom'
 import { Button } from '../../../components/ui/button'
 import {
   Card,
@@ -15,6 +14,7 @@ import {
 } from '../../../components/ui/card'
 import { Input } from '../../../components/ui/input'
 import { Label } from '../../../components/ui/label'
+import { useResetPassword } from '../../../context/ResetPasswordContext'
 import {
   usernameSchema,
   type UsernameFormData,
@@ -25,11 +25,12 @@ interface RegisterFormData {
 }
 
 const RegisterFinally = ({ firstStepData }: RegisterFormData) => {
-  const navigate = useNavigate()
+  const { setIsLoading, isLoading } = useResetPassword()
   const {
     register,
     handleSubmit,
     watch,
+    setError,
     formState: { errors },
   } = useForm<UsernameFormData>({
     resolver: zodResolver(usernameSchema),
@@ -42,6 +43,7 @@ const RegisterFinally = ({ firstStepData }: RegisterFormData) => {
 
   async function onSubmit(data: UsernameFormData) {
     try {
+      setIsLoading(true)
       const resCheck = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/username/check`,
         {
@@ -77,16 +79,24 @@ const RegisterFinally = ({ firstStepData }: RegisterFormData) => {
 
       if (!resRegister.ok) {
         const error = await resRegister.json()
-        throw new Error(error.message || 'Erro ao criar usuário')
+        setError('name_at', {
+          type: 'server',
+          message: error.message || 'Nome indisponível. Tente outro!',
+        })
+
+        return
       }
 
       if (resRegister.ok) {
         console.log('Cadastro criado com sucesso!')
       }
 
-      navigate('/')
+      window.location.href = '/'
     } catch (error) {
+      setIsLoading(false)
       console.log(error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -121,9 +131,10 @@ const RegisterFinally = ({ firstStepData }: RegisterFormData) => {
               />
             </div>
 
-            {username && !errors.name_at && (
+            {username && !errors.name_at && !isLoading && (
               <p className="flex items-center gap-1 text-sm text-green-600">
-                <CheckCircle className="h-4 w-4" />@{username} está disponível
+                <CheckCircle className="h-4 w-4" />@{username} atende aos
+                requisitos da comunidade
               </p>
             )}
 
