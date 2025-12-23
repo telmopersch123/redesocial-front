@@ -21,7 +21,8 @@ import {
   registerSchema,
   type RegisterFormData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
-import { sendCodigoToEmailRegister } from '../../../services/authService'
+
+import { sendVerificationEmail } from '../../../services/authService'
 import { RadioGroup, RadioGroupItem } from '../../ui/radio-group'
 interface RegisterComponentProps {
   onSwitchToLogin: () => void
@@ -63,13 +64,20 @@ const RegisterComponent = ({
 
   async function onSubmit(data: RegisterFormData) {
     try {
+      const payload = {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        sexo: data.sexo,
+        terms: data.terms,
+      }
       setIsLoading(true)
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/register/validate`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
+          body: JSON.stringify(payload),
         }
       )
 
@@ -84,7 +92,7 @@ const RegisterComponent = ({
       }
 
       if (res.ok) {
-        const response = await sendCodigoToEmailRegister(data.email)
+        const response = await sendVerificationEmail(data.email)
         if (!response) throw new Error('Erro ao enviar o email')
         setEmail(data.email)
         setFirstStepData(data)

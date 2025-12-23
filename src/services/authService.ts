@@ -82,49 +82,36 @@ export function useUserSearch() {
   return { setQuery, query, results }
 }
 
-export async function sendCodigoToEmailRegister(email: string) {
-  try {
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/auth/send-code-register`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      }
-    )
-
-    if (!res.ok) {
-      return false
+export async function sendVerificationEmail(email: string): Promise<boolean> {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/send-verification-email`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
     }
+  )
 
-    return true
-  } catch (err) {
-    console.log(err)
-  }
+  return res.ok
 }
-export async function valided_code_register(
+
+export async function verifyEmailCode(
   email: string,
   code: string
-): Promise<ValidedCodeResponse | null | undefined> {
-  try {
-    const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/auth/validate-code-register`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code }),
-      }
-    )
-
-    if (!res.ok) {
-      return null
+): Promise<string | null> {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/verify-email-code`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code }),
     }
-    const data = await res.json()
+  )
 
-    return { resetToken: data.resetToken }
-  } catch (err) {
-    console.log(err)
-  }
+  if (!res.ok) return null
+
+  const data = await res.json()
+  return data.registerToken
 }
 
 export async function sendCodigoToEmail(email: string) {

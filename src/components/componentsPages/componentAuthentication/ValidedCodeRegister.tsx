@@ -1,10 +1,10 @@
 import { Clock, CornerUpLeft } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useResetPassword } from '../../../context/ResetPasswordContext'
-import type { ForgotPasswordData } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
+
 import {
-  sendCodigoToEmailRegister,
-  valided_code_register,
+  sendVerificationEmail,
+  verifyEmailCode,
 } from '../../../services/authService'
 import { alertMessage } from '../../../utils/components/alertMensage'
 import { Button } from '../../ui/button'
@@ -32,7 +32,7 @@ const ValidatedCodeRegister = ({
 
   const timerRef = useRef<number | null>(null)
 
-  const { email, setIsLoading } = useResetPassword()
+  const { email, setIsLoading, setRegisterToken } = useResetPassword()
 
   const codeRefs = Array.from({ length: 4 }, () =>
     useRef<HTMLInputElement>(null)
@@ -75,18 +75,18 @@ const ValidatedCodeRegister = ({
     }, 1000)
   }
 
-  async function handleValidateCode(data: ForgotPasswordData) {
+  async function handleValidateCode() {
     const codeStr = verificationCode.join('')
     if (codeStr.length < 4) {
       if (timerForgot === 0) {
-        await sendCodigoToEmailRegister(data.email)
+        await sendVerificationEmail(email)
         handleClickForgotPassword()
       }
       return
     }
     try {
       setIsLoading(true)
-      const result = await valided_code_register(email, codeStr)
+      const result = await verifyEmailCode(email, codeStr)
 
       if (!result) {
         alertMessage(
@@ -98,6 +98,7 @@ const ValidatedCodeRegister = ({
       }
 
       setShowConfirmPass(true)
+      setRegisterToken(result)
       setAnalysisSituation(true)
     } catch (err) {
       alertMessage(
@@ -169,7 +170,7 @@ const ValidatedCodeRegister = ({
         </div>
 
         <Button
-          onClick={() => handleValidateCode({ email })}
+          onClick={() => handleValidateCode()}
           disabled={
             verificationCode.some((digit) => digit === '') && timerForgot > 0
           }
