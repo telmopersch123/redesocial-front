@@ -36,7 +36,7 @@ const ResetPasswordComponent = ({
 }: ResetPassWordProps) => {
   const [showPassword, setShowPassword] = useState(false)
   const [focusPassword, setFocusPassword] = useState(false)
-  const { email, token, setMessageConfirm, setIsLoading } = useResetPassword()
+  const { email, setMessageConfirm, setIsLoading } = useResetPassword()
 
   const {
     register,
@@ -50,7 +50,7 @@ const ResetPasswordComponent = ({
   const onSubmit = async (data: ResetFormData) => {
     try {
       setIsLoading(true)
-      const success = await resetPasswordCod(token, email, data.password)
+      const success = await resetPasswordCod(email, data.password)
       if (!success) {
         alertMessage(
           'Ops! algo deu errado',

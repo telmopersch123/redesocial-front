@@ -33,10 +33,10 @@ const ForgotPassword = ({
   const [hiddenCode, setHiddenCode] = useState<boolean>(false)
   const [verificationCode, setVerificationCode] = useState(['', '', '', ''])
   const timerRef = useRef<number | null>(null)
-  const { setEmail, setCode, setToken, setIsLoading } = useResetPassword()
+  const { setEmail, setCode, setIsLoading } = useResetPassword()
   const [showMessage, setShowMessage] = useState<boolean>(false)
 
-  const codeRefs = Array.from({ length: 4 }, () =>
+  const codeRefs = Array.from({ length: 6 }, () =>
     useRef<HTMLInputElement>(null)
   )
   const {
@@ -60,7 +60,7 @@ const ForgotPassword = ({
     newCode[index] = value
     setVerificationCode(newCode)
 
-    if (value.length === 1 && index < 3) {
+    if (value.length === 1 && index < 5) {
       codeRefs[index + 1].current?.focus()
     }
 
@@ -89,7 +89,7 @@ const ForgotPassword = ({
 
   async function onSubmit(data: ForgotPasswordData) {
     const codeStr = verificationCode.join('')
-    if (codeStr.length < 4) {
+    if (codeStr.length < 6) {
       if (timerForgot === 0) {
         await sendCodigoToEmail(data.email)
         handleClickForgotPassword()
@@ -102,7 +102,6 @@ const ForgotPassword = ({
     try {
       setIsLoading(true)
       const result = await valided_code(data.email, codeStr)
-      setToken(result?.resetToken)
 
       if (result) {
         setCode(codeStr)
@@ -170,7 +169,7 @@ const ForgotPassword = ({
               </Label>
 
               <div className="flex justify-center gap-3">
-                {Array.from({ length: 4 }).map((_, i) => (
+                {Array.from({ length: 6 }).map((_, i) => (
                   <Input
                     key={i}
                     ref={codeRefs[i]}

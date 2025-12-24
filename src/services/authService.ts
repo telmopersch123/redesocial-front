@@ -141,6 +141,7 @@ export async function valided_code(
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, code }),
       }
     )
@@ -156,18 +157,16 @@ export async function valided_code(
   }
 }
 
-export async function resetPasswordCod(
-  resetToken: string | undefined,
-  email: string,
-  newPassword: string
-) {
+export async function resetPasswordCod(email: string, newPassword: string) {
   try {
+    console.log(email, newPassword)
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/auth/reset-password`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ resetToken, email, newPassword }),
+        credentials: 'include',
+        body: JSON.stringify({ email, newPassword }),
       }
     )
 
