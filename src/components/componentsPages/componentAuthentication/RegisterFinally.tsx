@@ -21,14 +21,16 @@ import {
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 
 interface RegisterFormData {
-  firstStepData: {
-    password: string
-    name: string
-  }
+  firstStepData: FirstStepData
+}
+
+export type FirstStepData = {
+  password: string
+  name: string
 }
 
 const RegisterFinally = ({ firstStepData }: RegisterFormData) => {
-  const { setIsLoading, isLoading, registerToken } = useResetPassword()
+  const { setIsLoading, isLoading } = useResetPassword()
   const {
     register,
     handleSubmit,
@@ -65,13 +67,7 @@ const RegisterFinally = ({ firstStepData }: RegisterFormData) => {
         console.log('Username disponível')
       }
 
-      if (!registerToken) {
-        alert('Sessão de registro inválida. Refaça o processo.')
-        return
-      }
-
       const registerData = {
-        registerToken,
         name: firstStepData.name,
         password: firstStepData.password,
         name_at: data.name_at,

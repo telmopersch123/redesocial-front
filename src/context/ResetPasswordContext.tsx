@@ -12,8 +12,6 @@ type ResetPasswordContextData = {
   clear: () => void
   setIsLoading: (isLoading: boolean) => void
   isLoading: boolean
-  setRegisterToken: React.Dispatch<React.SetStateAction<string | null>>
-  registerToken: string | null
 }
 
 const ResetPasswordContext = createContext<ResetPasswordContextData | null>(
@@ -26,7 +24,6 @@ export function ResetPasswordProvider({ children }: { children: ReactNode }) {
 
   const [messageConfirm, setMessageConfirm] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [registerToken, setRegisterToken] = useState<string | null>(null)
 
   function clear() {
     setEmail('')
@@ -47,8 +44,6 @@ export function ResetPasswordProvider({ children }: { children: ReactNode }) {
         clear,
         setIsLoading,
         isLoading,
-        registerToken,
-        setRegisterToken,
       }}
     >
       {children}

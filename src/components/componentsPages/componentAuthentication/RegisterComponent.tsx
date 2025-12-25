@@ -77,6 +77,7 @@ const RegisterComponent = ({
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(payload),
         }
       )
@@ -92,8 +93,7 @@ const RegisterComponent = ({
       }
 
       if (res.ok) {
-        const response = await sendVerificationEmail(data.email)
-        if (!response) throw new Error('Erro ao enviar o email')
+        await sendVerificationEmail(data.email)
         setEmail(data.email)
         setFirstStepData(data)
         setShowConfirmPass(true)

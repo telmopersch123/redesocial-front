@@ -28,13 +28,20 @@ const ValidatedCodeRegister = ({
   setAnalysisSituation,
 }: ValidatedCodeRegisterProps) => {
   const [timerForgot, setTimerForgot] = useState<number>(0)
-  const [verificationCode, setVerificationCode] = useState(['', '', '', ''])
+  const [verificationCode, setVerificationCode] = useState([
+    '',
+    '',
+    '',
+    '',
+    '',
+    '',
+  ])
 
   const timerRef = useRef<number | null>(null)
 
-  const { email, setIsLoading, setRegisterToken } = useResetPassword()
+  const { email, setIsLoading } = useResetPassword()
 
-  const codeRefs = Array.from({ length: 4 }, () =>
+  const codeRefs = Array.from({ length: 6 }, () =>
     useRef<HTMLInputElement>(null)
   )
 
@@ -48,7 +55,7 @@ const ValidatedCodeRegister = ({
     newCode[index] = value
     setVerificationCode(newCode)
 
-    if (value.length === 1 && index < 3) {
+    if (value.length === 1 && index < 5) {
       codeRefs[index + 1].current?.focus()
     }
 
@@ -77,7 +84,7 @@ const ValidatedCodeRegister = ({
 
   async function handleValidateCode() {
     const codeStr = verificationCode.join('')
-    if (codeStr.length < 4) {
+    if (codeStr.length < 6) {
       if (timerForgot === 0) {
         await sendVerificationEmail(email)
         handleClickForgotPassword()
@@ -98,7 +105,7 @@ const ValidatedCodeRegister = ({
       }
 
       setShowConfirmPass(true)
-      setRegisterToken(result)
+
       setAnalysisSituation(true)
     } catch (err) {
       alertMessage(

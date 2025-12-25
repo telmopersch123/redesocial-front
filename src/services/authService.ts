@@ -82,36 +82,26 @@ export function useUserSearch() {
   return { setQuery, query, results }
 }
 
-export async function sendVerificationEmail(email: string): Promise<boolean> {
-  const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/send-verification-email`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    }
-  )
-
-  return res.ok
+export async function sendVerificationEmail(email: string): Promise<void> {
+  await fetch(`${import.meta.env.VITE_API_URL}/auth/send-verification-email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  })
 }
 
-export async function verifyEmailCode(
-  email: string,
-  code: string
-): Promise<string | null> {
+export async function verifyEmailCode(email: string, code: string) {
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/verify-email-code`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ email, code }),
     }
   )
 
-  if (!res.ok) return null
-
-  const data = await res.json()
-  return data.registerToken
+  return res.ok
 }
 
 export async function sendCodigoToEmail(email: string) {

@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { useState } from 'react'
-import RegisterFinally from './RegisterFinally'
+import RegisterFinally, { type FirstStepData } from './RegisterFinally'
 import ValidatedCodeRegister from './ValidedCodeRegister'
 
 interface PermissionCodeProps {
@@ -22,7 +22,7 @@ export const AnalysisRegister = ({
       exit={{ opacity: 0, y: -40 }}
       transition={{ duration: 0.45, ease: 'easeOut' }}
     >
-      <RegisterFinally firstStepData={firstStepData} />
+      <RegisterFinally firstStepData={firstStepData as FirstStepData} />
     </motion.div>
   ) : (
     <motion.div
