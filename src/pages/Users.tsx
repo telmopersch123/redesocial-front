@@ -12,8 +12,9 @@ import { Label } from '../components/ui/label'
 import { useUserSearch } from '../services/authService'
 
 const Users = () => {
-  const { setQuery, query, results: usersSurveyed } = useUserSearch()
+  const { setQuery, results: usersSurveyed } = useUserSearch()
   const [inputValue, setInputValue] = useState('')
+  console.log(usersSurveyed)
 
   const searchUsers = (event?: React.KeyboardEvent<HTMLInputElement>) => {
     if (event && event.key !== 'Enter') return
@@ -80,8 +81,8 @@ const Users = () => {
                   <Card className="group flex flex-col items-center gap-5 rounded-2xl border border-transparent bg-white/90 p-5 shadow-md transition-all duration-300 hover:border-purple-300 hover:bg-purple-50/50 hover:shadow-lg dark:bg-zinc-800/70 dark:hover:border-purple-700 dark:hover:bg-purple-900/30 om:flex-row">
                     <div className="flex w-full items-center justify-between gap-3">
                       <Avatar className="h-16 w-16 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800">
-                        {user.image ? (
-                          <AvatarImage src={user.image} alt={user.name_at} />
+                        {user.avatar ? (
+                          <AvatarImage src={user.avatar} alt={user.name_at} />
                         ) : (
                           <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md dark:from-purple-600 dark:to-pink-600">
                             <User className="h-8 w-8" />

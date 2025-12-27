@@ -62,7 +62,7 @@ export type UserType = {
 export type UserTypeSearch = {
   id: number
   name_at: string
-  image?: string
+  avatar?: string
   friendsCount: number
 }
 export interface ResetPassWordProps {

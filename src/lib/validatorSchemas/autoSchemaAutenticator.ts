@@ -84,13 +84,56 @@ export const configCommunitySchema = z.object({
   category: z.string().min(1, 'Selecione uma categoria'),
 })
 
-export const postDialogSchema = z.object({
-  feeling: z.string().min(1, 'Selecione um sentimento'),
-  description: z
-    .string()
-    .min(10, 'Descrição muito curta, escreva pelo menos 10 caracteres')
-    .max(5000, 'Descrição muito longa'),
-})
+export const postDialogSchema = z
+  .object({
+    feeling: z.string().min(1, 'Selecione um sentimento'),
+    description: z
+      .string()
+      .min(10, 'Descrição muito curta, escreva pelo menos 10 caracteres')
+      .max(5000, 'Descrição muito longa'),
+    tags: z
+      .array(z.string().min(1))
+      .max(10, 'Você pode adicionar no máximo 10 tags')
+      .optional(),
+    media: z
+      .object({
+        url: z.string().refine(
+          (val) => {
+            try {
+              new URL(val)
+              return true
+            } catch {
+              return false
+            }
+          },
+          { message: 'URL de mídia inválida' }
+        ),
+        type: z.enum(['image', 'video']),
+      })
+      .optional()
+      .nullable(),
+
+    destination: z
+      .object({
+        type: z.enum(['geral', 'comunidade']),
+        communityId: z.number().int().positive().nullable().optional(),
+      })
+      .optional(),
+    anonymous: z.boolean().optional(),
+  })
+  .superRefine((data, ctx) => {
+    // regra condicional: se for comunidade, precisa de communityId
+    if (
+      data.destination?.type === 'comunidade' &&
+      !data.destination.communityId
+    ) {
+      ctx.addIssue({
+        path: ['destination', 'communityId'],
+        message: 'Selecione uma comunidade',
+        code: 'custom',
+      })
+    }
+  })
 
 export const usernameSchema = z.object({
   name_at: z

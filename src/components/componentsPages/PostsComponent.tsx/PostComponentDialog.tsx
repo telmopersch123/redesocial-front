@@ -44,6 +44,7 @@ const PostComponentDialog = ({
   onOpenChange,
   typePost,
 }: PostProp) => {
+  if (valuePost === undefined) return null
   const scrollRef = useRef<HTMLDivElement>(null)
   const { getMatches, sugestoes, setActiveInputId, activeInputId } =
     useMentionLogic()

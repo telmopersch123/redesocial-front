@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { postsFicticiosGlobal } from '../../../../pages/FeedPage'
+
 import type { Post } from '../../../../types'
 import { Button } from '../../../ui/button'
 import {
@@ -13,7 +13,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../../ui/dialog'
-import PostComponentDialog from '../../PostsComponent.tsx/PostComponentDialog'
 
 import { ActivityComponent } from './AcitivyComponent'
 import NavbarConfig from './NavbarConfigComponent'
@@ -72,7 +71,7 @@ export function ConfigDialog({
   setNomeUser,
 }: DialogConfigProps) {
   const [novoComentario, setNovoComentario] = useState('')
-  const [posts, setPosts] = useState<Post[]>([postsFicticiosGlobal[2]])
+  const [posts, setPosts] = useState<Post[]>()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [notifications, setNotifications] = useState(true)
   const [darkMode, setDarkMode] = useState(false)
@@ -162,7 +161,7 @@ export function ConfigDialog({
           )}
         </DialogContent>
       </Dialog>
-      {posts.map((valuePost) => (
+      {/* {posts.map((valuePost) => (
         <div key={valuePost.id} className="absolute hidden">
           <PostComponentDialog
             valuePost={valuePost}
@@ -174,7 +173,7 @@ export function ConfigDialog({
             onOpenChange={setDialogOpen}
           />
         </div>
-      ))}
+      ))} */}
     </>
   )
 }

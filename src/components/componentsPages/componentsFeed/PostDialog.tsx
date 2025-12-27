@@ -35,38 +35,27 @@ import FullscreenDialog from './FullscreenDialog'
 
 export function PostDialog() {
   const { isOpen, close, postCommunity } = useCriarPostDialog()
-  const [anonimo, setAnonimo] = useState(false)
+
   const [uploadType, setUploadType] = useState<'image' | 'video' | null>(null)
   const [file, setFile] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [typeError, setTypeError] = useState('')
-  const [postDestino, setPostDestino] = useState<'geral' | 'comunidade'>(() =>
-    postCommunity ? 'comunidade' : 'geral'
-  )
+
   const [tagInput, setTagInput] = useState<string>('')
   const [tags, setTags] = useState<string[]>([])
   const { value, error, handleChange, maxLength } = useLimitForms(5000)
-  const [comunidadeSelecionada, setComunidadeSelecionada] = useState<
-    string | null
-  >(null)
   const {
     control,
-    register,
+    handleSubmit,
     setValue,
+    watch,
     formState: { errors, isValid },
   } = useForm<PostDialogSchema>({
     resolver: zodResolver(postDialogSchema),
     mode: 'onChange',
   })
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    if (postCommunity) {
-      setPostDestino('comunidade')
-    } else {
-      setPostDestino('geral')
-    }
-  }, [postCommunity])
+  const destinationType = watch('destination.type')
 
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && tagInput.trim() !== '') {
@@ -83,30 +72,63 @@ export function PostDialog() {
       setTags([...tags, tagInput.trim()])
       setTypeError('')
       setTagInput('')
+
+      setValue('tags', [...tags, tagInput.trim()], {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
     }
   }
   const handleRemoveTag = (tag: string) => {
-    setTags(tags.filter((t) => t !== tag))
+    const newTags = tags.filter((t) => t !== tag)
+
+    setTags(newTags)
+
+    setValue('tags', newTags.length ? newTags : undefined, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
   }
   const handleSelectType = (type: 'image' | 'video') => {
     setUploadType(type)
     setFile(null)
+    setValue('media', null, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
     if (fileInputRef.current) fileInputRef.current.value = ''
     setTimeout(() => fileInputRef.current?.click(), 100)
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      const previewURL = URL.createObjectURL(file)
-      setFile(previewURL)
-    }
+    if (!file || !uploadType) return
+    const previewURL = URL.createObjectURL(file)
+    setFile(previewURL)
+
+    setValue(
+      'media',
+      {
+        type: uploadType,
+        url: previewURL,
+      },
+      {
+        shouldDirty: true,
+        shouldValidate: true,
+      }
+    )
   }
 
   const removeFile = () => {
     if (file) URL.revokeObjectURL(file)
     setFile(null)
     setUploadType(null)
+
+    setValue('media', null, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+    if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
   const handleCloseDialog = () => {
@@ -114,12 +136,27 @@ export function PostDialog() {
     setFile(null)
     setUploadType(null)
     setIsFullscreen(false)
-    setAnonimo(false)
 
-    setComunidadeSelecionada(null)
+    setValue('tags', undefined, {
+      shouldDirty: false,
+      shouldValidate: false,
+    })
 
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
+
+  const onSubmit = (data: PostDialogSchema) => {
+    console.log(data)
+  }
+
+  useEffect(() => {
+    if (destinationType === 'geral') {
+      setValue('destination.communityId', null, {
+        shouldValidate: true,
+        shouldDirty: true,
+      })
+    }
+  }, [destinationType, setValue])
 
   return (
     <>
@@ -135,8 +172,8 @@ export function PostDialog() {
           }
         }}
       >
-        <form>
-          <DialogContent className="!z-40 w-[95%] !overflow-y-auto rounded-2xl bg-white p-6 shadow-xl dark:bg-[#1a1a1a] dark:shadow-black/60 sm:max-w-[520px]">
+        <DialogContent className="!z-40 w-[95%] !overflow-y-auto rounded-2xl bg-white p-6 shadow-xl dark:bg-[#1a1a1a] dark:shadow-black/60 sm:max-w-[520px]">
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="max-h-[80vh] overflow-y-auto p-6">
               <DialogHeader className="space-y-2 text-center">
                 <DialogTitle asChild>
@@ -204,19 +241,26 @@ export function PostDialog() {
                   >
                     O que está no seu coração?
                   </Label>
-                  <Textarea
-                    {...register('description')}
-                    id="pensamentos"
-                    value={value}
-                    onChange={(e) => {
-                      handleChange(e)
-                      setValue('description', e.target.value, {
-                        shouldValidate: true,
-                      })
-                    }}
-                    placeholder="Escreva seus pensamentos, sentimentos ou o que quiser compartilhar..."
-                    className="min-h-[120px] resize-none rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-900 shadow-sm transition-all hover:border-[#a5c9ff]/40 focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#242424] dark:text-zinc-100"
+
+                  <Controller
+                    name="description"
+                    control={control}
+                    render={({ field }) => (
+                      <Textarea
+                        {...field}
+                        value={value}
+                        onChange={(e) => {
+                          handleChange(e)
+                          setValue('description', e.target.value, {
+                            shouldValidate: true,
+                          })
+                        }}
+                        placeholder="Escreva seus pensamentos, sentimentos ou o que quiser compartilhar..."
+                        className="min-h-[120px] resize-none rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-900 shadow-sm transition-all hover:border-[#a5c9ff]/40 focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#242424] dark:text-zinc-100"
+                      />
+                    )}
                   />
+
                   {errors.description && (
                     <p className="mt-1 text-xs text-red-500">
                       {errors.description.message}
@@ -233,51 +277,59 @@ export function PostDialog() {
                   <Label className="text-sm font-medium text-gray-800 dark:text-zinc-200">
                     Onde deseja publicar?
                   </Label>
-                  <Select
-                    defaultValue={'comunidade'}
-                    value={postDestino}
-                    onValueChange={(v: 'geral' | 'comunidade') =>
-                      setPostDestino(v)
-                    }
-                  >
-                    <SelectTrigger className="rounded-lg border border-gray-300 bg-white shadow-sm focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-zinc-100">
-                      <SelectValue placeholder="Escolha o destino do post" />
-                    </SelectTrigger>
-                    <SelectContent className="dark:bg-[#2a2a2a] dark:text-zinc-100">
-                      <SelectItem disabled={postCommunity} value="geral">
-                        🌍 Post geral (todos podem ver)
-                      </SelectItem>
-                      <SelectItem value="comunidade">
-                        👥 Post em uma comunidade
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Controller
+                    name="destination.type"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger className="rounded-lg border border-gray-300 bg-white shadow-sm focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-zinc-100">
+                          <SelectValue placeholder="Escolha o destino do post" />
+                        </SelectTrigger>
+                        <SelectContent className="dark:bg-[#2a2a2a] dark:text-zinc-100">
+                          <SelectItem disabled={postCommunity} value="geral">
+                            🌍 Post geral (todos podem ver)
+                          </SelectItem>
+                          <SelectItem value="comunidade">
+                            👥 Post em uma comunidade
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
 
-                  {postDestino === 'comunidade' && (
+                  {destinationType === 'comunidade' && (
                     <div className="mt-2 flex flex-col gap-2 transition-all">
                       <Label className="text-sm font-medium text-gray-700 dark:text-zinc-200">
                         Escolha uma comunidade
                       </Label>
-                      <Select
-                        value={comunidadeSelecionada || undefined}
-                        onValueChange={setComunidadeSelecionada}
-                      >
-                        <SelectTrigger className="rounded-lg border border-gray-300 bg-white shadow-sm focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-zinc-100">
-                          <SelectValue placeholder="Selecione uma comunidade" />
-                        </SelectTrigger>
-                        <SelectContent className="dark:bg-[#2a2a2a] dark:text-zinc-100">
-                          <SelectItem value="mindfulness">
-                            🌸 Mindfulness
-                          </SelectItem>
-                          <SelectItem value="autoajuda">
-                            💬 Autoajuda & Reflexão
-                          </SelectItem>
-                          <SelectItem value="fe">
-                            ✨ Fé & Espiritualidade
-                          </SelectItem>
-                          <SelectItem value="bemestar">🌿 Bem-estar</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Controller
+                        name="destination.communityId"
+                        control={control}
+                        render={({ field }) => (
+                          <Select
+                            value={field.value?.toString()}
+                            onValueChange={(v) => field.onChange(Number(v))}
+                          >
+                            <SelectTrigger className="rounded-lg border border-gray-300 bg-white shadow-sm focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-zinc-100">
+                              <SelectValue placeholder="Selecione uma comunidade" />
+                            </SelectTrigger>
+                            <SelectContent className="dark:bg-[#2a2a2a] dark:text-zinc-100">
+                              <SelectItem value="1">🌸 Mindfulness</SelectItem>
+                              <SelectItem value="2">
+                                💬 Autoajuda & Reflexão
+                              </SelectItem>
+                              <SelectItem value="3">
+                                ✨ Fé & Espiritualidade
+                              </SelectItem>
+                              <SelectItem value="4">🌿 Bem-estar</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
                     </div>
                   )}
                 </div>
@@ -427,11 +479,17 @@ export function PostDialog() {
                       Seu nome não será exibido.
                     </p>
                   </div>
-                  <Switch
-                    className="data-[state=checked]:bg-linear-purple"
-                    id="anonimo"
-                    checked={anonimo}
-                    onCheckedChange={setAnonimo}
+                  <Controller
+                    control={control}
+                    name="anonymous"
+                    render={({ field }) => (
+                      <Switch
+                        id="anonimo"
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        className="data-[state=checked]:bg-linear-purple"
+                      />
+                    )}
                   />
                 </div>
               </div>
@@ -454,8 +512,8 @@ export function PostDialog() {
                 </Button>
               </DialogFooter>
             </div>
-          </DialogContent>
-        </form>
+          </form>
+        </DialogContent>
       </Dialog>
 
       <FullscreenDialog
