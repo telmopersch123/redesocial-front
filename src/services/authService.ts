@@ -1,45 +1,6 @@
 import { useEffect, useState } from 'react'
+import type { PostDialogSchema } from '../lib/validatorSchemas/autoSchemaAutenticator'
 import type { UserTypeSearch, ValidedCodeResponse } from '../types'
-
-export async function logoutUser(): Promise<boolean> {
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
-      method: 'POST',
-      credentials: 'include',
-    })
-    return res.ok
-  } catch (err) {
-    console.error('Erro ao deslogar:', err)
-    return false
-  }
-}
-
-export async function loginUser(
-  email: string,
-  password: string,
-  rememberMe: boolean | undefined
-) {
-  try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
-      method: 'POST',
-      credentials: 'include', // envia o cookie HTTP-only
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email,
-        password,
-        rememberMe: rememberMe ?? false,
-      }),
-    })
-
-    if (!res.ok) throw new Error('Credenciais inválidas')
-
-    const data = await res.json()
-    return data.user // já retorna só o usuário
-  } catch (err) {
-    console.error(err)
-    return null
-  }
-}
 
 function useDebounce(value: string, delay: number) {
   const [debounced, setDebounced] = useState(value)
@@ -53,7 +14,6 @@ function useDebounce(value: string, delay: number) {
 
   return debounced
 }
-
 export function useUserSearch() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<UserTypeSearch[]>([])
@@ -82,6 +42,44 @@ export function useUserSearch() {
   return { setQuery, query, results }
 }
 
+export async function logoutUser(): Promise<boolean> {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+    })
+    return res.ok
+  } catch (err) {
+    console.error('Erro ao deslogar:', err)
+    return false
+  }
+}
+export async function loginUser(
+  email: string,
+  password: string,
+  rememberMe: boolean | undefined
+) {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+      method: 'POST',
+      credentials: 'include', // envia o cookie HTTP-only
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email,
+        password,
+        rememberMe: rememberMe ?? false,
+      }),
+    })
+
+    if (!res.ok) throw new Error('Credenciais inválidas')
+
+    const data = await res.json()
+    return data.user // já retorna só o usuário
+  } catch (err) {
+    console.error(err)
+    return null
+  }
+}
 export async function sendVerificationEmail(email: string): Promise<void> {
   await fetch(`${import.meta.env.VITE_API_URL}/auth/send-verification-email`, {
     method: 'POST',
@@ -89,7 +87,6 @@ export async function sendVerificationEmail(email: string): Promise<void> {
     body: JSON.stringify({ email }),
   })
 }
-
 export async function verifyEmailCode(email: string, code: string) {
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/verify-email-code`,
@@ -103,7 +100,6 @@ export async function verifyEmailCode(email: string, code: string) {
 
   return res.ok
 }
-
 export async function sendCodigoToEmail(email: string) {
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/send-code`, {
@@ -146,7 +142,6 @@ export async function valided_code(
     console.log(err)
   }
 }
-
 export async function resetPasswordCod(email: string, newPassword: string) {
   try {
     console.log(email, newPassword)
@@ -168,4 +163,36 @@ export async function resetPasswordCod(email: string, newPassword: string) {
   } catch (err) {
     console.log(err)
   }
+}
+
+export async function savePost(post: PostDialogSchema): Promise<boolean> {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/savePosts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(post),
+  })
+  if (!res.ok) {
+    throw new Error('Erro ao salvar o post')
+  }
+  return res.ok
+}
+
+export async function getPostsByPerfilUser(id: string | undefined) {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/getPostsMyPerfil/${id}`,
+    {
+      credentials: 'include',
+    }
+  )
+  const data = await res.json()
+  return data.posts
+}
+
+export async function getPostsByUser(id: string | undefined) {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/getPostsByUser/${id}`
+  )
+  const data = await res.json()
+  return data.posts
 }

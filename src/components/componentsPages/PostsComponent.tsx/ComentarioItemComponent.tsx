@@ -211,7 +211,7 @@ const CommentItem = ({
 
           <p
             dangerouslySetInnerHTML={{
-              __html: formatMentions(comentario.texto, userId || ''),
+              __html: formatMentions(comentario.content, userId || ''),
             }}
             className="mt-3 break-words text-sm leading-relaxed text-gray-700 dark:text-zinc-300"
           />

@@ -3,11 +3,13 @@ import { CircleX, Fullscreen, ImageIcon, VideoIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
+
 import { useLimitForms } from '../../../hooks/useLimitForms'
 import {
   postDialogSchema,
   type PostDialogSchema,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
+import { savePost } from '../../../services/authService'
 import { MessageForms } from '../../formCustomer/MessageForms'
 import { Button } from '../../ui/button'
 import {
@@ -145,10 +147,6 @@ export function PostDialog() {
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
-  const onSubmit = (data: PostDialogSchema) => {
-    console.log(data)
-  }
-
   useEffect(() => {
     if (destinationType === 'geral') {
       setValue('destination.communityId', null, {
@@ -158,6 +156,20 @@ export function PostDialog() {
     }
   }, [destinationType, setValue])
 
+  const onSubmit = async (data: PostDialogSchema) => {
+    try {
+      if (data.media && data.media.url.startsWith('blob:')) {
+        data.media.url = data.media.url.replace('blob:', '')
+      }
+      await savePost(data)
+
+      handleCloseDialog()
+      setTags([])
+      close()
+    } catch (err) {
+      console.log(err)
+    }
+  }
   return (
     <>
       <Dialog

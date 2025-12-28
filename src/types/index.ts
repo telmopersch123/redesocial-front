@@ -13,11 +13,6 @@ export type BibliotecaApoioItems = {
 }
 
 // tipos para os posts
-interface Comentario {
-  id: number
-  autor: string
-  texto: string
-}
 
 export type Persons = {
   id: number
@@ -27,17 +22,23 @@ export type Persons = {
 
 export interface Post {
   id: number
-  typePosts: 'Feliz' | 'Esperançoso' | 'Ansioso' | 'Agradecido' | 'Triste'
-  community?: string
-  autor: string
-  avatar: string | null
-  friend: boolean
-  conteudo: string
-  imagem?: string
-  video?: boolean
-  data: Date
+  description: string
+  mediaType: 'image' | 'video' | null
+  mediaUrl: string | undefined
+  feelingPost: string
+  createdAt: Date
+  updatedAt: string
+  community: string
+
+  user: {
+    id: string
+    name: string
+    name_at: string
+    avatar: string | null
+  }
+
   likes: number
-  comentarios: Comentario[]
+  comments: ComentarioPost[]
   salvo: boolean
   tags: string[]
 }
@@ -46,9 +47,9 @@ export interface Post {
 export type ComentarioPost = {
   id: number
   autor: string
-  texto: string
-  respostas?: Comentario[]
+  content: string
   respondendoPara?: string | null
+  respostas?: ComentarioPost[]
 }
 
 export type UserType = {

@@ -67,12 +67,13 @@ const PostComponentDialog = ({
         if (p.id === postId) {
           return {
             ...p,
-            comentarios: [
-              ...p.comentarios,
+            comments: [
+              ...(p.comments ?? []),
               {
                 id: Date.now(),
                 autor: 'Você',
-                texto: novoComentario,
+                content: novoComentario,
+                respostas: [],
               },
             ],
           }
@@ -90,9 +91,9 @@ const PostComponentDialog = ({
     if (!textoResposta.trim()) return
 
     const adicionarRecursivo = (
-      comentarios: ComentarioPost[]
+      comments: ComentarioPost[]
     ): ComentarioPost[] => {
-      return comentarios.map((c) => {
+      return comments.map((c) => {
         if (c.id === comentarioId) {
           return {
             ...c,
@@ -101,7 +102,7 @@ const PostComponentDialog = ({
               {
                 id: Date.now() + Math.random(),
                 autor: 'Você',
-                texto: textoResposta,
+                content: textoResposta,
                 respondendoPara: c.autor,
                 respostas: [],
               },
@@ -111,7 +112,7 @@ const PostComponentDialog = ({
         if (c.respostas) {
           return {
             ...c,
-            respostas: adicionarRecursivo(c.respostas),
+            respostas: adicionarRecursivo(c.respostas ?? []),
           }
         }
         return c
@@ -123,7 +124,7 @@ const PostComponentDialog = ({
         if (p.id === valuePost.id) {
           return {
             ...p,
-            comentarios: adicionarRecursivo(p.comentarios),
+            comments: adicionarRecursivo(p.comments ?? []),
           }
         }
         return p
@@ -157,7 +158,7 @@ const PostComponentDialog = ({
             className={`flex ${typePost === 'NotificaçãoDialog' || pathname.includes(`perfil/${id}/config`) || openActionPosts ? 'hidden' : ''} items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400`}
           >
             <MessageCircle />
-            {valuePost.comentarios.length}
+            {(valuePost.comments ?? []).length}
           </Button>
         </DialogTrigger>
 
@@ -180,26 +181,17 @@ const PostComponentDialog = ({
 
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-sm font-bold text-white">
-                <p aria-hidden>{valuePost.avatar}</p>
+                <p aria-hidden>{valuePost.user.avatar}</p>
               </div>
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {valuePost.autor}
+                {valuePost.user.name_at}
               </p>
             </div>
 
             <div className="relative w-full">
               <div className="max-w-full overflow-y-auto break-all pr-2">
                 <DialogTitle className="text-md h-[100px] p-0 font-medium leading-relaxed text-gray-900 dark:text-gray-100 2xl:h-[120px]">
-                  {valuePost.conteudo}
-                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
-                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
-                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
-                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
-                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
-                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
-                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
-                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
-                  KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK KKKKKKKKK
+                  {valuePost.description}
                 </DialogTitle>
                 <div className="pointer-events-none absolute -bottom-2 left-0 h-10 w-full bg-gradient-to-t from-white to-transparent dark:from-[#1a1a1a] dark:to-transparent" />
               </div>
@@ -209,7 +201,7 @@ const PostComponentDialog = ({
           </DialogHeader>
 
           <div className="flex min-h-0 flex-1 flex-col justify-between p-4 2xl:flex-row">
-            {(valuePost.imagem || valuePost.video) && (
+            {valuePost.mediaType && (
               <div className="z-10 md:h-1/2 2xl:h-auto 2xl:w-1/2">
                 <div
                   className={`relative flex items-center justify-center overflow-hidden rounded-md bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/10 dark:to-indigo-900/10 md:w-auto 2xl:h-full ${(pathname.includes(`perfil/${id}/config`) || openActionPosts) && open === true ? 'flex-col' : 'flex-row'}`}
@@ -217,13 +209,13 @@ const PostComponentDialog = ({
                   <div>
                     <div className="p-1">
                       <img
-                        src={valuePost.imagem}
-                        alt={valuePost.community || 'Imagem do post'}
+                        src={valuePost.mediaUrl}
+                        alt={'Imagem do post'}
                         className="max-h-[250px] w-full max-w-full rounded-md object-contain shadow-[0_0_10px_3px_rgba(0,0,0,0.3)] 2xl:max-h-[calc(65vh-70px)]"
                       />
                     </div>
 
-                    {valuePost.video && (
+                    {valuePost.mediaType === 'video' && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/30 dark:bg-black/50">
                         <div className="rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 p-4 shadow-xl backdrop-blur-sm transition-transform hover:scale-110">
                           <Play className="h-10 w-10 text-white" />
@@ -256,16 +248,15 @@ const PostComponentDialog = ({
             <div
               ref={scrollRef}
               className={`flex h-full flex-col overflow-y-auto bg-white dark:bg-[#1a1a1a] 2xl:max-h-full ${
-                valuePost.imagem === undefined &&
-                (valuePost.video === false || valuePost.video === undefined)
+                valuePost.mediaType == null || valuePost.mediaType === undefined
                   ? '2xl:w-full'
                   : 'md:max-h-[48vh] 2xl:w-1/2'
               }`}
             >
               <div className="relative h-full md:h-2/3 md:max-h-full 2xl:h-full">
                 <div className="space-y-4 pb-10 pt-8 2xl:pb-10 2xl:pt-0">
-                  {valuePost.comentarios.length ? (
-                    valuePost.comentarios.map((c) => (
+                  {(valuePost.comments?.length ?? 0) > 0 ? (
+                    valuePost.comments.map((c) => (
                       <CommentItem
                         key={c.id}
                         comentario={c}
@@ -298,8 +289,8 @@ const PostComponentDialog = ({
 
                 <div
                   className={`!fixed !bottom-0 right-0 mt-3 w-full rounded-xl bg-white p-2 shadow-lg dark:bg-[#1a1a1a] ${
-                    valuePost.imagem === undefined &&
-                    (valuePost.video === false || valuePost.video === undefined)
+                    valuePost.mediaType == null ||
+                    valuePost.mediaType === undefined
                       ? '2xl:w-full'
                       : '2xl:w-1/2'
                   }`}

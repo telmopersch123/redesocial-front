@@ -13,6 +13,7 @@ import { Button } from '../components/ui/button'
 import { Separator } from '../components/ui/separator'
 import { useAuth } from '../context/getMe'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
+import { getPostsByPerfilUser, getPostsByUser } from '../services/authService'
 import type { Post, UserTypeSearch } from '../types'
 
 const PerfilUsuario = () => {
@@ -23,7 +24,10 @@ const PerfilUsuario = () => {
   const [visibleCount, setVisibleCount] = useState(10)
   const [loadedCount, setLoadedCount] = useState(10)
   const [posts, setPosts] = useState<Post[]>([])
-  const hasMore = visibleCount < posts.length
+  let hasMore = false
+  if (posts.length > 0) {
+    hasMore = visibleCount < posts.length
+  }
   const { loadMoreRef } = useInfiniteScroll({
     totalItems: posts.length,
     itemsPerPage: 10,
@@ -69,6 +73,27 @@ const PerfilUsuario = () => {
 
     fetchProfile()
   }, [id])
+
+  useEffect(() => {
+    async function fetchPosts() {
+      if (!profileUser) return
+      try {
+        let postsData: Post[] = []
+        if (euUsuario) {
+          postsData = await getPostsByPerfilUser(authUser?.id)
+        } else {
+          if (!profileUser.id) return
+          postsData = await getPostsByUser(profileUser.id.toString())
+        }
+
+        setPosts(Array.isArray(postsData) ? postsData : [])
+      } catch (err) {
+        console.log(err)
+        setPosts([])
+      }
+    }
+    fetchPosts()
+  }, [authUser, euUsuario, profileUser])
 
   if (loading) {
     return <div>Carregando perfil...</div>

@@ -1,5 +1,6 @@
 import { Bookmark, Heart, Share2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useAuth } from '../../../../context/getMe'
 import type { Post } from '../../../../types'
 import { TooltipComponent } from '../../../globalcomponents/tooltipComponent'
 import { Button } from '../../../ui/button'
@@ -27,7 +28,7 @@ const ActionsPost = ({
   validated,
 }: ActionsPostProps) => {
   const [openDialog, setOpenDialog] = useState(false)
-
+  const { user: authUser } = useAuth()
   useEffect(() => {
     if (dialogOpen) {
       setOpenDialog(true)
@@ -56,6 +57,7 @@ const ActionsPost = ({
     }
   }
 
+  console.log(valuePost.user.id)
   return (
     <>
       <div className="relative">
@@ -122,7 +124,7 @@ const ActionsPost = ({
                 : 'flex w-full items-center justify-end gap-4'
             }`}
           >
-            <DialogReportPost />
+            {valuePost.user.id !== authUser?.id && <DialogReportPost />}
 
             <TooltipComponent
               description={valuePost.salvo ? 'Desmarcar Post' : 'Salvar Post'}
