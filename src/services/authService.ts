@@ -165,8 +165,8 @@ export async function resetPasswordCod(email: string, newPassword: string) {
   }
 }
 
-export async function savePost(post: PostDialogSchema): Promise<boolean> {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/savePosts`, {
+export async function createPosts(post: PostDialogSchema): Promise<boolean> {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/createPosts`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -177,7 +177,6 @@ export async function savePost(post: PostDialogSchema): Promise<boolean> {
   }
   return res.ok
 }
-
 export async function getPostsByPerfilUser(id: string | undefined) {
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/getPostsMyPerfil/${id}`,
@@ -188,11 +187,30 @@ export async function getPostsByPerfilUser(id: string | undefined) {
   const data = await res.json()
   return data.posts
 }
-
 export async function getPostsByUser(id: string | undefined) {
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/getPostsByUser/${id}`
   )
   const data = await res.json()
   return data.posts
+}
+export async function createComment(
+  postId: number,
+  content: string,
+  parentId?: number,
+  respondendoPara?: string
+) {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/createComment`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ postId, content, parentId, respondendoPara }),
+    }
+  )
+  if (!res.ok) {
+    throw new Error('Erro ao criar o comentário')
+  }
+  return res
 }

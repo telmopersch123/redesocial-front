@@ -17,6 +17,7 @@ import { Separator } from '../../ui/separator'
 import CommentItem from './ComentarioItemComponent'
 
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
+import { createComment } from '../../../services/authService'
 import ListMarcation from './ListMarcation'
 import ActionsPost from './components/ActionsPostComponent'
 import { MentionInput } from './components/MentionsInput'
@@ -59,77 +60,85 @@ const PostComponentDialog = ({
   const pathname = useLocation().pathname
   const { id } = useParams()
 
-  const adicionarComentario = (postId: number) => {
+  const adicionarComentario = async (postId: number) => {
     if (!novoComentario.trim()) return
 
-    setPosts(
-      posts.map((p: Post) => {
-        if (p.id === postId) {
-          return {
-            ...p,
-            comments: [
-              ...(p.comments ?? []),
-              {
-                id: Date.now(),
-                autor: 'Você',
-                content: novoComentario,
-                respostas: [],
-              },
-            ],
+    try {
+      const response = await createComment(postId, novoComentario)
+      const newComment = await response.json()
+      setPosts(
+        posts.map((p: Post) => {
+          if (p.id === postId) {
+            return {
+              ...p,
+              comments: [...(p.comments ?? []), newComment.comment],
+            }
           }
-        }
-        return p
-      })
-    )
+          return p
+        })
+      )
 
-    setNovoComentario('')
+      setNovoComentario('')
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   const [respondendoA, setRespondendoA] = useState<number | null>(null)
   const [textoResposta, setTextoResposta] = useState('')
-  const adicionarResposta = (comentarioId: number) => {
+  const adicionarResposta = async (
+    comentarioId: number,
+    respondendoPara?: string
+  ) => {
     if (!textoResposta.trim()) return
 
-    const adicionarRecursivo = (
-      comments: ComentarioPost[]
-    ): ComentarioPost[] => {
-      return comments.map((c) => {
-        if (c.id === comentarioId) {
-          return {
-            ...c,
-            respostas: [
-              ...(c.respostas || []),
-              {
-                id: Date.now() + Math.random(),
-                autor: 'Você',
-                content: textoResposta,
-                respondendoPara: c.autor,
-                respostas: [],
-              },
-            ],
-          }
-        }
-        if (c.respostas) {
-          return {
-            ...c,
-            respostas: adicionarRecursivo(c.respostas ?? []),
-          }
-        }
-        return c
-      })
-    }
+    try {
+      const response = await createComment(
+        valuePost.id,
+        textoResposta,
+        comentarioId,
+        respondendoPara
+      )
+      const { comment: novaResposta } = await response.json()
 
-    setPosts(
-      posts.map((p: Post) => {
-        if (p.id === valuePost.id) {
-          return {
-            ...p,
-            comments: adicionarRecursivo(p.comments ?? []),
+      setPosts(
+        posts.map((p: Post) => {
+          if (p.id === valuePost.id) {
+            return {
+              ...p,
+              comments: adicionarRecursivo(
+                p.comments ?? [],
+                comentarioId,
+                novaResposta
+              ),
+            }
           }
+          return p
+        })
+      )
+      setTextoResposta('')
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const adicionarRecursivo = (
+    comments: ComentarioPost[],
+    comentarioId: number,
+    novaResposta: ComentarioPost
+  ): ComentarioPost[] => {
+    return comments.map((c) => {
+      if (
+        c.id === comentarioId ||
+        (c.replies && c.replies.some((r) => r.id === comentarioId))
+      ) {
+        return {
+          ...c,
+          replies: [...(c.replies || []), novaResposta], // adiciona sempre no mesmo nível
         }
-        return p
-      })
-    )
+      }
+      return c
+    })
   }
 
   return (
@@ -256,22 +265,27 @@ const PostComponentDialog = ({
               <div className="relative h-full md:h-2/3 md:max-h-full 2xl:h-full">
                 <div className="space-y-4 pb-10 pt-8 2xl:pb-10 2xl:pt-0">
                   {(valuePost.comments?.length ?? 0) > 0 ? (
-                    valuePost.comments.map((c) => (
-                      <CommentItem
-                        key={c.id}
-                        comentario={c}
-                        nivel={0}
-                        respondendoA={respondendoA}
-                        setRespondendoA={setRespondendoA}
-                        textoResposta={textoResposta}
-                        setTextoResposta={setTextoResposta}
-                        adicionarResposta={adicionarResposta}
-                        euUser={euUser}
-                        setOpenReplies={setOpenReplies}
-                        openReplies={openReplies}
-                        scrollRef={scrollRef}
-                      />
-                    ))
+                    valuePost.comments.map(
+                      (c) => (
+                        console.log(valuePost.comments),
+                        (
+                          <CommentItem
+                            key={c.id}
+                            comentario={c}
+                            nivel={0}
+                            respondendoA={respondendoA}
+                            setRespondendoA={setRespondendoA}
+                            textoResposta={textoResposta}
+                            setTextoResposta={setTextoResposta}
+                            adicionarResposta={adicionarResposta}
+                            euUser={euUser}
+                            setOpenReplies={setOpenReplies}
+                            openReplies={openReplies}
+                            scrollRef={scrollRef}
+                          />
+                        )
+                      )
+                    )
                   ) : (
                     <>
                       <div className="absolute left-1/2 top-1/3 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-1 py-6 text-center">

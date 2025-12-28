@@ -57,7 +57,6 @@ const ActionsPost = ({
     }
   }
 
-  console.log(valuePost.user.id)
   return (
     <>
       <div className="relative">

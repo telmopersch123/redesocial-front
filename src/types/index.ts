@@ -49,7 +49,7 @@ export type ComentarioPost = {
   autor: string
   content: string
   respondendoPara?: string | null
-  respostas?: ComentarioPost[]
+  replies?: ComentarioPost[]
 }
 
 export type UserType = {

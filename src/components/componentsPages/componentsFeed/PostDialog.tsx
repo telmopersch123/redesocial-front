@@ -9,7 +9,7 @@ import {
   postDialogSchema,
   type PostDialogSchema,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
-import { savePost } from '../../../services/authService'
+import { createPosts } from '../../../services/authService'
 import { MessageForms } from '../../formCustomer/MessageForms'
 import { Button } from '../../ui/button'
 import {
@@ -161,7 +161,7 @@ export function PostDialog() {
       if (data.media && data.media.url.startsWith('blob:')) {
         data.media.url = data.media.url.replace('blob:', '')
       }
-      await savePost(data)
+      await createPosts(data)
 
       handleCloseDialog()
       setTags([])

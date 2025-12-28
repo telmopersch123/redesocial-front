@@ -6,7 +6,7 @@ import {
   Send,
 } from 'lucide-react'
 
-import {
+import React, {
   useEffect,
   useRef,
   useState,
@@ -30,7 +30,7 @@ interface ComentarioItemProps {
   setRespondendoA: React.Dispatch<React.SetStateAction<number | null>>
   textoResposta: string
   setTextoResposta: React.Dispatch<React.SetStateAction<string>>
-  adicionarResposta: (comentarioId: number) => void
+  adicionarResposta: (comentarioId: number, respondendoPara: string) => void
   euUser: boolean
   openReplies: { [commentId: string]: boolean }
   setOpenReplies: React.Dispatch<
@@ -74,7 +74,7 @@ const CommentItem = ({
 
       if (!prev[commentId]) {
         function openChildren(comentario: ComentarioPost) {
-          comentario.respostas?.forEach((r) => {
+          comentario.replies?.forEach((r) => {
             updated[String(r.id)] = true
             openChildren(r)
           })
@@ -146,7 +146,7 @@ const CommentItem = ({
 
               <div className="flex flex-col">
                 <p className="text-sm font-semibold text-gray-900 dark:text-zinc-100">
-                  {comentario.autor}
+                  {comentario.user.name_at}
                 </p>
 
                 {comentario.respondendoPara && (
@@ -161,8 +161,8 @@ const CommentItem = ({
                 size="sm"
                 className={`h-8 gap-2 px-2 text-xs text-muted-foreground transition hover:text-foreground ${
                   nivel === 0 &&
-                  comentario.respostas &&
-                  comentario.respostas.length > 0
+                  comentario.replies &&
+                  comentario.replies.length > 0
                     ? 'flex'
                     : 'hidden'
                 }`}
@@ -221,7 +221,7 @@ const CommentItem = ({
       {estaRespondendo && (
         <div className="mt-3 w-full px-3">
           <div className="ml-2 flex items-end gap-2 text-xs font-medium text-purple-500 dark:text-purple-400">
-            <span> Respondendo @{comentario.autor} </span>
+            <span> Respondendo @{comentario.user.name_at} </span>
             {comentarios.error && textoResposta.trim() !== '' && (
               <span className="mt-2 text-start text-sm text-rose-500 dark:text-rose-400">
                 Uau rsrs! Você escreveu bastante! Envie a mensagem atual para
@@ -254,7 +254,7 @@ const CommentItem = ({
                 }}
                 ref={inputRef}
                 onEnter={() => {
-                  adicionarResposta(comentario.id)
+                  adicionarResposta(comentario.id, comentario.user.name_at)
                   setRespondendoA(null)
                   setActiveInputId(null)
                   setOpenReplies((prev) => ({
@@ -263,7 +263,7 @@ const CommentItem = ({
                   }))
                 }}
                 error={comentarios.error}
-                aria-label={`Resposta para ${comentario.autor}`}
+                aria-label={`Resposta para ${comentario.user.name_at}`}
               />
             </div>
 
@@ -272,7 +272,7 @@ const CommentItem = ({
                 size="icon"
                 className="bg-linear-purple rounded-full text-white hover:shadow-md"
                 onClick={() => {
-                  adicionarResposta(comentario.id)
+                  adicionarResposta(comentario.id, comentario.user.name_at)
                   setRespondendoA(null)
                   setOpenReplies((prev) => ({
                     ...prev,
@@ -297,11 +297,11 @@ const CommentItem = ({
         </div>
       )}
 
-      {comentario.respostas &&
-        comentario.respostas.length > 0 &&
+      {comentario.replies &&
+        comentario.replies.length > 0 &&
         openReplies[comentario.id] && (
           <div className="mt-3 space-y-3">
-            {comentario.respostas.map((resposta) => (
+            {comentario.replies.map((resposta) => (
               <CommentItem
                 key={resposta.id}
                 comentario={resposta}
