@@ -85,6 +85,7 @@ const PerfilUsuario = () => {
           if (!profileUser.id) return
           postsData = await getPostsByUser(profileUser.id.toString())
         }
+        console.log('Posts fetched:', postsData)
 
         setPosts(Array.isArray(postsData) ? postsData : [])
       } catch (err) {

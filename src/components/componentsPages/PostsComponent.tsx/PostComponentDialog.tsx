@@ -1,5 +1,5 @@
 import { MessageCircle, Play, Send, X } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useContext, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 
 import { useMentionLogic } from '../../../context/openMentions'
@@ -17,12 +17,12 @@ import { Separator } from '../../ui/separator'
 import CommentItem from './ComentarioItemComponent'
 
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
+import { VideoContext, type VideoState } from '../../../context/VideoContext'
 import { createComment } from '../../../services/authService'
+
 import ListMarcation from './ListMarcation'
 import ActionsPost from './components/ActionsPostComponent'
 import { MentionInput } from './components/MentionsInput'
-
-const euUser = true
 
 export interface PostProp {
   valuePost: Post
@@ -33,6 +33,7 @@ export interface PostProp {
   open: boolean
   onOpenChange: (open: boolean) => void
   typePost?: string
+  pauseVideo: () => void
 }
 
 const PostComponentDialog = ({
@@ -44,6 +45,7 @@ const PostComponentDialog = ({
   open,
   onOpenChange,
   typePost,
+  pauseVideo,
 }: PostProp) => {
   if (valuePost === undefined) return null
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -58,6 +60,9 @@ const PostComponentDialog = ({
   const openMarcation = useState(false)
   const comentarios = useLimitForms(5000)
   const pathname = useLocation().pathname
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  const { videoState, setVideoState } = useContext(VideoContext)
   const { id } = useParams()
 
   const adicionarComentario = async (postId: number) => {
@@ -141,6 +146,21 @@ const PostComponentDialog = ({
     })
   }
 
+  const pauseDialogVideo = () => {
+    if (!videoRef.current) return
+
+    const currentTime = videoRef.current.currentTime
+    videoRef.current.pause()
+
+    setVideoState((prev) => ({
+      ...prev,
+      [valuePost.id]: {
+        currentTime,
+        playing: false,
+      },
+    }))
+  }
+
   return (
     <>
       {pathname.includes(`perfil/${id}/config`) && open === true && (
@@ -149,12 +169,12 @@ const PostComponentDialog = ({
       <Dialog
         open={open}
         onOpenChange={(state) => {
-          onOpenChange(state)
           if (!state) {
+            pauseDialogVideo()
             setOpenReplies({})
-
             setOpenActionPosts(false)
           }
+          onOpenChange(state)
         }}
       >
         <DialogTrigger
@@ -162,6 +182,7 @@ const PostComponentDialog = ({
           asChild
         >
           <Button
+            onClick={() => pauseVideo()}
             variant="ghost"
             size="sm"
             className={`flex ${typePost === 'NotificaçãoDialog' || pathname.includes(`perfil/${id}/config`) || openActionPosts ? 'hidden' : ''} items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400`}
@@ -182,6 +203,7 @@ const PostComponentDialog = ({
                   setOpenActionPosts(false)
                   onOpenChange(false)
                   setOpenReplies({})
+                  pauseDialogVideo()
                 }}
               >
                 <X className="h-5 w-5" />
@@ -217,20 +239,70 @@ const PostComponentDialog = ({
                 >
                   <div>
                     <div className="p-1">
-                      <img
-                        src={valuePost.mediaUrl}
-                        alt={'Imagem do post'}
-                        className="max-h-[250px] w-full max-w-full rounded-md object-contain shadow-[0_0_10px_3px_rgba(0,0,0,0.3)] 2xl:max-h-[calc(65vh-70px)]"
-                      />
+                      {valuePost.mediaType === 'video' ? (
+                        <video
+                          ref={videoRef}
+                          src={valuePost.mediaUrl}
+                          onLoadedMetadata={() => {
+                            const state = videoState[valuePost.id]
+                            if (!state || !videoRef.current) return
+
+                            if (Number.isFinite(state.currentTime)) {
+                              videoRef.current.currentTime = state.currentTime
+                            }
+                          }}
+                          onPlay={() =>
+                            setVideoState((prev: VideoState) => ({
+                              ...prev,
+                              [valuePost.id]: {
+                                ...prev[valuePost.id],
+                                playing: true,
+                              },
+                            }))
+                          }
+                          onPause={() =>
+                            setVideoState((prev: VideoState) => ({
+                              ...prev,
+                              [valuePost.id]: {
+                                currentTime: videoRef.current?.currentTime ?? 0,
+                                playing: false,
+                              },
+                            }))
+                          }
+                          controls
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <img
+                          src={valuePost.mediaUrl}
+                          alt={valuePost.community}
+                          className="h-full w-full object-cover"
+                        />
+                      )}
                     </div>
 
-                    {valuePost.mediaType === 'video' && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 dark:bg-black/50">
-                        <div className="rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 p-4 shadow-xl backdrop-blur-sm transition-transform hover:scale-110">
-                          <Play className="h-10 w-10 text-white" />
+                    {!videoState[valuePost.id]?.playing &&
+                      valuePost.mediaType === 'video' && (
+                        <div
+                          onClick={() => {
+                            if (!videoRef.current) return
+
+                            videoRef.current.play()
+                            setVideoState((prev) => ({
+                              ...prev,
+                              [valuePost.id]: {
+                                currentTime: videoRef.current?.currentTime ?? 0,
+                                playing: true,
+                              },
+                            }))
+                          }}
+                          className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/30 dark:bg-black/50"
+                        >
+                          <div className="rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 p-4 shadow-xl backdrop-blur-sm transition-transform hover:scale-110">
+                            <Play className="h-10 w-10 text-white" />
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                   </div>
 
                   <div>
@@ -242,6 +314,7 @@ const PostComponentDialog = ({
                         setNovoComentario={setNovoComentario}
                         setPosts={setPosts}
                         posts={posts}
+                        pauseVideo={pauseVideo}
                         validated={
                           (pathname.includes(`perfil/${id}/config`) ||
                             openActionPosts) &&
@@ -265,27 +338,22 @@ const PostComponentDialog = ({
               <div className="relative h-full md:h-2/3 md:max-h-full 2xl:h-full">
                 <div className="space-y-4 pb-10 pt-8 2xl:pb-10 2xl:pt-0">
                   {(valuePost.comments?.length ?? 0) > 0 ? (
-                    valuePost.comments.map(
-                      (c) => (
-                        console.log(valuePost.comments),
-                        (
-                          <CommentItem
-                            key={c.id}
-                            comentario={c}
-                            nivel={0}
-                            respondendoA={respondendoA}
-                            setRespondendoA={setRespondendoA}
-                            textoResposta={textoResposta}
-                            setTextoResposta={setTextoResposta}
-                            adicionarResposta={adicionarResposta}
-                            euUser={euUser}
-                            setOpenReplies={setOpenReplies}
-                            openReplies={openReplies}
-                            scrollRef={scrollRef}
-                          />
-                        )
-                      )
-                    )
+                    valuePost.comments.map((c) => (
+                      <CommentItem
+                        key={c.id}
+                        comentario={c}
+                        nivel={0}
+                        respondendoA={respondendoA}
+                        setRespondendoA={setRespondendoA}
+                        textoResposta={textoResposta}
+                        setTextoResposta={setTextoResposta}
+                        adicionarResposta={adicionarResposta}
+                        setOpenReplies={setOpenReplies}
+                        openReplies={openReplies}
+                        scrollRef={scrollRef}
+                        setPosts={setPosts}
+                      />
+                    ))
                   ) : (
                     <>
                       <div className="absolute left-1/2 top-1/3 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-1 py-6 text-center">

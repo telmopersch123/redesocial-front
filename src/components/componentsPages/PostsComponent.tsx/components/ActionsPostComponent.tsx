@@ -1,5 +1,5 @@
 import { Bookmark, Heart, Share2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useAuth } from '../../../../context/getMe'
 import type { Post } from '../../../../types'
 import { TooltipComponent } from '../../../globalcomponents/tooltipComponent'
@@ -14,8 +14,9 @@ interface ActionsPostProps {
   setNovoComentario: React.Dispatch<React.SetStateAction<string>>
   setPosts: React.Dispatch<React.SetStateAction<Post[]>>
   posts: Post[]
-  dialogOpen?: boolean
+
   validated?: boolean
+  pauseVideo: () => void
 }
 
 const ActionsPost = ({
@@ -24,16 +25,11 @@ const ActionsPost = ({
   setNovoComentario,
   setPosts,
   posts,
-  dialogOpen,
   validated,
+  pauseVideo,
 }: ActionsPostProps) => {
   const [openDialog, setOpenDialog] = useState(false)
   const { user: authUser } = useAuth()
-  useEffect(() => {
-    if (dialogOpen) {
-      setOpenDialog(true)
-    }
-  }, [dialogOpen])
 
   const handleShare = async () => {
     const shareData = {
@@ -103,6 +99,7 @@ const ActionsPost = ({
               posts={posts}
               open={openDialog}
               onOpenChange={setOpenDialog}
+              pauseVideo={pauseVideo}
             />
 
             <Button

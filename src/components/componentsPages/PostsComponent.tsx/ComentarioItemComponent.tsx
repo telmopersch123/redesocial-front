@@ -15,11 +15,13 @@ import React, {
 } from 'react'
 import { useMentionLogic } from '../../../context/openMentions'
 import { useLimitForms } from '../../../hooks/useLimitForms'
-import type { ComentarioPost } from '../../../types'
+import type { ComentarioPost, Post } from '../../../types'
 import { formatMentions } from '../../../utils/formatMentions'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 import { Button } from '../../ui/button'
 
+import { useAuth } from '../../../context/getMe'
+import { deleteComment } from '../../../services/authService'
 import ListMarcation from './ListMarcation'
 import { MentionInput } from './components/MentionsInput'
 
@@ -31,12 +33,12 @@ interface ComentarioItemProps {
   textoResposta: string
   setTextoResposta: React.Dispatch<React.SetStateAction<string>>
   adicionarResposta: (comentarioId: number, respondendoPara: string) => void
-  euUser: boolean
   openReplies: { [commentId: string]: boolean }
   setOpenReplies: React.Dispatch<
     SetStateAction<{ [commentId: string]: boolean }>
   >
   scrollRef: RefObject<HTMLDivElement | null>
+  setPosts: React.Dispatch<React.SetStateAction<Post[]>>
 }
 
 const CommentItem = ({
@@ -47,13 +49,13 @@ const CommentItem = ({
   textoResposta,
   setTextoResposta,
   adicionarResposta,
-  euUser,
   openReplies,
   setOpenReplies,
   scrollRef,
+  setPosts,
 }: ComentarioItemProps) => {
   const [clickedMention, setClickedMention] = useState(false)
-
+  const { user: authUser } = useAuth()
   const inputRef = useRef<HTMLInputElement>(null)
   const comentarios = useLimitForms(5000)
 
@@ -127,6 +129,37 @@ const CommentItem = ({
     return () => observer?.disconnect()
   }, [respondendoA, comentario.id])
 
+  const deletarComentario = async (comentario: ComentarioPost) => {
+    try {
+      await deleteComment(comentario.id)
+      setPosts((prevPosts) =>
+        prevPosts.map((p) => ({
+          ...p,
+          comments:
+            comentario.parentId === null
+              ? p.comments?.filter(
+                  (c) => c.id !== comentario.id && c.parentId !== comentario.id
+                )
+              : removerRecursivo(p.comments ?? [], comentario.id),
+        }))
+      )
+    } catch (error) {
+      console.error('Erro ao deletar comentário:', error)
+    }
+  }
+
+  const removerRecursivo = (
+    comentarios: ComentarioPost[],
+    idParaRemover: number
+  ): ComentarioPost[] => {
+    return comentarios
+      .map((c) => ({
+        ...c,
+        replies: c.replies ? removerRecursivo(c.replies, idParaRemover) : [],
+      }))
+      .filter((c) => c.id !== idParaRemover)
+  }
+
   return (
     <div
       className={` ${
@@ -183,10 +216,13 @@ const CommentItem = ({
             </div>
 
             <div className="mt-1 flex items-center gap-2">
-              {euUser && (
+              {authUser?.id === comentario.user.id && (
                 <TooltipComponent
                   Tag={
-                    <Button className="absolute right-0 top-0 flex h-8 w-8 items-center justify-center rounded-full bg-purple-600 text-white hover:!bg-red-700/90">
+                    <Button
+                      onClick={() => deletarComentario(comentario)}
+                      className="absolute right-0 top-0 flex h-8 w-8 items-center justify-center rounded-full bg-purple-600 text-white hover:!bg-red-700/90"
+                    >
                       <MessageCircleX />
                     </Button>
                   }
@@ -311,10 +347,10 @@ const CommentItem = ({
                 textoResposta={textoResposta}
                 setTextoResposta={setTextoResposta}
                 adicionarResposta={adicionarResposta}
-                euUser={euUser}
                 setOpenReplies={setOpenReplies}
                 openReplies={openReplies}
                 scrollRef={scrollRef}
+                setPosts={setPosts}
               />
             ))}
           </div>

@@ -14,7 +14,6 @@ import { useUserSearch } from '../services/authService'
 const Users = () => {
   const { setQuery, results: usersSurveyed } = useUserSearch()
   const [inputValue, setInputValue] = useState('')
-  console.log(usersSurveyed)
 
   const searchUsers = (event?: React.KeyboardEvent<HTMLInputElement>) => {
     if (event && event.key !== 'Enter') return

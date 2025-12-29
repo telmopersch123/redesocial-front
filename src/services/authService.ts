@@ -144,7 +144,6 @@ export async function valided_code(
 }
 export async function resetPasswordCod(email: string, newPassword: string) {
   try {
-    console.log(email, newPassword)
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/auth/reset-password`,
       {
@@ -211,6 +210,20 @@ export async function createComment(
   )
   if (!res.ok) {
     throw new Error('Erro ao criar o comentário')
+  }
+  return res
+}
+
+export async function deleteComment(commentId: number) {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/deleteComment/${commentId}`,
+    {
+      method: 'DELETE',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) {
+    throw new Error('Erro ao deletar o comentário')
   }
   return res
 }

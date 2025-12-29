@@ -158,10 +158,32 @@ export function PostDialog() {
 
   const onSubmit = async (data: PostDialogSchema) => {
     try {
-      if (data.media && data.media.url.startsWith('blob:')) {
-        data.media.url = data.media.url.replace('blob:', '')
+      let mediaUrl = null
+      let mediaType: 'image' | 'video' | null = null
+
+      if (data.media && fileInputRef.current?.files?.[0]) {
+        const formData = new FormData()
+        formData.append('file', fileInputRef.current.files[0])
+        formData.append('upload_preset', 'posts_tess')
+        formData.append('folder', 'postagens')
+
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/di5dwqjq7/${data.media.type}/upload`,
+          {
+            method: 'POST',
+            body: formData,
+          }
+        )
+
+        const result = await response.json()
+        mediaUrl = result.secure_url
+        mediaType = data.media.type
       }
-      await createPosts(data)
+
+      await createPosts({
+        ...data,
+        media: mediaUrl ? { url: mediaUrl, type: mediaType! } : null,
+      })
 
       handleCloseDialog()
       setTags([])

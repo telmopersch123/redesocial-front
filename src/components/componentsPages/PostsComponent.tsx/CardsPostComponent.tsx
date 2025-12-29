@@ -1,9 +1,11 @@
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { Clock, Play, Users } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 
+import { VideoContext, type VideoState } from '../../../context/VideoContext'
 import type { Post } from '../../../types'
+
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
 import ActionsPost from './components/ActionsPostComponent'
 
@@ -15,7 +17,34 @@ interface PostCardProps {
 
 const CardsPostComponent = ({ posts, valuePost, setPosts }: PostCardProps) => {
   const [novoComentario, setNovoComentario] = useState('')
-  const [dialogOpen, setDialogOpen] = useState(false)
+
+  const { videoState, setVideoState } = useContext(VideoContext)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  const pauseVideo = () => {
+    if (!videoRef.current) return
+
+    const currentTime = videoRef.current.currentTime
+
+    videoRef.current.pause()
+
+    setVideoState((prev) => ({
+      ...prev,
+      [valuePost.id]: {
+        currentTime,
+        playing: false,
+      },
+    }))
+  }
+
+  useEffect(() => {
+    const state = videoState[valuePost.id]
+    if (!videoRef.current || !state) return
+
+    if (Number.isFinite(state.currentTime)) {
+      videoRef.current.currentTime = state.currentTime
+    }
+  }, [videoState, valuePost.id])
 
   return (
     <Card
@@ -69,21 +98,60 @@ const CardsPostComponent = ({ posts, valuePost, setPosts }: PostCardProps) => {
 
         {valuePost.mediaUrl && (
           <div className="relative -mx-6 mt-3 h-[500px] overflow-hidden rounded-b-xl bg-gray-100 dark:bg-[#2a2a2a]">
-            <img
-              src={valuePost.mediaUrl}
-              alt={valuePost.community}
-              className="h-full w-full object-cover"
-            />
-            {valuePost.mediaType === 'video' && (
-              <div
-                onClick={() => setDialogOpen(true)}
-                className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/30 dark:bg-black/40"
-              >
-                <div className="bg-linear-purple rounded-full p-4 shadow-xl backdrop-blur-sm transition-transform hover:scale-110">
-                  <Play className="h-10 w-10 text-white" />
-                </div>
-              </div>
+            {valuePost.mediaType === 'video' ? (
+              <video
+                ref={videoRef}
+                src={valuePost.mediaUrl}
+                onPlay={() =>
+                  setVideoState((prev: VideoState) => ({
+                    ...prev,
+                    [valuePost.id]: {
+                      ...prev[valuePost.id],
+                      playing: true,
+                    },
+                  }))
+                }
+                onPause={() =>
+                  setVideoState((prev: VideoState) => ({
+                    ...prev,
+                    [valuePost.id]: {
+                      currentTime: videoRef.current?.currentTime ?? 0,
+                      playing: false,
+                    },
+                  }))
+                }
+                controls
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <img
+                src={valuePost.mediaUrl}
+                alt={valuePost.community}
+                className="h-full w-full object-cover"
+              />
             )}
+            {!videoState[valuePost.id]?.playing &&
+              valuePost.mediaType === 'video' && (
+                <div
+                  onClick={() => {
+                    if (!videoRef.current) return
+
+                    videoRef.current.play()
+                    setVideoState((prev) => ({
+                      ...prev,
+                      [valuePost.id]: {
+                        currentTime: videoRef.current?.currentTime ?? 0,
+                        playing: true,
+                      },
+                    }))
+                  }}
+                  className="absolute inset-0 flex cursor-pointer items-center justify-center bg-black/30 dark:bg-black/50"
+                >
+                  <div className="rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 p-4 shadow-xl backdrop-blur-sm transition-transform hover:scale-110">
+                    <Play className="h-10 w-10 text-white" />
+                  </div>
+                </div>
+              )}
           </div>
         )}
 
@@ -93,7 +161,7 @@ const CardsPostComponent = ({ posts, valuePost, setPosts }: PostCardProps) => {
           setNovoComentario={setNovoComentario}
           setPosts={setPosts}
           posts={posts}
-          dialogOpen={dialogOpen}
+          pauseVideo={pauseVideo}
         />
       </CardContent>
     </Card>

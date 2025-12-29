@@ -46,8 +46,14 @@ export interface Post {
 ////
 export type ComentarioPost = {
   id: number
-  autor: string
+  user: {
+    id: string
+    name: string
+    name_at: string
+    avatar: string | null
+  }
   content: string
+  parentId?: number | null
   respondendoPara?: string | null
   replies?: ComentarioPost[]
 }
