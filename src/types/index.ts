@@ -29,7 +29,8 @@ export interface Post {
   createdAt: Date
   updatedAt: string
   community: string
-
+  likesCount: number
+  likedByMe: boolean
   user: {
     id: string
     name: string
@@ -37,7 +38,6 @@ export interface Post {
     avatar: string | null
   }
 
-  likes: number
   comments: ComentarioPost[]
   salvo: boolean
   tags: string[]

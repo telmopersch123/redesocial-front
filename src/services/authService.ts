@@ -183,15 +183,25 @@ export async function getPostsByPerfilUser(id: string | undefined) {
       credentials: 'include',
     }
   )
+  if (!res.ok) {
+    throw new Error('Erro ao buscar os posts do perfil')
+  }
   const data = await res.json()
-  return data.posts
+
+  return data.normalizedPosts
 }
 export async function getPostsByUser(id: string | undefined) {
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/getPostsByUser/${id}`
+    `${import.meta.env.VITE_API_URL}/auth/getPostsByUser/${id}`,
+    {
+      credentials: 'include',
+    }
   )
+  if (!res.ok) {
+    throw new Error('Erro ao buscar os posts do usuário')
+  }
   const data = await res.json()
-  return data.posts
+  return data.normalizedPosts
 }
 export async function createComment(
   postId: number,
@@ -213,7 +223,6 @@ export async function createComment(
   }
   return res
 }
-
 export async function deleteComment(commentId: number) {
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/deleteComment/${commentId}`,
@@ -226,4 +235,21 @@ export async function deleteComment(commentId: number) {
     throw new Error('Erro ao deletar o comentário')
   }
   return res
+}
+
+export async function updateLikedPost(postId: number) {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/posts/${postId}/like`,
+    {
+      method: 'POST',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) {
+    throw new Error('Erro ao atualizar o post')
+  }
+  return res.json() as Promise<{
+    liked: boolean
+    likesCount: number
+  }>
 }

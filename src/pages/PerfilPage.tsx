@@ -85,9 +85,14 @@ const PerfilUsuario = () => {
           if (!profileUser.id) return
           postsData = await getPostsByUser(profileUser.id.toString())
         }
-        console.log('Posts fetched:', postsData)
+        console.log('Posts do perfil:', postsData)
 
-        setPosts(Array.isArray(postsData) ? postsData : [])
+        const normalizedPosts = postsData.map((post) => ({
+          ...post,
+          likedByMe: post.likedByMe ?? false,
+        }))
+
+        setPosts(normalizedPosts)
       } catch (err) {
         console.log(err)
         setPosts([])
