@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Button } from '../components/ui/button'
 import { Separator } from '../components/ui/separator'
 import { useAuth } from '../context/getMe'
+import { usePosts } from '../context/PostsContext'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
 import { getPostsByPerfilUser, getPostsByUser } from '../services/authService'
 import type { Post, UserTypeSearch } from '../types'
@@ -23,7 +24,7 @@ const PerfilUsuario = () => {
   const [loading, setLoading] = useState(true)
   const [visibleCount, setVisibleCount] = useState(10)
   const [loadedCount, setLoadedCount] = useState(10)
-  const [posts, setPosts] = useState<Post[]>([])
+  const { posts, setPosts } = usePosts()
   let hasMore = false
   if (posts.length > 0) {
     hasMore = visibleCount < posts.length
@@ -85,11 +86,11 @@ const PerfilUsuario = () => {
           if (!profileUser.id) return
           postsData = await getPostsByUser(profileUser.id.toString())
         }
-        console.log('Posts do perfil:', postsData)
 
-        const normalizedPosts = postsData.map((post) => ({
+        const normalizedPosts = postsData.map((post: Post) => ({
           ...post,
           likedByMe: post.likedByMe ?? false,
+          saved: Array.isArray(post.saves) ? post.saves.length > 0 : false,
         }))
 
         setPosts(normalizedPosts)

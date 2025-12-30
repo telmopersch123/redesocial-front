@@ -33,7 +33,7 @@ export interface PostProp {
   open: boolean
   onOpenChange: (open: boolean) => void
   typePost?: string
-  pauseVideo: () => void
+  pauseVideo?: () => void
 }
 
 const PostComponentDialog = ({
@@ -182,7 +182,11 @@ const PostComponentDialog = ({
           asChild
         >
           <Button
-            onClick={() => pauseVideo()}
+            onClick={() => {
+              if (pauseVideo) {
+                pauseVideo()
+              }
+            }}
             variant="ghost"
             size="sm"
             className={`flex ${typePost === 'NotificaçãoDialog' || pathname.includes(`perfil/${id}/config`) || openActionPosts ? 'hidden' : ''} items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400`}
@@ -314,7 +318,7 @@ const PostComponentDialog = ({
                         setNovoComentario={setNovoComentario}
                         setPosts={setPosts}
                         posts={posts}
-                        pauseVideo={pauseVideo}
+                        pauseVideo={pauseVideo as () => void}
                         validated={
                           (pathname.includes(`perfil/${id}/config`) ||
                             openActionPosts) &&

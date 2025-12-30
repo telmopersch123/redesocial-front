@@ -236,7 +236,6 @@ export async function deleteComment(commentId: number) {
   }
   return res
 }
-
 export async function updateLikedPost(postId: number) {
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/posts/${postId}/like`,
@@ -252,4 +251,34 @@ export async function updateLikedPost(postId: number) {
     liked: boolean
     likesCount: number
   }>
+}
+export async function savedPost(postId: string) {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/savePost/${postId}`,
+    {
+      method: 'POST',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) {
+    throw new Error('Erro ao salvar o post')
+  }
+  return res.json() as Promise<{
+    saved: boolean
+  }>
+}
+export async function getSavedPosts() {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/getSavedPosts`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) {
+    throw new Error('Erro ao buscar os posts salvos')
+  }
+  const data = await res.json()
+
+  return data
 }

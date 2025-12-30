@@ -4,6 +4,7 @@ import CardsPostComponent from '../components/componentsPages/PostsComponent.tsx
 import PostComponentDialog from '../components/componentsPages/PostsComponent.tsx/PostComponentDialog'
 import { Button } from '../components/ui/button'
 import { useCriarPostDialog } from '../context/ContextDialogPost'
+import { usePosts } from '../context/PostsContext'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
 import type { Post } from '../types'
 
@@ -43,7 +44,7 @@ const emojiMap: Record<string, string> = {
 const FeedPage = () => {
   const [novoComentario, setNovoComentario] = useState('')
 
-  const [posts, setPosts] = useState<Post[]>([])
+  const { posts, setPosts } = usePosts()
   const {
     open,
     setPostCommunity,

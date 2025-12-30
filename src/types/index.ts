@@ -39,7 +39,12 @@ export interface Post {
   }
 
   comments: ComentarioPost[]
-  salvo: boolean
+  saves: {
+    id: number
+    userId: string
+    postId: number
+  }
+  saved: boolean
   tags: string[]
 }
 

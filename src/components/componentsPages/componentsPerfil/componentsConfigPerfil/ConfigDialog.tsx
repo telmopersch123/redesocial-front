@@ -1,6 +1,5 @@
 import { useState } from 'react'
 
-import type { Post } from '../../../../types'
 import { Button } from '../../../ui/button'
 import {
   Dialog,
@@ -14,6 +13,8 @@ import {
   DialogTrigger,
 } from '../../../ui/dialog'
 
+import { usePosts } from '../../../../context/PostsContext'
+import PostComponentDialog from '../../PostsComponent.tsx/PostComponentDialog'
 import { ActivityComponent } from './AcitivyComponent'
 import NavbarConfig from './NavbarConfigComponent'
 import OptionsCommunity from './OptionsCommunityComponent'
@@ -25,36 +26,6 @@ interface DialogConfigProps {
   nomeUser?: string
   setNomeUser?: (nomeUser: string) => void
 }
-
-const savedVideos = [
-  {
-    id: '1',
-    title: 'Como criar animações com Tailwind',
-    thumbnail: 'https://via.placeholder.com/300x180?text=Video+1',
-    duration: '12:45',
-  },
-  {
-    id: '2',
-    title: 'React + Shadcn para iniciantes',
-    thumbnail: 'https://via.placeholder.com/300x180?text=Video+2',
-    duration: '08:20',
-  },
-]
-
-const likedVideos = [
-  {
-    id: '3',
-    title: 'Criando UI moderna com Framer Motion',
-    thumbnail: 'https://via.placeholder.com/300x180?text=Video+3',
-    duration: '06:10',
-  },
-  {
-    id: '4',
-    title: 'Consumindo APIs REST com React',
-    thumbnail: 'https://via.placeholder.com/300x180?text=Video+4',
-    duration: '10:25',
-  },
-]
 
 interface OpenOnlyProps {
   index: number
@@ -70,9 +41,9 @@ export function ConfigDialog({
   nomeUser,
   setNomeUser,
 }: DialogConfigProps) {
+  const { posts, setPosts } = usePosts()
+  const [openDialogPost, setOpenDialogPost] = useState(false)
   const [novoComentario, setNovoComentario] = useState('')
-  const [posts, setPosts] = useState<Post[]>()
-  const [dialogOpen, setDialogOpen] = useState(false)
   const [notifications, setNotifications] = useState(true)
   const [darkMode, setDarkMode] = useState(false)
   const [twoFactor, setTwoFactor] = useState(false)
@@ -142,9 +113,8 @@ export function ConfigDialog({
           ) : (
             tab === 3 && (
               <ActivityComponent
-                setDialogOpen={setDialogOpen}
-                savedVideos={savedVideos}
-                likedVideos={likedVideos}
+                setOpenDialogPost={setOpenDialogPost}
+                setPosts={setPosts}
               />
             )
           )}
@@ -161,19 +131,19 @@ export function ConfigDialog({
           )}
         </DialogContent>
       </Dialog>
-      {/* {posts.map((valuePost) => (
-        <div key={valuePost.id} className="absolute hidden">
+      {posts && (
+        <div className="absolute hidden">
           <PostComponentDialog
-            valuePost={valuePost}
+            valuePost={posts[0]}
             novoComentario={novoComentario}
             setNovoComentario={setNovoComentario}
             setPosts={setPosts}
             posts={posts}
-            open={dialogOpen}
-            onOpenChange={setDialogOpen}
+            open={openDialogPost}
+            onOpenChange={setOpenDialogPost}
           />
         </div>
-      ))} */}
+      )}
     </>
   )
 }

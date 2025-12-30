@@ -1,13 +1,12 @@
 import { Bookmark, Heart, Share2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import { useAuth } from '../../../../context/getMe'
-import { updateLikedPost } from '../../../../services/authService'
+import { savedPost, updateLikedPost } from '../../../../services/authService'
 import type { Post } from '../../../../types'
 import { TooltipComponent } from '../../../globalcomponents/tooltipComponent'
 import { Button } from '../../../ui/button'
 import DialogReportPost from '../DialogReportPost'
 import PostComponentDialog from '../PostComponentDialog'
-import { handleSalvar } from './actionsPosts'
 
 interface ActionsPostProps {
   valuePost: Post
@@ -63,6 +62,7 @@ const ActionsPost = ({
     try {
       const updated = await updateLikedPost(id)
       setLiked(updated.liked)
+
       setPosts((prev) =>
         prev.map((post) =>
           post.id === id
@@ -72,6 +72,19 @@ const ActionsPost = ({
                 likesCount: updated.likesCount,
               }
             : post
+        )
+      )
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const handleSalvar = async (id: number) => {
+    try {
+      const response = await savedPost(id.toString())
+      setPosts((prev) =>
+        prev.map((post: Post) =>
+          post.id === id ? { ...post, saved: response.saved } : post
         )
       )
     } catch (error) {
@@ -119,7 +132,9 @@ const ActionsPost = ({
             setPosts={setPosts}
             posts={posts}
             open={openDialog}
-            onOpenChange={setOpenDialog}
+            onOpenChange={
+              setOpenDialog as Dispatch<SetStateAction<boolean | null>>
+            }
             pauseVideo={pauseVideo}
           />
 
@@ -144,14 +159,12 @@ const ActionsPost = ({
           {valuePost.user.id !== authUser?.id && <DialogReportPost />}
 
           <TooltipComponent
-            description={valuePost.salvo ? 'Desmarcar Post' : 'Salvar Post'}
+            description={valuePost.saved ? 'Desmarcar Post' : 'Salvar Post'}
           >
             <button
-              onClick={() =>
-                handleSalvar({ id: valuePost.id, setPosts, posts })
-              }
+              onClick={() => handleSalvar(valuePost.id)}
               className={`rounded-md p-2 transition-all duration-300 ${
-                valuePost.salvo
+                valuePost.saved
                   ? 'bg-purple-500 text-white dark:bg-purple-600'
                   : 'bg-transparent text-purple-600 dark:text-purple-400'
               }`}

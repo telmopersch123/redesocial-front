@@ -1,25 +1,40 @@
 import { Bookmark, Heart, MessageCircleMore } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
+import { getSavedPosts } from '../../../../services/authService'
+import type { Post } from '../../../../types'
 import { Button } from '../../../ui/button'
 
-interface Video {
+interface TypeSaved {
   id: string
-  title: string
-  thumbnail: string
+  post: Post
+  postId: string
+  userId: string
 }
 
 interface ActivityComponentProps {
-  savedVideos: Video[]
-  likedVideos: Video[]
-  setDialogOpen: (open: boolean) => void
+  setOpenDialogPost: Dispatch<SetStateAction<boolean>>
+  setPosts: Dispatch<SetStateAction<Post[]>>
 }
 
 export const ActivityComponent = ({
-  savedVideos,
-  likedVideos,
-  setDialogOpen,
+  setPosts,
+  setOpenDialogPost,
 }: ActivityComponentProps) => {
   const [tab, setTab] = useState<'saved' | 'liked' | 'comment'>('saved')
+  const [savedPosts, setSavedPosts] = useState<TypeSaved[]>([])
+  const likedPosts: TypeSaved[] = []
+
+  useEffect(() => {
+    async function fetchSavedPosts() {
+      try {
+        const response = await getSavedPosts()
+        setSavedPosts(response)
+      } catch (error) {
+        console.error('Erro ao buscar posts salvos:', error)
+      }
+    }
+    fetchSavedPosts()
+  }, [])
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -66,105 +81,125 @@ export const ActivityComponent = ({
 
       {/* Conteúdo das abas */}
       {tab === 'saved' && (
-        <SavedVideosList
-          savedVideos={savedVideos}
-          setDialogOpen={setDialogOpen}
+        <SavedPostList
+          setOpenDialogPost={setOpenDialogPost}
+          savedPosts={savedPosts}
+          setPosts={setPosts}
         />
       )}
       {tab === 'liked' && (
-        <LikedVideosList
-          likedVideos={likedVideos}
-          setDialogOpen={setDialogOpen}
-        />
+        <LikedPostList likedPosts={likedPosts} setPosts={setPosts} />
       )}
       {tab === 'comment' && (
-        <CommentedVideosList
-          videos={likedVideos}
-          setDialogOpen={setDialogOpen}
-        />
+        <CommentedPostList posts={likedPosts} setPosts={setPosts} />
       )}
     </div>
   )
 }
 
-const SavedVideosList = ({
-  savedVideos,
-  setDialogOpen,
+const SavedPostList = ({
+  setOpenDialogPost,
+  savedPosts,
+  setPosts,
 }: {
-  savedVideos: Video[]
-  setDialogOpen: (open: boolean) => void
+  setOpenDialogPost: Dispatch<SetStateAction<boolean>>
+  savedPosts: TypeSaved[]
+  setPosts: Dispatch<SetStateAction<Post[]>>
 }) => {
-  if (!savedVideos.length)
+  if (!savedPosts.length)
     return <EmptyState message="Nenhum vídeo salvo ainda." />
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-      {savedVideos.map((video) => (
-        <VideoCard key={video.id} video={video} setDialogOpen={setDialogOpen} />
+      {savedPosts.map((post) => (
+        <PostCard
+          key={post.id}
+          setOpenDialogPost={setOpenDialogPost}
+          posts={post.post}
+          setPosts={setPosts}
+        />
       ))}
     </div>
   )
 }
 
-const LikedVideosList = ({
-  likedVideos,
-  setDialogOpen,
+const LikedPostList = ({
+  likedPosts,
+  setPosts,
 }: {
-  likedVideos: Video[]
-  setDialogOpen: (open: boolean) => void
+  likedPosts: TypeSaved[]
+  setPosts: Dispatch<SetStateAction<Post[]>>
 }) => {
-  if (!likedVideos.length)
+  if (!likedPosts.length)
     return <EmptyState message="Você ainda não curtiu nenhum vídeo." />
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-      {likedVideos.map((video) => (
-        <VideoCard key={video.id} video={video} setDialogOpen={setDialogOpen} />
+      {likedPosts.map((post) => (
+        <PostCard key={post.id} posts={post.post} setPosts={setPosts} />
       ))}
     </div>
   )
 }
 
-const CommentedVideosList = ({
-  videos,
-  setDialogOpen,
+const CommentedPostList = ({
+  posts,
+  setPosts,
 }: {
-  videos: Video[]
-  setDialogOpen: (open: boolean) => void
+  posts: TypeSaved[]
+  setPosts: Dispatch<SetStateAction<Post[]>>
 }) => {
-  if (!videos.length)
+  if (!posts.length)
     return <EmptyState message="Você ainda não comentou em nenhum vídeo." />
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-      {videos.map((video) => (
-        <VideoCard key={video.id} video={video} setDialogOpen={setDialogOpen} />
+      {posts.map((post) => (
+        <PostCard key={post.id} posts={post.post} setPosts={setPosts} />
       ))}
     </div>
   )
 }
 
-const VideoCard = ({
-  video,
-  setDialogOpen,
+const PostCard = ({
+  setOpenDialogPost,
+  posts,
+  setPosts,
 }: {
-  video: Video
-  setDialogOpen: (open: boolean) => void
+  setOpenDialogPost?: Dispatch<SetStateAction<boolean>>
+  posts: Post
+  setPosts: Dispatch<SetStateAction<Post[]>>
 }) => {
   return (
     <div
-      onClick={() => setDialogOpen(true)}
+      onClick={() => {
+        setPosts((prevPosts) => [...prevPosts, posts])
+        if (setOpenDialogPost) setOpenDialogPost(true)
+      }}
       className="group flex cursor-pointer flex-col overflow-hidden rounded-lg border bg-white shadow-sm transition-all hover:shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
     >
       <div className="h-28 w-full overflow-hidden sm:h-32">
-        <img
-          src={video.thumbnail}
-          alt={video.title}
-          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-        />
+        {posts.mediaType === 'image' && (
+          <>
+            <img
+              src={posts.mediaUrl}
+              alt="Prévia da imagem"
+              className="max-h-60 w-full rounded-lg object-cover"
+            />
+          </>
+        )}
+
+        {posts.mediaType === 'video' && (
+          <video
+            src={posts.mediaUrl}
+            muted
+            playsInline
+            className="max-h-60 w-full rounded-lg"
+          />
+        )}
       </div>
       <div className="line-clamp-2 p-3 text-xs font-medium text-zinc-700 dark:text-zinc-300">
-        {video.title}
+        {posts.description}
       </div>
     </div>
   )
