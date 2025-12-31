@@ -27,10 +27,11 @@ const ActionsPost = ({
   validated,
   pauseVideo,
 }: ActionsPostProps) => {
+  const pathname = window.location.pathname
   const [openDialog, setOpenDialog] = useState(false)
   const [liked, setLiked] = useState(false) // inicia falso, será atualizado
   const { user: authUser } = useAuth()
-
+  const validatedRouter = pathname.includes(`perfil/config`) ? true : false
   // Atualiza liked sempre que valuePost mudar
   useEffect(() => {
     setLiked(valuePost.likedByMe)
@@ -124,19 +125,20 @@ const ActionsPost = ({
             <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
             {valuePost.likesCount}
           </Button>
-
-          <PostComponentDialog
-            valuePost={valuePost}
-            novoComentario={novoComentario}
-            setNovoComentario={setNovoComentario}
-            setPosts={setPosts}
-            posts={posts}
-            open={openDialog}
-            onOpenChange={
-              setOpenDialog as Dispatch<SetStateAction<boolean | null>>
-            }
-            pauseVideo={pauseVideo}
-          />
+          {!validatedRouter && (
+            <PostComponentDialog
+              valuePost={valuePost}
+              novoComentario={novoComentario}
+              setNovoComentario={setNovoComentario}
+              setPosts={setPosts}
+              posts={posts}
+              open={openDialog}
+              onOpenChange={
+                setOpenDialog as Dispatch<SetStateAction<boolean | null>>
+              }
+              pauseVideo={pauseVideo}
+            />
+          )}
 
           <Button
             variant="ghost"
@@ -152,7 +154,7 @@ const ActionsPost = ({
         <div
           className={`${
             validated
-              ? 'flex flex-col items-center gap-4 rounded-lg bg-white/40 py-2 shadow-sm backdrop-blur-md dark:bg-white/10 dark:shadow-black/20 om:flex-row om:bg-transparent om:py-0 om:shadow-none'
+              ? 'flex flex-col items-center justify-center gap-4 rounded-lg bg-white/40 py-2 shadow-sm backdrop-blur-md dark:bg-white/10 dark:shadow-black/20 om:flex-row om:bg-transparent om:py-0 om:shadow-none'
               : 'flex w-full items-center justify-end gap-4'
           }`}
         >

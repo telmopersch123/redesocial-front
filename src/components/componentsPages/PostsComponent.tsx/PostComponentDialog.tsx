@@ -61,7 +61,8 @@ const PostComponentDialog = ({
   const comentarios = useLimitForms(5000)
   const pathname = useLocation().pathname
   const videoRef = useRef<HTMLVideoElement>(null)
-
+  const [respondendoA, setRespondendoA] = useState<number | null>(null)
+  const [textoResposta, setTextoResposta] = useState('')
   const { videoState, setVideoState } = useContext(VideoContext)
   const { id } = useParams()
 
@@ -89,8 +90,6 @@ const PostComponentDialog = ({
     }
   }
 
-  const [respondendoA, setRespondendoA] = useState<number | null>(null)
-  const [textoResposta, setTextoResposta] = useState('')
   const adicionarResposta = async (
     comentarioId: number,
     respondendoPara?: string
@@ -237,9 +236,9 @@ const PostComponentDialog = ({
 
           <div className="flex min-h-0 flex-1 flex-col justify-between p-4 2xl:flex-row">
             {valuePost.mediaType && (
-              <div className="z-10 md:h-1/2 2xl:h-auto 2xl:w-1/2">
+              <div className="z-10 flex flex-col md:h-1/2 2xl:h-auto 2xl:w-1/2">
                 <div
-                  className={`relative flex items-center justify-center overflow-hidden rounded-md bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/10 dark:to-indigo-900/10 md:w-auto 2xl:h-full ${(pathname.includes(`perfil/${id}/config`) || openActionPosts) && open === true ? 'flex-col' : 'flex-row'}`}
+                  className={`relative flex items-center justify-center overflow-hidden rounded-md bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/10 dark:to-indigo-900/10 md:w-auto 2xl:h-full ${(pathname.includes(`perfil/config`) || openActionPosts) && open === true ? 'flex-col' : 'flex-row'}`}
                 >
                   <div>
                     <div className="p-1">
@@ -308,25 +307,24 @@ const PostComponentDialog = ({
                         </div>
                       )}
                   </div>
-
-                  <div>
-                    {(pathname.includes(`perfil/${id}/config`) ||
-                      (openActionPosts && open === true)) && (
-                      <ActionsPost
-                        valuePost={valuePost}
-                        novoComentario={novoComentario}
-                        setNovoComentario={setNovoComentario}
-                        setPosts={setPosts}
-                        posts={posts}
-                        pauseVideo={pauseVideo as () => void}
-                        validated={
-                          (pathname.includes(`perfil/${id}/config`) ||
-                            openActionPosts) &&
-                          open === true
-                        }
-                      />
-                    )}
-                  </div>
+                </div>
+                <div>
+                  {(pathname.includes(`perfil/config`) ||
+                    (openActionPosts && open === true)) && (
+                    <ActionsPost
+                      valuePost={valuePost}
+                      novoComentario={novoComentario}
+                      setNovoComentario={setNovoComentario}
+                      setPosts={setPosts}
+                      posts={posts}
+                      pauseVideo={pauseVideo as () => void}
+                      validated={
+                        (pathname.includes(`perfil/config`) ||
+                          openActionPosts) &&
+                        open === true
+                      }
+                    />
+                  )}
                 </div>
               </div>
             )}

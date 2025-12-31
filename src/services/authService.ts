@@ -282,3 +282,34 @@ export async function getSavedPosts() {
 
   return data
 }
+
+export async function getLikedPosts() {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/getLikedPosts`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) {
+    throw new Error('Erro ao buscar os posts salvos')
+  }
+  const data = await res.json()
+
+  return data
+}
+export async function getMessagePosts() {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/getMessagePosts`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) {
+    throw new Error('Erro ao buscar os posts salvos')
+  }
+  const data = await res.json()
+
+  return data
+}

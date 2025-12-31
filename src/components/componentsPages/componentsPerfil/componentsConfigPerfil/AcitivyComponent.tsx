@@ -1,6 +1,11 @@
 import { Bookmark, Heart, MessageCircleMore } from 'lucide-react'
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
-import { getSavedPosts } from '../../../../services/authService'
+import { usePosts } from '../../../../context/PostsContext'
+import {
+  getLikedPosts,
+  getMessagePosts,
+  getSavedPosts,
+} from '../../../../services/authService'
 import type { Post } from '../../../../types'
 import { Button } from '../../../ui/button'
 
@@ -13,28 +18,40 @@ interface TypeSaved {
 
 interface ActivityComponentProps {
   setOpenDialogPost: Dispatch<SetStateAction<boolean>>
-  setPosts: Dispatch<SetStateAction<Post[]>>
 }
 
 export const ActivityComponent = ({
-  setPosts,
   setOpenDialogPost,
 }: ActivityComponentProps) => {
+  const { posts } = usePosts()
   const [tab, setTab] = useState<'saved' | 'liked' | 'comment'>('saved')
   const [savedPosts, setSavedPosts] = useState<TypeSaved[]>([])
-  const likedPosts: TypeSaved[] = []
+  const [likedPosts, setLikedPosts] = useState<TypeSaved[]>([])
+  const [commentedPosts, setCommentedPosts] = useState<Post[]>([])
 
   useEffect(() => {
-    async function fetchSavedPosts() {
+    async function fetchByTab() {
       try {
-        const response = await getSavedPosts()
-        setSavedPosts(response)
+        if (tab === 'saved') {
+          const response = await getSavedPosts()
+          setSavedPosts(response)
+        }
+
+        if (tab === 'liked') {
+          const response = await getLikedPosts()
+          setLikedPosts(response)
+        }
+
+        if (tab === 'comment') {
+          const response = await getMessagePosts()
+          setCommentedPosts(response)
+        }
       } catch (error) {
         console.error('Erro ao buscar posts salvos:', error)
       }
     }
-    fetchSavedPosts()
-  }, [])
+    fetchByTab()
+  }, [tab, posts])
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -84,14 +101,19 @@ export const ActivityComponent = ({
         <SavedPostList
           setOpenDialogPost={setOpenDialogPost}
           savedPosts={savedPosts}
-          setPosts={setPosts}
         />
       )}
       {tab === 'liked' && (
-        <LikedPostList likedPosts={likedPosts} setPosts={setPosts} />
+        <LikedPostList
+          setOpenDialogPost={setOpenDialogPost}
+          likedPosts={likedPosts}
+        />
       )}
       {tab === 'comment' && (
-        <CommentedPostList posts={likedPosts} setPosts={setPosts} />
+        <CommentedPostList
+          setOpenDialogPost={setOpenDialogPost}
+          commentedPosts={commentedPosts}
+        />
       )}
     </div>
   )
@@ -100,11 +122,9 @@ export const ActivityComponent = ({
 const SavedPostList = ({
   setOpenDialogPost,
   savedPosts,
-  setPosts,
 }: {
   setOpenDialogPost: Dispatch<SetStateAction<boolean>>
   savedPosts: TypeSaved[]
-  setPosts: Dispatch<SetStateAction<Post[]>>
 }) => {
   if (!savedPosts.length)
     return <EmptyState message="Nenhum vídeo salvo ainda." />
@@ -116,7 +136,6 @@ const SavedPostList = ({
           key={post.id}
           setOpenDialogPost={setOpenDialogPost}
           posts={post.post}
-          setPosts={setPosts}
         />
       ))}
     </div>
@@ -124,11 +143,11 @@ const SavedPostList = ({
 }
 
 const LikedPostList = ({
+  setOpenDialogPost,
   likedPosts,
-  setPosts,
 }: {
+  setOpenDialogPost: Dispatch<SetStateAction<boolean>>
   likedPosts: TypeSaved[]
-  setPosts: Dispatch<SetStateAction<Post[]>>
 }) => {
   if (!likedPosts.length)
     return <EmptyState message="Você ainda não curtiu nenhum vídeo." />
@@ -136,26 +155,34 @@ const LikedPostList = ({
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {likedPosts.map((post) => (
-        <PostCard key={post.id} posts={post.post} setPosts={setPosts} />
+        <PostCard
+          key={post.id}
+          setOpenDialogPost={setOpenDialogPost}
+          posts={post.post}
+        />
       ))}
     </div>
   )
 }
 
 const CommentedPostList = ({
-  posts,
-  setPosts,
+  setOpenDialogPost,
+  commentedPosts,
 }: {
-  posts: TypeSaved[]
-  setPosts: Dispatch<SetStateAction<Post[]>>
+  setOpenDialogPost: Dispatch<SetStateAction<boolean>>
+  commentedPosts: Post[]
 }) => {
-  if (!posts.length)
+  if (!commentedPosts.length)
     return <EmptyState message="Você ainda não comentou em nenhum vídeo." />
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-      {posts.map((post) => (
-        <PostCard key={post.id} posts={post.post} setPosts={setPosts} />
+      {commentedPosts.map((post) => (
+        <PostCard
+          key={post.id}
+          setOpenDialogPost={setOpenDialogPost}
+          posts={post}
+        />
       ))}
     </div>
   )
@@ -164,16 +191,16 @@ const CommentedPostList = ({
 const PostCard = ({
   setOpenDialogPost,
   posts,
-  setPosts,
 }: {
   setOpenDialogPost?: Dispatch<SetStateAction<boolean>>
   posts: Post
-  setPosts: Dispatch<SetStateAction<Post[]>>
 }) => {
+  const { setPosts } = usePosts()
   return (
     <div
       onClick={() => {
-        setPosts((prevPosts) => [...prevPosts, posts])
+        setPosts((prev) => [...prev])
+        // setPosts((prevPosts) => [...prevPosts, posts])
         if (setOpenDialogPost) setOpenDialogPost(true)
       }}
       className="group flex cursor-pointer flex-col overflow-hidden rounded-lg border bg-white shadow-sm transition-all hover:shadow-lg dark:border-zinc-700 dark:bg-zinc-900"

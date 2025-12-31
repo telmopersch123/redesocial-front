@@ -37,7 +37,6 @@ export interface Post {
     name_at: string
     avatar: string | null
   }
-
   comments: ComentarioPost[]
   saves: {
     id: number
