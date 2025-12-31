@@ -20,12 +20,13 @@ import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import { VideoContext, type VideoState } from '../../../context/VideoContext'
 import { createComment } from '../../../services/authService'
 
+import { usePosts } from '../../../context/PostsContext'
 import ListMarcation from './ListMarcation'
 import ActionsPost from './components/ActionsPostComponent'
 import { MentionInput } from './components/MentionsInput'
 
 export interface PostProp {
-  valuePost: Post | null
+  valuePosts: Post | null
   novoComentario: string
   setNovoComentario: React.Dispatch<React.SetStateAction<string>>
   setPosts: React.Dispatch<React.SetStateAction<Post[]>>
@@ -37,7 +38,7 @@ export interface PostProp {
 }
 
 const PostComponentDialog = ({
-  valuePost,
+  valuePosts,
   novoComentario,
   setNovoComentario,
   setPosts,
@@ -47,7 +48,9 @@ const PostComponentDialog = ({
   typePost,
   pauseVideo,
 }: PostProp) => {
-  if (valuePost === undefined || valuePost === null) return null
+  if (valuePosts === undefined || valuePosts === null) return null
+  const postAtualizado = posts.find((p) => p.id === valuePosts.id) ?? valuePosts
+
   const scrollRef = useRef<HTMLDivElement>(null)
   const { getMatches, sugestoes, setActiveInputId, activeInputId } =
     useMentionLogic()
@@ -56,7 +59,7 @@ const PostComponentDialog = ({
   }>({})
   const { openActionPosts, setOpenActionPosts } = useCriarPostDialog()
   const [clickedMention, setClickedMention] = useState(false)
-  const idInput = 'comment-' + valuePost.id
+  const idInput = 'comment-' + postAtualizado.id
   const openMarcation = useState(false)
   const comentarios = useLimitForms(5000)
   const pathname = useLocation().pathname
@@ -65,6 +68,7 @@ const PostComponentDialog = ({
   const [textoResposta, setTextoResposta] = useState('')
   const { videoState, setVideoState } = useContext(VideoContext)
   const { id } = useParams()
+  const { setSelectedPost } = usePosts()
 
   const adicionarComentario = async (postId: number) => {
     if (!novoComentario.trim()) return
@@ -83,6 +87,7 @@ const PostComponentDialog = ({
           return p
         })
       )
+      setSelectedPost(postAtualizado)
 
       setNovoComentario('')
     } catch (err) {
@@ -98,7 +103,7 @@ const PostComponentDialog = ({
 
     try {
       const response = await createComment(
-        valuePost.id,
+        postAtualizado.id,
         textoResposta,
         comentarioId,
         respondendoPara
@@ -107,7 +112,7 @@ const PostComponentDialog = ({
 
       setPosts(
         posts.map((p: Post) => {
-          if (p.id === valuePost.id) {
+          if (p.id === postAtualizado.id) {
             return {
               ...p,
               comments: adicionarRecursivo(
@@ -120,6 +125,7 @@ const PostComponentDialog = ({
           return p
         })
       )
+      setSelectedPost(postAtualizado)
       setTextoResposta('')
     } catch (err) {
       console.log(err)
@@ -153,7 +159,7 @@ const PostComponentDialog = ({
 
     setVideoState((prev) => ({
       ...prev,
-      [valuePost.id]: {
+      [postAtualizado.id]: {
         currentTime,
         playing: false,
       },
@@ -191,7 +197,7 @@ const PostComponentDialog = ({
             className={`flex ${typePost === 'NotificaçãoDialog' || pathname.includes(`perfil/${id}/config`) || openActionPosts ? 'hidden' : ''} items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400`}
           >
             <MessageCircle />
-            {(valuePost.comments ?? []).length}
+            {(postAtualizado.comments ?? []).length}
           </Button>
         </DialogTrigger>
 
@@ -215,17 +221,17 @@ const PostComponentDialog = ({
 
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-sm font-bold text-white">
-                <p aria-hidden>{valuePost.user.avatar}</p>
+                <p aria-hidden>{postAtualizado.user.avatar}</p>
               </div>
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {valuePost.user.name_at}
+                {postAtualizado.user.name_at}
               </p>
             </div>
 
             <div className="relative w-full">
               <div className="max-w-full overflow-y-auto break-all pr-2">
                 <DialogTitle className="text-md h-[100px] p-0 font-medium leading-relaxed text-gray-900 dark:text-gray-100 2xl:h-[120px]">
-                  {valuePost.description}
+                  {postAtualizado.description}
                 </DialogTitle>
                 <div className="pointer-events-none absolute -bottom-2 left-0 h-10 w-full bg-gradient-to-t from-white to-transparent dark:from-[#1a1a1a] dark:to-transparent" />
               </div>
@@ -235,19 +241,19 @@ const PostComponentDialog = ({
           </DialogHeader>
 
           <div className="flex min-h-0 flex-1 flex-col justify-between p-4 2xl:flex-row">
-            {valuePost.mediaType && (
+            {postAtualizado.mediaType && (
               <div className="z-10 flex flex-col md:h-1/2 2xl:h-auto 2xl:w-1/2">
                 <div
                   className={`relative flex items-center justify-center overflow-hidden rounded-md bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/10 dark:to-indigo-900/10 md:w-auto 2xl:h-full ${(pathname.includes(`perfil/config`) || openActionPosts) && open === true ? 'flex-col' : 'flex-row'}`}
                 >
                   <div>
                     <div className="p-1">
-                      {valuePost.mediaType === 'video' ? (
+                      {postAtualizado.mediaType === 'video' ? (
                         <video
                           ref={videoRef}
-                          src={valuePost.mediaUrl}
+                          src={postAtualizado.mediaUrl}
                           onLoadedMetadata={() => {
-                            const state = videoState[valuePost.id]
+                            const state = videoState[postAtualizado.id]
                             if (!state || !videoRef.current) return
 
                             if (Number.isFinite(state.currentTime)) {
@@ -257,8 +263,8 @@ const PostComponentDialog = ({
                           onPlay={() =>
                             setVideoState((prev: VideoState) => ({
                               ...prev,
-                              [valuePost.id]: {
-                                ...prev[valuePost.id],
+                              [postAtualizado.id]: {
+                                ...prev[postAtualizado.id],
                                 playing: true,
                               },
                             }))
@@ -266,7 +272,7 @@ const PostComponentDialog = ({
                           onPause={() =>
                             setVideoState((prev: VideoState) => ({
                               ...prev,
-                              [valuePost.id]: {
+                              [postAtualizado.id]: {
                                 currentTime: videoRef.current?.currentTime ?? 0,
                                 playing: false,
                               },
@@ -277,15 +283,15 @@ const PostComponentDialog = ({
                         />
                       ) : (
                         <img
-                          src={valuePost.mediaUrl}
-                          alt={valuePost.community}
+                          src={postAtualizado.mediaUrl}
+                          alt={postAtualizado.community}
                           className="h-full w-full object-cover"
                         />
                       )}
                     </div>
 
-                    {!videoState[valuePost.id]?.playing &&
-                      valuePost.mediaType === 'video' && (
+                    {!videoState[postAtualizado.id]?.playing &&
+                      postAtualizado.mediaType === 'video' && (
                         <div
                           onClick={() => {
                             if (!videoRef.current) return
@@ -293,7 +299,7 @@ const PostComponentDialog = ({
                             videoRef.current.play()
                             setVideoState((prev) => ({
                               ...prev,
-                              [valuePost.id]: {
+                              [postAtualizado.id]: {
                                 currentTime: videoRef.current?.currentTime ?? 0,
                                 playing: true,
                               },
@@ -312,7 +318,7 @@ const PostComponentDialog = ({
                   {(pathname.includes(`perfil/config`) ||
                     (openActionPosts && open === true)) && (
                     <ActionsPost
-                      valuePost={valuePost}
+                      valuePost={postAtualizado}
                       novoComentario={novoComentario}
                       setNovoComentario={setNovoComentario}
                       setPosts={setPosts}
@@ -332,15 +338,16 @@ const PostComponentDialog = ({
             <div
               ref={scrollRef}
               className={`flex h-full flex-col overflow-y-auto bg-white dark:bg-[#1a1a1a] 2xl:max-h-full ${
-                valuePost.mediaType == null || valuePost.mediaType === undefined
+                postAtualizado.mediaType == null ||
+                postAtualizado.mediaType === undefined
                   ? '2xl:w-full'
                   : 'md:max-h-[48vh] 2xl:w-1/2'
               }`}
             >
               <div className="relative h-full md:h-2/3 md:max-h-full 2xl:h-full">
                 <div className="space-y-4 pb-10 pt-8 2xl:pb-10 2xl:pt-0">
-                  {(valuePost.comments?.length ?? 0) > 0 ? (
-                    valuePost.comments.map((c) => (
+                  {(postAtualizado.comments?.length ?? 0) > 0 ? (
+                    postAtualizado.comments.map((c: ComentarioPost) => (
                       <CommentItem
                         key={c.id}
                         comentario={c}
@@ -373,8 +380,8 @@ const PostComponentDialog = ({
 
                 <div
                   className={`!fixed !bottom-0 right-0 mt-3 w-full rounded-xl bg-white p-2 shadow-lg dark:bg-[#1a1a1a] ${
-                    valuePost.mediaType == null ||
-                    valuePost.mediaType === undefined
+                    postAtualizado.mediaType == null ||
+                    postAtualizado.mediaType === undefined
                       ? '2xl:w-full'
                       : '2xl:w-1/2'
                   }`}
@@ -406,7 +413,7 @@ const PostComponentDialog = ({
                       }}
                       onEnter={() => {
                         setActiveInputId(null)
-                        adicionarComentario(valuePost.id)
+                        adicionarComentario(postAtualizado.id)
                       }}
                       error={comentarios.error}
                     />
@@ -415,7 +422,7 @@ const PostComponentDialog = ({
                       type="submit"
                       size="icon"
                       onClick={() => {
-                        adicionarComentario(valuePost.id)
+                        adicionarComentario(postAtualizado.id)
                         setClickedMention(false)
                       }}
                       disabled={!novoComentario.trim() || !!comentarios.error}

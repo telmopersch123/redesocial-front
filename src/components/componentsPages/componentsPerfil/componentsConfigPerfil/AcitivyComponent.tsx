@@ -195,12 +195,15 @@ const PostCard = ({
   setOpenDialogPost?: Dispatch<SetStateAction<boolean>>
   posts: Post
 }) => {
-  const { setPosts, setUniquePosts } = usePosts()
+  const { setSelectedPost, setPosts } = usePosts()
   return (
     <div
       onClick={() => {
-        setPosts((prev) => [...prev])
-        setUniquePosts(posts)
+        setSelectedPost(posts)
+        setPosts((prev) => {
+          const exists = prev.some((p) => p.id === posts.id)
+          return exists ? prev : [posts, ...prev]
+        })
         if (setOpenDialogPost) setOpenDialogPost(true)
       }}
       className="group flex cursor-pointer flex-col overflow-hidden rounded-lg border bg-white shadow-sm transition-all hover:shadow-lg dark:border-zinc-700 dark:bg-zinc-900"
