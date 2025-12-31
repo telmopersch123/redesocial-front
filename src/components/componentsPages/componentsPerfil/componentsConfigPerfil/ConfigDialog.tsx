@@ -41,7 +41,7 @@ export function ConfigDialog({
   nomeUser,
   setNomeUser,
 }: DialogConfigProps) {
-  const { posts, setPosts } = usePosts()
+  const { posts, setPosts, uniquePosts } = usePosts()
   const [openDialogPost, setOpenDialogPost] = useState(false)
   const [novoComentario, setNovoComentario] = useState('')
   const [notifications, setNotifications] = useState(true)
@@ -131,7 +131,7 @@ export function ConfigDialog({
       {posts && (
         <div className="absolute hidden">
           <PostComponentDialog
-            valuePost={posts[0]}
+            valuePost={uniquePosts}
             novoComentario={novoComentario}
             setNovoComentario={setNovoComentario}
             setPosts={setPosts}

@@ -24,6 +24,7 @@ export default {
         tm: '1340px',
         ny: '1640px',
         vm: '1800px',
+        max: '2000px',
       },
       borderRadius: {
         lg: 'var(--radius)',

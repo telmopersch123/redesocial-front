@@ -29,7 +29,7 @@ const ActionsPost = ({
 }: ActionsPostProps) => {
   const pathname = window.location.pathname
   const [openDialog, setOpenDialog] = useState(false)
-  const [liked, setLiked] = useState(false) // inicia falso, será atualizado
+  const [liked, setLiked] = useState(false)
   const { user: authUser } = useAuth()
   const validatedRouter = pathname.includes(`perfil/config`) ? true : false
   // Atualiza liked sempre que valuePost mudar

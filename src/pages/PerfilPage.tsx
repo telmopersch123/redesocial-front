@@ -195,7 +195,7 @@ const PerfilUsuario = () => {
 
       {/* Feed de Posts */}
       <main>
-        <div className="flex flex-col space-y-24">
+        <div className="max:w-[1500px] flex w-auto flex-col space-y-24 tm:w-[1000px]">
           {posts.length > 0 ? (
             <>
               {posts.slice(0, visibleCount).map((post, index) => {

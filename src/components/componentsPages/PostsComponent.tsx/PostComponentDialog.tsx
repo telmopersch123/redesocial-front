@@ -25,7 +25,7 @@ import ActionsPost from './components/ActionsPostComponent'
 import { MentionInput } from './components/MentionsInput'
 
 export interface PostProp {
-  valuePost: Post
+  valuePost: Post | null
   novoComentario: string
   setNovoComentario: React.Dispatch<React.SetStateAction<string>>
   setPosts: React.Dispatch<React.SetStateAction<Post[]>>
@@ -47,7 +47,7 @@ const PostComponentDialog = ({
   typePost,
   pauseVideo,
 }: PostProp) => {
-  if (valuePost === undefined) return null
+  if (valuePost === undefined || valuePost === null) return null
   const scrollRef = useRef<HTMLDivElement>(null)
   const { getMatches, sugestoes, setActiveInputId, activeInputId } =
     useMentionLogic()
