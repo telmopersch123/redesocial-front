@@ -1,6 +1,7 @@
 import { Bookmark, Heart, Share2 } from 'lucide-react'
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import { useAuth } from '../../../../context/getMe'
+import { usePosts } from '../../../../context/PostsContext'
 import { savedPost, updateLikedPost } from '../../../../services/authService'
 import type { Post } from '../../../../types'
 import { TooltipComponent } from '../../../globalcomponents/tooltipComponent'
@@ -27,12 +28,13 @@ const ActionsPost = ({
   validated,
   pauseVideo,
 }: ActionsPostProps) => {
+  const { setSelectedPost } = usePosts()
   const pathname = window.location.pathname
   const [openDialog, setOpenDialog] = useState(false)
   const [liked, setLiked] = useState(false)
   const { user: authUser } = useAuth()
   const validatedRouter = pathname.includes(`perfil/config`) ? true : false
-  // Atualiza liked sempre que valuePost mudar
+
   useEffect(() => {
     setLiked(valuePost.likedByMe)
   }, [valuePost])
@@ -75,6 +77,15 @@ const ActionsPost = ({
             : post
         )
       )
+      setSelectedPost((prev) =>
+        prev?.id === id
+          ? {
+              ...prev,
+              likedByMe: updated.liked,
+              likesCount: updated.likesCount,
+            }
+          : prev
+      )
     } catch (error) {
       console.log(error)
     }
@@ -87,6 +98,9 @@ const ActionsPost = ({
         prev.map((post: Post) =>
           post.id === id ? { ...post, saved: response.saved } : post
         )
+      )
+      setSelectedPost((prev) =>
+        prev?.id === id ? { ...prev, saved: response.saved } : prev
       )
     } catch (error) {
       console.log(error)
@@ -122,12 +136,12 @@ const ActionsPost = ({
                 : 'text-gray-600 hover:text-red-500 dark:text-gray-300 dark:hover:text-red-400'
             }`}
           >
-            <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
+            <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />{' '}
             {valuePost.likesCount}
           </Button>
           {!validatedRouter && (
             <PostComponentDialog
-              valuePost={valuePost}
+              valuePosts={valuePost}
               novoComentario={novoComentario}
               setNovoComentario={setNovoComentario}
               setPosts={setPosts}

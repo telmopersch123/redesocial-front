@@ -1,5 +1,6 @@
 import { Bookmark, Heart, MessageCircleMore } from 'lucide-react'
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
+import { useAuth } from '../../../../context/getMe'
 import { usePosts } from '../../../../context/PostsContext'
 import {
   getLikedPosts,
@@ -27,6 +28,7 @@ export const ActivityComponent = ({
   const [tab, setTab] = useState<'saved' | 'liked' | 'comment'>('saved')
   const [savedPosts, setSavedPosts] = useState<TypeSaved[]>([])
   const [likedPosts, setLikedPosts] = useState<TypeSaved[]>([])
+
   const [commentedPosts, setCommentedPosts] = useState<Post[]>([])
 
   useEffect(() => {
@@ -196,10 +198,18 @@ const PostCard = ({
   posts: Post
 }) => {
   const { setSelectedPost, setPosts } = usePosts()
+  const { user } = useAuth()
   return (
     <div
       onClick={() => {
-        setSelectedPost(posts)
+        const normalizedPosts: Post = {
+          ...posts,
+          likedByMe:
+            posts.likes?.some((l) => l.userId === Number(user?.id)) ?? false,
+          saved: Array.isArray(posts.saves) ? posts.saves.length > 0 : false,
+          likesCount: posts._count.likes,
+        }
+        setSelectedPost(normalizedPosts)
         setPosts((prev) => {
           const exists = prev.some((p) => p.id === posts.id)
           return exists ? prev : [posts, ...prev]

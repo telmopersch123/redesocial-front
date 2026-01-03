@@ -64,8 +64,6 @@ export function ConfigDialog({
     setOpenDialog((prev) => prev.map(() => false))
   }
 
-  console.log(openDialogPost)
-
   return (
     <>
       {openDialog.some((item) => item === true) && (

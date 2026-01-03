@@ -31,20 +31,32 @@ export interface Post {
   community: string
   likesCount: number
   likedByMe: boolean
-  user: {
-    id: string
-    name: string
-    name_at: string
-    avatar: string | null
-  }
+  user: User
   comments: ComentarioPost[]
-  saves: {
-    id: number
-    userId: string
-    postId: number
-  }
+  likes: Like[]
+  saves: Save[]
   saved: boolean
   tags: string[]
+  _count: {
+    likes: number
+  }
+}
+
+interface User {
+  id: string
+  name: string
+  name_at: string
+  avatar: string | null
+}
+
+export interface Like {
+  userId: number
+}
+
+interface Save {
+  id: number
+  userId: number
+  postId: number
 }
 
 ////

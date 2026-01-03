@@ -26,7 +26,7 @@ import ActionsPost from './components/ActionsPostComponent'
 import { MentionInput } from './components/MentionsInput'
 
 export interface PostProp {
-  valuePosts: Post | null
+  valuePosts: Post
   novoComentario: string
   setNovoComentario: React.Dispatch<React.SetStateAction<string>>
   setPosts: React.Dispatch<React.SetStateAction<Post[]>>
@@ -49,7 +49,14 @@ const PostComponentDialog = ({
   pauseVideo,
 }: PostProp) => {
   if (valuePosts === undefined || valuePosts === null) return null
-  const postAtualizado = posts.find((p) => p.id === valuePosts.id) ?? valuePosts
+  const postFromContext = posts.find((p) => p.id === valuePosts.id)
+
+  const postAtualizado: Post = {
+    ...(postFromContext ?? valuePosts),
+    likedByMe: valuePosts.likedByMe,
+    saved: valuePosts.saved,
+    likesCount: valuePosts.likesCount,
+  }
 
   const scrollRef = useRef<HTMLDivElement>(null)
   const { getMatches, sugestoes, setActiveInputId, activeInputId } =
