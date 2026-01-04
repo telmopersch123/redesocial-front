@@ -41,7 +41,6 @@ export function useUserSearch() {
 
   return { setQuery, query, results }
 }
-
 export async function logoutUser(): Promise<boolean> {
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/logout`, {
@@ -163,7 +162,7 @@ export async function resetPasswordCod(email: string, newPassword: string) {
     console.log(err)
   }
 }
-
+///////////
 export async function createPosts(post: PostDialogSchema): Promise<boolean> {
   const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/createPosts`, {
     method: 'POST',
@@ -282,7 +281,6 @@ export async function getSavedPosts() {
 
   return data
 }
-
 export async function getLikedPosts() {
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/getLikedPosts`,
@@ -308,6 +306,19 @@ export async function getMessagePosts() {
   )
   if (!res.ok) {
     throw new Error('Erro ao buscar os posts salvos')
+  }
+  const data = await res.json()
+
+  return data
+}
+////////////////
+export async function getContatos() {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/getContatos`, {
+    method: 'GET',
+    credentials: 'include',
+  })
+  if (!res.ok) {
+    throw new Error('Erro ao buscar os contatos')
   }
   const data = await res.json()
 

@@ -1,6 +1,7 @@
 import { format } from 'date-fns'
 import {
   ArrowLeft,
+  Check,
   CheckCheck,
   Fullscreen,
   Image,
@@ -8,114 +9,51 @@ import {
   MessageSquare,
 } from 'lucide-react'
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { EmojiInput } from '../components/componentsPages/componentsMensagens/EmojiInput'
 import { GalleryDialog } from '../components/componentsPages/componentsMensagens/GalleryDialog'
 import { MessageForms } from '../components/formCustomer/MessageForms'
 import { TooltipComponent } from '../components/globalcomponents/tooltipComponent'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
+import { useAuth } from '../context/getMe'
 import { useLimitForms } from '../hooks/useLimitForms'
+import { getContatos } from '../services/authService'
+import { socket } from '../services/socket'
 
 interface MSG {
   id: string
-  texto: string
+  content: string
+  tempId?: string
   remetente: 'eu' | 'outro'
-  data: Date
+  senderId: number
+  receiverId?: number
+  createdAt: Date
+  status?: 'pending' | 'sent'
 }
-const contatos = [
-  {
-    id: 1,
-    nome: 'Maria Oliveira',
-    ultimaMsg: 'Oi, tudo bem?',
-    hora: '10:23',
-    avatar: 11,
-  },
-  {
-    id: 2,
-    nome: 'João Silva',
-    ultimaMsg: 'Vamos marcar aquela reunião.',
-    hora: 'Ontem',
-    avatar: 12,
-  },
-  {
-    id: 3,
-    nome: 'Carla Mendes',
-    ultimaMsg: 'Perfeito, obrigada!',
-    hora: 'Segunda',
-    avatar: 13,
-  },
-  {
-    id: 4,
-    nome: 'Lucas Ferreira',
-    ultimaMsg: 'Pode me enviar o arquivo?',
-    hora: '15:47',
-    avatar: 14,
-  },
-  {
-    id: 5,
-    nome: 'Ana Paula',
-    ultimaMsg: 'Até logo',
-    hora: '09:12',
-    avatar: 15,
-  },
-]
-const FicticiostatusUser: ('online' | 'offline')[] = [
-  'online',
-  'offline',
-  'online',
-  'offline',
-  'online',
-]
-const mensagensFicticias: Record<number, MSG[]> = {
-  1: [
-    {
-      id: '1',
-      texto:
-        'Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥',
-      remetente: 'outro',
-      data: new Date(2025, 10, 20, 10, 20),
-    },
-    {
-      id: '2',
-      texto:
-        'Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥Boa noite pessoal do grupo 👋 Só vim avisar que sábado o churrasco tá confirmado na minha casa Tragam carne, bebida e boa energia! Começa 16h, quem chegar cedo ajuda a acender a churrasqueira 🔥',
-      remetente: 'eu',
-      data: new Date(2025, 10, 20, 10, 21),
-    },
-    {
-      id: '3',
-      texto: 'Tudo ótimo por aqui!',
-      remetente: 'eu',
-      data: new Date(2025, 10, 20, 10, 23),
-    },
-    {
-      id: '4',
-      texto: 'Que bom',
-      remetente: 'outro',
-      data: new Date(2025, 10, 20, 10, 24),
-    },
-  ],
-  2: [
-    {
-      id: '5',
-      texto: 'E aí, podemos marcar aquela reunião?',
-      remetente: 'outro',
-      data: new Date(2025, 10, 19, 14, 30),
-    },
-    {
-      id: '6',
-      texto: 'Claro! Que dia você prefere?',
-      remetente: 'eu',
-      data: new Date(2025, 10, 19, 14, 35),
-    },
-  ],
+
+interface Contato {
+  chatId: number
+  contact: {
+    name: string
+    avatar: string
+  }
+  lastMessage: {
+    id: string
+    createdAt: Date
+    chatId: string
+    senderId: number
+    content: string
+  }
+  createdAt: string
 }
 
 const MessagePage = () => {
-  const [selectedChat, setSelectedChat] = useState<number | null>(null)
+  const [contatos, setContatos] = useState<Contato[]>([])
+  const [selectedChat, setSelectedChat] = useState<string | null>(null)
   const [image, setImage] = useState<string>('')
   const [contatMessage, setContatMessage] = useState<boolean>(false)
+
   const [chatMenssage, setChatMessage] = useState<boolean>(false)
   const [fullscreen, setFullscreen] = useState<boolean>(false)
   const [inputText, setInputText] = useState('')
@@ -125,8 +63,9 @@ const MessagePage = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const responsive = 1000
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { id: idUser } = useParams()
-  const pathname = useLocation().pathname
+  const { chatId } = useParams<{ chatId: string }>()
+  const { user } = useAuth()
+
   const navigateFlex = useNavigate()
 
   const scrollToBottom = () => {
@@ -135,22 +74,181 @@ const MessagePage = () => {
       block: 'end',
     })
   }
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
-
-  useEffect(() => {
-    if (selectedChat !== null) {
-      const timer = setTimeout(scrollToBottom, 100)
-      return () => clearTimeout(timer)
+  const handleOpen = (id: number) => {
+    if (Number(selectedChat) === id) {
+      return
     }
-  }, [selectedChat])
+    navigateFlex(`/mensagens/${id}`)
+    setSelectedChat(id.toString())
+    if (window.innerWidth < 768) {
+      setContatMessage(true)
+      setChatMessage(true)
+    } else {
+      setContatMessage(false)
+      setChatMessage(false)
+    }
+  }
+  const handleSendMessage = async () => {
+    if (inputText.trim() === '' || inputText.length > 5000) return
+    const tempId = `temp-${Math.random().toString(36)}`
+    const newMessage: MSG = {
+      id: tempId,
+      tempId,
+      content: inputText,
+      remetente: 'eu',
+      senderId: Number(user?.id),
+      createdAt: new Date(),
+      status: 'pending',
+    }
+
+    setMessages((prev) => [...prev, newMessage])
+
+    socket.emit('chat:send', {
+      chatId: selectedChat ?? undefined,
+      content: inputText,
+      tempId,
+    })
+
+    setInputText('')
+    messageInput.handleChange({ target: { value: '' } } as ChangeEvent<
+      HTMLTextAreaElement | HTMLInputElement
+    >)
+    inputRef.current?.focus()
+  }
+  const handleFullScreen = () => {
+    setContatMessage((valor) => !valor)
+    setFullscreen((valor) => !valor)
+  }
+  const handleAddEmoji = (emoji: string) => {
+    setInputText((prevInput) => prevInput + emoji)
+  }
 
   useEffect(() => {
     setSelectedChat(null)
     setContatMessage(false)
   }, [])
+  useEffect(() => {
+    const handleChatCreated = ({ chatId }: { chatId: string }) => {
+      setSelectedChat(chatId)
+      socket.emit('chat:join', chatId)
+    }
 
+    socket.on('chat:created', handleChatCreated)
+    return () => {
+      socket.off('chat:created', handleChatCreated)
+    }
+  }, [])
+  useEffect(() => {
+    async function fetchContatos() {
+      try {
+        const response = await getContatos()
+        setContatos(response)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    fetchContatos()
+  }, [])
+  useEffect(() => {
+    const handleReceiveMessage = (incoming: MSG | MSG[]) => {
+      const messagesArray = Array.isArray(incoming) ? incoming : [incoming]
+      setMessages((prev) => {
+        // Cria um mapa com chave única por mensagem (id ou tempId)
+        const messageMap = new Map<string, MSG>()
+
+        prev.forEach((m) => {
+          const key = m.tempId ?? m.id
+          if (key) messageMap.set(key, m)
+        })
+
+        messagesArray.forEach((msg) => {
+          const remetente = msg.senderId === Number(user?.id) ? 'eu' : 'outro'
+
+          const status =
+            msg.status ||
+            (msg.senderId === Number(user?.id) ? 'sent' : undefined)
+
+          if (msg.tempId && messageMap.has(msg.tempId)) {
+            // Atualiza mensagem temporária com id real
+            messageMap.set(msg.tempId, {
+              ...msg,
+              remetente,
+              status,
+            })
+          } else if (
+            !msg.tempId &&
+            ![...messageMap.values()].some((m) => m.id === msg.id)
+          ) {
+            messageMap.set(msg.id, {
+              ...msg,
+              remetente,
+              status,
+            })
+          }
+        })
+
+        // Retorna as mensagens em ordem cronológica
+        return [...messageMap.values()].sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )
+      })
+    }
+
+    socket.on('chat:receive', handleReceiveMessage)
+
+    return () => {
+      socket.off('chat:receive', handleReceiveMessage)
+    }
+  }, [user?.id])
+  useEffect(() => {
+    const handleHistory = (msgs: MSG[]) => {
+      console.log(msgs)
+      setMessages((prev) => {
+        const map = new Map<string, MSG>()
+
+        prev.forEach((m) => {
+          map.set(m.tempId ?? m.id, m)
+        })
+
+        msgs.forEach((msg) => {
+          map.set(msg.id, {
+            ...msg,
+            remetente: msg.senderId === Number(user?.id) ? 'eu' : 'outro',
+            status: 'sent',
+          })
+        })
+
+        return [...map.values()].sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        )
+      })
+    }
+
+    socket.on('chat:history', handleHistory)
+
+    return () => {
+      socket.off('chat:history', handleHistory)
+    }
+  }, [user?.id])
+  useEffect(() => {
+    scrollToBottom()
+  }, [messages])
+  useEffect(() => {
+    if (!chatId) return
+
+    setSelectedChat(chatId)
+  }, [chatId])
+  useEffect(() => {
+    if (!selectedChat) {
+      return
+    }
+    setMessages([])
+    socket.emit('chat:join', selectedChat)
+    socket.emit('chat:history', { chatId: selectedChat })
+  }, [selectedChat])
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < responsive && selectedChat !== null) {
@@ -169,64 +267,6 @@ const MessagePage = () => {
 
     return () => window.removeEventListener('resize', handleResize)
   }, [selectedChat])
-
-  const handleOpen = (id: number) => {
-    if (selectedChat === id) {
-      return
-    }
-    setSelectedChat(id)
-    navigateFlex(`/mensagens/${id}`)
-    if (window.innerWidth < 768) {
-      setContatMessage(true)
-      setChatMessage(true)
-    } else {
-      setContatMessage(false)
-      setChatMessage(false)
-    }
-  }
-
-  useEffect(() => {
-    if (selectedChat !== null) {
-      setMessages(mensagensFicticias[selectedChat] || [])
-    }
-  }, [selectedChat])
-
-  useEffect(() => {
-    if (idUser !== undefined && idUser !== null && pathname !== '/mensagens') {
-      setSelectedChat(parseInt(idUser))
-    } else {
-      setSelectedChat(null)
-    }
-  }, [idUser])
-
-  const handleSendMessage = () => {
-    if (inputText.trim() === '' || inputText.length > 5000) return
-
-    const newMensage: MSG = {
-      id: Date.now().toString(),
-      texto: inputText,
-      remetente: 'eu',
-      data: new Date(),
-    }
-    if (selectedChat !== null) {
-      setMessages((prevMessages) => [...prevMessages, newMensage])
-      setInputText('')
-      messageInput.handleChange({ target: { value: '' } } as ChangeEvent<
-        HTMLTextAreaElement | HTMLInputElement
-      >)
-
-      setTimeout(() => {
-        inputRef.current?.focus()
-      })
-    }
-  }
-  const handleFullScreen = () => {
-    setContatMessage((valor) => !valor)
-    setFullscreen((valor) => !valor)
-  }
-  const handleAddEmoji = (emoji: string) => {
-    setInputText((prevInput) => prevInput + emoji)
-  }
   useEffect(() => {
     if (localStorage.getItem('selectedImage')) {
       const stored = JSON.parse(localStorage.getItem('selectedImage') || '{}')
@@ -236,7 +276,8 @@ const MessagePage = () => {
       setImage('')
     }
   }, [open])
-  const contactSelect = contatos.find((c) => c.id === selectedChat)
+
+  const contactSelect = contatos.find((c) => c.chatId === Number(selectedChat))
 
   return (
     <div className="flex h-screen w-full flex-col gap-0 p-2 md:w-[calc(100vw-16rem)] md:flex-row md:gap-4 md:p-4 dm:w-[calc(100vw-18rem)]">
@@ -255,20 +296,20 @@ const MessagePage = () => {
 
         <div className="flex flex-1 flex-col overflow-y-auto">
           {contatos.length > 0 ? (
-            contatos.map((contato) => (
+            contatos.map((contato: Contato) => (
               <Button
-                key={contato.id}
-                onClick={() => handleOpen(contato.id)}
+                key={contato.chatId}
+                onClick={() => handleOpen(contato.chatId)}
                 variant="ghost"
                 className={`group flex w-full items-center gap-3 rounded-none border-b border-zinc-100 px-4 py-10 text-left transition-all duration-150 hover:bg-zinc-100 active:scale-[0.99] dark:border-zinc-800 dark:hover:bg-zinc-800 ${
-                  selectedChat === contato.id
+                  Number(selectedChat) === contato.chatId
                     ? 'bg-zinc-100 dark:bg-zinc-800'
                     : 'bg-transparent'
                 }`}
               >
                 <img
-                  src={`https://i.pravatar.cc/48?img=${contato.id + 10}`}
-                  alt={contato.nome}
+                  src={`https://i.pravatar.cc/48?img=${contato.chatId + 10}`}
+                  alt={contato.contact.name}
                   className="h-11 w-11 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
                 />
 
@@ -276,19 +317,19 @@ const MessagePage = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className="font-medium leading-tight text-zinc-900 group-hover:text-zinc-950 dark:text-zinc-100 dark:group-hover:text-zinc-50">
-                        {contato.nome}
+                        {contato.contact.name}
                       </span>
                       <span className="hidden text-[11px] text-zinc-400 dark:text-zinc-500 dm:inline xl:hidden">
-                        {contato.hora}
+                        {contato.createdAt}
                       </span>
                     </div>
                     <span className="text-[11px] text-zinc-400 dark:text-zinc-500 dm:hidden xl:inline">
-                      {contato.hora}
+                      {contato.createdAt}
                     </span>
                   </div>
 
                   <p className="mt-0.5 truncate text-sm leading-snug text-zinc-500 dark:text-zinc-400">
-                    {contato.ultimaMsg}
+                    {contato.lastMessage.content}
                   </p>
                 </div>
               </Button>
@@ -359,17 +400,17 @@ const MessagePage = () => {
                 </button>
 
                 <img
-                  src={`https://i.pravatar.cc/56?img=${contactSelect?.avatar}`}
-                  alt={contactSelect?.nome}
+                  src={`https://i.pravatar.cc/56?img=${contactSelect?.contact.avatar}`}
+                  alt={contactSelect?.contact.name}
                   className="h-12 w-12 rounded-full object-cover shadow-lg ring-2 ring-white/60"
                 />
 
                 <div className="flex-1">
                   <h2 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-                    {contactSelect?.nome}
+                    {contactSelect?.contact.name}
                   </h2>
 
-                  <div className="inline-flex items-center gap-1 rounded-full bg-green-50/70 px-2 py-0.5 text-[11px] font-medium shadow-sm dark:bg-green-900/30">
+                  {/* <div className="inline-flex items-center gap-1 rounded-full bg-green-50/70 px-2 py-0.5 text-[11px] font-medium shadow-sm dark:bg-green-900/30">
                     {FicticiostatusUser[0] !== 'online' ? (
                       <>
                         <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
@@ -385,7 +426,7 @@ const MessagePage = () => {
                         </p>
                       </>
                     )}
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
@@ -425,20 +466,23 @@ const MessagePage = () => {
                             }`}
                           >
                             <p
-                              className={`break-words text-sm leading-relaxed ${msg.texto.length > 80 ? 'text-justify' : 'text-left'}`}
+                              className={`break-words text-sm leading-relaxed ${msg.content.length > 80 ? 'text-justify' : 'text-left'}`}
                             >
-                              {msg.texto}
+                              {msg.content}
                             </p>
 
                             <div className="mt-2 flex items-center justify-end gap-1.5">
                               <span
                                 className={`text-xs font-medium tracking-tight ${msg.remetente === 'eu' ? 'text-purple-100' : 'text-zinc-400 dark:text-zinc-500'}`}
                               >
-                                {format(msg.data, 'HH:mm')}
+                                {format(msg.createdAt, 'HH:mm')}
                               </span>
-                              {msg.remetente === 'eu' && (
-                                <CheckCheck className="h-3.5 w-3.5 text-purple-100 opacity-90" />
-                              )}
+                              {msg.remetente === 'eu' &&
+                                (msg.status === 'sent' ? (
+                                  <CheckCheck className="h-3.5 w-3.5 text-purple-100 opacity-90" />
+                                ) : (
+                                  <Check className="h-3.5 w-3.5 text-purple-100 opacity-90" />
+                                ))}
                             </div>
 
                             {msg.remetente === 'eu' ? (
