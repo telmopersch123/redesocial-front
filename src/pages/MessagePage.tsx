@@ -33,7 +33,7 @@ interface MSG {
 }
 
 interface Contato {
-  chatId: number
+  chatId: string
   contact: {
     name: string
     avatar: string
@@ -63,7 +63,8 @@ const MessagePage = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const responsive = 1000
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { chatId } = useParams<{ chatId: string }>()
+  const { id } = useParams<{ id: string }>()
+  const targetUserId = id
   const { user } = useAuth()
 
   const navigateFlex = useNavigate()
@@ -74,18 +75,18 @@ const MessagePage = () => {
       block: 'end',
     })
   }
-  const handleOpen = (id: number) => {
-    if (Number(selectedChat) === id) {
+  const handleOpen = (chatId: string) => {
+    if (selectedChat === chatId) {
       return
     }
-    navigateFlex(`/mensagens/${id}`)
-    setSelectedChat(id.toString())
+    navigateFlex(`/mensagens/${chatId}`)
+    setSelectedChat(chatId.toString())
     if (window.innerWidth < 768) {
       setContatMessage(true)
-      setChatMessage(true)
+      setChatMessage(false)
     } else {
       setContatMessage(false)
-      setChatMessage(false)
+      setChatMessage(true)
     }
   }
   const handleSendMessage = async () => {
@@ -105,6 +106,7 @@ const MessagePage = () => {
 
     socket.emit('chat:send', {
       chatId: selectedChat ?? undefined,
+      receiverId: selectedChat ? undefined : targetUserId,
       content: inputText,
       tempId,
     })
@@ -204,7 +206,6 @@ const MessagePage = () => {
   }, [user?.id])
   useEffect(() => {
     const handleHistory = (msgs: MSG[]) => {
-      console.log(msgs)
       setMessages((prev) => {
         const map = new Map<string, MSG>()
 
@@ -236,11 +237,6 @@ const MessagePage = () => {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
-  useEffect(() => {
-    if (!chatId) return
-
-    setSelectedChat(chatId)
-  }, [chatId])
   useEffect(() => {
     if (!selectedChat) {
       return
@@ -277,7 +273,9 @@ const MessagePage = () => {
     }
   }, [open])
 
-  const contactSelect = contatos.find((c) => c.chatId === Number(selectedChat))
+  const contactSelect = contatos.find((c) => c.chatId === selectedChat)
+  console.log(contatos, selectedChat)
+  const canOpenChat = Boolean(selectedChat || targetUserId)
 
   return (
     <div className="flex h-screen w-full flex-col gap-0 p-2 md:w-[calc(100vw-16rem)] md:flex-row md:gap-4 md:p-4 dm:w-[calc(100vw-18rem)]">
@@ -302,7 +300,7 @@ const MessagePage = () => {
                 onClick={() => handleOpen(contato.chatId)}
                 variant="ghost"
                 className={`group flex w-full items-center gap-3 rounded-none border-b border-zinc-100 px-4 py-10 text-left transition-all duration-150 hover:bg-zinc-100 active:scale-[0.99] dark:border-zinc-800 dark:hover:bg-zinc-800 ${
-                  Number(selectedChat) === contato.chatId
+                  selectedChat === contato.chatId
                     ? 'bg-zinc-100 dark:bg-zinc-800'
                     : 'bg-transparent'
                 }`}
@@ -347,7 +345,7 @@ const MessagePage = () => {
       <div
         className={`relative mt-10 min-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-zinc-200 md:mt-0 md:w-full lg:w-3/4 ${image ? '' : 'bg-white dark:bg-zinc-900'} ${fullscreen ? '!w-full' : ''} ${chatMenssage ? 'flex' : 'hidden'} shadow-xl dark:border-zinc-800`}
       >
-        {selectedChat !== null ? (
+        {canOpenChat !== null && canOpenChat ? (
           <>
             {image && (
               <div
