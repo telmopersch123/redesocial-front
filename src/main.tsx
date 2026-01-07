@@ -11,6 +11,7 @@ import { CriarPostDialogProvider } from './context/ContextDialogPost.tsx'
 import { AuthProvider } from './context/getMe.tsx'
 import { OpenMentionsProvider } from './context/openMentions.tsx'
 
+import { ChatProvider } from './context/ChatContext.tsx'
 import { PostsProvider } from './context/PostsContext.tsx'
 import { ResetPasswordProvider } from './context/ResetPasswordContext.tsx'
 import { VideoProvider } from './context/VideoContext.tsx'
@@ -20,23 +21,25 @@ createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <ResetPasswordProvider>
         <AuthProvider>
-          <PostsProvider>
-            <VideoProvider>
-              <ThemeProvider>
-                <OpenMentionsProvider>
-                  <BreathingProvider>
-                    <ComunidadesProvider>
-                      <SidebarProvider>
-                        <CriarPostDialogProvider>
-                          <App />
-                        </CriarPostDialogProvider>
-                      </SidebarProvider>
-                    </ComunidadesProvider>
-                  </BreathingProvider>
-                </OpenMentionsProvider>
-              </ThemeProvider>
-            </VideoProvider>
-          </PostsProvider>
+          <ChatProvider>
+            <PostsProvider>
+              <VideoProvider>
+                <ThemeProvider>
+                  <OpenMentionsProvider>
+                    <BreathingProvider>
+                      <ComunidadesProvider>
+                        <SidebarProvider>
+                          <CriarPostDialogProvider>
+                            <App />
+                          </CriarPostDialogProvider>
+                        </SidebarProvider>
+                      </ComunidadesProvider>
+                    </BreathingProvider>
+                  </OpenMentionsProvider>
+                </ThemeProvider>
+              </VideoProvider>
+            </PostsProvider>
+          </ChatProvider>
         </AuthProvider>
       </ResetPasswordProvider>
     </BrowserRouter>

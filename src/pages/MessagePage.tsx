@@ -24,11 +24,13 @@ import { socket } from '../services/socket'
 interface MSG {
   id: string
   content: string
+  chatId?: string
   tempId?: string
   remetente: 'eu' | 'outro'
   senderId: number
   receiverId?: number
   createdAt: Date
+  readAt?: Date
   status?: 'pending' | 'sent'
 }
 
@@ -53,7 +55,6 @@ const MessagePage = () => {
   const [selectedChat, setSelectedChat] = useState<string | null>(null)
   const [image, setImage] = useState<string>('')
   const [contatMessage, setContatMessage] = useState<boolean>(false)
-
   const [chatMenssage, setChatMessage] = useState<boolean>(false)
   const [fullscreen, setFullscreen] = useState<boolean>(false)
   const [inputText, setInputText] = useState('')
@@ -153,48 +154,85 @@ const MessagePage = () => {
     fetchContatos()
   }, [])
   useEffect(() => {
-    const handleReceiveMessage = (incoming: MSG | MSG[]) => {
-      const messagesArray = Array.isArray(incoming) ? incoming : [incoming]
+    const handleRead = ({ chatId }: { chatId: string }) => {
+      if (selectedChat !== chatId) return
+
+      setMessages((prev: MSG[]) =>
+        prev.map((m) =>
+          m.remetente === 'eu' && !m.readAt
+            ? {
+                ...m,
+                readAt: new Date(),
+              }
+            : m
+        )
+      )
+    }
+
+    socket.on('chat:read', handleRead)
+    return () => {
+      socket.off('chat:read', handleRead)
+    }
+  }, [selectedChat])
+  useEffect(() => {
+    const handleReceiveMessage = (incoming: MSG) => {
+      if (incoming.chatId !== selectedChat) return
+      if (incoming.senderId !== Number(user?.id)) {
+        socket.emit('chat:read', {
+          chatId: incoming.chatId,
+        })
+      }
       setMessages((prev) => {
         // Cria um mapa com chave única por mensagem (id ou tempId)
         const messageMap = new Map<string, MSG>()
 
         prev.forEach((m) => {
           const key = m.tempId ?? m.id
-          if (key) messageMap.set(key, m)
+          if (!key) return
+
+          messageMap.set(key, {
+            ...m,
+            createdAt:
+              m.createdAt instanceof Date ? m.createdAt : new Date(m.createdAt),
+          })
         })
 
-        messagesArray.forEach((msg) => {
-          const remetente = msg.senderId === Number(user?.id) ? 'eu' : 'outro'
+        const normalized: MSG = {
+          ...incoming,
+          createdAt: new Date(incoming.createdAt),
+          remetente: incoming.senderId === Number(user?.id) ? 'eu' : 'outro',
+          status: incoming.senderId === Number(user?.id) ? 'sent' : undefined,
+        }
 
-          const status =
-            msg.status ||
-            (msg.senderId === Number(user?.id) ? 'sent' : undefined)
-
-          if (msg.tempId && messageMap.has(msg.tempId)) {
-            // Atualiza mensagem temporária com id real
-            messageMap.set(msg.tempId, {
-              ...msg,
-              remetente,
-              status,
-            })
-          } else if (
-            !msg.tempId &&
-            ![...messageMap.values()].some((m) => m.id === msg.id)
-          ) {
-            messageMap.set(msg.id, {
-              ...msg,
-              remetente,
-              status,
-            })
-          }
-        })
+        const newKey = normalized.tempId ?? normalized.id
+        messageMap.set(newKey, normalized)
 
         // Retorna as mensagens em ordem cronológica
         return [...messageMap.values()].sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
         )
+      })
+
+      setContatos((prev: Contato[]) => {
+        const updated = prev.map((c: Contato) =>
+          c.chatId === incoming.chatId
+            ? {
+                ...c,
+                lastMessage: {
+                  id: incoming.id,
+                  createdAt: incoming.createdAt,
+                  chatId: incoming.chatId,
+                  senderId: incoming.senderId,
+                  content: incoming.content,
+                },
+              }
+            : c
+        )
+
+        const changed = updated.find((c) => c.chatId === incoming.chatId)
+        const rest = updated.filter((c) => c.chatId !== incoming.chatId)
+
+        return changed ? [changed, ...rest] : prev
       })
     }
 
@@ -203,7 +241,7 @@ const MessagePage = () => {
     return () => {
       socket.off('chat:receive', handleReceiveMessage)
     }
-  }, [user?.id])
+  }, [user?.id, selectedChat])
   useEffect(() => {
     const handleHistory = (msgs: MSG[]) => {
       setMessages((prev) => {
@@ -264,6 +302,11 @@ const MessagePage = () => {
     return () => window.removeEventListener('resize', handleResize)
   }, [selectedChat])
   useEffect(() => {
+    if (!selectedChat) return
+    socket.emit('chat:read', { chatId: selectedChat })
+  }, [selectedChat])
+
+  useEffect(() => {
     if (localStorage.getItem('selectedImage')) {
       const stored = JSON.parse(localStorage.getItem('selectedImage') || '{}')
       if (!stored) return
@@ -274,7 +317,7 @@ const MessagePage = () => {
   }, [open])
 
   const contactSelect = contatos.find((c) => c.chatId === selectedChat)
-  console.log(contatos, selectedChat)
+
   const canOpenChat = Boolean(selectedChat || targetUserId)
 
   return (
@@ -476,10 +519,12 @@ const MessagePage = () => {
                                 {format(msg.createdAt, 'HH:mm')}
                               </span>
                               {msg.remetente === 'eu' &&
-                                (msg.status === 'sent' ? (
-                                  <CheckCheck className="h-3.5 w-3.5 text-purple-100 opacity-90" />
+                                (msg.readAt ? (
+                                  <CheckCheck className="h-3.5 w-3.5 text-blue-400" />
+                                ) : msg.status === 'sent' ? (
+                                  <CheckCheck className="h-3.5 w-3.5 text-purple-100" />
                                 ) : (
-                                  <Check className="h-3.5 w-3.5 text-purple-100 opacity-90" />
+                                  <Check className="h-3.5 w-3.5 text-purple-100" />
                                 ))}
                             </div>
 
