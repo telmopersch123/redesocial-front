@@ -16,6 +16,7 @@ import { MessageForms } from '../components/formCustomer/MessageForms'
 import { TooltipComponent } from '../components/globalcomponents/tooltipComponent'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
+import { useChat } from '../context/ChatContext'
 import { useAuth } from '../context/getMe'
 import { useLimitForms } from '../hooks/useLimitForms'
 import { getContatos } from '../services/authService'
@@ -34,7 +35,7 @@ interface MSG {
   status?: 'pending' | 'sent'
 }
 
-interface Contato {
+export interface Contato {
   chatId: string
   contact: {
     name: string
@@ -51,15 +52,25 @@ interface Contato {
 }
 
 const MessagePage = () => {
-  const [contatos, setContatos] = useState<Contato[]>([])
-  const [selectedChat, setSelectedChat] = useState<string | null>(null)
+  const {
+    messages,
+    setMessages,
+    contatos,
+    setContatos,
+    selectedChat,
+    setSelectedChat,
+    typingUsers,
+  } = useChat()
+  // const [contatos, setContatos] = useState<Contato[]>([])
+  // const [selectedChat, setSelectedChat] = useState<string | null>(null)
+  // const [messages, setMessages] = useState<MSG[]>([])
   const [image, setImage] = useState<string>('')
   const [contatMessage, setContatMessage] = useState<boolean>(false)
   const [chatMenssage, setChatMessage] = useState<boolean>(false)
   const [fullscreen, setFullscreen] = useState<boolean>(false)
   const [inputText, setInputText] = useState('')
   const [open, setOpen] = useState<boolean>(false)
-  const [messages, setMessages] = useState<MSG[]>([])
+  const typingTimeout = useRef<number | null>(null)
   const messageInput = useLimitForms(5000)
   const inputRef = useRef<HTMLInputElement>(null)
   const responsive = 1000
@@ -67,7 +78,6 @@ const MessagePage = () => {
   const { id } = useParams<{ id: string }>()
   const targetUserId = id
   const { user } = useAuth()
-
   const navigateFlex = useNavigate()
 
   const scrollToBottom = () => {
@@ -126,6 +136,25 @@ const MessagePage = () => {
     setInputText((prevInput) => prevInput + emoji)
   }
 
+  const handleTyping = (value: string) => {
+    setInputText(value)
+
+    socket.emit('chat:typing', {
+      chatId: selectedChat ?? undefined,
+      isTyping: true,
+    })
+    if (typingTimeout.current) {
+      clearTimeout(typingTimeout.current)
+    }
+
+    typingTimeout.current = setTimeout(() => {
+      socket.emit('chat:typing', {
+        chatId: selectedChat ?? undefined,
+        isTyping: false,
+      })
+    }, 2000)
+  }
+
   useEffect(() => {
     setSelectedChat(null)
     setContatMessage(false)
@@ -174,74 +203,80 @@ const MessagePage = () => {
       socket.off('chat:read', handleRead)
     }
   }, [selectedChat])
-  useEffect(() => {
-    const handleReceiveMessage = (incoming: MSG) => {
-      if (incoming.chatId !== selectedChat) return
-      if (incoming.senderId !== Number(user?.id)) {
-        socket.emit('chat:read', {
-          chatId: incoming.chatId,
-        })
-      }
-      setMessages((prev) => {
-        // Cria um mapa com chave única por mensagem (id ou tempId)
-        const messageMap = new Map<string, MSG>()
 
-        prev.forEach((m) => {
-          const key = m.tempId ?? m.id
-          if (!key) return
+  // useEffect(() => {
+  //   const handleReceiveMessage = (incoming: MSG) => {
+  //     const isCurrentChat = incoming.chatId === selectedChat
+  //     const isMine = incoming.senderId === Number(user?.id)
 
-          messageMap.set(key, {
-            ...m,
-            createdAt:
-              m.createdAt instanceof Date ? m.createdAt : new Date(m.createdAt),
-          })
-        })
+  //     const normalized: MSG = {
+  //       ...incoming,
+  //       createdAt: new Date(incoming.createdAt),
+  //       remetente: incoming.senderId === Number(user?.id) ? 'eu' : 'outro',
+  //       status: incoming.senderId === Number(user?.id) ? 'sent' : undefined,
+  //     }
 
-        const normalized: MSG = {
-          ...incoming,
-          createdAt: new Date(incoming.createdAt),
-          remetente: incoming.senderId === Number(user?.id) ? 'eu' : 'outro',
-          status: incoming.senderId === Number(user?.id) ? 'sent' : undefined,
-        }
+  //     setContatos((prev: Contato[]) => {
+  //       const updated = prev.map((c: Contato) =>
+  //         c.chatId === normalized.chatId
+  //           ? {
+  //               ...c,
+  //               lastMessage: {
+  //                 id: normalized.id,
+  //                 createdAt: normalized.createdAt,
+  //                 chatId: normalized.chatId,
+  //                 senderId: normalized.senderId,
+  //                 content: normalized.content,
+  //               },
+  //             }
+  //           : c
+  //       )
 
-        const newKey = normalized.tempId ?? normalized.id
-        messageMap.set(newKey, normalized)
+  //       const changed = updated.find((c) => c.chatId === normalized.chatId)
+  //       const rest = updated.filter((c) => c.chatId !== normalized.chatId)
 
-        // Retorna as mensagens em ordem cronológica
-        return [...messageMap.values()].sort(
-          (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
-        )
-      })
+  //       return changed ? [changed, ...rest] : prev
+  //     })
 
-      setContatos((prev: Contato[]) => {
-        const updated = prev.map((c: Contato) =>
-          c.chatId === incoming.chatId
-            ? {
-                ...c,
-                lastMessage: {
-                  id: incoming.id,
-                  createdAt: incoming.createdAt,
-                  chatId: incoming.chatId,
-                  senderId: incoming.senderId,
-                  content: incoming.content,
-                },
-              }
-            : c
-        )
+  //     if (isCurrentChat) {
+  //       setMessages((prev) => {
+  //         // Cria um mapa com chave única por mensagem (id ou tempId)
+  //         const messageMap = new Map<string, MSG>()
 
-        const changed = updated.find((c) => c.chatId === incoming.chatId)
-        const rest = updated.filter((c) => c.chatId !== incoming.chatId)
+  //         prev.forEach((m) => {
+  //           const key = m.tempId ?? m.id
+  //           if (!key) return
+  //           messageMap.set(key, {
+  //             ...m,
+  //             createdAt:
+  //               m.createdAt instanceof Date
+  //                 ? m.createdAt
+  //                 : new Date(m.createdAt),
+  //           })
+  //         })
 
-        return changed ? [changed, ...rest] : prev
-      })
-    }
+  //         const newKey = normalized.tempId ?? normalized.id
+  //         messageMap.set(newKey, normalized)
 
-    socket.on('chat:receive', handleReceiveMessage)
+  //         // Retorna as mensagens em ordem cronológica
+  //         return [...messageMap.values()].sort(
+  //           (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+  //         )
+  //       })
+  //       if (!isMine) {
+  //         socket.emit('chat:read', {
+  //           chatId: normalized.chatId,
+  //         })
+  //       }
+  //     }
+  //   }
 
-    return () => {
-      socket.off('chat:receive', handleReceiveMessage)
-    }
-  }, [user?.id, selectedChat])
+  //   socket.on('chat:receive', handleReceiveMessage)
+
+  //   return () => {
+  //     socket.off('chat:receive', handleReceiveMessage)
+  //   }
+  // }, [user?.id, selectedChat])
   useEffect(() => {
     const handleHistory = (msgs: MSG[]) => {
       setMessages((prev) => {
@@ -305,7 +340,6 @@ const MessagePage = () => {
     if (!selectedChat) return
     socket.emit('chat:read', { chatId: selectedChat })
   }, [selectedChat])
-
   useEffect(() => {
     if (localStorage.getItem('selectedImage')) {
       const stored = JSON.parse(localStorage.getItem('selectedImage') || '{}')
@@ -317,7 +351,6 @@ const MessagePage = () => {
   }, [open])
 
   const contactSelect = contatos.find((c) => c.chatId === selectedChat)
-
   const canOpenChat = Boolean(selectedChat || targetUserId)
 
   return (
@@ -337,44 +370,54 @@ const MessagePage = () => {
 
         <div className="flex flex-1 flex-col overflow-y-auto">
           {contatos.length > 0 ? (
-            contatos.map((contato: Contato) => (
-              <Button
-                key={contato.chatId}
-                onClick={() => handleOpen(contato.chatId)}
-                variant="ghost"
-                className={`group flex w-full items-center gap-3 rounded-none border-b border-zinc-100 px-4 py-10 text-left transition-all duration-150 hover:bg-zinc-100 active:scale-[0.99] dark:border-zinc-800 dark:hover:bg-zinc-800 ${
-                  selectedChat === contato.chatId
-                    ? 'bg-zinc-100 dark:bg-zinc-800'
-                    : 'bg-transparent'
-                }`}
-              >
-                <img
-                  src={`https://i.pravatar.cc/48?img=${contato.chatId + 10}`}
-                  alt={contato.contact.name}
-                  className="h-11 w-11 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
-                />
+            contatos.map((contato: Contato) => {
+              const isTypingThisChat = typingUsers[contato.chatId]?.some(
+                (id) => id !== Number(user?.id)
+              )
+              return (
+                <Button
+                  key={contato.chatId}
+                  onClick={() => handleOpen(contato.chatId)}
+                  variant="ghost"
+                  className={`group flex w-full items-center gap-3 rounded-none border-b border-zinc-100 px-4 py-10 text-left transition-all duration-150 hover:bg-zinc-100 active:scale-[0.99] dark:border-zinc-800 dark:hover:bg-zinc-800 ${
+                    selectedChat === contato.chatId
+                      ? 'bg-zinc-100 dark:bg-zinc-800'
+                      : 'bg-transparent'
+                  }`}
+                >
+                  <img
+                    src={`https://i.pravatar.cc/48?img=${contato.chatId + 10}`}
+                    alt={contato.contact.name}
+                    className="h-11 w-11 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
+                  />
 
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium leading-tight text-zinc-900 group-hover:text-zinc-950 dark:text-zinc-100 dark:group-hover:text-zinc-50">
-                        {contato.contact.name}
-                      </span>
-                      <span className="hidden text-[11px] text-zinc-400 dark:text-zinc-500 dm:inline xl:hidden">
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium leading-tight text-zinc-900 group-hover:text-zinc-950 dark:text-zinc-100 dark:group-hover:text-zinc-50">
+                          {contato.contact.name}
+                        </span>
+                        <span className="hidden text-[11px] text-zinc-400 dark:text-zinc-500 dm:inline xl:hidden">
+                          {contato.createdAt}
+                        </span>
+                      </div>
+                      <span className="text-[11px] text-zinc-400 dark:text-zinc-500 dm:hidden xl:inline">
                         {contato.createdAt}
                       </span>
                     </div>
-                    <span className="text-[11px] text-zinc-400 dark:text-zinc-500 dm:hidden xl:inline">
-                      {contato.createdAt}
-                    </span>
+                    {isTypingThisChat ? (
+                      <span className="text-xs italic text-zinc-500">
+                        digitando...
+                      </span>
+                    ) : (
+                      <p className="mt-0.5 truncate text-sm leading-snug text-zinc-500 dark:text-zinc-400">
+                        {contato.lastMessage.content}
+                      </p>
+                    )}
                   </div>
-
-                  <p className="mt-0.5 truncate text-sm leading-snug text-zinc-500 dark:text-zinc-400">
-                    {contato.lastMessage.content}
-                  </p>
-                </div>
-              </Button>
-            ))
+                </Button>
+              )
+            })
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center p-6 text-center text-zinc-500 dark:text-zinc-400">
               <MessageSquare className="mb-3 h-12 w-12 text-zinc-400 dark:text-zinc-600" />
@@ -553,7 +596,7 @@ const MessagePage = () => {
                     value={inputText}
                     onChange={(e) => {
                       messageInput.handleChange(e)
-                      setInputText(e.target.value)
+                      handleTyping(e.target.value)
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
