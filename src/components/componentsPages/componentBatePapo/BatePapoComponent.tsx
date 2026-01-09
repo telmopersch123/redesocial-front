@@ -3,90 +3,26 @@ import { ChevronRight, MessageCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { Sidebar } from '../../..//components/ui/sidebar'
+import { useChat } from '../../../context/ChatContext'
+import type { Contato } from '../../../pages/MessagePage'
+import { getContatos } from '../../../services/authService'
 import { Button } from '../../ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '../../ui/sheet'
 import NotificationComponent from '../componentNotification/NotificationComponent'
 import { MemoizedSidebarInner } from './SideBarInner'
-export interface Conversa {
-  id: number
-  nome: string
-  avatar: string
-  online: boolean
-  ultimaMensagem: {
-    texto: string
-    enviadaPorMim: boolean
-    data: Date
-    naoLida?: boolean
-  } | null
-}
 
-const conversasFicticias: Conversa[] = [
-  {
-    id: 1,
-    nome: 'Ana Clara',
-    avatar: 'https://i.pravatar.cc/150?img=1',
-    online: true,
-    ultimaMensagem: {
-      texto: 'Tô morrendo de rir com esse meme kkkk',
-      enviadaPorMim: false,
-      data: new Date(Date.now() - 1000 * 60 * 2),
-      naoLida: true,
-    },
-  },
-  {
-    id: 2,
-    nome: 'Lucas Mendes',
-    avatar: 'https://i.pravatar.cc/150?img=5',
-    online: true,
-    ultimaMensagem: {
-      texto: 'Beleza, te passo o arquivo agora',
-      enviadaPorMim: true,
-      data: new Date(Date.now() - 1000 * 60 * 15),
-    },
-  },
-  {
-    id: 3,
-    nome: 'Mariana Silva',
-    avatar: 'https://i.pravatar.cc/150?img=12',
-    online: false,
-    ultimaMensagem: {
-      texto: 'Valeu mesmo pela ajuda ontem',
-      enviadaPorMim: false,
-      data: new Date(Date.now() - 1000 * 60 * 60 * 5),
-    },
-  },
-  {
-    id: 4,
-    nome: 'Pedro Albuquerque',
-    avatar: 'https://i.pravatar.cc/150?img=8',
-    online: false,
-    ultimaMensagem: null,
-  },
-  {
-    id: 5,
-    nome: 'Julia Costa',
-    avatar: 'https://i.pravatar.cc/150?img=3',
-    online: true,
-    ultimaMensagem: {
-      texto: 'Já to descendo!',
-      enviadaPorMim: true,
-      data: new Date(Date.now() - 1000 * 60 * 3),
-    },
-  },
-]
 const BREAKPOINT = 1640
 
 export const BatePapoSidebar = () => {
   const { pathname } = useLocation()
   const { communityName, id } = useParams()
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const [conversations, setConversations] = useState(conversasFicticias)
-  const [originalConversations] = useState(conversasFicticias)
   const [search, setSearch] = useState('')
+  const [allContatos, setAllContatos] = useState<Contato[]>([])
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= BREAKPOINT)
-
   const [isOpen, setIsOpen] = useState(true)
   const [isActive, setIsActive] = useState(false)
+  const { contatos: conversations, setContatos: setConversations } = useChat()
   const ROTAS_COM_SIDEBAR = [
     '/',
     '/comunidades/comunidades-do-usuario',
@@ -113,6 +49,19 @@ export const BatePapoSidebar = () => {
     }
   }, [isDesktop, pathname])
 
+  useEffect(() => {
+    async function myContatos() {
+      try {
+        const response = await getContatos()
+        setAllContatos(response)
+        setConversations(response)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    myContatos()
+  }, [])
+
   if (!ROTAS_COM_SIDEBAR.includes(pathname)) {
     return null
   }
@@ -121,15 +70,13 @@ export const BatePapoSidebar = () => {
     const value = e.target.value
     setSearch(value)
     if (value.trim() === '') {
-      setConversations(originalConversations)
+      setConversations(allContatos)
       return
     }
-
-    const filteredConversations = originalConversations.filter((c) =>
-      c.nome.toLowerCase().includes(value.toLowerCase())
+    const filtered = allContatos.filter((c) =>
+      c.contact.name.toLowerCase().includes(value.toLowerCase())
     )
-
-    setConversations(filteredConversations)
+    setConversations(filtered)
   }
 
   const activeThreeSeconds = () => {

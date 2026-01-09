@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { PostDialogSchema } from '../lib/validatorSchemas/autoSchemaAutenticator'
 import type { UserTypeSearch, ValidedCodeResponse } from '../types'
+import { socket } from './socket'
 
 function useDebounce(value: string, delay: number) {
   const [debounced, setDebounced] = useState(value)
@@ -47,6 +48,10 @@ export async function logoutUser(): Promise<boolean> {
       method: 'POST',
       credentials: 'include',
     })
+    if (!res.ok) throw new Error('Erro ao deslogar')
+
+    socket.emit('auth:logout')
+    socket.disconnect()
     return res.ok
   } catch (err) {
     console.error('Erro ao deslogar:', err)

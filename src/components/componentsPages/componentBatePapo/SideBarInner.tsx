@@ -4,7 +4,6 @@ import { ptBR } from 'date-fns/locale'
 import { MessageCircle, Search } from 'lucide-react'
 import { memo } from 'react'
 import { NavLink } from 'react-router-dom'
-import { Badge } from '../../..//components/ui/badge'
 import { Input } from '../../..//components/ui/input'
 import { ScrollArea } from '../../..//components/ui/scroll-area'
 import {
@@ -21,8 +20,10 @@ import {
   AvatarImage,
 } from '../../../components/ui/avatar'
 
+import { useAuth } from '../../../context/getMe'
+import { type Contato } from '../../../pages/MessagePage'
 import { Separator } from '../../ui/separator'
-import type { Conversa } from './BatePapoComponent'
+
 // ← Crie um componente filho separado
 const SidebarInner = ({
   search,
@@ -31,8 +32,10 @@ const SidebarInner = ({
 }: {
   search: string
   onSearchChange: (value: string) => void
-  conversations: Conversa[]
+  conversations: Contato[]
 }) => {
+  const { user } = useAuth()
+
   return (
     <div className="flex min-h-screen flex-col bg-white dark:bg-zinc-900">
       {/* Header */}
@@ -75,8 +78,8 @@ const SidebarInner = ({
           <SidebarMenu className="space-y-2 p-3">
             {conversations.map((conversa) => (
               <NavLink
-                key={conversa.id}
-                to={`/mensagens/${conversa.id}`}
+                key={conversa.chatId}
+                to={`/mensagens/${conversa.chatId}`}
                 className="block"
               >
                 <SidebarMenuItem>
@@ -88,29 +91,26 @@ const SidebarInner = ({
                       {/* Avatar + Status Online */}
                       <div className="relative flex-shrink-0">
                         <Avatar className="h-12 w-12 ring-4 ring-white dark:ring-zinc-900">
-                          <AvatarImage src={conversa.avatar} />
+                          <AvatarImage src={conversa.contact.avatar} />
                           <AvatarFallback className="bg-purple-200 text-purple-800 dark:bg-purple-900/60 dark:text-purple-300">
-                            {conversa.nome
+                            {conversa.contact.name
                               .split(' ')
                               .map((n) => n[0])
                               .join('')}
                           </AvatarFallback>
                         </Avatar>
-                        {conversa.online && (
-                          <span className="absolute bottom-0 right-0 h-3.5 w-3.5 rounded-full border-4 border-white bg-emerald-500 shadow-md dark:border-zinc-900" />
-                        )}
                       </div>
 
                       {/* Conteúdo */}
                       <div className="flex-1 space-y-1">
                         <div className="flex items-center justify-between">
                           <p className="font-semibold text-zinc-900 dark:text-zinc-100">
-                            {conversa.nome}
+                            {conversa.contact.name}
                           </p>
-                          {conversa.ultimaMensagem && (
+                          {conversa.lastMessage && (
                             <span className="text-xs text-zinc-500 dark:text-zinc-400">
                               {formatDistanceToNow(
-                                conversa.ultimaMensagem.data,
+                                conversa.lastMessage.createdAt,
                                 {
                                   addSuffix: true,
                                   locale: ptBR,
@@ -120,21 +120,22 @@ const SidebarInner = ({
                           )}
                         </div>
 
-                        {conversa.ultimaMensagem ? (
+                        {conversa.lastMessage ? (
                           <div className="flex items-center gap-2 text-sm">
-                            {conversa.ultimaMensagem.enviadaPorMim && (
+                            {conversa.lastMessage.senderId ===
+                              Number(user?.id) && (
                               <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
                                 Você:{' '}
                               </span>
                             )}
                             <span className="truncate text-zinc-600 dark:text-zinc-300">
-                              {conversa.ultimaMensagem.texto}
+                              {conversa.lastMessage.content}
                             </span>
-                            {conversa.ultimaMensagem.naoLida && (
+                            {/* {conversa.ultimaMensagem.naoLida && (
                               <Badge className="ml-auto h-5 w-5 rounded-full bg-gradient-to-r from-purple-600 to-violet-600 p-0 text-[10px] font-bold text-white shadow-md">
                                 {conversa.ultimaMensagem.naoLida}
                               </Badge>
-                            )}
+                            )} */}
                           </div>
                         ) : (
                           <p className="text-sm italic text-zinc-500 dark:text-zinc-400">

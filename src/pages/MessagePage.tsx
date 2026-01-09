@@ -38,6 +38,7 @@ interface MSG {
 export interface Contato {
   chatId: string
   contact: {
+    id: number
     name: string
     avatar: string
   }
@@ -60,10 +61,10 @@ const MessagePage = () => {
     selectedChat,
     setSelectedChat,
     typingUsers,
+    onlineUsers,
+    setIsChatOpen,
   } = useChat()
-  // const [contatos, setContatos] = useState<Contato[]>([])
-  // const [selectedChat, setSelectedChat] = useState<string | null>(null)
-  // const [messages, setMessages] = useState<MSG[]>([])
+
   const [image, setImage] = useState<string>('')
   const [contatMessage, setContatMessage] = useState<boolean>(false)
   const [chatMenssage, setChatMessage] = useState<boolean>(false)
@@ -135,7 +136,6 @@ const MessagePage = () => {
   const handleAddEmoji = (emoji: string) => {
     setInputText((prevInput) => prevInput + emoji)
   }
-
   const handleTyping = (value: string) => {
     setInputText(value)
 
@@ -143,6 +143,7 @@ const MessagePage = () => {
       chatId: selectedChat ?? undefined,
       isTyping: true,
     })
+
     if (typingTimeout.current) {
       clearTimeout(typingTimeout.current)
     }
@@ -156,8 +157,10 @@ const MessagePage = () => {
   }
 
   useEffect(() => {
-    setSelectedChat(null)
-    setContatMessage(false)
+    if (selectedChat !== id) {
+      setSelectedChat(null)
+      setContatMessage(false)
+    }
   }, [])
   useEffect(() => {
     const handleChatCreated = ({ chatId }: { chatId: string }) => {
@@ -183,6 +186,12 @@ const MessagePage = () => {
     fetchContatos()
   }, [])
   useEffect(() => {
+    setIsChatOpen(true)
+    return () => {
+      setIsChatOpen(false)
+    }
+  }, [])
+  useEffect(() => {
     const handleRead = ({ chatId }: { chatId: string }) => {
       if (selectedChat !== chatId) return
 
@@ -203,80 +212,6 @@ const MessagePage = () => {
       socket.off('chat:read', handleRead)
     }
   }, [selectedChat])
-
-  // useEffect(() => {
-  //   const handleReceiveMessage = (incoming: MSG) => {
-  //     const isCurrentChat = incoming.chatId === selectedChat
-  //     const isMine = incoming.senderId === Number(user?.id)
-
-  //     const normalized: MSG = {
-  //       ...incoming,
-  //       createdAt: new Date(incoming.createdAt),
-  //       remetente: incoming.senderId === Number(user?.id) ? 'eu' : 'outro',
-  //       status: incoming.senderId === Number(user?.id) ? 'sent' : undefined,
-  //     }
-
-  //     setContatos((prev: Contato[]) => {
-  //       const updated = prev.map((c: Contato) =>
-  //         c.chatId === normalized.chatId
-  //           ? {
-  //               ...c,
-  //               lastMessage: {
-  //                 id: normalized.id,
-  //                 createdAt: normalized.createdAt,
-  //                 chatId: normalized.chatId,
-  //                 senderId: normalized.senderId,
-  //                 content: normalized.content,
-  //               },
-  //             }
-  //           : c
-  //       )
-
-  //       const changed = updated.find((c) => c.chatId === normalized.chatId)
-  //       const rest = updated.filter((c) => c.chatId !== normalized.chatId)
-
-  //       return changed ? [changed, ...rest] : prev
-  //     })
-
-  //     if (isCurrentChat) {
-  //       setMessages((prev) => {
-  //         // Cria um mapa com chave única por mensagem (id ou tempId)
-  //         const messageMap = new Map<string, MSG>()
-
-  //         prev.forEach((m) => {
-  //           const key = m.tempId ?? m.id
-  //           if (!key) return
-  //           messageMap.set(key, {
-  //             ...m,
-  //             createdAt:
-  //               m.createdAt instanceof Date
-  //                 ? m.createdAt
-  //                 : new Date(m.createdAt),
-  //           })
-  //         })
-
-  //         const newKey = normalized.tempId ?? normalized.id
-  //         messageMap.set(newKey, normalized)
-
-  //         // Retorna as mensagens em ordem cronológica
-  //         return [...messageMap.values()].sort(
-  //           (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
-  //         )
-  //       })
-  //       if (!isMine) {
-  //         socket.emit('chat:read', {
-  //           chatId: normalized.chatId,
-  //         })
-  //       }
-  //     }
-  //   }
-
-  //   socket.on('chat:receive', handleReceiveMessage)
-
-  //   return () => {
-  //     socket.off('chat:receive', handleReceiveMessage)
-  //   }
-  // }, [user?.id, selectedChat])
   useEffect(() => {
     const handleHistory = (msgs: MSG[]) => {
       setMessages((prev) => {
@@ -338,6 +273,7 @@ const MessagePage = () => {
   }, [selectedChat])
   useEffect(() => {
     if (!selectedChat) return
+
     socket.emit('chat:read', { chatId: selectedChat })
   }, [selectedChat])
   useEffect(() => {
@@ -349,8 +285,16 @@ const MessagePage = () => {
       setImage('')
     }
   }, [open])
+  useEffect(() => {
+    if (!id) return
+
+    if (selectedChat !== id) {
+      setSelectedChat(id)
+    }
+  }, [id])
 
   const contactSelect = contatos.find((c) => c.chatId === selectedChat)
+  const isOnline = contactSelect && onlineUsers.has(contactSelect.contact.id)
   const canOpenChat = Boolean(selectedChat || targetUserId)
 
   return (
@@ -371,8 +315,8 @@ const MessagePage = () => {
         <div className="flex flex-1 flex-col overflow-y-auto">
           {contatos.length > 0 ? (
             contatos.map((contato: Contato) => {
-              const isTypingThisChat = typingUsers[contato.chatId]?.some(
-                (id) => id !== Number(user?.id)
+              const isTypingThisChat = typingUsers[contato.chatId]?.includes(
+                contato.contact.id
               )
               return (
                 <Button
@@ -397,22 +341,26 @@ const MessagePage = () => {
                         <span className="font-medium leading-tight text-zinc-900 group-hover:text-zinc-950 dark:text-zinc-100 dark:group-hover:text-zinc-50">
                           {contato.contact.name}
                         </span>
-                        <span className="hidden text-[11px] text-zinc-400 dark:text-zinc-500 dm:inline xl:hidden">
-                          {contato.createdAt}
-                        </span>
                       </div>
-                      <span className="text-[11px] text-zinc-400 dark:text-zinc-500 dm:hidden xl:inline">
-                        {contato.createdAt}
-                      </span>
                     </div>
                     {isTypingThisChat ? (
                       <span className="text-xs italic text-zinc-500">
                         digitando...
                       </span>
                     ) : (
-                      <p className="mt-0.5 truncate text-sm leading-snug text-zinc-500 dark:text-zinc-400">
-                        {contato.lastMessage.content}
-                      </p>
+                      <>
+                        <div className="flex items-center gap-2">
+                          {contato.lastMessage.senderId ===
+                            Number(user?.id) && (
+                            <p className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                              Você:{' '}
+                            </p>
+                          )}
+                          <p className="truncate text-sm leading-snug text-zinc-500 dark:text-zinc-400">
+                            {contato.lastMessage.content}
+                          </p>
+                        </div>
+                      </>
                     )}
                   </div>
                 </Button>
@@ -494,8 +442,8 @@ const MessagePage = () => {
                     {contactSelect?.contact.name}
                   </h2>
 
-                  {/* <div className="inline-flex items-center gap-1 rounded-full bg-green-50/70 px-2 py-0.5 text-[11px] font-medium shadow-sm dark:bg-green-900/30">
-                    {FicticiostatusUser[0] !== 'online' ? (
+                  <div className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium shadow-sm">
+                    {isOnline ? (
                       <>
                         <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
                         <p className="text-green-600 dark:text-green-400">
@@ -510,7 +458,7 @@ const MessagePage = () => {
                         </p>
                       </>
                     )}
-                  </div> */}
+                  </div>
                 </div>
               </div>
 

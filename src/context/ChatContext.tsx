@@ -23,6 +23,8 @@ interface ChatContextType {
   selectedChat: string | null
   setSelectedChat: React.Dispatch<React.SetStateAction<string | null>>
   typingUsers: Record<string, number[]>
+  onlineUsers: Set<number>
+  setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ChatContext = createContext<ChatContextType | null>(null)
@@ -32,14 +34,34 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [selectedChat, setSelectedChat] = useState<string | null>(null)
   const [messages, setMessages] = useState<MSG[]>([])
   const [contatos, setContatos] = useState<Contato[]>([])
+  const [isChatOpen, setIsChatOpen] = useState(false)
   const [typingUsers, setTypingUsers] = useState<Record<string, number[]>>({})
-
+  const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set())
   const selectedChatRef = useRef<string | null>(null)
-
   useEffect(() => {
     selectedChatRef.current = selectedChat
   }, [selectedChat])
+  useEffect(() => {
+    if (!isChatOpen) return
+    if (!selectedChat) return
 
+    const hasUnread = messages.some(
+      (m) => m.chatId === selectedChat && m.remetente === 'outro' && !m.readAt
+    )
+
+    if (hasUnread) {
+      socket.emit('chat:read', { chatId: selectedChat })
+    }
+  }, [messages, selectedChat, isChatOpen])
+  useEffect(() => {
+    socket.on('presence:update', (userIds: number[]) => {
+      setOnlineUsers(new Set(userIds))
+    })
+
+    return () => {
+      socket.off('presence:update')
+    }
+  }, [])
   useEffect(() => {
     const handleTyping = ({ chatId, userId, isTyping }: any) => {
       setTypingUsers((prev) => {
@@ -123,7 +145,11 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
           )
         })
 
-        if (!isMine) {
+        if (
+          !isMine &&
+          isChatOpen &&
+          selectedChatRef.current === normalized.chatId
+        ) {
           socket.emit('chat:read', { chatId: normalized.chatId })
         }
       }
@@ -145,6 +171,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         selectedChat,
         setSelectedChat,
         typingUsers,
+        onlineUsers,
+        setIsChatOpen,
       }}
     >
       {children}
