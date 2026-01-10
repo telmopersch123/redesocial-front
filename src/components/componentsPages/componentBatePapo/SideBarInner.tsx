@@ -76,79 +76,98 @@ const SidebarInner = ({
       <SidebarContent className="flex-1">
         <ScrollArea className="h-full">
           <SidebarMenu className="space-y-2 p-3">
-            {conversations.map((conversa) => (
-              <NavLink
-                key={conversa.chatId}
-                to={`/mensagens/${conversa.chatId}`}
-                className="block"
-              >
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
-                    className="h-auto w-full justify-start gap-3 rounded-xl p-3 transition-all hover:bg-zinc-100 data-[state=open]:bg-zinc-100 dark:hover:bg-zinc-800 dark:data-[state=open]:bg-zinc-800"
-                  >
-                    <div className="flex w-full cursor-pointer items-center gap-3">
-                      {/* Avatar + Status Online */}
-                      <div className="relative flex-shrink-0">
-                        <Avatar className="h-12 w-12 ring-4 ring-white dark:ring-zinc-900">
-                          <AvatarImage src={conversa.contact.avatar} />
-                          <AvatarFallback className="bg-purple-200 text-purple-800 dark:bg-purple-900/60 dark:text-purple-300">
-                            {conversa.contact.name
-                              .split(' ')
-                              .map((n) => n[0])
-                              .join('')}
-                          </AvatarFallback>
-                        </Avatar>
-                      </div>
+            {conversations.map((conversa: Contato) => {
+              // console.log(
+              //   conversa.lastMessage,
+              //   conversa.lastMessage.senderId,
+              //   Number(user?.id),
+              //   conversa.lastMessage.readAt
+              // )
+              const isUnreadFromOtherUser =
+                conversa.lastMessage &&
+                conversa.lastMessage.senderId !== Number(user?.id) &&
+                conversa.lastMessage.readAt === null
 
-                      {/* Conteúdo */}
-                      <div className="flex-1 space-y-1">
-                        <div className="flex items-center justify-between">
-                          <p className="font-semibold text-zinc-900 dark:text-zinc-100">
-                            {conversa.contact.name}
-                          </p>
-                          {conversa.lastMessage && (
-                            <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                              {formatDistanceToNow(
-                                conversa.lastMessage.createdAt,
-                                {
-                                  addSuffix: true,
-                                  locale: ptBR,
-                                }
-                              )}
-                            </span>
-                          )}
+              const unreadFromOther =
+                conversa.unreadMessages > 0
+                  ? conversa.unreadMessages
+                  : undefined
+
+              return (
+                <NavLink
+                  key={conversa.chatId}
+                  to={`/mensagens/${conversa.chatId}`}
+                  state={{ openChat: true }}
+                  className="block"
+                >
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      className="h-auto w-full justify-start gap-3 rounded-xl p-3 transition-all hover:bg-zinc-100 data-[state=open]:bg-zinc-100 dark:hover:bg-zinc-800 dark:data-[state=open]:bg-zinc-800"
+                    >
+                      <div className="flex w-full cursor-pointer items-center gap-3">
+                        {/* Avatar + Status Online */}
+                        <div className="relative flex-shrink-0">
+                          <Avatar className="h-12 w-12 ring-4 ring-white dark:ring-zinc-900">
+                            <AvatarImage src={conversa.contact.avatar} />
+                            <AvatarFallback className="bg-purple-200 text-purple-800 dark:bg-purple-900/60 dark:text-purple-300">
+                              {conversa.contact.name
+                                .split(' ')
+                                .map((n) => n[0])
+                                .join('')}
+                            </AvatarFallback>
+                          </Avatar>
                         </div>
 
-                        {conversa.lastMessage ? (
-                          <div className="flex items-center gap-2 text-sm">
-                            {conversa.lastMessage.senderId ===
-                              Number(user?.id) && (
-                              <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
-                                Você:{' '}
+                        {/* Conteúdo */}
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <p className="font-semibold text-zinc-900 dark:text-zinc-100">
+                              {conversa.contact.name}
+                            </p>
+                            {conversa.lastMessage && (
+                              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                                {formatDistanceToNow(
+                                  conversa.lastMessage.createdAt,
+                                  {
+                                    addSuffix: true,
+                                    locale: ptBR,
+                                  }
+                                )}
                               </span>
                             )}
-                            <span className="truncate text-zinc-600 dark:text-zinc-300">
-                              {conversa.lastMessage.content}
-                            </span>
-                            {/* {conversa.ultimaMensagem.naoLida && (
-                              <Badge className="ml-auto h-5 w-5 rounded-full bg-gradient-to-r from-purple-600 to-violet-600 p-0 text-[10px] font-bold text-white shadow-md">
-                                {conversa.ultimaMensagem.naoLida}
-                              </Badge>
-                            )} */}
                           </div>
-                        ) : (
-                          <p className="text-sm italic text-zinc-500 dark:text-zinc-400">
-                            Nenhuma mensagem ainda
-                          </p>
-                        )}
+
+                          {conversa.lastMessage ? (
+                            <div className="flex items-center gap-2 text-sm">
+                              {conversa.lastMessage.senderId ===
+                                Number(user?.id) && (
+                                <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                                  Você:{' '}
+                                </span>
+                              )}
+                              <span className="truncate text-zinc-600 dark:text-zinc-300">
+                                {conversa.lastMessage.content}
+                              </span>
+                              {isUnreadFromOtherUser && (
+                                <div className="ml-auto flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-purple-600 px-1.5 text-[11px] font-semibold text-white">
+                                  {unreadFromOther > 9 ? '9+' : unreadFromOther}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-sm italic text-zinc-500 dark:text-zinc-400">
+                              Nenhuma mensagem ainda
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </SidebarMenuButton>
-                  <Separator className="dark:bg-zinc-800" />
-                </SidebarMenuItem>
-              </NavLink>
-            ))}
+                    </SidebarMenuButton>
+                    <Separator className="dark:bg-zinc-800" />
+                  </SidebarMenuItem>
+                </NavLink>
+              )
+            })}
           </SidebarMenu>
         </ScrollArea>
       </SidebarContent>

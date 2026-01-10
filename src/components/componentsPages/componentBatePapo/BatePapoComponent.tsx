@@ -62,10 +62,6 @@ export const BatePapoSidebar = () => {
     myContatos()
   }, [])
 
-  if (!ROTAS_COM_SIDEBAR.includes(pathname)) {
-    return null
-  }
-
   const handleFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setSearch(value)
@@ -84,6 +80,10 @@ export const BatePapoSidebar = () => {
     setTimeout(() => {
       setIsActive(false)
     }, 200)
+  }
+
+  if (!ROTAS_COM_SIDEBAR.includes(pathname)) {
+    return null
   }
 
   if (isDesktop) {

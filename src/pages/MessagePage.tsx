@@ -9,7 +9,7 @@ import {
   MessageSquare,
 } from 'lucide-react'
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { EmojiInput } from '../components/componentsPages/componentsMensagens/EmojiInput'
 import { GalleryDialog } from '../components/componentsPages/componentsMensagens/GalleryDialog'
 import { MessageForms } from '../components/formCustomer/MessageForms'
@@ -48,7 +48,10 @@ export interface Contato {
     chatId: string
     senderId: number
     content: string
+    readAt: Date | undefined
   }
+  unreadMessages: number
+  lastMessageReadStatus: boolean
   createdAt: string
 }
 
@@ -62,17 +65,19 @@ const MessagePage = () => {
     setSelectedChat,
     typingUsers,
     onlineUsers,
-    setIsChatOpen,
   } = useChat()
 
   const [image, setImage] = useState<string>('')
   const [contatMessage, setContatMessage] = useState<boolean>(false)
   const [chatMenssage, setChatMessage] = useState<boolean>(false)
+  const [isChatOpen, setIsChatOpen] = useState(false)
   const [fullscreen, setFullscreen] = useState<boolean>(false)
+  // const [isChatFocused, setIsChatFocused] = useState(false)
   const [inputText, setInputText] = useState('')
   const [open, setOpen] = useState<boolean>(false)
   const typingTimeout = useRef<number | null>(null)
   const messageInput = useLimitForms(5000)
+  const location = useLocation()
   const inputRef = useRef<HTMLInputElement>(null)
   const responsive = 1000
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -80,6 +85,8 @@ const MessagePage = () => {
   const targetUserId = id
   const { user } = useAuth()
   const navigateFlex = useNavigate()
+  const readTimeoutRef = useRef<number | null>(null)
+  const readCacheRef = useRef<Set<string>>(new Set())
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
@@ -93,6 +100,7 @@ const MessagePage = () => {
     }
     navigateFlex(`/mensagens/${chatId}`)
     setSelectedChat(chatId.toString())
+    setIsChatOpen(true)
     if (window.innerWidth < 768) {
       setContatMessage(true)
       setChatMessage(false)
@@ -186,24 +194,60 @@ const MessagePage = () => {
     fetchContatos()
   }, [])
   useEffect(() => {
-    setIsChatOpen(true)
-    return () => {
-      setIsChatOpen(false)
+    if (!isChatOpen || !selectedChat) return
+
+    const hasUnread = messages.some(
+      (m) => m.chatId === selectedChat && m.remetente === 'outro' && !m.readAt
+    )
+
+    if (!hasUnread) return
+
+    if (readTimeoutRef.current) {
+      clearTimeout(readTimeoutRef.current)
     }
-  }, [])
+
+    readTimeoutRef.current = window.setTimeout(() => {
+      setContatos((prev: Contato[]) =>
+        prev.map((c) =>
+          c.chatId === selectedChat && c.lastMessage
+            ? {
+                ...c,
+                unreadMessages: 0,
+                lastMessage: {
+                  ...c.lastMessage,
+                  readAt: new Date(),
+                },
+              }
+            : c
+        )
+      )
+      socket.emit('chat:read', { chatId: selectedChat })
+      readTimeoutRef.current = null
+    }, 1500)
+
+    return () => {
+      if (readTimeoutRef.current) {
+        clearTimeout(readTimeoutRef.current)
+        readTimeoutRef.current = null
+      }
+    }
+  }, [messages, selectedChat, isChatOpen])
+
   useEffect(() => {
     const handleRead = ({ chatId }: { chatId: string }) => {
       if (selectedChat !== chatId) return
 
       setMessages((prev: MSG[]) =>
-        prev.map((m) =>
-          m.remetente === 'eu' && !m.readAt
-            ? {
-                ...m,
-                readAt: new Date(),
-              }
-            : m
-        )
+        prev.map((m) => {
+          if (m.remetente === 'eu' && !m.readAt) {
+            readCacheRef.current.add(m.id)
+            return {
+              ...m,
+              readAt: new Date(),
+            }
+          }
+          return m
+        })
       )
     }
 
@@ -222,10 +266,16 @@ const MessagePage = () => {
         })
 
         msgs.forEach((msg) => {
+          const existing = map.get(msg.id)
+          const isLockedAsRead =
+            readCacheRef.current.has(msg.id) || existing?.readAt
           map.set(msg.id, {
             ...msg,
             remetente: msg.senderId === Number(user?.id) ? 'eu' : 'outro',
             status: 'sent',
+            readAt: isLockedAsRead
+              ? (existing?.readAt ?? new Date())
+              : msg.readAt,
           })
         })
 
@@ -272,11 +322,6 @@ const MessagePage = () => {
     return () => window.removeEventListener('resize', handleResize)
   }, [selectedChat])
   useEffect(() => {
-    if (!selectedChat) return
-
-    socket.emit('chat:read', { chatId: selectedChat })
-  }, [selectedChat])
-  useEffect(() => {
     if (localStorage.getItem('selectedImage')) {
       const stored = JSON.parse(localStorage.getItem('selectedImage') || '{}')
       if (!stored) return
@@ -288,8 +333,10 @@ const MessagePage = () => {
   useEffect(() => {
     if (!id) return
 
-    if (selectedChat !== id) {
-      setSelectedChat(id)
+    setSelectedChat(id)
+
+    if (location.state?.openChat) {
+      setIsChatOpen(true)
     }
   }, [id])
 
@@ -318,6 +365,17 @@ const MessagePage = () => {
               const isTypingThisChat = typingUsers[contato.chatId]?.includes(
                 contato.contact.id
               )
+              const isUnreadFromOtherUser =
+                contato.lastMessage &&
+                contato.lastMessage.senderId !== Number(user?.id) &&
+                contato.lastMessage.readAt === null
+
+              const unreadFromOther = contatos
+                .map((c) => c.unreadMessages)
+                .filter((n) => n > 0)[0]
+
+              console.log(unreadFromOther)
+
               return (
                 <Button
                   key={contato.chatId}
@@ -350,17 +408,25 @@ const MessagePage = () => {
                     ) : (
                       <>
                         <div className="flex items-center gap-2">
-                          {contato.lastMessage.senderId ===
-                            Number(user?.id) && (
-                            <p className="text-xs font-medium text-purple-600 dark:text-purple-400">
-                              Você:{' '}
+                          {contato.lastMessage &&
+                            contato.lastMessage.senderId ===
+                              Number(user?.id) && (
+                              <p className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                                Você:{' '}
+                              </p>
+                            )}
+                          {contato.lastMessage && (
+                            <p className="truncate text-sm leading-snug text-zinc-500 dark:text-zinc-400">
+                              {contato.lastMessage.content}
                             </p>
                           )}
-                          <p className="truncate text-sm leading-snug text-zinc-500 dark:text-zinc-400">
-                            {contato.lastMessage.content}
-                          </p>
                         </div>
                       </>
+                    )}
+                    {isUnreadFromOtherUser && id !== contato.chatId && (
+                      <div className="ml-auto flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-purple-600 px-1.5 text-[11px] font-semibold text-white">
+                        {unreadFromOther > 9 ? '9+' : unreadFromOther}
+                      </div>
                     )}
                   </div>
                 </Button>
@@ -425,6 +491,7 @@ const MessagePage = () => {
                   onClick={() => {
                     setSelectedChat(null)
                     setContatMessage(false)
+                    setIsChatOpen(false)
                   }}
                   className="flex h-9 w-9 items-center justify-center rounded-full transition-all hover:bg-white/60 hover:shadow-sm dm:hidden"
                 >
@@ -481,52 +548,54 @@ const MessagePage = () => {
                     </div>
                   ) : (
                     <>
-                      {messages.map((msg) => (
-                        <div
-                          key={msg.id}
-                          className={`animate-fade-in flex slide-in-from-bottom-1 ${
-                            msg.remetente === 'eu'
-                              ? 'justify-end'
-                              : 'ml-1.5 justify-start sm:-ml-5'
-                          }`}
-                        >
+                      {messages.map((msg) => {
+                        return (
                           <div
-                            className={`group relative max-w-[75%] rounded-2xl px-5 py-3.5 shadow-sm transition-all duration-200 hover:shadow-lg ${
+                            key={msg.id}
+                            className={`animate-fade-in flex slide-in-from-bottom-1 ${
                               msg.remetente === 'eu'
-                                ? 'rounded-br-md bg-gradient-to-r from-purple-600 to-violet-600 text-white shadow-purple-500/20'
-                                : 'ml-2 rounded-bl-md bg-white text-zinc-800 shadow-gray-100 ring-1 ring-zinc-200/80 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700 sm:ml-9'
+                                ? 'justify-end'
+                                : 'ml-1.5 justify-start sm:-ml-5'
                             }`}
                           >
-                            <p
-                              className={`break-words text-sm leading-relaxed ${msg.content.length > 80 ? 'text-justify' : 'text-left'}`}
+                            <div
+                              className={`group relative max-w-[75%] rounded-2xl px-5 py-3.5 shadow-sm transition-all duration-200 hover:shadow-lg ${
+                                msg.remetente === 'eu'
+                                  ? 'rounded-br-md bg-gradient-to-r from-purple-600 to-violet-600 text-white shadow-purple-500/20'
+                                  : 'ml-2 rounded-bl-md bg-white text-zinc-800 shadow-gray-100 ring-1 ring-zinc-200/80 dark:bg-zinc-800 dark:text-zinc-100 dark:ring-zinc-700 sm:ml-9'
+                              }`}
                             >
-                              {msg.content}
-                            </p>
-
-                            <div className="mt-2 flex items-center justify-end gap-1.5">
-                              <span
-                                className={`text-xs font-medium tracking-tight ${msg.remetente === 'eu' ? 'text-purple-100' : 'text-zinc-400 dark:text-zinc-500'}`}
+                              <p
+                                className={`break-words text-sm leading-relaxed ${msg.content.length > 80 ? 'text-justify' : 'text-left'}`}
                               >
-                                {format(msg.createdAt, 'HH:mm')}
-                              </span>
-                              {msg.remetente === 'eu' &&
-                                (msg.readAt ? (
-                                  <CheckCheck className="h-3.5 w-3.5 text-blue-400" />
-                                ) : msg.status === 'sent' ? (
-                                  <CheckCheck className="h-3.5 w-3.5 text-purple-100" />
-                                ) : (
-                                  <Check className="h-3.5 w-3.5 text-purple-100" />
-                                ))}
-                            </div>
+                                {msg.content}
+                              </p>
 
-                            {msg.remetente === 'eu' ? (
-                              <div className="absolute -right-1 top-3 h-3 w-3 rotate-45 bg-gradient-to-r from-purple-600 to-violet-600"></div>
-                            ) : (
-                              <div className="absolute -left-1 top-3 h-3 w-3 rotate-45 bg-white ring-1 ring-zinc-200/80 dark:bg-zinc-800 dark:ring-zinc-700"></div>
-                            )}
+                              <div className="mt-2 flex items-center justify-end gap-1.5">
+                                <span
+                                  className={`text-xs font-medium tracking-tight ${msg.remetente === 'eu' ? 'text-purple-100' : 'text-zinc-400 dark:text-zinc-500'}`}
+                                >
+                                  {format(msg.createdAt, 'HH:mm')}
+                                </span>
+                                {msg.remetente === 'eu' &&
+                                  (msg.readAt ? (
+                                    <CheckCheck className="h-3.5 w-3.5 text-blue-400" />
+                                  ) : msg.status === 'sent' ? (
+                                    <CheckCheck className="h-3.5 w-3.5 text-purple-100" />
+                                  ) : (
+                                    <Check className="h-3.5 w-3.5 text-purple-100" />
+                                  ))}
+                              </div>
+
+                              {msg.remetente === 'eu' ? (
+                                <div className="absolute -right-1 top-3 h-3 w-3 rotate-45 bg-gradient-to-r from-purple-600 to-violet-600"></div>
+                              ) : (
+                                <div className="absolute -left-1 top-3 h-3 w-3 rotate-45 bg-white ring-1 ring-zinc-200/80 dark:bg-zinc-800 dark:ring-zinc-700"></div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                       <div ref={messagesEndRef} />
                     </>
                   )}

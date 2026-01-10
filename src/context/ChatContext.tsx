@@ -24,7 +24,6 @@ interface ChatContextType {
   setSelectedChat: React.Dispatch<React.SetStateAction<string | null>>
   typingUsers: Record<string, number[]>
   onlineUsers: Set<number>
-  setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ChatContext = createContext<ChatContextType | null>(null)
@@ -34,25 +33,13 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [selectedChat, setSelectedChat] = useState<string | null>(null)
   const [messages, setMessages] = useState<MSG[]>([])
   const [contatos, setContatos] = useState<Contato[]>([])
-  const [isChatOpen, setIsChatOpen] = useState(false)
+
   const [typingUsers, setTypingUsers] = useState<Record<string, number[]>>({})
   const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set())
   const selectedChatRef = useRef<string | null>(null)
   useEffect(() => {
     selectedChatRef.current = selectedChat
   }, [selectedChat])
-  useEffect(() => {
-    if (!isChatOpen) return
-    if (!selectedChat) return
-
-    const hasUnread = messages.some(
-      (m) => m.chatId === selectedChat && m.remetente === 'outro' && !m.readAt
-    )
-
-    if (hasUnread) {
-      socket.emit('chat:read', { chatId: selectedChat })
-    }
-  }, [messages, selectedChat, isChatOpen])
   useEffect(() => {
     socket.on('presence:update', (userIds: number[]) => {
       setOnlineUsers(new Set(userIds))
@@ -101,17 +88,19 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         status: isMine ? 'sent' : undefined,
       }
 
-      setContatos((prev) => {
+      setContatos((prev: Contato[]) => {
         const updated = prev.map((c) =>
           c.chatId === normalized.chatId
             ? {
                 ...c,
+                unreadMessages: c.unreadMessages + 1,
                 lastMessage: {
                   id: normalized.id,
                   createdAt: normalized.createdAt,
                   chatId: normalized.chatId!,
                   senderId: normalized.senderId,
                   content: normalized.content,
+                  readAt: normalized.readAt,
                 },
               }
             : c
@@ -144,14 +133,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
           )
         })
-
-        if (
-          !isMine &&
-          isChatOpen &&
-          selectedChatRef.current === normalized.chatId
-        ) {
-          socket.emit('chat:read', { chatId: normalized.chatId })
-        }
       }
     }
 
@@ -160,6 +141,36 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off('chat:receive', handleReceiveMessage)
     }
   }, [user?.id])
+
+  useEffect(() => {
+    if (!selectedChat || !user?.id) return
+
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.chatId === selectedChat && m.senderId !== Number(user.id) && !m.readAt
+          ? { ...m, readAt: new Date() }
+          : m
+      )
+    )
+
+    setContatos((prev) =>
+      prev.map((c) =>
+        c.chatId === selectedChat &&
+        c.lastMessage &&
+        c.lastMessage.senderId !== Number(user.id) &&
+        !c.lastMessage.readAt
+          ? {
+              ...c,
+              unreadMessages: c.unreadMessages + 1,
+              lastMessage: {
+                ...c.lastMessage,
+                readAt: new Date(),
+              },
+            }
+          : c
+      )
+    )
+  }, [selectedChat, user?.id])
 
   return (
     <ChatContext.Provider
@@ -172,7 +183,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         setSelectedChat,
         typingUsers,
         onlineUsers,
-        setIsChatOpen,
       }}
     >
       {children}
