@@ -48,7 +48,7 @@ export interface Contato {
     chatId: string
     senderId: number
     content: string
-    readAt: Date | undefined
+    readAt?: Date | undefined
   }
   unreadMessages: number
   lastMessageReadStatus: boolean
@@ -370,11 +370,8 @@ const MessagePage = () => {
                 contato.lastMessage.senderId !== Number(user?.id) &&
                 contato.lastMessage.readAt === null
 
-              const unreadFromOther = contatos
-                .map((c) => c.unreadMessages)
-                .filter((n) => n > 0)[0]
-
-              console.log(unreadFromOther)
+              const unreadFromOther =
+                contato.unreadMessages > 0 ? contato.unreadMessages : undefined
 
               return (
                 <Button
@@ -425,7 +422,9 @@ const MessagePage = () => {
                     )}
                     {isUnreadFromOtherUser && id !== contato.chatId && (
                       <div className="ml-auto flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-purple-600 px-1.5 text-[11px] font-semibold text-white">
-                        {unreadFromOther > 9 ? '9+' : unreadFromOther}
+                        {unreadFromOther && unreadFromOther > 9
+                          ? '9+'
+                          : unreadFromOther}
                       </div>
                     )}
                   </div>

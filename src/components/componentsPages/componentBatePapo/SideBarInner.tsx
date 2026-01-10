@@ -29,10 +29,12 @@ const SidebarInner = ({
   search,
   onSearchChange,
   conversations,
+  quantity,
 }: {
   search: string
   onSearchChange: (value: string) => void
   conversations: Contato[]
+  quantity: number
 }) => {
   const { user } = useAuth()
 
@@ -54,7 +56,7 @@ const SidebarInner = ({
                 Mensagens
               </h2>
               <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                3 não lidas
+                {quantity > 0 && `${quantity} não lidas`}
               </p>
             </div>
           </div>
@@ -151,7 +153,9 @@ const SidebarInner = ({
                               </span>
                               {isUnreadFromOtherUser && (
                                 <div className="ml-auto flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-purple-600 px-1.5 text-[11px] font-semibold text-white">
-                                  {unreadFromOther > 9 ? '9+' : unreadFromOther}
+                                  {unreadFromOther && unreadFromOther > 9
+                                    ? '9+'
+                                    : unreadFromOther}
                                 </div>
                               )}
                             </div>

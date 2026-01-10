@@ -22,6 +22,7 @@ export const BatePapoSidebar = () => {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= BREAKPOINT)
   const [isOpen, setIsOpen] = useState(true)
   const [isActive, setIsActive] = useState(false)
+  const [quantity, setQuantity] = useState(0)
   const { contatos: conversations, setContatos: setConversations } = useChat()
   const ROTAS_COM_SIDEBAR = [
     '/',
@@ -62,6 +63,13 @@ export const BatePapoSidebar = () => {
     myContatos()
   }, [])
 
+  useEffect(() => {
+    const newValue = conversations.map((c) => {
+      return c.unreadMessages
+    })
+    setQuantity(newValue.reduce((tot, val) => tot + val, 0))
+  }, [conversations])
+
   const handleFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setSearch(value)
@@ -98,7 +106,7 @@ export const BatePapoSidebar = () => {
         >
           {isCollapsed && (
             <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
-              3
+              {quantity > 0 && <div>{quantity}</div>}
             </span>
           )}
 
@@ -128,6 +136,7 @@ export const BatePapoSidebar = () => {
               } as React.ChangeEvent<HTMLInputElement>)
             }}
             conversations={conversations}
+            quantity={quantity}
           />
         </Sidebar>
       </>
@@ -149,9 +158,11 @@ export const BatePapoSidebar = () => {
             <MessageCircle className="h-8 w-8" />
 
             {/* Badge de mensagens não lidas */}
-            <span className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full border-4 border-white bg-red-500 text-sm font-bold text-white shadow-lg dark:border-[#1a1a1a]">
-              2
-            </span>
+            {quantity > 0 && (
+              <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
+                {quantity}
+              </span>
+            )}
           </Button>
         </SheetTrigger>
 
@@ -167,6 +178,7 @@ export const BatePapoSidebar = () => {
               } as React.ChangeEvent<HTMLInputElement>)
             }}
             conversations={conversations}
+            quantity={quantity}
           />
         </SheetContent>
       </Sheet>

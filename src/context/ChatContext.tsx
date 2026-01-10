@@ -33,9 +33,9 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [selectedChat, setSelectedChat] = useState<string | null>(null)
   const [messages, setMessages] = useState<MSG[]>([])
   const [contatos, setContatos] = useState<Contato[]>([])
-
   const [typingUsers, setTypingUsers] = useState<Record<string, number[]>>({})
   const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set())
+
   const selectedChatRef = useRef<string | null>(null)
   useEffect(() => {
     selectedChatRef.current = selectedChat
@@ -161,10 +161,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         !c.lastMessage.readAt
           ? {
               ...c,
-              unreadMessages: c.unreadMessages + 1,
               lastMessage: {
                 ...c.lastMessage,
-                readAt: new Date(),
               },
             }
           : c
