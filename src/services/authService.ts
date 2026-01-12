@@ -322,8 +322,21 @@ export async function getContatos() {
     method: 'GET',
     credentials: 'include',
   })
+
   if (!res.ok) {
     throw new Error('Erro ao buscar os contatos')
+  }
+  const data = await res.json()
+
+  return data
+}
+export async function getUser(id: string | undefined) {
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/users/${id}`, {
+    method: 'GET',
+    credentials: 'include',
+  })
+  if (!res.ok) {
+    throw new Error('Erro ao buscar o usuário')
   }
   const data = await res.json()
 

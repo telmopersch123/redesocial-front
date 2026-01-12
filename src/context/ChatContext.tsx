@@ -13,8 +13,26 @@ interface MSG {
   createdAt: Date
   readAt?: Date
   status?: 'pending' | 'sent'
+  senderName: string
 }
 
+interface incomingType {
+  id: string
+  tempId?: string
+  chatId?: string
+  content: string
+  senderId: number
+  remetente: 'eu' | 'outro'
+  createdAt: Date
+  readAt?: Date
+  status?: 'pending' | 'sent'
+  senderName: string
+  targetUser: {
+    id: number
+    name_at: string
+    avatar: string
+  }
+}
 interface ChatContextType {
   messages: MSG[]
   setMessages: React.Dispatch<React.SetStateAction<MSG[]>>
@@ -24,6 +42,8 @@ interface ChatContextType {
   setSelectedChat: React.Dispatch<React.SetStateAction<string | null>>
   typingUsers: Record<string, number[]>
   onlineUsers: Set<number>
+  isChatOpen: boolean
+  setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ChatContext = createContext<ChatContextType | null>(null)
@@ -35,6 +55,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [contatos, setContatos] = useState<Contato[]>([])
   const [typingUsers, setTypingUsers] = useState<Record<string, number[]>>({})
   const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set())
+  const [isChatOpen, setIsChatOpen] = useState(false)
 
   const selectedChatRef = useRef<string | null>(null)
   useEffect(() => {
@@ -76,7 +97,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!user?.id) return
 
-    const handleReceiveMessage = (incoming: MSG) => {
+    const handleReceiveMessage = (incoming: incomingType) => {
       if (!incoming.chatId) return
 
       const isMine = incoming.senderId === Number(user.id)
@@ -86,33 +107,83 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         createdAt: new Date(incoming.createdAt),
         remetente: isMine ? 'eu' : 'outro',
         status: isMine ? 'sent' : undefined,
+        senderName: incoming.senderName,
+      }
+
+      if (!isMine && isChatOpen) {
+        normalized.readAt = new Date()
+
+        socket.emit('chat:read', {
+          chatId: normalized.chatId,
+        })
       }
 
       setContatos((prev: Contato[]) => {
-        const updated = prev.map((c) =>
-          c.chatId === normalized.chatId
-            ? {
-                ...c,
-                unreadMessages: c.unreadMessages + 1,
-                lastMessage: {
-                  id: normalized.id,
-                  createdAt: normalized.createdAt,
-                  chatId: normalized.chatId!,
-                  senderId: normalized.senderId,
-                  content: normalized.content,
-                  readAt: normalized.readAt,
-                },
-              }
-            : c
-        )
+        const contato = prev.find((c) => c.chatId === normalized.chatId)
+        if (contato) {
+          const updated = prev.map((c) =>
+            c.chatId === normalized.chatId
+              ? {
+                  ...c,
+                  contact: {
+                    id: isMine ? incoming.targetUser.id : incoming.senderId,
+                    name_at: isMine
+                      ? incoming.targetUser.name_at
+                      : incoming.senderName,
+                    avatar: '',
+                  },
+                  unreadMessages:
+                    !isMine && selectedChatRef.current !== normalized.chatId
+                      ? c.unreadMessages + 1
+                      : c.unreadMessages,
+                  lastMessage: {
+                    id: normalized.id,
+                    chatId: normalized.chatId!,
+                    senderId: normalized.senderId,
+                    content: normalized.content,
+                    createdAt: normalized.createdAt,
+                    readAt: normalized.readAt,
+                  },
+                  lastMessageReadStatus:
+                    isMine || selectedChatRef.current === normalized.chatId,
+                }
+              : c
+          )
 
-        const changed = updated.find((c) => c.chatId === normalized.chatId)
-        const rest = updated.filter((c) => c.chatId !== normalized.chatId)
+          const changed = updated.find((c) => c.chatId === normalized.chatId)!
+          const rest = updated.filter((c) => c.chatId !== normalized.chatId)
 
-        return changed ? [changed, ...rest] : prev
+          return [changed, ...rest]
+        }
+
+        // CONTATO NÃO EXISTE (conversa apagada)
+        return [
+          {
+            chatId: normalized.chatId!,
+            contact: {
+              id: isMine ? incoming.targetUser.id : incoming.senderId,
+              name_at: isMine
+                ? incoming.targetUser.name_at
+                : incoming.senderName,
+              avatar: '',
+            },
+            lastMessage: {
+              id: normalized.id,
+              chatId: normalized.chatId!,
+              senderId: normalized.senderId,
+              content: normalized.content,
+              createdAt: normalized.createdAt,
+              readAt: isMine ? new Date() : undefined,
+            },
+            unreadMessages: !isMine ? 1 : 0,
+            lastMessageReadStatus: isMine,
+            createdAt: new Date().toISOString(),
+          },
+          ...prev,
+        ]
       })
 
-      // 🔹 Só mexe nas mensagens SE o chat estiver aberto
+      // Só mexe nas mensagens SE o chat estiver aberto
       if (selectedChatRef.current === normalized.chatId) {
         setMessages((prev) => {
           const map = new Map<string, MSG>()
@@ -128,7 +199,17 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                   : new Date(m.createdAt),
             })
           })
-          map.set(normalized.tempId ?? normalized.id, normalized)
+
+          const incomingKey = incoming.tempId ?? incoming.id
+          map.set(incomingKey, {
+            ...incoming,
+            remetente: incoming.senderId === Number(user?.id) ? 'eu' : 'outro',
+            createdAt: new Date(incoming.createdAt),
+            status: incoming.senderId === Number(user?.id) ? 'sent' : undefined,
+            senderName: incoming.senderName,
+            id: incoming.id, // Garante que o id real do backend substitua o tempId
+            tempId: undefined, // Remove o tempId, pois não precisamos mais
+          })
           return [...map.values()].sort(
             (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
           )
@@ -163,7 +244,10 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
               ...c,
               lastMessage: {
                 ...c.lastMessage,
+                readAt: new Date(),
               },
+              unreadMessages: 0,
+              lastMessageReadStatus: true,
             }
           : c
       )
@@ -181,6 +265,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         setSelectedChat,
         typingUsers,
         onlineUsers,
+        isChatOpen,
+        setIsChatOpen,
       }}
     >
       {children}

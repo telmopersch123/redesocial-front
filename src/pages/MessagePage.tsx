@@ -7,6 +7,7 @@ import {
   Image,
   MessageCircle,
   MessageSquare,
+  X,
 } from 'lucide-react'
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
@@ -19,7 +20,7 @@ import { Input } from '../components/ui/input'
 import { useChat } from '../context/ChatContext'
 import { useAuth } from '../context/getMe'
 import { useLimitForms } from '../hooks/useLimitForms'
-import { getContatos } from '../services/authService'
+import { getContatos, getUser } from '../services/authService'
 import { socket } from '../services/socket'
 
 interface MSG {
@@ -33,13 +34,14 @@ interface MSG {
   createdAt: Date
   readAt?: Date
   status?: 'pending' | 'sent'
+  senderName: string
 }
 
 export interface Contato {
   chatId: string
   contact: {
     id: number
-    name: string
+    name_at: string
     avatar: string
   }
   lastMessage: {
@@ -54,6 +56,24 @@ export interface Contato {
   lastMessageReadStatus: boolean
   createdAt: string
 }
+export interface HeaderUser {
+  id: number
+  name: string
+  avatar: string | null
+  name_at?: string
+  friends?: number
+}
+interface HeaderUserView {
+  id: number
+  name_at: string
+  avatar: string | null
+}
+
+interface typeUser {
+  id: number
+  name_at: string
+  avatar: string
+}
 
 const MessagePage = () => {
   const {
@@ -65,34 +85,62 @@ const MessagePage = () => {
     setSelectedChat,
     typingUsers,
     onlineUsers,
+    isChatOpen,
+    setIsChatOpen,
   } = useChat()
 
   const [image, setImage] = useState<string>('')
   const [contatMessage, setContatMessage] = useState<boolean>(false)
   const [chatMenssage, setChatMessage] = useState<boolean>(false)
-  const [isChatOpen, setIsChatOpen] = useState(false)
+
   const [fullscreen, setFullscreen] = useState<boolean>(false)
-  // const [isChatFocused, setIsChatFocused] = useState(false)
+  const [targetUser, setTargetUser] = useState<typeUser | null>(null)
   const [inputText, setInputText] = useState('')
   const [open, setOpen] = useState<boolean>(false)
   const typingTimeout = useRef<number | null>(null)
   const messageInput = useLimitForms(5000)
   const location = useLocation()
+  const typeId = location.state?.chatId
   const inputRef = useRef<HTMLInputElement>(null)
   const responsive = 1000
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { id } = useParams<{ id: string }>()
-  const targetUserId = id
+  const hasHandledRef = useRef(false)
   const { user } = useAuth()
   const navigateFlex = useNavigate()
   const readTimeoutRef = useRef<number | null>(null)
   const readCacheRef = useRef<Set<string>>(new Set())
-
+  const isInternalNav = sessionStorage.getItem('__internal_nav')
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'end',
     })
+  }
+
+  function normalizeHeaderUser(
+    contact: Contato | undefined,
+    targetUser: typeUser | null
+  ): HeaderUserView {
+    if (contact) {
+      return {
+        id: contact.contact.id,
+        name_at: contact.contact.name_at,
+        avatar: contact.contact.avatar,
+      }
+    }
+    if (targetUser) {
+      return {
+        id: targetUser.id,
+        name_at: targetUser.name_at ?? 'Usuário Desconhecido',
+        avatar: targetUser.avatar,
+      }
+    }
+    return {
+      id: 0,
+      name_at: '',
+      avatar: '',
+    }
   }
   const handleOpen = (chatId: string) => {
     if (selectedChat === chatId) {
@@ -120,13 +168,38 @@ const MessagePage = () => {
       senderId: Number(user?.id),
       createdAt: new Date(),
       status: 'pending',
+      senderName: user?.name_at ?? 'Você',
     }
 
     setMessages((prev) => [...prev, newMessage])
 
+    if (!selectedChat) {
+      const newContato: Contato = {
+        chatId: '',
+        contact: {
+          id: Number(id),
+          name_at: targetUser?.name_at ?? 'Usuário Desconhecido',
+          avatar: '',
+        },
+        lastMessage: {
+          id: newMessage.id,
+          chatId: '',
+          senderId: newMessage.senderId,
+          content: newMessage.content,
+          createdAt: newMessage.createdAt,
+          readAt: newMessage.remetente === 'eu' ? new Date() : undefined,
+        },
+        unreadMessages: 0,
+        lastMessageReadStatus: true,
+        createdAt: new Date().toISOString(),
+      }
+
+      setContatos((prev) => [newContato, ...prev])
+    }
+
     socket.emit('chat:send', {
       chatId: selectedChat ?? undefined,
-      receiverId: selectedChat ? undefined : targetUserId,
+      receiverId: selectedChat ? undefined : id,
       content: inputText,
       tempId,
     })
@@ -163,7 +236,73 @@ const MessagePage = () => {
       })
     }, 2000)
   }
+  const handleRemoveChat = (chatId: string) => {
+    setContatos((contatos) => contatos.filter((c) => c.chatId !== chatId))
+    navigateFlex('/mensagens', { replace: true })
+    setSelectedChat(null)
+    if (selectedChat === chatId) setMessages([])
 
+    socket.emit('chat:remove', {
+      chatId,
+    })
+  }
+  function findChatByChatId(contatos: Contato[], chatId: string) {
+    return contatos.find((c) => c.chatId === chatId)
+  }
+
+  function findChatByUserId(contatos: Contato[], userId: number) {
+    return contatos.find((c) => c.contact.id === userId)
+  }
+
+  useEffect(() => {
+    if (!id) return
+    if (contatos.length === 0) return
+    if (!user?.id) return
+
+    const chatById = findChatByChatId(contatos, id)
+
+    if (chatById) {
+      setSelectedChat(chatById.chatId)
+      setIsChatOpen(true)
+      socket.emit('chat:join', chatById.chatId)
+      return
+    }
+    const numericUserId = Number(id)
+    if (Number.isNaN(numericUserId)) {
+      return
+    }
+
+    const chatWithUser = findChatByUserId(contatos, numericUserId)
+
+    if (chatWithUser) {
+      setSelectedChat(chatWithUser.chatId)
+      setIsChatOpen(true)
+      socket.emit('chat:join', chatWithUser.chatId)
+      return
+    }
+
+    setSelectedChat(null)
+
+    async function fetchTargetUser() {
+      if (numericUserId === Number(user?.id)) return
+      const res = (await getUser(numericUserId.toString())) as typeUser
+      setTargetUser(res)
+    }
+
+    fetchTargetUser()
+  }, [id, contatos])
+
+  useEffect(() => {
+    if (hasHandledRef.current) return
+    hasHandledRef.current = true
+    if (!id) return
+    if (typeId)
+      if (!isInternalNav) {
+        navigateFlex('/mensagens', { replace: true })
+        setSelectedChat(null)
+      }
+    sessionStorage.removeItem('__internal_nav')
+  }, [])
   useEffect(() => {
     if (selectedChat !== id) {
       setSelectedChat(null)
@@ -172,6 +311,9 @@ const MessagePage = () => {
   }, [])
   useEffect(() => {
     const handleChatCreated = ({ chatId }: { chatId: string }) => {
+      setContatos((prev) =>
+        prev.map((c) => (c.chatId === '' ? { ...c, chatId } : c))
+      )
       setSelectedChat(chatId)
       socket.emit('chat:join', chatId)
     }
@@ -194,6 +336,12 @@ const MessagePage = () => {
     fetchContatos()
   }, [])
   useEffect(() => {
+    if (isInternalNav === null) {
+      navigateFlex('/mensagens', { replace: true })
+      setSelectedChat(null)
+    }
+  }, [])
+  useEffect(() => {
     if (!isChatOpen || !selectedChat) return
 
     const hasUnread = messages.some(
@@ -213,6 +361,7 @@ const MessagePage = () => {
             ? {
                 ...c,
                 unreadMessages: 0,
+                lastMessageReadStatus: true,
                 lastMessage: {
                   ...c.lastMessage,
                   readAt: new Date(),
@@ -221,6 +370,7 @@ const MessagePage = () => {
             : c
         )
       )
+
       socket.emit('chat:read', { chatId: selectedChat })
       readTimeoutRef.current = null
     }, 1500)
@@ -232,7 +382,6 @@ const MessagePage = () => {
       }
     }
   }, [messages, selectedChat, isChatOpen])
-
   useEffect(() => {
     const handleRead = ({ chatId }: { chatId: string }) => {
       if (selectedChat !== chatId) return
@@ -276,6 +425,7 @@ const MessagePage = () => {
             readAt: isLockedAsRead
               ? (existing?.readAt ?? new Date())
               : msg.readAt,
+            senderName: msg.senderName ? msg.senderName : 'Usuário',
           })
         })
 
@@ -330,19 +480,28 @@ const MessagePage = () => {
       setImage('')
     }
   }, [open])
-  useEffect(() => {
-    if (!id) return
+  // useEffect(() => {
+  //   if (!id) return
+  //   if (typeId) return
+  //   if (!isInternalNav) return
 
-    setSelectedChat(id)
+  //   //setSelectedChat(id)
 
-    if (location.state?.openChat) {
-      setIsChatOpen(true)
-    }
-  }, [id])
+  //   async function fechTargetUser() {
+  //     const res = (await getUser(id)) as typeUser
+  //     setTargetUser(res)
+  //   }
+  //   fechTargetUser()
+
+  //   if (location.state?.openChat) {
+  //     setIsChatOpen(true)
+  //   }
+  // }, [id])
 
   const contactSelect = contatos.find((c) => c.chatId === selectedChat)
+  const headerUser = normalizeHeaderUser(contactSelect, targetUser)
   const isOnline = contactSelect && onlineUsers.has(contactSelect.contact.id)
-  const canOpenChat = Boolean(selectedChat || targetUserId)
+  const canOpenChat = Boolean(selectedChat || id)
 
   return (
     <div className="flex h-screen w-full flex-col gap-0 p-2 md:w-[calc(100vw-16rem)] md:flex-row md:gap-4 md:p-4 dm:w-[calc(100vw-18rem)]">
@@ -385,8 +544,8 @@ const MessagePage = () => {
                   }`}
                 >
                   <img
-                    src={`https://i.pravatar.cc/48?img=${contato.chatId + 10}`}
-                    alt={contato.contact.name}
+                    src={`https://burst.shopifycdn.com/photos/perfect-yellow-flower.jpg?width=373&format=pjpg&exif=0&iptc=0`}
+                    alt={contato.contact.name_at}
                     className="h-11 w-11 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
                   />
 
@@ -394,7 +553,7 @@ const MessagePage = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="font-medium leading-tight text-zinc-900 group-hover:text-zinc-950 dark:text-zinc-100 dark:group-hover:text-zinc-50">
-                          {contato.contact.name}
+                          {contato.contact.name_at}
                         </span>
                       </div>
                     </div>
@@ -457,11 +616,25 @@ const MessagePage = () => {
             )}
 
             <div className="absolute right-2 top-2 z-10 flex justify-end space-x-2">
+              <div>
+                <TooltipComponent
+                  Tag={
+                    <Button
+                      onClick={() => handleRemoveChat(contactSelect?.chatId!)}
+                      variant="ghost"
+                      className="flex items-center justify-end border-none bg-red-600 text-white hover:bg-red-700 dark:bg-black/20 dark:hover:bg-black/30 dark:hover:text-white"
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  }
+                  description="Apagar conversa"
+                />
+              </div>
               <TooltipComponent
                 Tag={
                   <Button
                     onClick={handleFullScreen}
-                    className="hidden items-center justify-end bg-black/20 text-white backdrop-blur-sm hover:bg-black/30 dm:flex"
+                    className="hidden items-center justify-end bg-black/85 text-white backdrop-blur-sm hover:bg-black/30 dark:bg-black/20 dark:hover:bg-black/30 dm:flex"
                   >
                     <Fullscreen className="h-5 w-5" />
                   </Button>
@@ -473,7 +646,7 @@ const MessagePage = () => {
                   <Button
                     onClick={() => setOpen(true)}
                     variant="ghost"
-                    className="flex items-center justify-end bg-black/20 text-white shadow-[0_0px_1px_white] hover:text-white"
+                    className="flex items-center justify-end bg-black/85 text-white hover:bg-black/30 hover:text-white dark:bg-black/20 dark:hover:bg-black/30"
                   >
                     <Image className="h-5 w-5" />
                   </Button>
@@ -498,33 +671,35 @@ const MessagePage = () => {
                 </button>
 
                 <img
-                  src={`https://i.pravatar.cc/56?img=${contactSelect?.contact.avatar}`}
-                  alt={contactSelect?.contact.name}
+                  src={`https://i.pravatar.cc/56?img=${headerUser?.avatar}`}
+                  alt={headerUser?.name_at}
                   className="h-12 w-12 rounded-full object-cover shadow-lg ring-2 ring-white/60"
                 />
 
                 <div className="flex-1">
                   <h2 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-                    {contactSelect?.contact.name}
+                    {headerUser?.name_at}
                   </h2>
 
-                  <div className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium shadow-sm">
-                    {isOnline ? (
-                      <>
-                        <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
-                        <p className="text-green-600 dark:text-green-400">
-                          Online
-                        </p>
-                      </>
-                    ) : (
-                      <>
-                        <span className="h-1.5 w-1.5 rounded-full bg-zinc-500"></span>
-                        <p className="text-zinc-500 dark:text-zinc-400">
-                          Offline
-                        </p>
-                      </>
-                    )}
-                  </div>
+                  {contactSelect && (
+                    <div className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium shadow-sm">
+                      {isOnline ? (
+                        <>
+                          <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+                          <p className="text-green-600 dark:text-green-400">
+                            Online
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <span className="h-1.5 w-1.5 rounded-full bg-zinc-500"></span>
+                          <p className="text-zinc-500 dark:text-zinc-400">
+                            Offline
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

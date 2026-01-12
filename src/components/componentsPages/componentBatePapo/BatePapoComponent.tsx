@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { Sidebar } from '../../..//components/ui/sidebar'
 import { useChat } from '../../../context/ChatContext'
+import { useAuth } from '../../../context/getMe'
 import type { Contato } from '../../../pages/MessagePage'
 import { getContatos } from '../../../services/authService'
 import { Button } from '../../ui/button'
@@ -15,7 +16,9 @@ const BREAKPOINT = 1640
 
 export const BatePapoSidebar = () => {
   const { pathname } = useLocation()
+
   const { communityName, id } = useParams()
+  const { user } = useAuth()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [search, setSearch] = useState('')
   const [allContatos, setAllContatos] = useState<Contato[]>([])
@@ -64,11 +67,20 @@ export const BatePapoSidebar = () => {
   }, [])
 
   useEffect(() => {
-    const newValue = conversations.map((c) => {
-      return c.unreadMessages
-    })
-    setQuantity(newValue.reduce((tot, val) => tot + val, 0))
-  }, [conversations])
+    if (!user?.id) return
+
+    const totalUnread = conversations.reduce((total, c) => {
+      const isUnreadFromOtherUser =
+        c.lastMessage &&
+        c.lastMessage.senderId !== Number(user.id) &&
+        !c.lastMessage.readAt
+
+      if (!isUnreadFromOtherUser) return total
+      return total + (c.unreadMessages ?? 1)
+    }, 0)
+
+    setQuantity(totalUnread)
+  }, [conversations, id])
 
   const handleFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -104,9 +116,9 @@ export const BatePapoSidebar = () => {
           }}
           className={`bg-linear-purple fixed right-2 top-2 z-[35] transition-opacity duration-200 ${isActive ? 'opacity-0' : 'opacity-100'}`}
         >
-          {isCollapsed && (
+          {isCollapsed && quantity > 0 && (
             <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
-              {quantity > 0 && <div>{quantity}</div>}
+              <div>{quantity}</div>
             </span>
           )}
 

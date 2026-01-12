@@ -88,7 +88,7 @@ const SidebarInner = ({
               const isUnreadFromOtherUser =
                 conversa.lastMessage &&
                 conversa.lastMessage.senderId !== Number(user?.id) &&
-                conversa.lastMessage.readAt === null
+                !conversa.lastMessage.readAt
 
               const unreadFromOther =
                 conversa.unreadMessages > 0
@@ -98,8 +98,11 @@ const SidebarInner = ({
               return (
                 <NavLink
                   key={conversa.chatId}
+                  onClick={() => {
+                    sessionStorage.setItem('__internal_nav', '1')
+                  }}
                   to={`/mensagens/${conversa.chatId}`}
-                  state={{ openChat: true }}
+                  state={{ openChat: true, chatId: true }}
                   className="block"
                 >
                   <SidebarMenuItem>
@@ -113,7 +116,7 @@ const SidebarInner = ({
                           <Avatar className="h-12 w-12 ring-4 ring-white dark:ring-zinc-900">
                             <AvatarImage src={conversa.contact.avatar} />
                             <AvatarFallback className="bg-purple-200 text-purple-800 dark:bg-purple-900/60 dark:text-purple-300">
-                              {conversa.contact.name
+                              {conversa.contact.name_at
                                 .split(' ')
                                 .map((n) => n[0])
                                 .join('')}
@@ -125,7 +128,7 @@ const SidebarInner = ({
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center justify-between">
                             <p className="font-semibold text-zinc-900 dark:text-zinc-100">
-                              {conversa.contact.name}
+                              {conversa.contact.name_at}
                             </p>
                             {conversa.lastMessage && (
                               <span className="text-xs text-zinc-500 dark:text-zinc-400">
