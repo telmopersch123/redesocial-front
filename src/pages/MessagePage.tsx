@@ -9,7 +9,7 @@ import {
   MessageSquare,
   X,
 } from 'lucide-react'
-import { useEffect, useRef, useState, type ChangeEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { EmojiInput } from '../components/componentsPages/componentsMensagens/EmojiInput'
 import { GalleryDialog } from '../components/componentsPages/componentsMensagens/GalleryDialog'
@@ -20,7 +20,7 @@ import { Input } from '../components/ui/input'
 import { useChat } from '../context/ChatContext'
 import { useAuth } from '../context/getMe'
 import { useLimitForms } from '../hooks/useLimitForms'
-import { getContatos, getUser } from '../services/authService'
+import { getCheckUserChat, getUser } from '../services/authService'
 import { socket } from '../services/socket'
 
 interface MSG {
@@ -49,166 +49,73 @@ export interface Contato {
     createdAt: Date
     chatId: string
     senderId: number
+    receiverId?: number
     content: string
-    readAt?: Date | undefined
+    readAt?: Date | undefined | null
   }
-  unreadMessages: number
+  unreadMessages?: number
   lastMessageReadStatus: boolean
   createdAt: string
 }
-export interface HeaderUser {
-  id: number
-  name: string
-  avatar: string | null
-  name_at?: string
-  friends?: number
-}
+// export interface HeaderUser {
+//   id: number
+//   name: string
+//   avatar: string | null
+//   name_at?: string
+//   friends?: number
+// }
 interface HeaderUserView {
   id: number
   name_at: string
   avatar: string | null
 }
 
-interface typeUser {
-  id: number
-  name_at: string
-  avatar: string
-}
-
 const MessagePage = () => {
   const {
-    messages,
-    setMessages,
+    messagesByChat,
+    setMessagesByChat,
     contatos,
-    setContatos,
+    // setContatos,
     selectedChat,
     setSelectedChat,
     typingUsers,
-    onlineUsers,
-    isChatOpen,
+    // onlineUsers,
+    // isChatOpen,
     setIsChatOpen,
   } = useChat()
-
+  const { user } = useAuth()
+  const navigate = useNavigate()
+  const location = useLocation()
+  const chatMessages = selectedChat ? (messagesByChat[selectedChat] ?? []) : []
+  const [usersDate, setUsersDate] = useState<HeaderUserView>()
   const [image, setImage] = useState<string>('')
   const [contatMessage, setContatMessage] = useState<boolean>(false)
-  const [chatMenssage, setChatMessage] = useState<boolean>(false)
-
+  const [chatMessage, setChatMessage] = useState<boolean>(false)
   const [fullscreen, setFullscreen] = useState<boolean>(false)
-  const [targetUser, setTargetUser] = useState<typeUser | null>(null)
+  const initialClickContact = location.state?.contact?.chatId ?? ''
+  const [clickContact, setClickContact] = useState<string>(initialClickContact)
   const [inputText, setInputText] = useState('')
   const [open, setOpen] = useState<boolean>(false)
-  const typingTimeout = useRef<number | null>(null)
   const messageInput = useLimitForms(5000)
-  const location = useLocation()
-  const typeId = location.state?.chatId
   const inputRef = useRef<HTMLInputElement>(null)
   const responsive = 1000
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { id } = useParams<{ id: string }>()
-  const hasHandledRef = useRef(false)
-  const { user } = useAuth()
-  const navigateFlex = useNavigate()
-  const readTimeoutRef = useRef<number | null>(null)
-  const readCacheRef = useRef<Set<string>>(new Set())
-  const isInternalNav = sessionStorage.getItem('__internal_nav')
+  const { id: ChatIdOrUserId } = useParams<{ id: string }>()
+
+  // effect de inicialização
+  useEffect(() => {
+    const sessionValue = sessionStorage.getItem('__internal_nav')
+    if (!sessionValue) {
+      navigate(`/mensagens`, { replace: true })
+      setClickContact('')
+    }
+  }, [])
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'end',
     })
-  }
-
-  function normalizeHeaderUser(
-    contact: Contato | undefined,
-    targetUser: typeUser | null
-  ): HeaderUserView {
-    if (contact) {
-      return {
-        id: contact.contact.id,
-        name_at: contact.contact.name_at,
-        avatar: contact.contact.avatar,
-      }
-    }
-    if (targetUser) {
-      return {
-        id: targetUser.id,
-        name_at: targetUser.name_at ?? 'Usuário Desconhecido',
-        avatar: targetUser.avatar,
-      }
-    }
-    return {
-      id: 0,
-      name_at: '',
-      avatar: '',
-    }
-  }
-  const handleOpen = (chatId: string) => {
-    if (selectedChat === chatId) {
-      return
-    }
-    navigateFlex(`/mensagens/${chatId}`)
-    setSelectedChat(chatId.toString())
-    setIsChatOpen(true)
-    if (window.innerWidth < 768) {
-      setContatMessage(true)
-      setChatMessage(false)
-    } else {
-      setContatMessage(false)
-      setChatMessage(true)
-    }
-  }
-  const handleSendMessage = async () => {
-    if (inputText.trim() === '' || inputText.length > 5000) return
-    const tempId = `temp-${Math.random().toString(36)}`
-    const newMessage: MSG = {
-      id: tempId,
-      tempId,
-      content: inputText,
-      remetente: 'eu',
-      senderId: Number(user?.id),
-      createdAt: new Date(),
-      status: 'pending',
-      senderName: user?.name_at ?? 'Você',
-    }
-
-    setMessages((prev) => [...prev, newMessage])
-
-    if (!selectedChat) {
-      const newContato: Contato = {
-        chatId: '',
-        contact: {
-          id: Number(id),
-          name_at: targetUser?.name_at ?? 'Usuário Desconhecido',
-          avatar: '',
-        },
-        lastMessage: {
-          id: newMessage.id,
-          chatId: '',
-          senderId: newMessage.senderId,
-          content: newMessage.content,
-          createdAt: newMessage.createdAt,
-          readAt: newMessage.remetente === 'eu' ? new Date() : undefined,
-        },
-        unreadMessages: 0,
-        lastMessageReadStatus: true,
-        createdAt: new Date().toISOString(),
-      }
-
-      setContatos((prev) => [newContato, ...prev])
-    }
-
-    socket.emit('chat:send', {
-      chatId: selectedChat ?? undefined,
-      receiverId: selectedChat ? undefined : id,
-      content: inputText,
-      tempId,
-    })
-
-    setInputText('')
-    messageInput.handleChange({ target: { value: '' } } as ChangeEvent<
-      HTMLTextAreaElement | HTMLInputElement
-    >)
-    inputRef.current?.focus()
   }
   const handleFullScreen = () => {
     setContatMessage((valor) => !valor)
@@ -217,260 +124,9 @@ const MessagePage = () => {
   const handleAddEmoji = (emoji: string) => {
     setInputText((prevInput) => prevInput + emoji)
   }
-  const handleTyping = (value: string) => {
-    setInputText(value)
-
-    socket.emit('chat:typing', {
-      chatId: selectedChat ?? undefined,
-      isTyping: true,
-    })
-
-    if (typingTimeout.current) {
-      clearTimeout(typingTimeout.current)
-    }
-
-    typingTimeout.current = setTimeout(() => {
-      socket.emit('chat:typing', {
-        chatId: selectedChat ?? undefined,
-        isTyping: false,
-      })
-    }, 2000)
-  }
-  const handleRemoveChat = (chatId: string) => {
-    setContatos((contatos) => contatos.filter((c) => c.chatId !== chatId))
-    navigateFlex('/mensagens', { replace: true })
-    setSelectedChat(null)
-    if (selectedChat === chatId) setMessages([])
-
-    socket.emit('chat:remove', {
-      chatId,
-    })
-  }
-  function findChatByChatId(contatos: Contato[], chatId: string) {
-    return contatos.find((c) => c.chatId === chatId)
-  }
-
-  function findChatByUserId(contatos: Contato[], userId: number) {
-    return contatos.find((c) => c.contact.id === userId)
-  }
-
-  useEffect(() => {
-    if (!id) return
-    if (contatos.length === 0) return
-    if (!user?.id) return
-
-    const chatById = findChatByChatId(contatos, id)
-
-    if (chatById) {
-      setSelectedChat(chatById.chatId)
-      setIsChatOpen(true)
-      socket.emit('chat:join', chatById.chatId)
-      return
-    }
-    const numericUserId = Number(id)
-    if (Number.isNaN(numericUserId)) {
-      return
-    }
-
-    const chatWithUser = findChatByUserId(contatos, numericUserId)
-
-    if (chatWithUser) {
-      setSelectedChat(chatWithUser.chatId)
-      setIsChatOpen(true)
-      socket.emit('chat:join', chatWithUser.chatId)
-      return
-    }
-
-    setSelectedChat(null)
-
-    async function fetchTargetUser() {
-      if (numericUserId === Number(user?.id)) return
-      const res = (await getUser(numericUserId.toString())) as typeUser
-      setTargetUser(res)
-    }
-
-    fetchTargetUser()
-  }, [id, contatos])
-
-  useEffect(() => {
-    if (hasHandledRef.current) return
-    hasHandledRef.current = true
-    if (!id) return
-    if (typeId)
-      if (!isInternalNav) {
-        navigateFlex('/mensagens', { replace: true })
-        setSelectedChat(null)
-      }
-    sessionStorage.removeItem('__internal_nav')
-  }, [])
-  useEffect(() => {
-    if (selectedChat !== id) {
-      setSelectedChat(null)
-      setContatMessage(false)
-    }
-  }, [])
-  useEffect(() => {
-    const handleChatCreated = ({ chatId }: { chatId: string }) => {
-      setContatos((prev) =>
-        prev.map((c) => (c.chatId === '' ? { ...c, chatId } : c))
-      )
-      setSelectedChat(chatId)
-      socket.emit('chat:join', chatId)
-    }
-
-    socket.on('chat:created', handleChatCreated)
-    return () => {
-      socket.off('chat:created', handleChatCreated)
-    }
-  }, [])
-  useEffect(() => {
-    async function fetchContatos() {
-      try {
-        const response = await getContatos()
-        setContatos(response)
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
-    fetchContatos()
-  }, [])
-  useEffect(() => {
-    if (isInternalNav === null) {
-      navigateFlex('/mensagens', { replace: true })
-      setSelectedChat(null)
-    }
-  }, [])
-  useEffect(() => {
-    if (!isChatOpen || !selectedChat) return
-
-    const hasUnread = messages.some(
-      (m) => m.chatId === selectedChat && m.remetente === 'outro' && !m.readAt
-    )
-
-    if (!hasUnread) return
-
-    if (readTimeoutRef.current) {
-      clearTimeout(readTimeoutRef.current)
-    }
-
-    readTimeoutRef.current = window.setTimeout(() => {
-      setContatos((prev: Contato[]) =>
-        prev.map((c) =>
-          c.chatId === selectedChat && c.lastMessage
-            ? {
-                ...c,
-                unreadMessages: 0,
-                lastMessageReadStatus: true,
-                lastMessage: {
-                  ...c.lastMessage,
-                  readAt: new Date(),
-                },
-              }
-            : c
-        )
-      )
-
-      socket.emit('chat:read', { chatId: selectedChat })
-      readTimeoutRef.current = null
-    }, 1500)
-
-    return () => {
-      if (readTimeoutRef.current) {
-        clearTimeout(readTimeoutRef.current)
-        readTimeoutRef.current = null
-      }
-    }
-  }, [messages, selectedChat, isChatOpen])
-  useEffect(() => {
-    const handleRead = ({ chatId }: { chatId: string }) => {
-      if (selectedChat !== chatId) return
-
-      setMessages((prev: MSG[]) =>
-        prev.map((m) => {
-          if (m.remetente === 'eu' && !m.readAt) {
-            readCacheRef.current.add(m.id)
-            return {
-              ...m,
-              readAt: new Date(),
-            }
-          }
-          return m
-        })
-      )
-    }
-
-    socket.on('chat:read', handleRead)
-    return () => {
-      socket.off('chat:read', handleRead)
-    }
-  }, [selectedChat])
-  useEffect(() => {
-    const handleHistory = (msgs: MSG[]) => {
-      setMessages((prev) => {
-        const map = new Map<string, MSG>()
-
-        prev.forEach((m) => {
-          map.set(m.tempId ?? m.id, m)
-        })
-
-        msgs.forEach((msg) => {
-          const existing = map.get(msg.id)
-          const isLockedAsRead =
-            readCacheRef.current.has(msg.id) || existing?.readAt
-          map.set(msg.id, {
-            ...msg,
-            remetente: msg.senderId === Number(user?.id) ? 'eu' : 'outro',
-            status: 'sent',
-            readAt: isLockedAsRead
-              ? (existing?.readAt ?? new Date())
-              : msg.readAt,
-            senderName: msg.senderName ? msg.senderName : 'Usuário',
-          })
-        })
-
-        return [...map.values()].sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        )
-      })
-    }
-
-    socket.on('chat:history', handleHistory)
-
-    return () => {
-      socket.off('chat:history', handleHistory)
-    }
-  }, [user?.id])
   useEffect(() => {
     scrollToBottom()
-  }, [messages])
-  useEffect(() => {
-    if (!selectedChat) {
-      return
-    }
-    setMessages([])
-    socket.emit('chat:join', selectedChat)
-    socket.emit('chat:history', { chatId: selectedChat })
-  }, [selectedChat])
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < responsive && selectedChat !== null) {
-        setContatMessage(true)
-      } else if (window.innerWidth >= responsive) {
-        setContatMessage(false)
-      }
-      if (window.innerWidth < responsive && selectedChat === null) {
-        setChatMessage(false)
-      } else {
-        setChatMessage(true)
-      }
-    }
-    handleResize()
-    window.addEventListener('resize', handleResize)
-
-    return () => window.removeEventListener('resize', handleResize)
-  }, [selectedChat])
+  }, [messagesByChat])
   useEffect(() => {
     if (localStorage.getItem('selectedImage')) {
       const stored = JSON.parse(localStorage.getItem('selectedImage') || '{}')
@@ -480,28 +136,164 @@ const MessagePage = () => {
       setImage('')
     }
   }, [open])
-  // useEffect(() => {
-  //   if (!id) return
-  //   if (typeId) return
-  //   if (!isInternalNav) return
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < responsive && selectedChat !== null) {
+        setContatMessage(true)
+      } else if (window.innerWidth >= responsive) {
+        setContatMessage(false)
+      }
 
-  //   //setSelectedChat(id)
+      if (window.innerWidth < responsive && selectedChat === null) {
+        setChatMessage(false)
+      } else {
+        setChatMessage(true)
+      }
+    }
 
-  //   async function fechTargetUser() {
-  //     const res = (await getUser(id)) as typeUser
-  //     setTargetUser(res)
-  //   }
-  //   fechTargetUser()
+    handleResize()
 
-  //   if (location.state?.openChat) {
-  //     setIsChatOpen(true)
-  //   }
-  // }, [id])
+    window.addEventListener('resize', handleResize)
 
-  const contactSelect = contatos.find((c) => c.chatId === selectedChat)
-  const headerUser = normalizeHeaderUser(contactSelect, targetUser)
-  const isOnline = contactSelect && onlineUsers.has(contactSelect.contact.id)
-  const canOpenChat = Boolean(selectedChat || id)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [selectedChat])
+  ////////////////////////
+  ////////////////////////
+  ////////////////////////
+  const handleSendMessage = () => {
+    if (!inputText || inputText.trim() === '') return
+    if (!user?.id) return
+    if (!ChatIdOrUserId) return
+    console.log('ola?')
+
+    const tempId = crypto.randomUUID()
+    const targetId = selectedChat ? selectedChat : String(ChatIdOrUserId)
+
+    const message: MSG = {
+      id: tempId,
+      tempId,
+      chatId: undefined,
+      content: inputText,
+      remetente: 'eu',
+      senderId: Number(user?.id),
+      receiverId: usersDate?.id,
+      createdAt: new Date(),
+      status: 'pending',
+      senderName: user?.name_at ?? 'Usuário',
+    }
+    setMessagesByChat((prev) => ({
+      ...prev,
+      [targetId]: [...(prev[targetId] ?? []), message],
+    }))
+
+    setInputText('')
+
+    socket.emit('message:send', {
+      targetId,
+      content: inputText,
+      tempId,
+    })
+
+    socket.once('message:sent', (msg) => {
+      navigate(`/mensagens/${msg.chatId}`, { replace: true })
+      setMessagesByChat((prev) => {
+        const oldMessages = prev[targetId] ?? []
+        return {
+          ...prev,
+          [msg.chatId]: oldMessages.map((m) =>
+            m.tempId === msg.tempId
+              ? { ...m, id: msg.id, chatId: msg.chatId, status: 'sent' }
+              : m
+          ),
+        }
+      })
+      sessionStorage.removeItem('__internal_nav')
+      setSelectedChat(msg.chatId)
+      setClickContact(msg.chatId)
+    })
+  }
+  const handleTyping = (value: string) => {
+    setInputText(value)
+  }
+  const handleOpen = (contato: Contato) => {
+    setSelectedChat(contato.chatId)
+    setClickContact(contato.chatId)
+    navigate(`/mensagens/${contato.chatId}`, { replace: true })
+    setUsersDate(() => {
+      return {
+        id: contato.contact.id,
+        name_at: contato.contact.name_at,
+        avatar: contato.contact.avatar,
+      }
+    })
+    inputRef.current?.focus()
+    socket.emit('chat:history', { chatId: contato.chatId })
+  }
+  useEffect(() => {
+    const handleHistory = ({
+      chatId,
+      messages,
+    }: {
+      chatId: string
+      messages: MSG[]
+    }) => {
+      setMessagesByChat((prev) => ({
+        ...prev,
+        [chatId]: messages.map((msg) => ({
+          ...msg,
+          remetente: msg.senderId === Number(user?.id) ? 'eu' : 'outro',
+        })),
+      }))
+    }
+    inputRef.current?.focus()
+    socket.on('chat:history', handleHistory)
+
+    return () => {
+      socket.off('chat:history', handleHistory)
+    }
+  }, [user?.id])
+  useEffect(() => {
+    if (!ChatIdOrUserId) return
+
+    async function fetchMessages() {
+      // Se veio do sidebar com contato
+      if (location.state?.contact) {
+        const contato = location.state.contact
+
+        setClickContact(contato.chatId)
+        setSelectedChat(contato.chatId)
+        setUsersDate({
+          id: contato.contact.id,
+          name_at: contato.contact.name_at,
+          avatar: contato.contact.avatar,
+        })
+        inputRef.current?.focus()
+        socket.emit('chat:history', { chatId: contato.chatId })
+        return
+      }
+
+      // Se não veio do sidebar, verificar chat existente
+      const userData = await getUser(ChatIdOrUserId)
+      setUsersDate(userData)
+
+      const data = await getCheckUserChat(ChatIdOrUserId)
+
+      if (data.exists && data.chatId) {
+        setClickContact(data.chatId)
+        setSelectedChat(data.chatId)
+        inputRef.current?.focus()
+        socket.emit('chat:history', { chatId: data.chatId })
+      } else {
+        // Aqui você pode criar um novo chat ou deixar pronto para enviar primeira mensagem
+        setSelectedChat('')
+        setClickContact('')
+      }
+    }
+
+    fetchMessages()
+  }, [ChatIdOrUserId, user?.id])
 
   return (
     <div className="flex h-screen w-full flex-col gap-0 p-2 md:w-[calc(100vw-16rem)] md:flex-row md:gap-4 md:p-4 dm:w-[calc(100vw-18rem)]">
@@ -524,21 +316,23 @@ const MessagePage = () => {
               const isTypingThisChat = typingUsers[contato.chatId]?.includes(
                 contato.contact.id
               )
-              const isUnreadFromOtherUser =
-                contato.lastMessage &&
-                contato.lastMessage.senderId !== Number(user?.id) &&
-                contato.lastMessage.readAt === null
+              // const isUnreadFromOtherUser =
+              //   contato.lastMessage &&
+              //   contato.lastMessage.senderId !== Number(user?.id) &&
+              //   !contato.lastMessage.readAt
 
-              const unreadFromOther =
-                contato.unreadMessages > 0 ? contato.unreadMessages : undefined
+              // const unreadFromOther =
+              //   (contato.unreadMessages || 0) > 0
+              //     ? contato.unreadMessages
+              //     : undefined
 
               return (
                 <Button
                   key={contato.chatId}
-                  onClick={() => handleOpen(contato.chatId)}
+                  onClick={() => handleOpen(contato)}
                   variant="ghost"
                   className={`group flex w-full items-center gap-3 rounded-none border-b border-zinc-100 px-4 py-10 text-left transition-all duration-150 hover:bg-zinc-100 active:scale-[0.99] dark:border-zinc-800 dark:hover:bg-zinc-800 ${
-                    selectedChat === contato.chatId
+                    clickContact === contato.chatId
                       ? 'bg-zinc-100 dark:bg-zinc-800'
                       : 'bg-transparent'
                   }`}
@@ -579,13 +373,14 @@ const MessagePage = () => {
                         </div>
                       </>
                     )}
-                    {isUnreadFromOtherUser && id !== contato.chatId && (
-                      <div className="ml-auto flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-purple-600 px-1.5 text-[11px] font-semibold text-white">
-                        {unreadFromOther && unreadFromOther > 9
-                          ? '9+'
-                          : unreadFromOther}
-                      </div>
-                    )}
+                    {/* {isUnreadFromOtherUser &&
+                      ChatIdOrUserId !== contato.chatId && (
+                        <div className="ml-auto flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-purple-600 px-1.5 text-[11px] font-semibold text-white">
+                          {unreadFromOther && unreadFromOther > 9
+                            ? '9+'
+                            : unreadFromOther}
+                        </div>
+                      )} */}
                   </div>
                 </Button>
               )
@@ -601,9 +396,9 @@ const MessagePage = () => {
 
       {/* ===== ÁREA DO CHAT ===== */}
       <div
-        className={`relative mt-10 min-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-zinc-200 md:mt-0 md:w-full lg:w-3/4 ${image ? '' : 'bg-white dark:bg-zinc-900'} ${fullscreen ? '!w-full' : ''} ${chatMenssage ? 'flex' : 'hidden'} shadow-xl dark:border-zinc-800`}
+        className={`relative mt-10 min-h-[calc(100vh-4rem)] w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl border border-zinc-200 md:mt-0 md:w-full lg:w-3/4 ${image ? '' : 'bg-white dark:bg-zinc-900'} ${fullscreen ? '!w-full' : ''} ${chatMessage ? 'flex' : 'hidden'} shadow-xl dark:border-zinc-800`}
       >
-        {canOpenChat !== null && canOpenChat ? (
+        {usersDate !== null && usersDate ? (
           <>
             {image && (
               <div
@@ -620,7 +415,7 @@ const MessagePage = () => {
                 <TooltipComponent
                   Tag={
                     <Button
-                      onClick={() => handleRemoveChat(contactSelect?.chatId!)}
+                      // onClick={() => handleRemoveChat(contactSelect?.chatId!)}
                       variant="ghost"
                       className="flex items-center justify-end border-none bg-red-600 text-white hover:bg-red-700 dark:bg-black/20 dark:hover:bg-black/30 dark:hover:text-white"
                     >
@@ -671,19 +466,19 @@ const MessagePage = () => {
                 </button>
 
                 <img
-                  src={`https://i.pravatar.cc/56?img=${headerUser?.avatar}`}
-                  alt={headerUser?.name_at}
+                  src={`https://i.pravatar.cc/56?img=${usersDate?.avatar}`}
+                  alt={usersDate?.name_at}
                   className="h-12 w-12 rounded-full object-cover shadow-lg ring-2 ring-white/60"
                 />
 
                 <div className="flex-1">
                   <h2 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-                    {headerUser?.name_at}
+                    {usersDate?.name_at}
                   </h2>
 
-                  {contactSelect && (
+                  {usersDate && (
                     <div className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium shadow-sm">
-                      {isOnline ? (
+                      {/* {isOnline ? (
                         <>
                           <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
                           <p className="text-green-600 dark:text-green-400">
@@ -697,7 +492,7 @@ const MessagePage = () => {
                             Offline
                           </p>
                         </>
-                      )}
+                      )} */}
                     </div>
                   )}
                 </div>
@@ -706,7 +501,7 @@ const MessagePage = () => {
               {/* MENSAGENS */}
               <div className="chat-messages invisivel-scroll flex-1 space-y-6 overflow-y-auto bg-gradient-to-b pb-8">
                 <div className="scrollbar-invisible mr-1 flex h-[calc(100vh-11.5rem)] flex-col space-y-4 overflow-y-auto pb-8 pt-1 md:pb-0">
-                  {messages.length === 0 ? (
+                  {chatMessages.length === 0 ? (
                     <div className="m-auto flex h-full flex-col items-center justify-center text-center">
                       <div className="flex flex-col items-center justify-center rounded-md p-10 text-center backdrop-blur-md">
                         <div className="mb-5 rounded-full bg-gradient-to-br from-zinc-100 to-zinc-50 p-6 shadow-inner dark:from-zinc-800 dark:to-zinc-900">
@@ -722,7 +517,7 @@ const MessagePage = () => {
                     </div>
                   ) : (
                     <>
-                      {messages.map((msg) => {
+                      {chatMessages.map((msg: MSG) => {
                         return (
                           <div
                             key={msg.id}

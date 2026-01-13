@@ -66,22 +66,6 @@ export const BatePapoSidebar = () => {
     myContatos()
   }, [])
 
-  useEffect(() => {
-    if (!user?.id) return
-
-    const totalUnread = conversations.reduce((total, c) => {
-      const isUnreadFromOtherUser =
-        c.lastMessage &&
-        c.lastMessage.senderId !== Number(user.id) &&
-        !c.lastMessage.readAt
-
-      if (!isUnreadFromOtherUser) return total
-      return total + (c.unreadMessages ?? 1)
-    }, 0)
-
-    setQuantity(totalUnread)
-  }, [conversations, id])
-
   const handleFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     setSearch(value)
@@ -90,7 +74,7 @@ export const BatePapoSidebar = () => {
       return
     }
     const filtered = allContatos.filter((c) =>
-      c.contact.name.toLowerCase().includes(value.toLowerCase())
+      c.contact.name_at.toLowerCase().includes(value.toLowerCase())
     )
     setConversations(filtered)
   }

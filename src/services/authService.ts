@@ -342,3 +342,19 @@ export async function getUser(id: string | undefined) {
 
   return data
 }
+
+export async function getCheckUserChat(id: string | undefined) {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/checkUserChat/${id}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) {
+    throw new Error('Erro ao buscar o usuário')
+  }
+  const data = await res.json()
+
+  return data
+}

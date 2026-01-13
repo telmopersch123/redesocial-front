@@ -85,15 +85,6 @@ const SidebarInner = ({
               //   Number(user?.id),
               //   conversa.lastMessage.readAt
               // )
-              const isUnreadFromOtherUser =
-                conversa.lastMessage &&
-                conversa.lastMessage.senderId !== Number(user?.id) &&
-                !conversa.lastMessage.readAt
-
-              const unreadFromOther =
-                conversa.unreadMessages > 0
-                  ? conversa.unreadMessages
-                  : undefined
 
               return (
                 <NavLink
@@ -102,7 +93,7 @@ const SidebarInner = ({
                     sessionStorage.setItem('__internal_nav', '1')
                   }}
                   to={`/mensagens/${conversa.chatId}`}
-                  state={{ openChat: true, chatId: true }}
+                  state={{ chatId: true, contact: conversa }}
                   className="block"
                 >
                   <SidebarMenuItem>
@@ -154,13 +145,13 @@ const SidebarInner = ({
                               <span className="truncate text-zinc-600 dark:text-zinc-300">
                                 {conversa.lastMessage.content}
                               </span>
-                              {isUnreadFromOtherUser && (
+                              {/* {isUnreadFromOtherUser && (
                                 <div className="ml-auto flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-purple-600 px-1.5 text-[11px] font-semibold text-white">
                                   {unreadFromOther && unreadFromOther > 9
                                     ? '9+'
                                     : unreadFromOther}
                                 </div>
-                              )}
+                              )} */}
                             </div>
                           ) : (
                             <p className="text-sm italic text-zinc-500 dark:text-zinc-400">
