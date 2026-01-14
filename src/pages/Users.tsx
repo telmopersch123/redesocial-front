@@ -20,7 +20,6 @@ const Users = () => {
     if (inputValue.trim().length <= 2) return
     setQuery(inputValue)
   }
-  console.log(usersSurveyed)
 
   return (
     <div className="m-auto w-[calc(100vw-2rem)] max-w-[90%] space-y-8 rounded-2xl bg-gradient-to-br from-zinc-50/80 via-white to-purple-50/30 p-6 shadow-xl backdrop-blur-sm dark:from-transparent dark:via-transparent md:w-[calc(100vw-20rem)] md:p-10">

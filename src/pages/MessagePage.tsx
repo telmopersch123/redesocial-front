@@ -75,7 +75,7 @@ const MessagePage = () => {
     messagesByChat,
     setMessagesByChat,
     contatos,
-    // setContatos,
+    setContatos,
     selectedChat,
     setSelectedChat,
     typingUsers,
@@ -87,7 +87,7 @@ const MessagePage = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const chatMessages = selectedChat ? (messagesByChat[selectedChat] ?? []) : []
-  const [usersDate, setUsersDate] = useState<HeaderUserView>()
+  const [usersDate, setUsersDate] = useState<HeaderUserView | null>()
   const [image, setImage] = useState<string>('')
   const [contatMessage, setContatMessage] = useState<boolean>(false)
   const [chatMessage, setChatMessage] = useState<boolean>(false)
@@ -166,7 +166,6 @@ const MessagePage = () => {
     if (!inputText || inputText.trim() === '') return
     if (!user?.id) return
     if (!ChatIdOrUserId) return
-    console.log('ola?')
 
     const tempId = crypto.randomUUID()
     const targetId = selectedChat ? selectedChat : String(ChatIdOrUserId)
@@ -231,6 +230,42 @@ const MessagePage = () => {
     inputRef.current?.focus()
     socket.emit('chat:history', { chatId: contato.chatId })
   }
+  const handleRemoveChat = (chatId: string) => {
+    socket.emit('chat:remove', { chatId })
+
+    setMessagesByChat((prev) => {
+      const copy = { ...prev }
+      delete copy[chatId]
+      return copy
+    })
+
+    setContatos((prev) => prev.filter((c) => c.chatId !== chatId))
+
+    setSelectedChat(null)
+  }
+  useEffect(() => {
+    const handleRemoved = ({ chatId }: { chatId: string }) => {
+      setContatos((prev) => prev.filter((c) => c.chatId !== chatId))
+
+      setMessagesByChat((prev) => {
+        const copy = { ...prev }
+        delete copy[chatId]
+        return copy
+      })
+
+      setSelectedChat(null)
+      navigate(`/mensagens`, { replace: true })
+      setClickContact('')
+      setUsersDate(null)
+    }
+
+    socket.on('chat:removed', handleRemoved)
+
+    return () => {
+      socket.off('chat:removed', handleRemoved)
+    }
+  }, [])
+
   useEffect(() => {
     const handleHistory = ({
       chatId,
@@ -258,10 +293,9 @@ const MessagePage = () => {
     if (!ChatIdOrUserId) return
 
     async function fetchMessages() {
-      // Se veio do sidebar com contato
+      // Se veio do sidebar com chatId
       if (location.state?.contact) {
         const contato = location.state.contact
-
         setClickContact(contato.chatId)
         setSelectedChat(contato.chatId)
         setUsersDate({
@@ -274,21 +308,23 @@ const MessagePage = () => {
         return
       }
 
-      // Se não veio do sidebar, verificar chat existente
-      const userData = await getUser(ChatIdOrUserId)
-      setUsersDate(userData)
+      if (location.state?.chatId === false) {
+        // Se não veio do sidebar, verificar chat existente
+        const userData = await getUser(ChatIdOrUserId)
+        setUsersDate(userData)
 
-      const data = await getCheckUserChat(ChatIdOrUserId)
+        const data = await getCheckUserChat(ChatIdOrUserId)
 
-      if (data.exists && data.chatId) {
-        setClickContact(data.chatId)
-        setSelectedChat(data.chatId)
-        inputRef.current?.focus()
-        socket.emit('chat:history', { chatId: data.chatId })
-      } else {
-        // Aqui você pode criar um novo chat ou deixar pronto para enviar primeira mensagem
-        setSelectedChat('')
-        setClickContact('')
+        if (data.exists && data.chatId) {
+          setClickContact(data.chatId)
+          setSelectedChat(data.chatId)
+          inputRef.current?.focus()
+          socket.emit('chat:history', { chatId: data.chatId })
+        } else {
+          // Aqui você pode criar um novo chat ou deixar pronto para enviar primeira mensagem
+          setSelectedChat('')
+          setClickContact('')
+        }
       }
     }
 
@@ -312,46 +348,50 @@ const MessagePage = () => {
 
         <div className="flex flex-1 flex-col overflow-y-auto">
           {contatos.length > 0 ? (
-            contatos.map((contato: Contato) => {
-              const isTypingThisChat = typingUsers[contato.chatId]?.includes(
-                contato.contact.id
+            contatos
+              .filter(
+                (contato): contato is Contato => !!contato && !!contato.chatId
               )
-              // const isUnreadFromOtherUser =
-              //   contato.lastMessage &&
-              //   contato.lastMessage.senderId !== Number(user?.id) &&
-              //   !contato.lastMessage.readAt
+              .map((contato: Contato) => {
+                // const isTypingThisChat = typingUsers[contato.chatId]?.includes(
+                //   contato.contact.id
+                // )
+                // const isUnreadFromOtherUser =
+                //   contato.lastMessage &&
+                //   contato.lastMessage.senderId !== Number(user?.id) &&
+                //   !contato.lastMessage.readAt
 
-              // const unreadFromOther =
-              //   (contato.unreadMessages || 0) > 0
-              //     ? contato.unreadMessages
-              //     : undefined
+                // const unreadFromOther =
+                //   (contato.unreadMessages || 0) > 0
+                //     ? contato.unreadMessages
+                //     : undefined
 
-              return (
-                <Button
-                  key={contato.chatId}
-                  onClick={() => handleOpen(contato)}
-                  variant="ghost"
-                  className={`group flex w-full items-center gap-3 rounded-none border-b border-zinc-100 px-4 py-10 text-left transition-all duration-150 hover:bg-zinc-100 active:scale-[0.99] dark:border-zinc-800 dark:hover:bg-zinc-800 ${
-                    clickContact === contato.chatId
-                      ? 'bg-zinc-100 dark:bg-zinc-800'
-                      : 'bg-transparent'
-                  }`}
-                >
-                  <img
-                    src={`https://burst.shopifycdn.com/photos/perfect-yellow-flower.jpg?width=373&format=pjpg&exif=0&iptc=0`}
-                    alt={contato.contact.name_at}
-                    className="h-11 w-11 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
-                  />
+                return (
+                  <Button
+                    key={contato.chatId}
+                    onClick={() => handleOpen(contato)}
+                    variant="ghost"
+                    className={`group flex w-full items-center gap-3 rounded-none border-b border-zinc-100 px-4 py-10 text-left transition-all duration-150 hover:bg-zinc-100 active:scale-[0.99] dark:border-zinc-800 dark:hover:bg-zinc-800 ${
+                      clickContact === contato.chatId
+                        ? 'bg-zinc-100 dark:bg-zinc-800'
+                        : 'bg-transparent'
+                    }`}
+                  >
+                    <img
+                      src={`https://burst.shopifycdn.com/photos/perfect-yellow-flower.jpg?width=373&format=pjpg&exif=0&iptc=0`}
+                      alt={contato.contact.name_at}
+                      className="h-11 w-11 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
+                    />
 
-                  <div className="flex min-w-0 flex-1 flex-col">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium leading-tight text-zinc-900 group-hover:text-zinc-950 dark:text-zinc-100 dark:group-hover:text-zinc-50">
-                          {contato.contact.name_at}
-                        </span>
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium leading-tight text-zinc-900 group-hover:text-zinc-950 dark:text-zinc-100 dark:group-hover:text-zinc-50">
+                            {contato.contact.name_at}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    {isTypingThisChat ? (
+                      {/* {isTypingThisChat ? (
                       <span className="text-xs italic text-zinc-500">
                         digitando...
                       </span>
@@ -372,8 +412,8 @@ const MessagePage = () => {
                           )}
                         </div>
                       </>
-                    )}
-                    {/* {isUnreadFromOtherUser &&
+                    )} */}
+                      {/* {isUnreadFromOtherUser &&
                       ChatIdOrUserId !== contato.chatId && (
                         <div className="ml-auto flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-purple-600 px-1.5 text-[11px] font-semibold text-white">
                           {unreadFromOther && unreadFromOther > 9
@@ -381,10 +421,10 @@ const MessagePage = () => {
                             : unreadFromOther}
                         </div>
                       )} */}
-                  </div>
-                </Button>
-              )
-            })
+                    </div>
+                  </Button>
+                )
+              })
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center p-6 text-center text-zinc-500 dark:text-zinc-400">
               <MessageSquare className="mb-3 h-12 w-12 text-zinc-400 dark:text-zinc-600" />
@@ -415,7 +455,7 @@ const MessagePage = () => {
                 <TooltipComponent
                   Tag={
                     <Button
-                      // onClick={() => handleRemoveChat(contactSelect?.chatId!)}
+                      onClick={() => handleRemoveChat(selectedChat!)}
                       variant="ghost"
                       className="flex items-center justify-end border-none bg-red-600 text-white hover:bg-red-700 dark:bg-black/20 dark:hover:bg-black/30 dark:hover:text-white"
                     >

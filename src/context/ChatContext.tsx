@@ -72,15 +72,15 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [isChatOpen, setIsChatOpen] = useState(false)
 
   useEffect(() => {
-    const handleChatUpdated = async () => {
+    const handleReactivated = async () => {
       const response = await getContatos()
       setContatos(response)
     }
 
-    socket.on('chat:updated', handleChatUpdated)
+    socket.on('chat:reactivated', handleReactivated)
 
     return () => {
-      socket.off('chat:updated', handleChatUpdated)
+      socket.off('chat:reactivated', handleReactivated)
     }
   }, [])
 
