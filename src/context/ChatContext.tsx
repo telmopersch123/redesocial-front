@@ -1,10 +1,11 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import type { Contato } from '../pages/MessagePage'
+
+import { useLocation, useNavigate } from 'react-router-dom'
 import { getContatos } from '../services/authService'
 import { socket } from '../services/socket'
 import { useAuth } from './getMe'
 
-interface MSG {
+export interface MSG {
   id: string
   tempId?: string
   chatId?: string
@@ -12,38 +13,44 @@ interface MSG {
   senderId: number
   remetente: 'eu' | 'outro'
   createdAt: Date
+  receiverId?: number
   readAt?: Date
+  deliveredAt?: Date
   status?: 'pending' | 'sent'
   senderName: string
 }
-
+export interface Contato {
+  chatId: string
+  contact: {
+    id: number
+    name_at: string
+    avatar: string
+  }
+  lastMessage: {
+    id: string
+    createdAt: Date
+    chatId: string
+    senderId: number
+    receiverId?: number
+    content: string
+    readAt?: Date | undefined | null
+  }
+  unreadMessages?: number
+  lastMessageReadStatus: boolean
+  createdAt: string
+}
 interface IncomingMessage {
   id: string
   chatId: string
   content: string
   senderId: number
   createdAt: Date
+  tempId?: string
+  deliveredAt?: Date
   readAt?: Date
   senderName: string
 }
 
-interface incomingType {
-  id: string
-  tempId?: string
-  chatId: string
-  content: string
-  senderId: number
-  remetente: 'eu' | 'outro'
-  createdAt: Date
-  readAt?: Date
-  status?: 'pending' | 'sent'
-  senderName: string
-  targetUser: {
-    id: number
-    name_at: string
-    avatar: string
-  }
-}
 interface ChatContextType {
   messagesByChat: Record<string, MSG[]>
   setMessagesByChat: React.Dispatch<React.SetStateAction<Record<string, MSG[]>>>
@@ -55,16 +62,21 @@ interface ChatContextType {
   onlineUsers: Set<number>
   isChatOpen: boolean
   setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>
+  lastCreatedChatId: string | null
 }
 
 const ChatContext = createContext<ChatContextType | null>(null)
 
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth()
-
+  const navigate = useNavigate()
+  const location = useLocation()
   const [selectedChat, setSelectedChat] = useState<string | null>(null)
   const [messagesByChat, setMessagesByChat] = useState<Record<string, MSG[]>>(
     {}
+  )
+  const [lastCreatedChatId, setLastCreatedChatId] = useState<string | null>(
+    null
   )
   const [contatos, setContatos] = useState<Contato[]>([])
   const [typingUsers, setTypingUsers] = useState<Record<string, number[]>>({})
@@ -83,21 +95,89 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off('chat:reactivated', handleReactivated)
     }
   }, [])
-
   useEffect(() => {
-    const handleReceive = (msg: IncomingMessage) => {
+    const handleDelivered = ({
+      chatId,
+      messageId,
+      deliveredAt,
+    }: {
+      chatId: string
+      messageId: string
+      deliveredAt: Date
+    }) => {
+      if (!messageId?.length) return
       setMessagesByChat((prev) => {
-        const list = prev[msg.chatId] ?? []
+        const updated = { ...prev }
+
+        const list = updated[chatId] ?? []
+        updated[chatId] = list.map((msg) =>
+          messageId.includes(msg.id) ? { ...msg, deliveredAt } : msg
+        )
+        return updated
+      })
+    }
+
+    socket.on('message:delivered', handleDelivered)
+
+    return () => {
+      socket.off('message:delivered', handleDelivered)
+    }
+  }, [])
+  useEffect(() => {
+    const handleHistory = ({
+      chatId,
+      messages,
+    }: {
+      chatId: string
+      messages: MSG[]
+    }) => {
+      setMessagesByChat((prev) => {
+        const normalized: MSG[] = messages.map((msg) => ({
+          ...msg,
+          // garante Date real (Socket manda string)
+          createdAt: new Date(msg.createdAt),
+          readAt: msg.readAt ? new Date(msg.readAt) : undefined,
+          deliveredAt: msg.deliveredAt ? new Date(msg.deliveredAt) : undefined,
+          // define corretamente quem enviou
+          remetente: msg.senderId === Number(user?.id) ? 'eu' : 'outro',
+        }))
 
         return {
           ...prev,
-          [msg.chatId]: [
-            ...list,
-            {
-              ...msg,
-              remetente: msg.senderId === Number(user?.id) ? 'eu' : 'outro',
-            },
-          ],
+          [chatId]: normalized,
+        }
+      })
+    }
+
+    socket.on('chat:history', handleHistory)
+
+    return () => {
+      socket.off('chat:history', handleHistory)
+    }
+  }, [user?.id])
+  useEffect(() => {
+    const handleReceive = (msg: IncomingMessage) => {
+      if (!msg.chatId) return
+
+      setMessagesByChat((prev) => {
+        const list = prev[msg.chatId] ?? []
+
+        // BLINDAGEM CONTRA DUPLICAÇÃO
+        const exists = list.some((m) => m.id === msg.id)
+        if (exists) return prev
+
+        const normalized: MSG = {
+          ...msg,
+          chatId: msg.chatId,
+          createdAt: new Date(msg.createdAt),
+          readAt: msg.readAt ? new Date(msg.readAt) : undefined,
+          deliveredAt: msg.deliveredAt ? new Date(msg.deliveredAt) : undefined,
+          remetente: msg.senderId === Number(user?.id) ? 'eu' : 'outro',
+        }
+
+        return {
+          ...prev,
+          [msg.chatId]: [...list, normalized],
         }
       })
     }
@@ -107,7 +187,65 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       socket.off('message:receive', handleReceive)
     }
-  }, [user?.id])
+  }, [user?.id, selectedChat, isChatOpen])
+  useEffect(() => {
+    const handleSent = (msg: IncomingMessage) => {
+      if (!msg.chatId) return
+      setMessagesByChat((prev) => {
+        const list = prev[msg.chatId] ?? []
+
+        return {
+          ...prev,
+          [msg.chatId]: list.map((m) =>
+            m.tempId === msg.tempId ? { ...m, ...msg, status: 'sent' } : m
+          ),
+        }
+      })
+
+      if (!selectedChat) {
+        setLastCreatedChatId(msg.chatId)
+        setSelectedChat(msg.chatId)
+      }
+    }
+
+    socket.on('message:sent', handleSent)
+
+    return () => {
+      socket.off('message:sent', handleSent)
+    }
+  }, [])
+  useEffect(() => {
+    const handleBulkDelivered = ({
+      chats,
+      deliveredAt,
+    }: {
+      chats: Record<string, string[]>
+      deliveredAt: string
+    }) => {
+      const date = new Date(deliveredAt)
+
+      setMessagesByChat((prev) => {
+        const updated = { ...prev }
+
+        for (const chatId in chats) {
+          const ids = chats[chatId]
+          const list = updated[chatId] ?? []
+
+          updated[chatId] = list.map((msg) =>
+            ids.includes(msg.id) ? { ...msg, deliveredAt: date } : msg
+          )
+        }
+
+        return updated
+      })
+    }
+
+    socket.on('message:delivered:bulk', handleBulkDelivered)
+
+    return () => {
+      socket.off('message:delivered:bulk', handleBulkDelivered)
+    }
+  }, [])
 
   return (
     <ChatContext.Provider
@@ -122,6 +260,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         onlineUsers,
         isChatOpen,
         setIsChatOpen,
+        lastCreatedChatId,
       }}
     >
       {children}

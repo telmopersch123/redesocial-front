@@ -17,46 +17,12 @@ import { MessageForms } from '../components/formCustomer/MessageForms'
 import { TooltipComponent } from '../components/globalcomponents/tooltipComponent'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
-import { useChat } from '../context/ChatContext'
+import { useChat, type Contato, type MSG } from '../context/ChatContext'
 import { useAuth } from '../context/getMe'
 import { useLimitForms } from '../hooks/useLimitForms'
 import { getCheckUserChat, getUser } from '../services/authService'
 import { socket } from '../services/socket'
 
-interface MSG {
-  id: string
-  content: string
-  chatId?: string
-  tempId?: string
-  remetente: 'eu' | 'outro'
-  senderId: number
-  receiverId?: number
-  createdAt: Date
-  readAt?: Date
-  status?: 'pending' | 'sent'
-  senderName: string
-}
-
-export interface Contato {
-  chatId: string
-  contact: {
-    id: number
-    name_at: string
-    avatar: string
-  }
-  lastMessage: {
-    id: string
-    createdAt: Date
-    chatId: string
-    senderId: number
-    receiverId?: number
-    content: string
-    readAt?: Date | undefined | null
-  }
-  unreadMessages?: number
-  lastMessageReadStatus: boolean
-  createdAt: string
-}
 // export interface HeaderUser {
 //   id: number
 //   name: string
@@ -78,22 +44,24 @@ const MessagePage = () => {
     setContatos,
     selectedChat,
     setSelectedChat,
-    typingUsers,
+    lastCreatedChatId,
+    // typingUsers,
     // onlineUsers,
     // isChatOpen,
     setIsChatOpen,
   } = useChat()
   const { user } = useAuth()
-  const navigate = useNavigate()
   const location = useLocation()
+  const navigate = useNavigate()
+  const initialClickContact = location.state?.contact?.chatId ?? ''
+  const [clickContact, setClickContact] = useState<string>(initialClickContact)
   const chatMessages = selectedChat ? (messagesByChat[selectedChat] ?? []) : []
   const [usersDate, setUsersDate] = useState<HeaderUserView | null>()
   const [image, setImage] = useState<string>('')
   const [contatMessage, setContatMessage] = useState<boolean>(false)
   const [chatMessage, setChatMessage] = useState<boolean>(false)
   const [fullscreen, setFullscreen] = useState<boolean>(false)
-  const initialClickContact = location.state?.contact?.chatId ?? ''
-  const [clickContact, setClickContact] = useState<string>(initialClickContact)
+
   const [inputText, setInputText] = useState('')
   const [open, setOpen] = useState<boolean>(false)
   const messageInput = useLimitForms(5000)
@@ -173,7 +141,7 @@ const MessagePage = () => {
     const message: MSG = {
       id: tempId,
       tempId,
-      chatId: undefined,
+      chatId: targetId,
       content: inputText,
       remetente: 'eu',
       senderId: Number(user?.id),
@@ -194,24 +162,6 @@ const MessagePage = () => {
       content: inputText,
       tempId,
     })
-
-    socket.once('message:sent', (msg) => {
-      navigate(`/mensagens/${msg.chatId}`, { replace: true })
-      setMessagesByChat((prev) => {
-        const oldMessages = prev[targetId] ?? []
-        return {
-          ...prev,
-          [msg.chatId]: oldMessages.map((m) =>
-            m.tempId === msg.tempId
-              ? { ...m, id: msg.id, chatId: msg.chatId, status: 'sent' }
-              : m
-          ),
-        }
-      })
-      sessionStorage.removeItem('__internal_nav')
-      setSelectedChat(msg.chatId)
-      setClickContact(msg.chatId)
-    })
   }
   const handleTyping = (value: string) => {
     setInputText(value)
@@ -219,6 +169,7 @@ const MessagePage = () => {
   const handleOpen = (contato: Contato) => {
     setSelectedChat(contato.chatId)
     setClickContact(contato.chatId)
+    setIsChatOpen(true)
     navigate(`/mensagens/${contato.chatId}`, { replace: true })
     setUsersDate(() => {
       return {
@@ -229,6 +180,7 @@ const MessagePage = () => {
     })
     inputRef.current?.focus()
     socket.emit('chat:history', { chatId: contato.chatId })
+    socket.emit('chat:read', { chatId: contato.chatId })
   }
   const handleRemoveChat = (chatId: string) => {
     socket.emit('chat:remove', { chatId })
@@ -265,30 +217,35 @@ const MessagePage = () => {
       socket.off('chat:removed', handleRemoved)
     }
   }, [])
-
   useEffect(() => {
-    const handleHistory = ({
+    const handleRead = ({
       chatId,
-      messages,
+      messageIds,
+      readAt,
     }: {
       chatId: string
-      messages: MSG[]
+      messageIds: string[]
+      readAt: string
     }) => {
       setMessagesByChat((prev) => ({
         ...prev,
-        [chatId]: messages.map((msg) => ({
-          ...msg,
-          remetente: msg.senderId === Number(user?.id) ? 'eu' : 'outro',
-        })),
+        [chatId]: (prev[chatId] ?? []).map((msg) =>
+          messageIds.includes(msg.id)
+            ? {
+                ...msg,
+                readAt: new Date(readAt),
+                deliveredAt: msg.deliveredAt ?? new Date(readAt),
+              }
+            : msg
+        ),
       }))
     }
-    inputRef.current?.focus()
-    socket.on('chat:history', handleHistory)
 
+    socket.on('message:read', handleRead)
     return () => {
-      socket.off('chat:history', handleHistory)
+      socket.off('message:read', handleRead)
     }
-  }, [user?.id])
+  }, [])
   useEffect(() => {
     if (!ChatIdOrUserId) return
 
@@ -330,6 +287,23 @@ const MessagePage = () => {
 
     fetchMessages()
   }, [ChatIdOrUserId, user?.id])
+  useEffect(() => {
+    if (!lastCreatedChatId) return
+
+    setClickContact(lastCreatedChatId)
+    sessionStorage.removeItem('__internal_nav')
+    navigate(`/mensagens/${lastCreatedChatId}`, { replace: true })
+  }, [lastCreatedChatId])
+  useEffect(() => {
+    if (!selectedChat) return
+    if (!chatMessages.length) return
+
+    const last = chatMessages[chatMessages.length - 1]
+
+    if (last.senderId !== Number(user?.id) && !last.readAt) {
+      socket.emit('chat:read', { chatId: selectedChat })
+    }
+  }, [chatMessages, selectedChat])
 
   return (
     <div className="flex h-screen w-full flex-col gap-0 p-2 md:w-[calc(100vw-16rem)] md:flex-row md:gap-4 md:p-4 dm:w-[calc(100vw-18rem)]">
@@ -586,10 +560,11 @@ const MessagePage = () => {
                                 >
                                   {format(msg.createdAt, 'HH:mm')}
                                 </span>
+
                                 {msg.remetente === 'eu' &&
                                   (msg.readAt ? (
                                     <CheckCheck className="h-3.5 w-3.5 text-blue-400" />
-                                  ) : msg.status === 'sent' ? (
+                                  ) : msg.deliveredAt ? (
                                     <CheckCheck className="h-3.5 w-3.5 text-purple-100" />
                                   ) : (
                                     <Check className="h-3.5 w-3.5 text-purple-100" />
