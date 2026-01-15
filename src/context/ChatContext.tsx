@@ -58,7 +58,6 @@ interface ChatContextType {
   setContatos: React.Dispatch<React.SetStateAction<Contato[]>>
   selectedChat: string | null
   setSelectedChat: React.Dispatch<React.SetStateAction<string | null>>
-  typingUsers: Record<string, number[]>
   onlineUsers: Set<number>
   isChatOpen: boolean
   setIsChatOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -79,7 +78,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     null
   )
   const [contatos, setContatos] = useState<Contato[]>([])
-  const [typingUsers, setTypingUsers] = useState<Record<string, number[]>>({})
+
   const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set())
   const [isChatOpen, setIsChatOpen] = useState(false)
 
@@ -246,6 +245,29 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       socket.off('message:delivered:bulk', handleBulkDelivered)
     }
   }, [])
+  useEffect(() => {
+    socket.on('users:online:list', ({ users }: { users: number[] }) => {
+      setOnlineUsers(new Set(users))
+    })
+
+    socket.on('user:online', ({ userId }) => {
+      setOnlineUsers((prev) => new Set(prev).add(userId))
+    })
+
+    socket.on('user:offline', ({ userId }) => {
+      setOnlineUsers((prev) => {
+        const next = new Set(prev)
+        next.delete(userId)
+        return next
+      })
+    })
+
+    return () => {
+      socket.off('users:online:list')
+      socket.off('user:online')
+      socket.off('user:offline')
+    }
+  }, [])
 
   return (
     <ChatContext.Provider
@@ -256,7 +278,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         setContatos,
         selectedChat,
         setSelectedChat,
-        typingUsers,
         onlineUsers,
         isChatOpen,
         setIsChatOpen,

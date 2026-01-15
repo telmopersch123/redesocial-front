@@ -23,13 +23,6 @@ import { useLimitForms } from '../hooks/useLimitForms'
 import { getCheckUserChat, getUser } from '../services/authService'
 import { socket } from '../services/socket'
 
-// export interface HeaderUser {
-//   id: number
-//   name: string
-//   avatar: string | null
-//   name_at?: string
-//   friends?: number
-// }
 interface HeaderUserView {
   id: number
   name_at: string
@@ -45,14 +38,15 @@ const MessagePage = () => {
     selectedChat,
     setSelectedChat,
     lastCreatedChatId,
-    // typingUsers,
-    // onlineUsers,
+    onlineUsers,
     // isChatOpen,
     setIsChatOpen,
   } = useChat()
   const { user } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+
+  const [typingUsers, setTypingUsers] = useState<Set<number>>(new Set())
   const initialClickContact = location.state?.contact?.chatId ?? ''
   const [clickContact, setClickContact] = useState<string>(initialClickContact)
   const chatMessages = selectedChat ? (messagesByChat[selectedChat] ?? []) : []
@@ -61,7 +55,6 @@ const MessagePage = () => {
   const [contatMessage, setContatMessage] = useState<boolean>(false)
   const [chatMessage, setChatMessage] = useState<boolean>(false)
   const [fullscreen, setFullscreen] = useState<boolean>(false)
-
   const [inputText, setInputText] = useState('')
   const [open, setOpen] = useState<boolean>(false)
   const messageInput = useLimitForms(5000)
@@ -69,7 +62,8 @@ const MessagePage = () => {
   const responsive = 1000
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { id: ChatIdOrUserId } = useParams<{ id: string }>()
-
+  const isOnline = onlineUsers.has(usersDate?.id ?? 0)
+  const typingTimeout = useRef<number | null>(null)
   // effect de inicialização
   useEffect(() => {
     const sessionValue = sessionStorage.getItem('__internal_nav')
@@ -78,7 +72,6 @@ const MessagePage = () => {
       setClickContact('')
     }
   }, [])
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
       behavior: 'smooth',
@@ -165,6 +158,22 @@ const MessagePage = () => {
   }
   const handleTyping = (value: string) => {
     setInputText(value)
+
+    if (!usersDate?.id) return
+
+    socket.emit('typing:start', {
+      toUserId: usersDate.id,
+    })
+
+    if (typingTimeout.current) {
+      clearTimeout(typingTimeout.current)
+    }
+
+    typingTimeout.current = setTimeout(() => {
+      socket.emit('typing:stop', {
+        toUserId: usersDate.id,
+      })
+    }, 1200)
   }
   const handleOpen = (contato: Contato) => {
     setSelectedChat(contato.chatId)
@@ -195,6 +204,25 @@ const MessagePage = () => {
 
     setSelectedChat(null)
   }
+
+  useEffect(() => {
+    socket.on('typing:start', ({ fromUserId }) => {
+      setTypingUsers((prev) => new Set(prev).add(fromUserId))
+    })
+
+    socket.on('typing:stop', ({ fromUserId }) => {
+      setTypingUsers((prev) => {
+        const next = new Set(prev)
+        next.delete(fromUserId)
+        return next
+      })
+    })
+
+    return () => {
+      socket.off('typing:start')
+      socket.off('typing:stop')
+    }
+  }, [])
   useEffect(() => {
     const handleRemoved = ({ chatId }: { chatId: string }) => {
       setContatos((prev) => prev.filter((c) => c.chatId !== chatId))
@@ -327,9 +355,6 @@ const MessagePage = () => {
                 (contato): contato is Contato => !!contato && !!contato.chatId
               )
               .map((contato: Contato) => {
-                // const isTypingThisChat = typingUsers[contato.chatId]?.includes(
-                //   contato.contact.id
-                // )
                 // const isUnreadFromOtherUser =
                 //   contato.lastMessage &&
                 //   contato.lastMessage.senderId !== Number(user?.id) &&
@@ -365,28 +390,28 @@ const MessagePage = () => {
                           </span>
                         </div>
                       </div>
-                      {/* {isTypingThisChat ? (
-                      <span className="text-xs italic text-zinc-500">
-                        digitando...
-                      </span>
-                    ) : (
-                      <>
-                        <div className="flex items-center gap-2">
-                          {contato.lastMessage &&
-                            contato.lastMessage.senderId ===
-                              Number(user?.id) && (
-                              <p className="text-xs font-medium text-purple-600 dark:text-purple-400">
-                                Você:{' '}
+                      {typingUsers.has(contato.contact.id) ? (
+                        <span className="text-xs italic text-zinc-500">
+                          digitando...
+                        </span>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2">
+                            {contato.lastMessage &&
+                              contato.lastMessage.senderId ===
+                                Number(user?.id) && (
+                                <p className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                                  Você:{' '}
+                                </p>
+                              )}
+                            {contato.lastMessage && (
+                              <p className="truncate text-sm leading-snug text-zinc-500 dark:text-zinc-400">
+                                {contato.lastMessage.content}
                               </p>
                             )}
-                          {contato.lastMessage && (
-                            <p className="truncate text-sm leading-snug text-zinc-500 dark:text-zinc-400">
-                              {contato.lastMessage.content}
-                            </p>
-                          )}
-                        </div>
-                      </>
-                    )} */}
+                          </div>
+                        </>
+                      )}
                       {/* {isUnreadFromOtherUser &&
                       ChatIdOrUserId !== contato.chatId && (
                         <div className="ml-auto flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-purple-600 px-1.5 text-[11px] font-semibold text-white">
@@ -492,7 +517,7 @@ const MessagePage = () => {
 
                   {usersDate && (
                     <div className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium shadow-sm">
-                      {/* {isOnline ? (
+                      {isOnline ? (
                         <>
                           <span className="h-1.5 w-1.5 rounded-full bg-green-500"></span>
                           <p className="text-green-600 dark:text-green-400">
@@ -506,7 +531,7 @@ const MessagePage = () => {
                             Offline
                           </p>
                         </>
-                      )} */}
+                      )}
                     </div>
                   )}
                 </div>
