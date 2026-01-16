@@ -68,6 +68,7 @@ interface ChatContextType {
   cursorByChat: Record<string, string | null>
   loadingHistoryByChat: Record<string, boolean>
   loadingHistoryInitial: Record<string, boolean>
+  setLastCreatedChatId: React.Dispatch<React.SetStateAction<string | null>>
 }
 
 const ChatContext = createContext<ChatContextType | null>(null)
@@ -341,6 +342,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         cursorByChat,
         loadingHistoryByChat,
         loadingHistoryInitial,
+        setLastCreatedChatId,
       }}
     >
       {children}

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
+
 import { EmojiInput } from '../components/componentsPages/componentsMensagens/EmojiInput'
 import { GalleryDialog } from '../components/componentsPages/componentsMensagens/GalleryDialog'
 import { MessageForms } from '../components/formCustomer/MessageForms'
@@ -22,6 +23,7 @@ import { useAuth } from '../context/getMe'
 import { useLimitForms } from '../hooks/useLimitForms'
 import { getCheckUserChat, getUser } from '../services/authService'
 import { socket } from '../services/socket'
+import { alertMessage } from '../utils/components/alertMensage'
 
 interface HeaderUserView {
   id: number
@@ -44,6 +46,7 @@ const MessagePage = () => {
     cursorByChat,
     loadingHistoryByChat,
     loadingHistoryInitial,
+    setLastCreatedChatId,
   } = useChat()
   const { user } = useAuth()
   const location = useLocation()
@@ -72,6 +75,7 @@ const MessagePage = () => {
   const { id: ChatIdOrUserId } = useParams<{ id: string }>()
   const isOnline = onlineUsers.has(usersDate?.id ?? 0)
   const typingTimeout = useRef<number | null>(null)
+  const [sendError, setSendError] = useState<string | null>(null)
   // effect de inicialização
   useEffect(() => {
     const sessionValue = sessionStorage.getItem('__internal_nav')
@@ -221,6 +225,7 @@ const MessagePage = () => {
       content: inputText,
       tempId,
     })
+    resetScrollState()
   }
   const handleTyping = (value: string) => {
     setInputText(value)
@@ -298,7 +303,7 @@ const MessagePage = () => {
         delete copy[chatId]
         return copy
       })
-
+      sessionStorage.removeItem('__internal_nav')
       setSelectedChat(null)
       navigate(`/mensagens`, { replace: true })
       setClickContact('')
@@ -340,6 +345,20 @@ const MessagePage = () => {
       socket.off('message:read', handleRead)
     }
   }, [])
+  useEffect(() => {
+    socket.on('message:error', () => {
+      alertMessage(
+        'Ops! algo deu errado',
+        'Por favor, tente novamente mais tarde',
+        'error'
+      )
+      setSendError('Erro ao enviar mensagem. Tente novamente.')
+    })
+
+    return () => {
+      socket.off('message:error')
+    }
+  }, [socket])
 
   useEffect(() => {
     if (!ChatIdOrUserId) return
@@ -394,6 +413,7 @@ const MessagePage = () => {
     setClickContact(lastCreatedChatId)
     sessionStorage.removeItem('__internal_nav')
     navigate(`/mensagens/${lastCreatedChatId}`, { replace: true })
+    setLastCreatedChatId(null)
   }, [lastCreatedChatId])
   useEffect(() => {
     if (!selectedChat) return
