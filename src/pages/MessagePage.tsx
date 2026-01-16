@@ -31,6 +31,7 @@ interface HeaderUserView {
 
 const MessagePage = () => {
   const {
+    resetChatState,
     messagesByChat,
     setMessagesByChat,
     contatos,
@@ -39,17 +40,24 @@ const MessagePage = () => {
     setSelectedChat,
     lastCreatedChatId,
     onlineUsers,
-    // isChatOpen,
     setIsChatOpen,
+    cursorByChat,
+    loadingHistoryByChat,
+    loadingHistoryInitial,
   } = useChat()
   const { user } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
-
+  const isFetchingHistoryRef = useRef(false)
+  const didInitialScrollRef = useRef(false)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const prevHeightRef = useRef<number>(0)
   const [typingUsers, setTypingUsers] = useState<Set<number>>(new Set())
   const initialClickContact = location.state?.contact?.chatId ?? ''
   const [clickContact, setClickContact] = useState<string>(initialClickContact)
   const chatMessages = selectedChat ? (messagesByChat[selectedChat] ?? []) : []
+  const loadingChatMessage = loadingHistoryByChat[selectedChat ?? '']
+  const loadingChatMessageInitial = loadingHistoryInitial[selectedChat ?? '']
   const [usersDate, setUsersDate] = useState<HeaderUserView | null>()
   const [image, setImage] = useState<string>('')
   const [contatMessage, setContatMessage] = useState<boolean>(false)
@@ -72,11 +80,40 @@ const MessagePage = () => {
       setClickContact('')
     }
   }, [])
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'end',
-    })
+  useEffect(() => {
+    return () => {
+      resetChatState()
+    }
+  }, [])
+
+  // scroll handle reset
+  const resetScrollState = () => {
+    const el = messagesContainerRef.current
+    if (el) {
+      el.scrollTop = 0
+    }
+
+    prevHeightRef.current = 0
+    didInitialScrollRef.current = false
+  }
+  // scroll handle para subir
+  const handleScroll = () => {
+    const el = messagesContainerRef.current
+    if (!el || !selectedChat) return
+
+    if (el.scrollTop <= 50) {
+      const cursor = cursorByChat[selectedChat]
+      if (!cursor) return
+      if (loadingHistoryByChat[selectedChat]) return
+      prevHeightRef.current = el.scrollHeight
+      isFetchingHistoryRef.current = true
+
+      socket.emit('chat:history', {
+        chatId: selectedChat,
+        cursor,
+        typeSearch: 'search',
+      })
+    }
   }
   const handleFullScreen = () => {
     setContatMessage((valor) => !valor)
@@ -85,9 +122,38 @@ const MessagePage = () => {
   const handleAddEmoji = (emoji: string) => {
     setInputText((prevInput) => prevInput + emoji)
   }
+  // scroll reset
   useEffect(() => {
-    scrollToBottom()
-  }, [messagesByChat])
+    if (!selectedChat) return
+    resetScrollState()
+  }, [selectedChat])
+  // scroll inicial
+  useEffect(() => {
+    if (!selectedChat) return
+    if (!chatMessages.length) return
+    if (didInitialScrollRef.current) return
+
+    requestAnimationFrame(() => {
+      const el = messagesContainerRef.current
+      if (!el) return
+      el.scrollTop = el.scrollHeight
+      didInitialScrollRef.current = true
+    })
+  }, [selectedChat, chatMessages.length])
+  // scroll para carregar historico
+  useEffect(() => {
+    const el = messagesContainerRef.current
+    if (!el) return
+    if (!isFetchingHistoryRef.current) return
+    if (prevHeightRef.current === 0) return
+
+    requestAnimationFrame(() => {
+      el.scrollTop = el.scrollHeight - prevHeightRef.current
+      prevHeightRef.current = 0
+      isFetchingHistoryRef.current = false
+    })
+  }, [chatMessages.length])
+
   useEffect(() => {
     if (localStorage.getItem('selectedImage')) {
       const stored = JSON.parse(localStorage.getItem('selectedImage') || '{}')
@@ -188,7 +254,7 @@ const MessagePage = () => {
       }
     })
     inputRef.current?.focus()
-    socket.emit('chat:history', { chatId: contato.chatId })
+    socket.emit('chat:history', { chatId: contato.chatId, typeSearch: 'open' })
     socket.emit('chat:read', { chatId: contato.chatId })
   }
   const handleRemoveChat = (chatId: string) => {
@@ -274,6 +340,7 @@ const MessagePage = () => {
       socket.off('message:read', handleRead)
     }
   }, [])
+
   useEffect(() => {
     if (!ChatIdOrUserId) return
 
@@ -289,7 +356,10 @@ const MessagePage = () => {
           avatar: contato.contact.avatar,
         })
         inputRef.current?.focus()
-        socket.emit('chat:history', { chatId: contato.chatId })
+        socket.emit('chat:history', {
+          chatId: contato.chatId,
+          typeSearch: 'initial',
+        })
         return
       }
 
@@ -304,7 +374,10 @@ const MessagePage = () => {
           setClickContact(data.chatId)
           setSelectedChat(data.chatId)
           inputRef.current?.focus()
-          socket.emit('chat:history', { chatId: data.chatId })
+          socket.emit('chat:history', {
+            chatId: data.chatId,
+            typeSearch: 'initial',
+          })
         } else {
           // Aqui você pode criar um novo chat ou deixar pronto para enviar primeira mensagem
           setSelectedChat('')
@@ -355,16 +428,6 @@ const MessagePage = () => {
                 (contato): contato is Contato => !!contato && !!contato.chatId
               )
               .map((contato: Contato) => {
-                // const isUnreadFromOtherUser =
-                //   contato.lastMessage &&
-                //   contato.lastMessage.senderId !== Number(user?.id) &&
-                //   !contato.lastMessage.readAt
-
-                // const unreadFromOther =
-                //   (contato.unreadMessages || 0) > 0
-                //     ? contato.unreadMessages
-                //     : undefined
-
                 return (
                   <Button
                     key={contato.chatId}
@@ -539,8 +602,32 @@ const MessagePage = () => {
 
               {/* MENSAGENS */}
               <div className="chat-messages invisivel-scroll flex-1 space-y-6 overflow-y-auto bg-gradient-to-b pb-8">
-                <div className="scrollbar-invisible mr-1 flex h-[calc(100vh-11.5rem)] flex-col space-y-4 overflow-y-auto pb-8 pt-1 md:pb-0">
-                  {chatMessages.length === 0 ? (
+                <div
+                  ref={messagesContainerRef}
+                  onScroll={handleScroll}
+                  className="scrollbar-invisible mr-1 flex h-[calc(100vh-11.5rem)] flex-col space-y-4 overflow-y-auto pb-8 pt-1 md:pb-0"
+                >
+                  {loadingChatMessage && (
+                    <div className="flex justify-center py-1">
+                      <div className="flex items-center gap-1">
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-400/70 dark:bg-zinc-500/60" />
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-400/70 [animation-delay:120ms] dark:bg-zinc-500/60" />
+                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-400/70 [animation-delay:240ms] dark:bg-zinc-500/60" />
+                      </div>
+                    </div>
+                  )}
+
+                  {loadingChatMessageInitial && (
+                    <div className="flex h-full w-full items-center justify-center bg-zinc-50 dark:bg-zinc-900">
+                      <div className="relative h-8 w-8">
+                        <div className="absolute inset-0 rounded-full border-2 border-zinc-300/40 dark:border-zinc-600/40" />
+
+                        <div className="absolute inset-0 animate-spin rounded-full border-2 border-zinc-400 border-t-zinc-500 dark:border-zinc-500 dark:border-t-zinc-300" />
+                      </div>
+                    </div>
+                  )}
+
+                  {!loadingChatMessageInitial && chatMessages.length === 0 ? (
                     <div className="m-auto flex h-full flex-col items-center justify-center text-center">
                       <div className="flex flex-col items-center justify-center rounded-md p-10 text-center backdrop-blur-md">
                         <div className="mb-5 rounded-full bg-gradient-to-br from-zinc-100 to-zinc-50 p-6 shadow-inner dark:from-zinc-800 dark:to-zinc-900">
