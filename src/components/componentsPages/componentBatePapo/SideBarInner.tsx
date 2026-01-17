@@ -2,7 +2,7 @@
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { MessageCircle, Search } from 'lucide-react'
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Input } from '../../..//components/ui/input'
 import { ScrollArea } from '../../..//components/ui/scroll-area'
@@ -21,7 +21,8 @@ import {
 } from '../../../components/ui/avatar'
 
 import { useAuth } from '../../../context/getMe'
-import { type Contato } from '../../../pages/MessagePage'
+
+import { useChat, type Contato } from '../../../context/ChatContext'
 import { Separator } from '../../ui/separator'
 
 // ← Crie um componente filho separado
@@ -36,6 +37,8 @@ const SidebarInner = ({
   conversations: Contato[]
   quantity: number
 }) => {
+  const [clickContact, setClickContact] = useState<string>('')
+  const { unreadByChat } = useChat()
   const { user } = useAuth()
 
   return (
@@ -79,18 +82,12 @@ const SidebarInner = ({
         <ScrollArea className="h-full">
           <SidebarMenu className="space-y-2 p-3">
             {conversations.map((conversa: Contato) => {
-              // console.log(
-              //   conversa.lastMessage,
-              //   conversa.lastMessage.senderId,
-              //   Number(user?.id),
-              //   conversa.lastMessage.readAt
-              // )
-
               return (
                 <NavLink
                   key={conversa.chatId}
                   onClick={() => {
                     sessionStorage.setItem('__internal_nav', '1')
+                    setClickContact(conversa.chatId)
                   }}
                   to={`/mensagens/${conversa.chatId}`}
                   state={{ chatId: true, contact: conversa }}
@@ -109,7 +106,7 @@ const SidebarInner = ({
                             <AvatarFallback className="bg-purple-200 text-purple-800 dark:bg-purple-900/60 dark:text-purple-300">
                               {conversa.contact.name_at
                                 .split(' ')
-                                .map((n) => n[0])
+                                .map((n: string) => n[0])
                                 .join('')}
                             </AvatarFallback>
                           </Avatar>
@@ -145,13 +142,14 @@ const SidebarInner = ({
                               <span className="truncate text-zinc-600 dark:text-zinc-300">
                                 {conversa.lastMessage.content}
                               </span>
-                              {/* {isUnreadFromOtherUser && (
-                                <div className="ml-auto flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-purple-600 px-1.5 text-[11px] font-semibold text-white">
-                                  {unreadFromOther && unreadFromOther > 9
-                                    ? '9+'
-                                    : unreadFromOther}
-                                </div>
-                              )} */}
+                              {unreadByChat[conversa.chatId] > 0 &&
+                                clickContact !== conversa.chatId && (
+                                  <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-purple-600 px-2 text-xs font-semibold text-white shadow-sm dark:bg-purple-500">
+                                    {unreadByChat[conversa.chatId] >= 9
+                                      ? '9+'
+                                      : unreadByChat[conversa.chatId]}
+                                  </span>
+                                )}
                             </div>
                           ) : (
                             <p className="text-sm italic text-zinc-500 dark:text-zinc-400">

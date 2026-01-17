@@ -1,9 +1,9 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 import { getContatos } from '../services/authService'
 import { socket } from '../services/socket'
 import { useAuth } from './getMe'
-
+type UnreadMap = Record<string, number>
 export interface MSG {
   id: string
   tempId?: string
@@ -69,6 +69,11 @@ interface ChatContextType {
   loadingHistoryByChat: Record<string, boolean>
   loadingHistoryInitial: Record<string, boolean>
   setLastCreatedChatId: React.Dispatch<React.SetStateAction<string | null>>
+  loadingInitial: boolean
+  setLoadingInitial: React.Dispatch<React.SetStateAction<boolean>>
+  unreadByChat: Record<string, number>
+  markChatAsRead: (chatId: string) => void
+  totalUnread: number
 }
 
 const ChatContext = createContext<ChatContextType | null>(null)
@@ -91,10 +96,12 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [loadingHistoryInitial, setLoadingHistoryInitial] = useState<
     Record<string, boolean>
   >({})
-
+  const [loadingInitial, setLoadingInitial] = useState<boolean>(false)
+  const [unreadByChat, setUnreadByChat] = useState<Record<string, number>>({})
   const [contatos, setContatos] = useState<Contato[]>([])
   const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set())
   const [isChatOpen, setIsChatOpen] = useState(false)
+
   const resetChatState = () => {
     setMessagesByChat({})
     setCursorByChat({})
@@ -186,7 +193,9 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             [chatId]: [...normalized, ...existing],
           }
         })
+        setLoadingInitial(false)
       }
+
       if (nextCursor) {
         setCursorByChat((prev) => ({
           ...prev,
@@ -324,6 +333,80 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
+  useEffect(() => {
+    if (!user?.id) return
+
+    async function loadUnread() {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/chats/unread`,
+        {
+          credentials: 'include',
+        }
+      )
+
+      const data: Record<string, number> = await res.json()
+      setUnreadByChat(data)
+    }
+
+    loadUnread()
+  }, [user?.id])
+  useEffect(() => {
+    if (!user?.id) return
+    async function load() {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/chats`,
+        {
+          credentials: 'include',
+        }
+      )
+      const chats = await response.json()
+
+      const map: UnreadMap = {}
+      let total = 0
+
+      for (const chat of chats) {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/auth/chats/${chat.id}/unread`,
+          {
+            credentials: 'include',
+          }
+        )
+        const unread = await res.json()
+        map[chat.id] = unread.data.unreadCount
+        total += unread.data.unreadCount
+      }
+
+      setUnreadByChat(map)
+    }
+
+    load()
+  }, [])
+
+  useEffect(() => {
+    socket.on('chat:unread:update', ({ chatId, unreadCount }) => {
+      setUnreadByChat((prev) => {
+        const next = unreadCount
+
+        return {
+          ...prev,
+          [chatId]: next,
+        }
+      })
+    })
+
+    return () => {
+      socket.off('chat:unread:update')
+    }
+  }, [])
+
+  const totalUnread = useMemo(() => {
+    return Object.values(unreadByChat).reduce((sum, v) => sum + v, 0)
+  }, [unreadByChat])
+
+  function markChatAsRead(chatId: string) {
+    socket.emit('chat:read', { chatId })
+  }
+
   return (
     <ChatContext.Provider
       value={{
@@ -343,6 +426,11 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         loadingHistoryByChat,
         loadingHistoryInitial,
         setLastCreatedChatId,
+        loadingInitial,
+        setLoadingInitial,
+        unreadByChat,
+        markChatAsRead,
+        totalUnread,
       }}
     >
       {children}

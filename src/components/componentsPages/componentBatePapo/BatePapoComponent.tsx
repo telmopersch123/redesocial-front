@@ -3,9 +3,8 @@ import { ChevronRight, MessageCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { Sidebar } from '../../..//components/ui/sidebar'
-import { useChat } from '../../../context/ChatContext'
-import { useAuth } from '../../../context/getMe'
-import type { Contato } from '../../../pages/MessagePage'
+import { useChat, type Contato } from '../../../context/ChatContext'
+
 import { getContatos } from '../../../services/authService'
 import { Button } from '../../ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '../../ui/sheet'
@@ -16,16 +15,15 @@ const BREAKPOINT = 1640
 
 export const BatePapoSidebar = () => {
   const { pathname } = useLocation()
-
   const { communityName, id } = useParams()
-  const { user } = useAuth()
+  const { totalUnread } = useChat()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [search, setSearch] = useState('')
   const [allContatos, setAllContatos] = useState<Contato[]>([])
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= BREAKPOINT)
   const [isOpen, setIsOpen] = useState(true)
   const [isActive, setIsActive] = useState(false)
-  const [quantity, setQuantity] = useState(0)
+
   const { contatos: conversations, setContatos: setConversations } = useChat()
   const ROTAS_COM_SIDEBAR = [
     '/',
@@ -100,9 +98,9 @@ export const BatePapoSidebar = () => {
           }}
           className={`bg-linear-purple fixed right-2 top-2 z-[35] transition-opacity duration-200 ${isActive ? 'opacity-0' : 'opacity-100'}`}
         >
-          {isCollapsed && quantity > 0 && (
+          {isCollapsed && totalUnread > 0 && (
             <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
-              <div>{quantity}</div>
+              <div>{totalUnread}</div>
             </span>
           )}
 
@@ -132,7 +130,7 @@ export const BatePapoSidebar = () => {
               } as React.ChangeEvent<HTMLInputElement>)
             }}
             conversations={conversations}
-            quantity={quantity}
+            quantity={totalUnread}
           />
         </Sidebar>
       </>
@@ -154,9 +152,9 @@ export const BatePapoSidebar = () => {
             <MessageCircle className="h-8 w-8" />
 
             {/* Badge de mensagens não lidas */}
-            {quantity > 0 && (
+            {totalUnread > 0 && (
               <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
-                {quantity}
+                {totalUnread}
               </span>
             )}
           </Button>
@@ -174,7 +172,7 @@ export const BatePapoSidebar = () => {
               } as React.ChangeEvent<HTMLInputElement>)
             }}
             conversations={conversations}
-            quantity={quantity}
+            quantity={totalUnread}
           />
         </SheetContent>
       </Sheet>

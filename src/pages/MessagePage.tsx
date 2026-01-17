@@ -47,6 +47,10 @@ const MessagePage = () => {
     loadingHistoryByChat,
     loadingHistoryInitial,
     setLastCreatedChatId,
+    loadingInitial,
+    setLoadingInitial,
+    unreadByChat,
+    markChatAsRead,
   } = useChat()
   const { user } = useAuth()
   const location = useLocation()
@@ -60,7 +64,8 @@ const MessagePage = () => {
   const [clickContact, setClickContact] = useState<string>(initialClickContact)
   const chatMessages = selectedChat ? (messagesByChat[selectedChat] ?? []) : []
   const loadingChatMessage = loadingHistoryByChat[selectedChat ?? '']
-  const loadingChatMessageInitial = loadingHistoryInitial[selectedChat ?? '']
+  let loadingChatMessageInitial = loadingHistoryInitial[selectedChat ?? '']
+
   const [usersDate, setUsersDate] = useState<HeaderUserView | null>()
   const [image, setImage] = useState<string>('')
   const [contatMessage, setContatMessage] = useState<boolean>(false)
@@ -84,6 +89,12 @@ const MessagePage = () => {
       setClickContact('')
     }
   }, [])
+  useEffect(() => {
+    if (location.state?.chatId === true) {
+      setLoadingInitial(true)
+    }
+  }, [location.state?.chatId])
+
   useEffect(() => {
     return () => {
       resetChatState()
@@ -200,7 +211,9 @@ const MessagePage = () => {
 
     const tempId = crypto.randomUUID()
     const targetId = selectedChat ? selectedChat : String(ChatIdOrUserId)
-
+    if (!clickContact) {
+      setLoadingInitial(true)
+    }
     const message: MSG = {
       id: tempId,
       tempId,
@@ -259,6 +272,15 @@ const MessagePage = () => {
       }
     })
     inputRef.current?.focus()
+
+    const hasMessages =
+      messagesByChat[contato.chatId] &&
+      messagesByChat[contato.chatId].length > 0
+
+    if (!hasMessages) {
+      setLoadingInitial(true)
+    }
+
     socket.emit('chat:history', { chatId: contato.chatId, typeSearch: 'open' })
     socket.emit('chat:read', { chatId: contato.chatId })
   }
@@ -346,6 +368,10 @@ const MessagePage = () => {
     }
   }, [])
   useEffect(() => {
+    if (!ChatIdOrUserId) return
+    markChatAsRead(ChatIdOrUserId)
+  }, [ChatIdOrUserId])
+  useEffect(() => {
     socket.on('message:error', () => {
       alertMessage(
         'Ops! algo deu errado',
@@ -359,7 +385,6 @@ const MessagePage = () => {
       socket.off('message:error')
     }
   }, [socket])
-
   useEffect(() => {
     if (!ChatIdOrUserId) return
 
@@ -425,7 +450,7 @@ const MessagePage = () => {
       socket.emit('chat:read', { chatId: selectedChat })
     }
   }, [chatMessages, selectedChat])
-
+  console.log(loadingInitial)
   return (
     <div className="flex h-screen w-full flex-col gap-0 p-2 md:w-[calc(100vw-16rem)] md:flex-row md:gap-4 md:p-4 dm:w-[calc(100vw-18rem)]">
       {/* ===== LISTA DE CONVERSAS ===== */}
@@ -495,14 +520,14 @@ const MessagePage = () => {
                           </div>
                         </>
                       )}
-                      {/* {isUnreadFromOtherUser &&
-                      ChatIdOrUserId !== contato.chatId && (
-                        <div className="ml-auto flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-purple-600 px-1.5 text-[11px] font-semibold text-white">
-                          {unreadFromOther && unreadFromOther > 9
-                            ? '9+'
-                            : unreadFromOther}
-                        </div>
-                      )} */}
+                      {unreadByChat[contato.chatId] > 0 &&
+                        clickContact !== contato.chatId && (
+                          <span className="ml-auto flex h-5 min-w-[20px] items-center justify-center rounded-full bg-purple-600 px-2 text-xs font-semibold text-white shadow-sm dark:bg-purple-500">
+                            {unreadByChat[contato.chatId] >= 9
+                              ? '9+'
+                              : unreadByChat[contato.chatId]}
+                          </span>
+                        )}
                     </div>
                   </Button>
                 )
@@ -627,7 +652,7 @@ const MessagePage = () => {
                   onScroll={handleScroll}
                   className="scrollbar-invisible mr-1 flex h-[calc(100vh-11.5rem)] flex-col space-y-4 overflow-y-auto pb-8 pt-1 md:pb-0"
                 >
-                  {loadingChatMessage && (
+                  {loadingChatMessage && chatMessages.length > 29 && (
                     <div className="flex justify-center py-1">
                       <div className="flex items-center gap-1">
                         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-400/70 dark:bg-zinc-500/60" />
@@ -637,17 +662,19 @@ const MessagePage = () => {
                     </div>
                   )}
 
-                  {loadingChatMessageInitial && (
+                  {((loadingChatMessageInitial && chatMessages.length === 0) ||
+                    loadingInitial) && (
                     <div className="flex h-full w-full items-center justify-center bg-zinc-50 dark:bg-zinc-900">
                       <div className="relative h-8 w-8">
                         <div className="absolute inset-0 rounded-full border-2 border-zinc-300/40 dark:border-zinc-600/40" />
-
                         <div className="absolute inset-0 animate-spin rounded-full border-2 border-zinc-400 border-t-zinc-500 dark:border-zinc-500 dark:border-t-zinc-300" />
                       </div>
                     </div>
                   )}
 
-                  {!loadingChatMessageInitial && chatMessages.length === 0 ? (
+                  {!loadingChatMessageInitial &&
+                  chatMessages.length === 0 &&
+                  loadingInitial === false ? (
                     <div className="m-auto flex h-full flex-col items-center justify-center text-center">
                       <div className="flex flex-col items-center justify-center rounded-md p-10 text-center backdrop-blur-md">
                         <div className="mb-5 rounded-full bg-gradient-to-br from-zinc-100 to-zinc-50 p-6 shadow-inner dark:from-zinc-800 dark:to-zinc-900">
