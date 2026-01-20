@@ -65,7 +65,6 @@ const MessagePage = () => {
   const chatMessages = selectedChat ? (messagesByChat[selectedChat] ?? []) : []
   const loadingChatMessage = loadingHistoryByChat[selectedChat ?? '']
   let loadingChatMessageInitial = loadingHistoryInitial[selectedChat ?? '']
-
   const [usersDate, setUsersDate] = useState<HeaderUserView | null>()
   const [image, setImage] = useState<string>('')
   const [contatMessage, setContatMessage] = useState<boolean>(false)
@@ -80,7 +79,6 @@ const MessagePage = () => {
   const { id: ChatIdOrUserId } = useParams<{ id: string }>()
   const isOnline = onlineUsers.has(usersDate?.id ?? 0)
   const typingTimeout = useRef<number | null>(null)
-  const [sendError, setSendError] = useState<string | null>(null)
   // effect de inicialização
   useEffect(() => {
     const sessionValue = sessionStorage.getItem('__internal_nav')
@@ -94,13 +92,11 @@ const MessagePage = () => {
       setLoadingInitial(true)
     }
   }, [location.state?.chatId])
-
   useEffect(() => {
     return () => {
       resetChatState()
     }
   }, [])
-
   // scroll handle reset
   const resetScrollState = () => {
     const el = messagesContainerRef.current
@@ -168,7 +164,6 @@ const MessagePage = () => {
       isFetchingHistoryRef.current = false
     })
   }, [chatMessages.length])
-
   useEffect(() => {
     if (localStorage.getItem('selectedImage')) {
       const stored = JSON.parse(localStorage.getItem('selectedImage') || '{}')
@@ -297,7 +292,6 @@ const MessagePage = () => {
 
     setSelectedChat(null)
   }
-
   useEffect(() => {
     socket.on('typing:start', ({ fromUserId }) => {
       setTypingUsers((prev) => new Set(prev).add(fromUserId))
@@ -378,7 +372,6 @@ const MessagePage = () => {
         'Por favor, tente novamente mais tarde',
         'error'
       )
-      setSendError('Erro ao enviar mensagem. Tente novamente.')
     })
 
     return () => {

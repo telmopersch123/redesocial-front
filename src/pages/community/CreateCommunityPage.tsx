@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Fullscreen, Globe, Lock, SquarePlus, Upload, X } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import FullscreenDialog from '../../components/componentsPages/componentsFeed/FullscreenDialog'
@@ -39,16 +39,22 @@ const CreateCommunityPage = () => {
   const [isPrivate, setIsPrivate] = useState(false)
   const [coverImage, setCoverImage] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
+  const [whoCanPost, setWhoCanPost] = useState<'members' | 'admins'>('members')
+  const [whoCanComment, setWhoCanComment] = useState<'members' | 'admins'>(
+    'members'
+  )
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const nameCommunity = useLimitForms(50)
   const descriptionCommunity = useLimitForms(256)
   const communityRules = useLimitForms(256)
   const navigate = useNavigate()
-  const prohibitedCommunity = useLimitForms(256)
+
   const {
     register,
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<CreateCommunityFormData>({
     resolver: zodResolver(createCommunitySchema),
@@ -56,8 +62,19 @@ const CreateCommunityPage = () => {
       nameComunity: '',
       description: '',
       category: '',
+      limit: 500,
+      isPrivate: false,
+      whoCanPost: 'members',
+      whoCanComment: 'members',
     },
   })
+
+  useEffect(() => {
+    setValue('limit', limitUsers)
+    setValue('isPrivate', isPrivate)
+    setValue('whoCanPost', whoCanPost)
+    setValue('whoCanComment', whoCanComment)
+  }, [limitUsers, isPrivate, whoCanPost, whoCanComment, setValue])
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -65,6 +82,7 @@ const CreateCommunityPage = () => {
 
     const file = e.dataTransfer.files[0]
     if (file && file.type.startsWith('image/')) {
+      setSelectedFile(file)
       const reader = new FileReader()
       reader.onload = () => setCoverImage(reader.result as string)
       reader.readAsDataURL(file)
@@ -74,14 +92,66 @@ const CreateCommunityPage = () => {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file && file.type.startsWith('image/')) {
+      setSelectedFile(file)
       const reader = new FileReader()
       reader.onload = () => setCoverImage(reader.result as string)
       reader.readAsDataURL(file)
     }
   }
 
-  function onSubmit(data: CreateCommunityFormData) {
-    console.log(data)
+  async function onSubmit(data: CreateCommunityFormData) {
+    try {
+      let mediaUrl = null
+
+      if (selectedFile) {
+        const formData = new FormData()
+        formData.append('file', selectedFile)
+        formData.append('upload_preset', 'posts_tess')
+        formData.append('folder', 'comunidades')
+
+        const response = await fetch(
+          `https://api.cloudinary.com/v1_1/di5dwqjq7/image/upload`,
+          {
+            method: 'POST',
+            body: formData,
+          }
+        )
+
+        const result = await response.json()
+        mediaUrl = result.secure_url
+      }
+
+      const payload = {
+        nameComunity: data.nameComunity,
+        description: data.description,
+        category: data.category,
+        image: mediaUrl,
+        limit: limitUsers,
+        whoCanPost: whoCanPost,
+        whoCanComment: whoCanComment,
+        isPrivate: isPrivate,
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/comunity/CreateCommunities`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        }
+      )
+
+      if (response.ok) {
+        console.log('Comunidade criada com sucesso!')
+      } else {
+        console.error('Erro ao criar')
+      }
+    } catch (error) {
+      console.error('Erro na requisição:', error)
+    }
   }
 
   return (
@@ -103,8 +173,12 @@ const CreateCommunityPage = () => {
               Detalhes principais
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <form
+            onSubmit={handleSubmit(onSubmit, (errors) =>
+              console.log('Erros de Validação:', errors)
+            )}
+          >
+            <CardContent className="space-y-6">
               {/* Nome */}
               <div className="space-y-2">
                 <Label
@@ -301,23 +375,6 @@ const CreateCommunityPage = () => {
                 />
               </div>
 
-              {/* Palavras proibidas */}
-              <div className="space-y-1">
-                <Label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Palavras proibidas
-                </Label>
-                <Textarea
-                  className={`max-h-[500px] border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${prohibitedCommunity.error ? 'border-red-500 focus:!ring-red-500' : ''}`}
-                  onChange={prohibitedCommunity.handleChange}
-                  placeholder="Separe por vírgulas para a identificação precisa das palavras, ok? Ex: palavrão1, palavrão2, palavrão3..."
-                />
-                <MessageForms
-                  error={prohibitedCommunity.error}
-                  valueLength={prohibitedCommunity.value.length}
-                  maxLength={prohibitedCommunity.maxLength}
-                />
-              </div>
-
               <div className="w-full space-y-2">
                 <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
                   Limite de membros
@@ -363,12 +420,18 @@ const CreateCommunityPage = () => {
                   <Label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                     Quem pode postar?
                   </Label>
-                  <Select defaultValue="todos">
+                  <Select
+                    value={whoCanPost}
+                    onValueChange={(value) =>
+                      setWhoCanPost(value as 'members' | 'admins')
+                    }
+                    defaultValue="members"
+                  >
                     <SelectTrigger className="border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent className="border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-                      <SelectItem value="todos">Todos os membros</SelectItem>
+                      <SelectItem value="members">Todos os membros</SelectItem>
                       <SelectItem value="admins">
                         Somente administradores
                       </SelectItem>
@@ -380,12 +443,18 @@ const CreateCommunityPage = () => {
                   <Label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                     Quem pode comentar?
                   </Label>
-                  <Select defaultValue="todos">
+                  <Select
+                    value={whoCanComment}
+                    onValueChange={(value) =>
+                      setWhoCanComment(value as 'members' | 'admins')
+                    }
+                    defaultValue="members"
+                  >
                     <SelectTrigger className="border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent className="border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-                      <SelectItem value="todos">Todos os membros</SelectItem>
+                      <SelectItem value="members">Todos os membros</SelectItem>
                       <SelectItem value="admins">
                         Somente administradores
                       </SelectItem>
@@ -438,17 +507,18 @@ const CreateCommunityPage = () => {
                 </Button>
 
                 <Button
+                  type="submit"
                   disabled={
                     descriptionCommunity.value.length > 256 ||
                     nameCommunity.value.length > 50
                   }
-                  className="bg-linear-purple w-full text-white hover:shadow-lg sm:w-auto"
+                  className="bg-linear-purple w-full text-white hover:shadow-lg disabled:cursor-not-allowed disabled:bg-zinc-400 disabled:opacity-60 disabled:hover:shadow-none sm:w-auto"
                 >
                   <SquarePlus className="mr-2 h-4 w-4" /> Criar comunidade
                 </Button>
               </div>
-            </form>
-          </CardContent>
+            </CardContent>
+          </form>
         </Card>
       </div>
       <FullscreenDialog

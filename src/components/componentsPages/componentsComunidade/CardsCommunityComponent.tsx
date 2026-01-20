@@ -1,4 +1,12 @@
-import { Lock, Unlock, UserRoundPlus, UsersRound } from 'lucide-react'
+import {
+  CheckCircle2,
+  Lock,
+  MessageSquare,
+  Unlock,
+  UserRoundPlus,
+  UsersRound,
+} from 'lucide-react'
+import type { UserType } from '../../../types'
 import { Button } from '../../ui/button'
 import {
   Card,
@@ -11,67 +19,126 @@ import {
 
 interface CommunityCardProps {
   valuesComunity: {
+    image: string
     id: number
-    emoji: string
-    title: string
+    category: string
     description: string
-    members: number
-    posts: number
     isPrivate: boolean
+    nameComunity: string
+    _count: {
+      members: number
+    }
+    members: { userId: string }[]
   }
+  user: UserType | null
 }
-const CardsCommunityComponent = ({ valuesComunity }: CommunityCardProps) => {
-  const { emoji, title, description, members, posts, isPrivate } =
+const CardsCommunityComponent = ({
+  valuesComunity,
+  user,
+}: CommunityCardProps) => {
+  const { image, nameComunity, _count, description, isPrivate, members } =
     valuesComunity
+
+  const isYouMember = members?.some((m) => m.userId === user?.id)
+
   return (
-    <Card className="!mb-5 w-[calc(100vw-3rem)] flex-shrink-0 overflow-hidden rounded-lg transition-all duration-300 ease-out will-change-transform hover:z-10 hover:-translate-y-1 hover:scale-100 hover:shadow-lg md:w-full">
+    <Card className="group relative !mb-5 w-[calc(100vw-3rem)] flex-shrink-0 overflow-hidden rounded-2xl border-none bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:bg-zinc-900 md:w-full">
+      {/* Header com Imagem */}
       <CardHeader className="m-0 p-0">
-        <div className="flex h-[100px] items-center justify-center rounded-lg bg-slate-400/50">
-          <p className="text-5xl">{emoji}</p>
+        <div className="relative h-[140px] w-full overflow-hidden">
+          {/* Overlay de gradiente para legibilidade se precisar colocar algo sobre a imagem */}
+          <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/20 to-transparent" />
+
+          {image ? (
+            <img
+              src={image}
+              alt={nameComunity}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-zinc-100 dark:bg-zinc-800">
+              <UsersRound className="h-10 w-10 text-zinc-400" />
+            </div>
+          )}
+
+          {/* Badge de Categoria ou Privacidade flutuante */}
+          <div className="absolute right-3 top-3 z-20">
+            <span
+              className={`flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider backdrop-blur-md ${
+                isPrivate
+                  ? 'border border-red-500/30 bg-red-500/20 text-red-100'
+                  : 'border border-emerald-500/30 bg-emerald-500/20 text-emerald-100'
+              }`}
+            >
+              {isPrivate ? (
+                <Lock className="h-3 w-3" />
+              ) : (
+                <Unlock className="h-3 w-3" />
+              )}
+              {isPrivate ? 'Privada' : 'Pública'}
+            </span>
+          </div>
         </div>
 
-        <div className="!mt-5 px-5">
-          <CardTitle className="mb-1">{title}</CardTitle>
+        <div className="space-y-1.5 px-5 pt-5">
+          <CardTitle className="line-clamp-1 text-xl font-bold text-zinc-800 dark:text-zinc-100">
+            {nameComunity}
+          </CardTitle>
 
-          <div className="mb-2 flex items-center gap-1 text-sm text-muted-foreground">
-            {isPrivate ? (
-              <>
-                <Lock className="h-4 w-4 text-red-500/80" />
-                <span>Comunidade privada</span>
-              </>
-            ) : (
-              <>
-                <Unlock className="h-4 w-4 text-green-500/80" />
-                <span>Comunidade pública</span>
-              </>
-            )}
-          </div>
-
-          <CardDescription className="max-w-full truncate text-muted-foreground">
-            {description}
+          <CardDescription className="line-clamp-2 min-h-[40px] text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
+            {description || 'Sem descrição disponível para esta comunidade.'}
           </CardDescription>
         </div>
       </CardHeader>
 
-      <CardContent className="mt-5 flex items-center justify-between px-5 py-2">
-        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          <UsersRound className="h-5 w-5 text-purple-500/70" />
-          <p className="text-[13px]">{members} membros</p>
+      {/* Status / Infos */}
+      <CardContent className="mt-4 flex items-center gap-4 px-5 py-2">
+        <div className="flex items-center gap-1.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
+            <UsersRound className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+          </div>
+          <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+            {_count.members}{' '}
+            <span className="font-normal text-zinc-500">membros</span>
+          </span>
         </div>
 
-        <div className="flex items-center gap-1 rounded-lg border border-muted-foreground/10 bg-muted/20 px-3 py-1">
-          <span className="text-sm font-semibold text-purple-600">{posts}</span>
-          <p className="text-sm text-muted-foreground">postagens</p>
+        <div className="flex items-center gap-1.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+            <MessageSquare className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          </div>
+          <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+            0 <span className="font-normal text-zinc-500">posts</span>
+          </span>
         </div>
       </CardContent>
 
-      <CardFooter>
-        <Button
-          disabled={isPrivate}
-          className="bg-linear-purple w-full rounded-xl transition-all ease-linear hover:shadow-md"
-        >
-          <UserRoundPlus /> Participar
-        </Button>
+      {/* Footer com Botão */}
+      <CardFooter className="p-5 pt-2">
+        {isYouMember ? (
+          // Botão para quem JÁ É membro
+          <Button className="w-full gap-2 rounded-xl border border-purple-500/30 bg-purple-500/10 font-bold text-purple-600 hover:bg-purple-500/20 dark:text-purple-400">
+            <CheckCircle2 className="h-4 w-4" />
+            Já sou membro
+          </Button>
+        ) : (
+          // Botão para quem NÃO É membro
+          <Button
+            disabled={isPrivate}
+            className={`w-full gap-2 rounded-xl font-bold transition-all active:scale-95 ${
+              isPrivate
+                ? 'bg-zinc-200 text-zinc-500 dark:bg-zinc-800'
+                : 'bg-linear-purple text-white shadow-md hover:shadow-purple-500/20'
+            }`}
+          >
+            {isPrivate ? (
+              <Lock className="h-4 w-4" />
+            ) : (
+              <UserRoundPlus className="h-4 w-4" />
+            )}
+            {isPrivate ? 'Comunidade Privada' : 'Participar agora'}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   )

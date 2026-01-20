@@ -36,16 +36,16 @@ import ErrorsPostDialog from './ErrorsPostDialog'
 import FullscreenDialog from './FullscreenDialog'
 
 export function PostDialog() {
-  const { isOpen, close, postCommunity } = useCriarPostDialog()
-
+  const { isOpen, close, postCommunity, myCommunities } = useCriarPostDialog()
   const [uploadType, setUploadType] = useState<'image' | 'video' | null>(null)
   const [file, setFile] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [typeError, setTypeError] = useState('')
-
   const [tagInput, setTagInput] = useState<string>('')
   const [tags, setTags] = useState<string[]>([])
+
   const { value, error, handleChange, maxLength } = useLimitForms(5000)
+  console.log(postCommunity)
   const {
     control,
     handleSubmit,
@@ -55,10 +55,25 @@ export function PostDialog() {
   } = useForm<PostDialogSchema>({
     resolver: zodResolver(postDialogSchema),
     mode: 'onChange',
+    defaultValues: {
+      destination: {
+        type: 'geral',
+        communityId: null,
+      },
+    },
   })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const destinationType = watch('destination.type')
+  const communityId = watch('destination.communityId')
 
+  useEffect(() => {
+    if (postCommunity) {
+      setValue('destination.type', 'comunidade', {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+  }, [postCommunity, setValue])
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && tagInput.trim() !== '') {
       if (tags.length >= 10) {
@@ -352,14 +367,14 @@ export function PostDialog() {
                               <SelectValue placeholder="Selecione uma comunidade" />
                             </SelectTrigger>
                             <SelectContent className="dark:bg-[#2a2a2a] dark:text-zinc-100">
-                              <SelectItem value="1">🌸 Mindfulness</SelectItem>
-                              <SelectItem value="2">
-                                💬 Autoajuda & Reflexão
-                              </SelectItem>
-                              <SelectItem value="3">
-                                ✨ Fé & Espiritualidade
-                              </SelectItem>
-                              <SelectItem value="4">🌿 Bem-estar</SelectItem>
+                              {myCommunities.map((community) => (
+                                <SelectItem
+                                  key={community.id}
+                                  value={community.id.toString()}
+                                >
+                                  {community.nameComunity}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         )}

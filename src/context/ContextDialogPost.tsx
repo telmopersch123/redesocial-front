@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
+import type { CommunityInterface } from '../types'
 
 interface CriarPostDialogContextType {
   isOpen: boolean
@@ -10,6 +11,8 @@ interface CriarPostDialogContextType {
   openDialogPostNotification: boolean
   openActionPosts: boolean
   setOpenActionPosts: React.Dispatch<React.SetStateAction<boolean>>
+  setMyCommunities: React.Dispatch<React.SetStateAction<CommunityInterface[]>>
+  myCommunities: CommunityInterface[]
 }
 
 const CriarPostDialogContext = createContext<
@@ -18,6 +21,7 @@ const CriarPostDialogContext = createContext<
 
 export function CriarPostDialogProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false)
+  const [myCommunities, setMyCommunities] = useState<CommunityInterface[]>([])
   const [postCommunity, setPostCommunity] = useState<boolean>(false)
   const [openActionPosts, setOpenActionPosts] = useState(false)
   const [openDialogPostNotification, setOpenDialogPostNotification] =
@@ -38,6 +42,8 @@ export function CriarPostDialogProvider({ children }: { children: ReactNode }) {
         openDialogPostNotification,
         openActionPosts,
         setOpenActionPosts,
+        setMyCommunities,
+        myCommunities,
       }}
     >
       {children}

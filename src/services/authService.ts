@@ -358,3 +358,19 @@ export async function getCheckUserChat(id: string | undefined) {
 
   return data
 }
+
+export async function getMyCommunities() {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/getMyCommunities`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) {
+    throw new Error('Erro ao buscar as comunidades')
+  }
+  const data = await res.json()
+
+  return data
+}

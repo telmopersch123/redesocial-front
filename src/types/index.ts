@@ -40,6 +40,11 @@ export interface Post {
   _count: {
     likes: number
   }
+
+  // remover dps
+  friend: boolean
+  avatar: string | null
+  autor: string
 }
 
 interface User {
@@ -96,4 +101,17 @@ export interface ResetPassWordProps {
 
 export interface ValidedCodeResponse {
   resetToken: string
+}
+
+export interface CommunityInterface {
+  image: string
+  id: number
+  category: string
+  description: string
+  isPrivate: boolean
+  nameComunity: string
+  _count: {
+    members: number
+  }
+  members: { userId: string }[]
 }

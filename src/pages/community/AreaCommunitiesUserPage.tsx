@@ -2,7 +2,7 @@
 
 import { MessageCircleHeart, Settings, Users } from 'lucide-react'
 import { useState } from 'react'
-import { Navigate, NavLink, useLocation, useParams } from 'react-router-dom'
+import { NavLink, useLocation, useParams } from 'react-router-dom'
 import { Button } from '../../components/ui/button'
 
 import CardsPostCommunityComponent from '../../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
@@ -14,99 +14,43 @@ import { useComunidades } from '../../context/CommunityContext'
 import { useCriarPostDialog } from '../../context/ContextDialogPost'
 import { useInfiniteScroll } from '../../hooks/effectsSkeletons'
 import type { Post } from '../../types'
-
-export const postsFicticiosCommunity: Post[] = [
-  {
-    id: 7,
-    typePosts: 'Ansioso',
-    community: 'Mindfulness',
-    autor: 'Anônimo',
-    avatar: null,
-    friend: false,
-    conteudo: 'Hoje consegui meditar por 15 minutos e foi libertador!',
-    imagem:
-      'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80',
-    data: new Date('2025-11-10T14:30:00'),
-    likes: 24,
-    comentarios: [
-      { id: 1, autor: 'Clara', texto: 'Inspirador! Vou tentar hoje mesmo.' },
-      { id: 2, autor: 'Anônimo', texto: '15 minutos já é um grande passo!' },
-    ],
-    salvo: false,
-    tags: ['Mindfulness', 'Meditação', 'Bem-estar'],
-  },
-  {
-    id: 9,
-    typePosts: 'Triste',
-    community: 'Autoajuda',
-    autor: 'Maria Silva',
-    avatar: 'MS',
-    friend: false,
-    conteudo:
-      'Estou aprendendo a ser mais gentil comigo mesma. É um processo, mas estou feliz com o progresso!',
-    data: new Date('2025-11-09T10:15:00'),
-    likes: 42,
-    comentarios: [],
-    salvo: true,
-    tags: ['Autoajuda', 'Reflexão', 'Autocuidado'],
-  },
-  {
-    id: 8,
-    typePosts: 'Esperançoso',
-    community: 'Fé & Espiritualidade',
-    autor: 'João Pedro',
-    avatar: 'JP',
-    friend: false,
-    conteudo: 'A gratidão é a linguagem da fé.',
-    imagem:
-      'https://thumbs.dreamstime.com/b/b%C3%ADblia-e-cruz-silhueta-contra-o-fundo-solar-simbolizando-f%C3%A9-espiritualidade-gerada-por-ia-381680496.jpg',
-    data: new Date('2025-11-08T08:45:00'),
-    likes: 89,
-    comentarios: [{ id: 1, autor: 'Ana', texto: 'Amém! Gratidão muda tudo.' }],
-    salvo: false,
-    tags: ['Fé', 'Gratidão', 'Espiritualidade'],
-  },
-  {
-    id: 10,
-    typePosts: 'Feliz',
-    community: 'Mindfulness',
-    autor: 'Anônimo',
-    avatar: null,
-    friend: false,
-    conteudo: 'Acalmar a mente antes de dormir tem mudado meus dias',
-    data: new Date('2025-11-07T22:10:00'),
-    likes: 15,
-    comentarios: [],
-    salvo: false,
-    tags: ['Mindfulness', 'Relaxamento', 'Sono'],
-  },
-  {
-    id: 11,
-    typePosts: 'Feliz',
-    community: 'Autoajuda',
-    autor: 'Pedro Santos',
-    avatar: 'PS',
-    friend: true,
-    conteudo:
-      'Gravei um pequeno vídeo falando sobre como lidar com a ansiedade. Espero que ajude alguém',
-    video: true,
-    imagem:
-      'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=800&q=80',
-    data: new Date('2025-11-06T16:20:00'),
-    likes: 67,
-    comentarios: [
-      { id: 1, autor: 'Luiza', texto: 'Muito útil, obrigada!' },
-      { id: 2, autor: 'Anônimo', texto: 'Já salvei pra ver depois.' },
-    ],
-    salvo: true,
-    tags: ['Autoajuda', 'Ansiedade', 'Vídeo'],
-  },
-]
-export const comunidadesFicticias = [
-  'Mindfulness',
-  'Autoajuda',
-  'Fé & Espiritualidade',
-]
+type UserTypeSearch = {
+  id: string
+  name: string
+  name_at: string
+  avatar: string | null
+}
+// export const postsFicticiosCommunity: Post[] = [
+//   {
+//     id: 7,
+//     feelingPost: 'Ansioso',
+//     community: 'Mindfulness',
+//     autor: 'Anônimo',
+//     avatar: null,
+//     friend: false,
+//     description: 'Hoje consegui meditar por 15 minutos e foi libertador!',
+//     mediaUrl:
+//       'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80',
+//     createdAt: new Date('2025-11-10T14:30:00'),
+//     likesCount: 24,
+//     comments: [
+//       {
+//         id: 1,
+//         user: { name_at: 'Clara', id: 'user-1' } as UserTypeSearch,
+//         content: 'Inspirador! Vou tentar hoje mesmo.',
+//       },
+//     ],
+//     saves: [],
+//     tags: ['Mindfulness', 'Meditação', 'Bem-estar'],
+//     mediaType: null,
+//     updatedAt: '2025-11-10T14:30:00',
+//     likedByMe: false,
+//     user: { name_at: 'Anônimo', id: 'user-1' } as UserTypeSearch,
+//     likes: [],
+//     saved: false,
+//     _count: { likes: 24 },
+//   },
+// ]
 
 export const normalizeURL = (s: string) =>
   s
@@ -120,7 +64,7 @@ const ficticioAdminComunidade = true
 export default function AreaCommunitiesUserPage() {
   const { filtro } = useComunidades()
   const { communityName } = useParams()
-  const [posts, setPosts] = useState<Post[]>(postsFicticiosCommunity)
+  const [posts, setPosts] = useState<Post[]>([])
   const [novoComentario, setNovoComentario] = useState('')
   const [visibleCount, setVisibleCount] = useState(10)
   const [loadedCount, setLoadedCount] = useState(10)
@@ -143,19 +87,19 @@ export default function AreaCommunitiesUserPage() {
     },
   })
 
-  if (communityName) {
-    const comunidadeValida = comunidadesFicticias.some((c) => {
-      return normalizeURL(c) === normalizeURL(communityName || '')
-    })
-    if (!comunidadeValida)
-      return (
-        <Navigate
-          to="/comunidades"
-          replace
-          state={{ communityError: 'not-found' }}
-        />
-      )
-  }
+  // if (communityName) {
+  //   const comunidadeValida = comunidadesFicticias.some((c) => {
+  //     return normalizeURL(c) === normalizeURL(communityName || '')
+  //   })
+  //   if (!comunidadeValida)
+  //     return (
+  //       <Navigate
+  //         to="/comunidades"
+  //         replace
+  //         state={{ communityError: 'not-found' }}
+  //       />
+  //     )
+  // }
 
   const postsFiltrados =
     filtro === 'all' ? posts : posts.filter((p) => p.community === filtro)
@@ -164,7 +108,7 @@ export default function AreaCommunitiesUserPage() {
     <>
       <div className="fixed">
         <PostComponentDialog
-          valuePost={posts[0]}
+          valuePosts={posts[0]}
           novoComentario={novoComentario}
           setNovoComentario={setNovoComentario}
           setPosts={setPosts}

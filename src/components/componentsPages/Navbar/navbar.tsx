@@ -30,10 +30,9 @@ import DialogHelp from './DialogHelp'
 import { useComunidades } from '../../../context/CommunityContext'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import { useAuth } from '../../../context/getMe'
-import {
-  comunidadesFicticias,
-  normalizeURL,
-} from '../../../pages/community/AreaCommunitiesUserPage'
+import { normalizeURL } from '../../../pages/community/AreaCommunitiesUserPage'
+import { getMyCommunities } from '../../../services/authService'
+import type { CommunityInterface } from '../../../types'
 import { ToggleThemeButton } from '../../../utils/components/toggleTheme'
 import { Button } from '../../ui/button'
 
@@ -49,7 +48,8 @@ const items = [
 
 export function AppSidebar() {
   const navigate = useNavigate()
-  const { open, setPostCommunity } = useCriarPostDialog()
+  const { open, setPostCommunity, myCommunities, setMyCommunities } =
+    useCriarPostDialog()
   const [active, setActive] = useState('Feed')
   const { setOpenMobile } = useSidebar()
   const { filtro, setFiltro } = useComunidades()
@@ -57,12 +57,14 @@ export function AppSidebar() {
   const pathname = location.pathname
   const { communityName, id } = useParams()
   const { user } = useAuth()
+
   let isInComunidades =
     location.pathname === '/comunidades/comunidades-do-usuario' ||
     location.pathname ===
       `/comunidades/comunidades-do-usuario/${communityName}` ||
     location.pathname ===
       `/comunidades/comunidades-do-usuario/${communityName}/${id}`
+
   useEffect(() => {
     setOpenMobile(false)
 
@@ -87,18 +89,25 @@ export function AppSidebar() {
       setActive(itemPathe?.title || 'Feed')
     }
   }, [location.pathname])
-
   useEffect(() => {
     if (!communityName) {
       setFiltro('all')
       return
     }
 
-    const found = comunidadesFicticias.find(
-      (c) => normalizeURL(c) === communityName.toLowerCase()
+    const found = myCommunities.find(
+      (c) => normalizeURL(c.nameComunity) === communityName.toLowerCase()
     )
-    setFiltro(found || 'all')
-  })
+    setFiltro((found as CommunityInterface)?.nameComunity || 'all')
+  }, [])
+
+  useEffect(() => {
+    async function handleSearchMyComunity() {
+      const res = await getMyCommunities()
+      setMyCommunities(res)
+    }
+    handleSearchMyComunity()
+  }, [])
 
   return (
     <div
@@ -223,25 +232,31 @@ export function AppSidebar() {
                       Todas
                     </Button>
 
-                    {comunidadesFicticias.map((c) => (
+                    {myCommunities.map((myCommunities: CommunityInterface) => (
                       <Button
-                        key={c}
-                        variant={filtro === c ? 'default' : 'outline'}
+                        key={myCommunities.id}
+                        variant={
+                          filtro === myCommunities.nameComunity
+                            ? 'default'
+                            : 'outline'
+                        }
                         className={`w-full justify-start text-sm font-medium ${
-                          filtro === c
+                          filtro === myCommunities.nameComunity
                             ? 'bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-500'
                             : 'border-zinc-300 text-zinc-700 hover:bg-purple-50 hover:text-purple-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-purple-400'
                         }`}
                         onClick={() => {
-                          setFiltro(c)
-                          const nomeURL = normalizeURL(c)
+                          setFiltro(myCommunities.nameComunity)
+                          const nomeURL = normalizeURL(
+                            myCommunities.nameComunity
+                          )
                           navigate(
                             `/comunidades/comunidades-do-usuario/${nomeURL}`
                           )
                         }}
                       >
                         <MessageCircleHeart className="mr-2 h-4 w-4" />
-                        {c}
+                        {myCommunities.nameComunity}
                       </Button>
                     ))}
                   </div>

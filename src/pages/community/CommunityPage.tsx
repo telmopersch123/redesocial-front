@@ -6,76 +6,14 @@ import { toast, Toaster } from 'sonner'
 import CardsCommunityComponent from '../../components/componentsPages/componentsComunidade/CardsCommunityComponent'
 import PaginationComponent from '../../components/componentsPages/componentsComunidade/PaginationComponent'
 import { Button } from '../../components/ui/button'
+import { useAuth } from '../../context/getMe'
+import type { CommunityInterface } from '../../types'
 import { FilterCommunity } from './filterComponent'
-export const communities = [
-  {
-    id: 1,
-    emoji: '😰',
-    title: 'Ansiedade Social',
-    description:
-      'Um espaço seguro para compartilhar experiências e apoio mútuo.',
-    members: 523,
-    posts: 1200,
-    isPrivate: true,
-  },
-  {
-    id: 2,
-    emoji: '🔥',
-    title: 'Produtividade Máxima',
-    description: 'Comunidade focada em hábitos, foco e alta performance.',
-    members: 3870,
-    posts: 8540,
-    isPrivate: false,
-  },
-  {
-    id: 3,
-    emoji: '🎮',
-    title: 'Gamers do Brasil',
-    description: 'Para quem ama jogos e quer fazer novas amizades.',
-    members: 19400,
-    posts: 32000,
-    isPrivate: false,
-  },
-  {
-    id: 4,
-    emoji: '💪',
-    title: 'Motivação Diária',
-    description: 'Desafios, frases e apoio diário para sua jornada.',
-    members: 1200,
-    posts: 5500,
-    isPrivate: false,
-  },
-  {
-    id: 5,
-    emoji: '🧠',
-    title: 'Psicologia & Vida',
-    description: 'Discussões sobre comportamento humano e autoconhecimento.',
-    members: 880,
-    posts: 2100,
-    isPrivate: true,
-  },
-  {
-    id: 6,
-    emoji: '🐶',
-    title: 'Amantes de Pets',
-    description: 'Compartilhe fotos, dicas e momentos com seus pets!',
-    members: 4500,
-    posts: 15000,
-    isPrivate: false,
-  },
-  {
-    id: 7,
-    emoji: '📚',
-    title: 'Clube do Livro',
-    description: 'Indicações, resenhas e conversas sobre literatura.',
-    members: 310,
-    posts: 880,
-    isPrivate: true,
-  },
-]
 
 const CommunityPage = () => {
   const location = useLocation()
+  const { user } = useAuth()
+  const [communities, setCommunities] = useState<CommunityInterface[]>([])
   const [currentPage, setCurrentPage] = useState(1)
   const [filters, setFilters] = useState({
     privacy: 'all',
@@ -88,9 +26,15 @@ const CommunityPage = () => {
   const filteredCommunities = communities.filter((community) => {
     if (filters.privacy === 'public' && community.isPrivate) return false
     if (filters.privacy === 'private' && !community.isPrivate) return false
-    if (filters.minMembers !== null && community.members < filters.minMembers)
+    if (
+      filters.minMembers !== null &&
+      community._count.members < filters.minMembers
+    )
       return false
-    if (filters.maxMembers !== null && community.members > filters.maxMembers)
+    if (
+      filters.maxMembers !== null &&
+      community._count.members > filters.maxMembers
+    )
       return false
     return true
   })
@@ -103,6 +47,28 @@ const CommunityPage = () => {
   )
 
   useEffect(() => {
+    const fetchCommunities = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/auth/comunity/getAllCommunities`,
+          {
+            credentials: 'include',
+          }
+        )
+
+        if (response.ok) {
+          const data = await response.json()
+          setCommunities(data)
+        }
+      } catch (error) {
+        toast.error('Erro ao carregar comunidades')
+      }
+    }
+
+    fetchCommunities()
+  }, [])
+
+  useEffect(() => {
     if (location.state?.communityError === 'not-found') {
       toast.error('Comunidade não encontrada, ou foi removida!')
 
@@ -110,6 +76,7 @@ const CommunityPage = () => {
     }
   }, [location.state])
 
+  console.log(communities)
   return (
     <>
       <Toaster position="top-right" />
@@ -156,7 +123,10 @@ const CommunityPage = () => {
           >
             {currentItems.map((communities, index) => (
               <div key={index} className="h-[280px] w-full">
-                <CardsCommunityComponent valuesComunity={communities} />
+                <CardsCommunityComponent
+                  valuesComunity={communities}
+                  user={user}
+                />
               </div>
             ))}
           </motion.div>
@@ -169,7 +139,7 @@ const CommunityPage = () => {
           <PaginationComponent
             setCurrentPage={setCurrentPage}
             currentPage={currentPage}
-            itemsSimulator={communities.length}
+            itemsSimulator={filteredCommunities.length}
             itemsPerPage={itemsPerPage}
           />
         </div>
