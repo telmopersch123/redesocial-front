@@ -330,6 +330,7 @@ export async function getContatos() {
 
   return data
 }
+
 export async function getUser(id: string | undefined) {
   const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/users/${id}`, {
     method: 'GET',
@@ -342,7 +343,6 @@ export async function getUser(id: string | undefined) {
 
   return data
 }
-
 export async function getCheckUserChat(id: string | undefined) {
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/checkUserChat/${id}`,
@@ -358,7 +358,6 @@ export async function getCheckUserChat(id: string | undefined) {
 
   return data
 }
-
 export async function getMyCommunities() {
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/comunity/getMyCommunities`,
@@ -369,6 +368,21 @@ export async function getMyCommunities() {
   )
   if (!res.ok) {
     throw new Error('Erro ao buscar as comunidades')
+  }
+  const data = await res.json()
+
+  return data
+}
+export async function getCommunityPosts(target: number) {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/getCommunityPosts?communityId=${target}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) {
+    throw new Error('Erro ao buscar os posts')
   }
   const data = await res.json()
 

@@ -45,7 +45,7 @@ export function PostDialog() {
   const [tags, setTags] = useState<string[]>([])
 
   const { value, error, handleChange, maxLength } = useLimitForms(5000)
-  console.log(postCommunity)
+
   const {
     control,
     handleSubmit,

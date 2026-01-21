@@ -1,8 +1,8 @@
 'use client'
 
 import { MessageCircleHeart, Settings, Users } from 'lucide-react'
-import { useState } from 'react'
-import { NavLink, useLocation, useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { NavLink, useLocation } from 'react-router-dom'
 import { Button } from '../../components/ui/button'
 
 import CardsPostCommunityComponent from '../../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
@@ -10,9 +10,10 @@ import PostComponentDialog from '../../components/componentsPages/PostsComponent
 import UsersCommunityDialog from '../../components/componentsPages/componentsComunidadeUsuario/UsersCommunityDialog'
 import { PostCardSkeleton } from '../../components/componentsPages/componentsPerfil/Skeleton'
 import { TooltipComponent } from '../../components/globalcomponents/tooltipComponent'
-import { useComunidades } from '../../context/CommunityContext'
 import { useCriarPostDialog } from '../../context/ContextDialogPost'
+import { useAuth } from '../../context/getMe'
 import { useInfiniteScroll } from '../../hooks/effectsSkeletons'
+import { getCommunityPosts } from '../../services/authService'
 import type { Post } from '../../types'
 type UserTypeSearch = {
   id: string
@@ -62,13 +63,14 @@ export const normalizeURL = (s: string) =>
 const ficticioAdminComunidade = true
 
 export default function AreaCommunitiesUserPage() {
-  const { filtro } = useComunidades()
-  const { communityName } = useParams()
+  const { user } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
   const [novoComentario, setNovoComentario] = useState('')
   const [visibleCount, setVisibleCount] = useState(10)
   const [loadedCount, setLoadedCount] = useState(10)
   const pathname = useLocation().pathname
+  const location = useLocation()
+  const communityIdFromState = location.state?.communityId
   const { setOpenDialogPostNotification, openDialogPostNotification } =
     useCriarPostDialog()
   const hasMore = visibleCount < posts.length
@@ -101,8 +103,30 @@ export default function AreaCommunitiesUserPage() {
   //     )
   // }
 
-  const postsFiltrados =
-    filtro === 'all' ? posts : posts.filter((p) => p.community === filtro)
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const target = communityIdFromState || 0
+        const postsData: Post[] = await getCommunityPosts(target)
+
+        const normalizedPosts = postsData.map((post: Post) => ({
+          ...post,
+          likedByMe:
+            post.likes?.some((l: any) => l.userId === Number(user?.id)) ??
+            false,
+          saved: Array.isArray(post.saves) ? post.saves.length > 0 : false,
+          likesCount: post._count?.likes ?? 0,
+        }))
+        console.log(normalizedPosts)
+        setPosts(normalizedPosts)
+      } catch (err) {
+        console.log(err)
+        setPosts([])
+      }
+    }
+
+    fetchPosts()
+  }, [communityIdFromState])
 
   return (
     <>
@@ -139,43 +163,43 @@ export default function AreaCommunitiesUserPage() {
           </div>
 
           <div className="min-h-[600px] space-y-24">
-            {postsFiltrados.length > 0 ? (
-              postsFiltrados
-                .slice(0, visibleCount)
-                .map((post: Post, index: number) => {
-                  const isLoaded = index < loadedCount
-                  return (
-                    <div key={post.id}>
-                      {isLoaded ? (
-                        <CardsPostCommunityComponent
-                          posts={posts}
-                          valuePost={post}
-                          setPosts={setPosts}
-                        />
-                      ) : (
-                        <PostCardSkeleton />
-                      )}
-                    </div>
-                  )
-                })
+            {posts.length > 0 ? (
+              posts.slice(0, visibleCount).map((post: Post, index: number) => {
+                const isLoaded = index < loadedCount
+                return (
+                  <div key={post.id}>
+                    {isLoaded ? (
+                      <CardsPostCommunityComponent
+                        posts={posts}
+                        valuePost={post}
+                        setPosts={setPosts}
+                      />
+                    ) : (
+                      <PostCardSkeleton />
+                    )}
+                  </div>
+                )
+              })
             ) : (
-              <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-xl bg-gray-50 px-6">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 shadow-sm">
-                  <MessageCircleHeart className="h-8 w-8 text-purple-600" />
+              <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-xl bg-gray-50 px-6 dark:bg-zinc-900">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 shadow-sm dark:from-purple-900/40 dark:to-indigo-900/40 dark:shadow-none">
+                  <MessageCircleHeart className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                 </div>
+
                 <div className="text-center">
-                  <p className="text-lg font-medium text-gray-700">
+                  <p className="text-lg font-medium text-gray-700 dark:text-zinc-200">
                     Ainda não há posts
                   </p>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-gray-500 dark:text-zinc-400">
                     Seja o primeiro a compartilhar algo ou crie uma nova
                     comunidade!
                   </p>
                 </div>
+
                 <NavLink to="/comunidades">
                   <Button
-                    className="bg-linear-purple mt-2 text-white shadow-md hover:shadow-lg"
                     size="sm"
+                    className="bg-linear-purple mt-2 text-white shadow-md hover:shadow-lg dark:shadow-none dark:hover:shadow-purple-500/20"
                   >
                     <Users className="mr-2 h-4 w-4" />
                     Visualizar Comunidades

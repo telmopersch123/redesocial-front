@@ -192,71 +192,81 @@ export function AppSidebar() {
               </SidebarMenu>
 
               {isInComunidades && (
-                <div className="mt-6 px-2">
-                  <Separator className="mb-4 dark:bg-zinc-800" />
+                <div className="mt-6 px-2 sm:px-3 lg:px-4">
+                  <Separator className="mb-4 bg-zinc-200 dark:bg-zinc-800" />
 
+                  {/* Header */}
                   <div className="mb-3 flex items-center gap-2">
                     <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                    <h3 className="font-bold text-zinc-900 dark:text-zinc-100">
+                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                       Comunidades
                     </h3>
                   </div>
 
+                  {/* Criar post */}
                   <div className="mb-4">
                     <Button
                       onClick={() => {
                         open()
                         setPostCommunity(true)
                       }}
-                      className="bg-linear-purple w-full justify-start text-sm text-white shadow-md hover:shadow-lg"
+                      className="bg-linear-purple w-full justify-start gap-2 text-sm font-medium text-white shadow-md hover:shadow-lg dark:shadow-none dark:hover:shadow-purple-500/20"
                     >
-                      <MessageCircleDashed className="mr-2 h-4 w-4" />
+                      <MessageCircleDashed className="h-4 w-4" />
                       Criar post
                     </Button>
                   </div>
 
-                  <div className="max-h-96 space-y-1.5 overflow-y-auto">
+                  {/* Lista */}
+                  <div className="scrollbar-thin scrollbar-thumb-zinc-300 dark:scrollbar-thumb-zinc-700 max-h-96 space-y-1.5 overflow-y-auto pr-1">
+                    {/* Todas */}
                     <Button
                       variant={filtro === 'all' ? 'default' : 'outline'}
-                      className={`w-full justify-start text-sm font-medium ${
+                      className={`w-full justify-start gap-2 text-sm font-medium transition-colors ${
                         filtro === 'all'
-                          ? 'bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-500'
-                          : 'border-zinc-300 text-zinc-700 hover:bg-purple-50 hover:text-purple-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-purple-400'
+                          ? `bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-500`
+                          : `border-zinc-300 text-zinc-700 hover:bg-purple-50 hover:text-purple-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-purple-400`
                       }`}
                       onClick={() => {
                         setFiltro('all')
                         navigate('/comunidades/comunidades-do-usuario')
                       }}
                     >
-                      <MessageCircleHeart className="mr-2 h-4 w-4" />
+                      <MessageCircleHeart className="h-4 w-4" />
                       Todas
                     </Button>
 
-                    {myCommunities.map((myCommunities: CommunityInterface) => (
+                    {/* Comunidades */}
+                    {myCommunities.map((community: CommunityInterface) => (
                       <Button
-                        key={myCommunities.id}
+                        key={community.id}
                         variant={
-                          filtro === myCommunities.nameComunity
+                          filtro === community.nameComunity
                             ? 'default'
                             : 'outline'
                         }
-                        className={`w-full justify-start text-sm font-medium ${
-                          filtro === myCommunities.nameComunity
-                            ? 'bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-500'
-                            : 'border-zinc-300 text-zinc-700 hover:bg-purple-50 hover:text-purple-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-purple-400'
+                        className={`w-full justify-start gap-2 text-sm font-medium transition-colors ${
+                          filtro === community.nameComunity
+                            ? `bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-500`
+                            : `border-zinc-300 text-zinc-700 hover:bg-purple-50 hover:text-purple-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-purple-400`
                         }`}
                         onClick={() => {
-                          setFiltro(myCommunities.nameComunity)
-                          const nomeURL = normalizeURL(
-                            myCommunities.nameComunity
-                          )
+                          setFiltro(community.nameComunity)
+                          const nomeURL = normalizeURL(community.nameComunity)
                           navigate(
-                            `/comunidades/comunidades-do-usuario/${nomeURL}`
+                            `/comunidades/comunidades-do-usuario/${nomeURL}`,
+                            { state: { communityId: community.id } }
                           )
                         }}
                       >
-                        <MessageCircleHeart className="mr-2 h-4 w-4" />
-                        {myCommunities.nameComunity}
+                        <img
+                          className="h-4 w-4 rounded-full"
+                          src={community.image}
+                          alt={community.nameComunity}
+                        />
+                        <span className="truncate">
+                          {community.nameComunity}
+                        </span>
                       </Button>
                     ))}
                   </div>
