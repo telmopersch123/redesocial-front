@@ -5,7 +5,9 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { toast, Toaster } from 'sonner'
 import CardsCommunityComponent from '../../components/componentsPages/componentsComunidade/CardsCommunityComponent'
 import PaginationComponent from '../../components/componentsPages/componentsComunidade/PaginationComponent'
+import { CommunityCardSkeleton } from '../../components/componentsPages/componentsPerfil/Skeleton'
 import { Button } from '../../components/ui/button'
+import { useComunidades } from '../../context/CommunityContext'
 import { useAuth } from '../../context/getMe'
 import type { CommunityInterface } from '../../types'
 import { FilterCommunity } from './filterComponent'
@@ -13,8 +15,10 @@ import { FilterCommunity } from './filterComponent'
 const CommunityPage = () => {
   const location = useLocation()
   const { user } = useAuth()
+  const { setFiltro } = useComunidades()
   const [communities, setCommunities] = useState<CommunityInterface[]>([])
   const [currentPage, setCurrentPage] = useState(1)
+  const [isLoading, setIsLoading] = useState(true)
   const [filters, setFilters] = useState({
     privacy: 'all',
     minMembers: null as number | null,
@@ -48,6 +52,7 @@ const CommunityPage = () => {
 
   useEffect(() => {
     const fetchCommunities = async () => {
+      setIsLoading(true)
       try {
         const response = await fetch(
           `${import.meta.env.VITE_API_URL}/auth/comunity/getAllCommunities`,
@@ -62,11 +67,18 @@ const CommunityPage = () => {
         }
       } catch (error) {
         toast.error('Erro ao carregar comunidades')
+        setIsLoading(false)
+      } finally {
+        setIsLoading(false)
       }
     }
 
     fetchCommunities()
   }, [])
+
+  useEffect(() => {
+    setFiltro('all')
+  }, [filters])
 
   useEffect(() => {
     if (location.state?.communityError === 'not-found') {
@@ -121,28 +133,44 @@ const CommunityPage = () => {
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="mt-10 grid min-h-[650px] grid-cols-1 gap-6 gap-y-14 ym:grid-cols-2 xl:grid-cols-3"
           >
-            {currentItems.map((communities, index) => (
-              <div key={index} className="h-[280px] w-full">
-                <CardsCommunityComponent
-                  valuesComunity={communities}
-                  user={user}
-                />
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-[280px] w-full">
+                  <CommunityCardSkeleton />
+                </div>
+              ))
+            ) : currentItems.length > 0 ? (
+              currentItems.map((community, index) => (
+                <div key={community.id || index} className="h-[280px] w-full">
+                  <CardsCommunityComponent
+                    valuesComunity={community}
+                    user={user}
+                  />
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full flex flex-col items-center justify-center py-20">
+                <p className="text-muted-foreground">
+                  Nenhuma comunidade encontrada com esses filtros.
+                </p>
               </div>
-            ))}
+            )}
           </motion.div>
         </AnimatePresence>
 
         {/* paginação */}
-        <div
-          className={`mt-10 flex justify-center text-muted-foreground ${filteredCommunities.length < 6 && currentItems.length < 6 ? 'hidden' : ''}`}
-        >
-          <PaginationComponent
-            setCurrentPage={setCurrentPage}
-            currentPage={currentPage}
-            itemsSimulator={filteredCommunities.length}
-            itemsPerPage={itemsPerPage}
-          />
-        </div>
+        {!isLoading && (
+          <div
+            className={`mt-10 flex justify-center text-muted-foreground ${filteredCommunities.length < 6 && currentItems.length < 6 ? 'hidden' : ''}`}
+          >
+            <PaginationComponent
+              setCurrentPage={setCurrentPage}
+              currentPage={currentPage}
+              itemsSimulator={filteredCommunities.length}
+              itemsPerPage={itemsPerPage}
+            />
+          </div>
+        )}
       </div>
     </>
   )

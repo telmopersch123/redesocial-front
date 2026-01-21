@@ -68,6 +68,7 @@ export default function AreaCommunitiesUserPage() {
   const [novoComentario, setNovoComentario] = useState('')
   const [visibleCount, setVisibleCount] = useState(10)
   const [loadedCount, setLoadedCount] = useState(10)
+  const [isLoading, setIsLoading] = useState(true)
   const pathname = useLocation().pathname
   const location = useLocation()
   const communityIdFromState = location.state?.communityId
@@ -105,10 +106,10 @@ export default function AreaCommunitiesUserPage() {
 
   useEffect(() => {
     const fetchPosts = async () => {
+      setIsLoading(true)
       try {
         const target = communityIdFromState || 0
         const postsData: Post[] = await getCommunityPosts(target)
-
         const normalizedPosts = postsData.map((post: Post) => ({
           ...post,
           likedByMe:
@@ -117,11 +118,13 @@ export default function AreaCommunitiesUserPage() {
           saved: Array.isArray(post.saves) ? post.saves.length > 0 : false,
           likesCount: post._count?.likes ?? 0,
         }))
-        console.log(normalizedPosts)
         setPosts(normalizedPosts)
       } catch (err) {
         console.log(err)
         setPosts([])
+        setIsLoading(false)
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -163,7 +166,13 @@ export default function AreaCommunitiesUserPage() {
           </div>
 
           <div className="min-h-[600px] space-y-24">
-            {posts.length > 0 ? (
+            {isLoading ? (
+              <div className="space-y-10">
+                <PostCardSkeleton />
+                <PostCardSkeleton />
+                <PostCardSkeleton />
+              </div>
+            ) : posts.length > 0 ? (
               posts.slice(0, visibleCount).map((post: Post, index: number) => {
                 const isLoaded = index < loadedCount
                 return (

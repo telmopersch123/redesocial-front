@@ -49,3 +49,27 @@ export const FollowerSkeleton = () => {
     </div>
   )
 }
+
+export const CommunityCardSkeleton = () => {
+  return (
+    <Card className="h-[280px] w-full overflow-hidden rounded-2xl border-none bg-white shadow-md dark:bg-zinc-900/80">
+      <Skeleton className="h-24 w-full rounded-none bg-zinc-200 dark:bg-zinc-800" />
+
+      <div className="relative flex flex-col items-center px-4 pb-6">
+        <Skeleton className="z-10 -mt-8 h-16 w-16 rounded-2xl border-4 border-white bg-zinc-300 dark:border-zinc-900 dark:bg-zinc-700" />
+
+        <Skeleton className="mt-3 h-5 w-3/4 bg-zinc-200 dark:bg-zinc-800" />
+
+        <div className="mt-4 w-full space-y-2">
+          <Skeleton className="h-3 w-full bg-zinc-200/60 dark:bg-zinc-800/60" />
+          <Skeleton className="mx-auto h-3 w-5/6 bg-zinc-200/60 dark:bg-zinc-800/60" />
+        </div>
+
+        <div className="mt-6 flex w-full items-center justify-between">
+          <Skeleton className="h-4 w-16 bg-zinc-200 dark:bg-zinc-800" />
+          <Skeleton className="h-8 w-24 rounded-lg bg-zinc-200 dark:bg-zinc-800" />
+        </div>
+      </div>
+    </Card>
+  )
+}

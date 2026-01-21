@@ -46,6 +46,17 @@ const items = [
   { title: 'Autocuidado', url: '/autocuidado', icon: Heart },
 ]
 
+const isSelected = (name: string, filtro: string) => {
+  if (filtro === 'all') return false
+
+  const normalizedFiltro = filtro.replace(/\s+/g, '').toLowerCase()
+  const normalizedCommunity = name.replace(/\s+/g, '').toLowerCase()
+
+  console.log(normalizedFiltro, normalizedCommunity)
+
+  return normalizedFiltro === normalizedCommunity
+}
+
 export function AppSidebar() {
   const navigate = useNavigate()
   const { open, setPostCommunity, myCommunities, setMyCommunities } =
@@ -96,10 +107,17 @@ export function AppSidebar() {
     }
 
     const found = myCommunities.find(
-      (c) => normalizeURL(c.nameComunity) === communityName.toLowerCase()
+      (c: CommunityInterface) =>
+        normalizeURL(c.nameComunity) === communityName.toLowerCase()
     )
-    setFiltro((found as CommunityInterface)?.nameComunity || 'all')
-  }, [])
+
+    if (found) {
+      setFiltro(found.nameComunity)
+    } else {
+      const nomeLimpo = communityName.replace(/-/g, ' ')
+      setFiltro(nomeLimpo)
+    }
+  }, [communityName, myCommunities, setFiltro])
 
   useEffect(() => {
     async function handleSearchMyComunity() {
@@ -241,12 +259,12 @@ export function AppSidebar() {
                       <Button
                         key={community.id}
                         variant={
-                          filtro === community.nameComunity
+                          isSelected(community.nameComunity, filtro)
                             ? 'default'
                             : 'outline'
                         }
                         className={`w-full justify-start gap-2 text-sm font-medium transition-colors ${
-                          filtro === community.nameComunity
+                          isSelected(community.nameComunity, filtro)
                             ? `bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-500`
                             : `border-zinc-300 text-zinc-700 hover:bg-purple-50 hover:text-purple-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-purple-400`
                         }`}
