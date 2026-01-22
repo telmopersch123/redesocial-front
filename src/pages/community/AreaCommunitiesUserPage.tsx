@@ -15,12 +15,7 @@ import { useAuth } from '../../context/getMe'
 import { useInfiniteScroll } from '../../hooks/effectsSkeletons'
 import { getCommunityPosts } from '../../services/authService'
 import type { Post } from '../../types'
-type UserTypeSearch = {
-  id: string
-  name: string
-  name_at: string
-  avatar: string | null
-}
+
 // export const postsFicticiosCommunity: Post[] = [
 //   {
 //     id: 7,
@@ -66,28 +61,37 @@ export default function AreaCommunitiesUserPage() {
   const { user } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
   const [novoComentario, setNovoComentario] = useState('')
-  const [visibleCount, setVisibleCount] = useState(10)
   const [loadedCount, setLoadedCount] = useState(10)
   const [isLoading, setIsLoading] = useState(true)
+  const [hasMore, setHasMore] = useState(true)
+  const [page, setPage] = useState(1)
   const pathname = useLocation().pathname
   const location = useLocation()
   const communityIdFromState = location.state?.communityId
   const { setOpenDialogPostNotification, openDialogPostNotification } =
     useCriarPostDialog()
-  const hasMore = visibleCount < posts.length
+  // const hasMore = visibleCount < posts.length
   const { loadMoreRef } = useInfiniteScroll({
     totalItems: posts.length,
-    itemsPerPage: 10,
-    delayInMs: 1000,
+    enabled: hasMore && !isLoading,
     rootMargin: '600px',
-    enabled: hasMore,
     onLoadMore: () => {
-      const nextDisplay = Math.min(visibleCount + 10, posts.length)
-      setVisibleCount(nextDisplay)
-      setTimeout(() => {
-        setLoadedCount(nextDisplay)
-      }, 1000)
+      const nextPage = page + 1
+      setPage(nextPage)
+      fetchPosts(nextPage)
     },
+
+    // itemsPerPage: 10,
+    // delayInMs: 1000,
+    // rootMargin: '600px',
+    // enabled: hasMore,
+    // onLoadMore: () => {
+    //   const nextDisplay = Math.min(visibleCount + 10, posts.length)
+    //   setVisibleCount(nextDisplay)
+    //   setTimeout(() => {
+    //     setLoadedCount(nextDisplay)
+    //   }, 1000)
+    // },
   })
 
   // if (communityName) {
@@ -104,33 +108,56 @@ export default function AreaCommunitiesUserPage() {
   //     )
   // }
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      setIsLoading(true)
-      try {
-        const target = communityIdFromState || 0
-        const postsData: Post[] = await getCommunityPosts(target)
-        const normalizedPosts = postsData.map((post: Post) => ({
-          ...post,
-          likedByMe:
-            post.likes?.some((l: any) => l.userId === Number(user?.id)) ??
-            false,
-          saved: Array.isArray(post.saves) ? post.saves.length > 0 : false,
-          likesCount: post._count?.likes ?? 0,
-        }))
-        setPosts(normalizedPosts)
-      } catch (err) {
-        console.log(err)
-        setPosts([])
-        setIsLoading(false)
-      } finally {
-        setIsLoading(false)
+  const fetchPosts = async (
+    pageNumber: number,
+    isFirstLoad: boolean = false
+  ) => {
+    setIsLoading(true)
+    try {
+      const communityUrlName = pathname.split('/').pop()
+      const targetId = communityIdFromState || 0
+      const postsData: Post[] = await getCommunityPosts(
+        targetId,
+        communityUrlName,
+        pageNumber
+      )
+      if (postsData.length < 10) {
+        setHasMore(false) // Se veio menos de 10, o banco acabou
       }
+      const normalizedPosts = postsData.map((post: Post) => ({
+        ...post,
+        likedByMe:
+          post.likes?.some((l: any) => l.userId === Number(user?.id)) ?? false,
+        saved: Array.isArray(post.saves) ? post.saves.length > 0 : false,
+        likesCount: post._count?.likes ?? 0,
+      }))
+      if (isFirstLoad) {
+        setPosts(normalizedPosts)
+      } else {
+        // CONCATENA: Mantém os antigos e adiciona os novos no fim
+        setPosts((prev) => [...prev, ...normalizedPosts])
+      }
+      setLoadedCount((prev) => (isFirstLoad ? 10 : prev + 10))
+    } catch (err) {
+      console.log(err)
+      if (isFirstLoad) setPosts([])
+      setIsLoading(false)
+    } finally {
+      setIsLoading(false)
     }
+  }
 
-    fetchPosts()
-  }, [communityIdFromState])
+  useEffect(() => {
+    setPage(1)
+    setHasMore(true)
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
+    fetchPosts(1, true)
+  }, [communityIdFromState, pathname])
 
+  console.log(posts)
   return (
     <>
       <div className="fixed">
@@ -166,29 +193,26 @@ export default function AreaCommunitiesUserPage() {
           </div>
 
           <div className="min-h-[600px] space-y-24">
-            {isLoading ? (
+            {posts.length === 0 && isLoading ? (
               <div className="space-y-10">
                 <PostCardSkeleton />
                 <PostCardSkeleton />
                 <PostCardSkeleton />
               </div>
             ) : posts.length > 0 ? (
-              posts.slice(0, visibleCount).map((post: Post, index: number) => {
-                const isLoaded = index < loadedCount
-                return (
-                  <div key={post.id}>
-                    {isLoaded ? (
-                      <CardsPostCommunityComponent
-                        posts={posts}
-                        valuePost={post}
-                        setPosts={setPosts}
-                      />
-                    ) : (
-                      <PostCardSkeleton />
-                    )}
-                  </div>
-                )
-              })
+              posts.map((post, index) => (
+                <div key={post.id}>
+                  {index < loadedCount ? (
+                    <CardsPostCommunityComponent
+                      posts={posts}
+                      valuePost={post}
+                      setPosts={setPosts}
+                    />
+                  ) : (
+                    <PostCardSkeleton />
+                  )}
+                </div>
+              ))
             ) : (
               <div className="flex h-96 flex-col items-center justify-center gap-4 rounded-xl bg-gray-50 px-6 dark:bg-zinc-900">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 shadow-sm dark:from-purple-900/40 dark:to-indigo-900/40 dark:shadow-none">
@@ -216,8 +240,13 @@ export default function AreaCommunitiesUserPage() {
                 </NavLink>
               </div>
             )}
-            {visibleCount < posts.length && (
-              <div ref={loadMoreRef} className="col-span-2 h-10" />
+            {hasMore && (
+              <div
+                ref={loadMoreRef}
+                className="col-span-2 flex h-20 justify-center"
+              >
+                {isLoading && <PostCardSkeleton />}
+              </div>
             )}
           </div>
         </main>

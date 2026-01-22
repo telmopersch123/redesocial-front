@@ -2,9 +2,14 @@
 import { useEffect, useRef } from 'react'
 
 interface PropsScroll {
+  // totalItems: number
+  // itemsPerPage?: number
+  // delayInMs?: number
+  // root?: HTMLElement | null
+  // rootMargin?: string
+  // enabled?: boolean
+  // onLoadMore: () => void
   totalItems: number
-  itemsPerPage?: number
-  delayInMs?: number
   root?: HTMLElement | null
   rootMargin?: string
   enabled?: boolean
@@ -12,16 +17,25 @@ interface PropsScroll {
 }
 
 export function useInfiniteScroll({
+  // totalItems,
+  // itemsPerPage = 10,
+  // delayInMs = 0,
+  // root,
+  // rootMargin = '0px',
+  // enabled = true,
+  // onLoadMore,
   totalItems,
-  itemsPerPage = 10,
-  delayInMs = 0,
   root,
   rootMargin = '0px',
   enabled = true,
   onLoadMore,
 }: PropsScroll) {
   const loadMoreRef = useRef<HTMLDivElement>(null)
-  const timeoutRef = useRef<number | null>(null)
+
+  const loadMoreCallback = useRef(onLoadMore)
+  useEffect(() => {
+    loadMoreCallback.current = onLoadMore
+  }, [onLoadMore])
 
   useEffect(() => {
     if (!enabled || !loadMoreRef.current) return
@@ -29,11 +43,8 @@ export function useInfiniteScroll({
     // Só recria o observer se algo realmente importante mudou
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && totalItems > itemsPerPage) {
-          // Cancela timeout anterior
-          if (timeoutRef.current) clearTimeout(timeoutRef.current)
-
-          onLoadMore()
+        if (entry.isIntersecting) {
+          loadMoreCallback.current()
         }
       },
       {
@@ -45,11 +56,8 @@ export function useInfiniteScroll({
 
     observer.observe(loadMoreRef.current)
 
-    return () => {
-      observer.disconnect()
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    }
-  }, [onLoadMore, root, rootMargin, delayInMs, enabled])
+    return () => observer.disconnect()
+  }, [onLoadMore, root, rootMargin, totalItems])
 
   return { loadMoreRef }
 }

@@ -373,9 +373,21 @@ export async function getMyCommunities() {
 
   return data
 }
-export async function getCommunityPosts(target: number) {
+export async function getCommunityPosts(
+  targetId: number,
+  targetName?: string,
+  page: number = 1
+) {
+  const params = new URLSearchParams()
+
+  params.append('communityId', targetId.toString())
+  if (targetName && targetName !== 'all') {
+    params.append('communityName', targetName)
+  }
+  params.append('page', page.toString())
+
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/comunity/getCommunityPosts?communityId=${target}`,
+    `${import.meta.env.VITE_API_URL}/auth/comunity/getCommunityPosts?${params.toString()}`,
     {
       method: 'GET',
       credentials: 'include',
