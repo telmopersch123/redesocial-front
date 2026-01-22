@@ -112,6 +112,7 @@ export interface CommunityInterface {
   nameComunity: string
   _count: {
     members: number
+    posts: number
   }
   members: { userId: string }[]
 }

@@ -2,13 +2,6 @@
 import { useEffect, useRef } from 'react'
 
 interface PropsScroll {
-  // totalItems: number
-  // itemsPerPage?: number
-  // delayInMs?: number
-  // root?: HTMLElement | null
-  // rootMargin?: string
-  // enabled?: boolean
-  // onLoadMore: () => void
   totalItems: number
   root?: HTMLElement | null
   rootMargin?: string
@@ -17,13 +10,6 @@ interface PropsScroll {
 }
 
 export function useInfiniteScroll({
-  // totalItems,
-  // itemsPerPage = 10,
-  // delayInMs = 0,
-  // root,
-  // rootMargin = '0px',
-  // enabled = true,
-  // onLoadMore,
   totalItems,
   root,
   rootMargin = '0px',

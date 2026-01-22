@@ -27,6 +27,7 @@ interface CommunityCardProps {
     nameComunity: string
     _count: {
       members: number
+      posts: number
     }
     members: { userId: string }[]
   }
@@ -99,7 +100,9 @@ const CardsCommunityComponent = ({
           </div>
           <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
             {_count.members}{' '}
-            <span className="font-normal text-zinc-500">membros</span>
+            <span className="font-normal text-zinc-500">
+              {_count.members > 1 ? 'membros' : 'membro'}
+            </span>
           </span>
         </div>
 
@@ -108,7 +111,8 @@ const CardsCommunityComponent = ({
             <MessageSquare className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           </div>
           <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-            0 <span className="font-normal text-zinc-500">posts</span>
+            {_count.posts}{' '}
+            <span className="font-normal text-zinc-500">posts</span>
           </span>
         </div>
       </CardContent>
