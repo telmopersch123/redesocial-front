@@ -88,7 +88,6 @@ const CommunityPage = () => {
     }
   }, [location.state])
 
-  console.log(communities)
   return (
     <>
       <Toaster position="top-right" />

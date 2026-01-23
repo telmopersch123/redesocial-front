@@ -20,7 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate()
-  const [loading, setLoading] = useState(true)
+
   const [user, setUser] = useState<UserType | null>(null)
   const handleLogout = async () => {
     await logoutUser()
@@ -43,8 +43,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(data.user)
       } catch {
         setUser(null)
-      } finally {
-        setLoading(false)
       }
     }
 

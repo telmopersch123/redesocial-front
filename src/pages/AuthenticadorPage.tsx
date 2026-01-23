@@ -7,7 +7,7 @@ import RegisterComponent from '../components/componentsPages/componentAuthentica
 import ResetPasswordComponent from '../components/componentsPages/componentAuthentication/updatePassword'
 import { useResetPassword } from '../context/ResetPasswordContext'
 import { alertMessage } from '../utils/components/alertMensage'
-import LoadingOverlay from '../utils/components/Loading'
+import { LoadingOverlay } from '../utils/components/Loading'
 
 const AuthenticadorPage = () => {
   const [permissionCode, setPermissionCode] = useState<boolean>(false)

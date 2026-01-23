@@ -24,17 +24,14 @@ export default function AppRoutes() {
         <Route path="/comunidades">
           <Route index element={<CommunityPage />} />
           <Route path="criar" element={<CreateCommunityPage />} />
+
           <Route path="comunidades-do-usuario">
             <Route index element={<AreaCommunitiesUserPage />} />
-            <Route
-              path=":communityName"
-              element={<AreaCommunitiesUserPage />}
-            />
-            <Route
-              path=":communityName/:id"
-              element={<AreaCommunitiesUserPage />}
-            />
-            <Route path="config" element={<ConfigCommunity />} />
+
+            <Route path=":communityName">
+              <Route index element={<AreaCommunitiesUserPage />} />
+              <Route path="config" element={<ConfigCommunity />} />
+            </Route>
           </Route>
         </Route>
         <Route path="/perfil">

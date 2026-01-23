@@ -3,7 +3,7 @@ import { Skeleton } from '../../ui/skeleton'
 
 export const PostCardSkeleton = () => {
   return (
-    <Card className="h-[300px] overflow-hidden rounded-3xl border-none bg-white/90 shadow-lg dark:bg-zinc-900/80 dark:shadow-zinc-800">
+    <Card className="!mb-10 h-[300px] overflow-hidden rounded-3xl border-none bg-white/90 dark:bg-zinc-900/80 dark:shadow-zinc-800">
       <div className="flex flex-col space-y-4 p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

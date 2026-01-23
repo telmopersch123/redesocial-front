@@ -52,8 +52,6 @@ const isSelected = (name: string, filtro: string) => {
   const normalizedFiltro = filtro.replace(/\s+/g, '').toLowerCase()
   const normalizedCommunity = name.replace(/\s+/g, '').toLowerCase()
 
-  console.log(normalizedFiltro, normalizedCommunity)
-
   return normalizedFiltro === normalizedCommunity
 }
 
@@ -69,12 +67,12 @@ export function AppSidebar() {
   const { communityName, id } = useParams()
   const { user } = useAuth()
 
+  const currentPath = decodeURIComponent(location.pathname)
+
   let isInComunidades =
-    location.pathname === '/comunidades/comunidades-do-usuario' ||
-    location.pathname ===
-      `/comunidades/comunidades-do-usuario/${communityName}` ||
-    location.pathname ===
-      `/comunidades/comunidades-do-usuario/${communityName}/${id}`
+    currentPath === '/comunidades/comunidades-do-usuario' ||
+    currentPath === `/comunidades/comunidades-do-usuario/${communityName}` ||
+    currentPath === `/comunidades/comunidades-do-usuario/${communityName}/${id}`
 
   useEffect(() => {
     setOpenMobile(false)
@@ -125,7 +123,7 @@ export function AppSidebar() {
       setMyCommunities(res)
     }
     handleSearchMyComunity()
-  }, [])
+  }, [pathname])
 
   return (
     <div

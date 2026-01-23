@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
-import type { PostDialogSchema } from '../lib/validatorSchemas/autoSchemaAutenticator'
+import type {
+  ConfigCommunityFormData,
+  PostDialogSchema,
+} from '../lib/validatorSchemas/autoSchemaAutenticator'
 import type { UserTypeSearch, ValidedCodeResponse } from '../types'
 import { socket } from './socket'
 
@@ -399,4 +402,50 @@ export async function getCommunityPosts(
   const data = await res.json()
 
   return data
+}
+export async function getConfigCommunities(communityId: number) {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/getDetails/${communityId}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) {
+    throw new Error('Erro ao buscar a comunidade')
+  }
+  const data = await res.json()
+
+  return data
+}
+export async function updateCommunityDetails(
+  communityId: number,
+  data: ConfigCommunityFormData
+) {
+  const formData = new FormData()
+  formData.append('nameComunity', data.nameComunity)
+  formData.append('description', data.description)
+  formData.append('category', data.category)
+  formData.append('whoCanPost', data.whoCanPost ?? '')
+  formData.append('whoCanComment', data.whoCanComment ?? '')
+  formData.append('rules', data.rules ?? '')
+  formData.append('limit', String(data.limit))
+  formData.append('isPrivate', String(data.isPrivate))
+  if (data.image && data.image[0]) {
+    formData.append('image', data.image[0])
+  }
+  console.log('ola?')
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/update/${communityId}`,
+    {
+      method: 'PUT',
+      body: formData,
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) {
+    throw new Error('Erro ao atualizar a comunidade')
+  }
+  if (!res.ok) throw new Error('Erro ao atualizar a comunidade')
+  return await res.json()
 }

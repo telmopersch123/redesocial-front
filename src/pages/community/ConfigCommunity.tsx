@@ -2,9 +2,10 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft, Globe, Lock, Upload, User } from 'lucide-react'
-import { useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { MessageForms } from '../../components/formCustomer/MessageForms'
 import { Button } from '../../components/ui/button'
 import {
@@ -28,6 +29,10 @@ import {
   configCommunitySchema,
   type ConfigCommunityFormData,
 } from '../../lib/validatorSchemas/autoSchemaAutenticator'
+import {
+  getConfigCommunities,
+  updateCommunityDetails,
+} from '../../services/authService'
 interface ConfigCommunityProps {
   showButtonReturn?: boolean
   methodW_fullscreen?: boolean
@@ -37,13 +42,16 @@ const ConfigCommunity = ({
   methodW_fullscreen,
 }: ConfigCommunityProps) => {
   const navigation = useNavigate()
+  const location = useLocation()
   const [isPrivate, setIsPrivate] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
   const nameCommunity = useLimitForms(50)
   const descriptionCommunity = useLimitForms(256)
   const rulesCommunity = useLimitForms(256)
-  const prohibitedCommunity = useLimitForms(256)
+  const [isInitialLoading, setIsInitialLoading] = useState(true)
+
+  const communityId = location.state?.communityIdState
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -51,10 +59,11 @@ const ConfigCommunity = ({
       setImagePreview(previewURL)
     }
   }
-
   const {
     register,
     handleSubmit,
+    reset,
+    control,
     formState: { errors },
   } = useForm<ConfigCommunityFormData>({
     resolver: zodResolver(configCommunitySchema),
@@ -62,18 +71,62 @@ const ConfigCommunity = ({
       nameComunity: '',
       description: '',
       category: '',
+      whoCanPost: 'members',
+      whoCanComment: 'members',
+      rules: '',
+      limit: 500,
+      isPrivate: false,
+      image: '',
     },
   })
+
+  useEffect(() => {
+    const loadCommunityData = async () => {
+      setIsInitialLoading(true)
+      try {
+        const response = await getConfigCommunities(communityId)
+        // O reset do useForm preenche todos os campos de uma vez
+        reset({
+          image: response.image,
+          nameComunity: response.nameComunity,
+          description: response.description,
+          category: response.category,
+          whoCanPost: response.whoCanPost,
+          whoCanComment: response.whoCanComment,
+          limit: response.memberLimit,
+          rules: response.rules,
+          isPrivate: response.isPrivate,
+        })
+        if (response.image) setImagePreview(response.image)
+      } catch (error) {
+        console.log(error)
+      } finally {
+        setIsInitialLoading(false)
+      }
+    }
+
+    loadCommunityData()
+  }, [communityId, reset])
+
+  const onSubmit = async (formData: ConfigCommunityFormData) => {
+    console.log('Alterações salvas com sucesso!')
+    console.log('ola?')
+    try {
+      await updateCommunityDetails(communityId, formData)
+      toast.success('Alterações salvas com sucesso!')
+      navigation('/comunidades')
+    } catch (error) {
+      console.log(error)
+      toast.error('Erro ao salvar alterações')
+    }
+  }
+
   return (
     <div
       className={`mx-auto mb-4 px-5 ${methodW_fullscreen ? 'w-[1000px]' : 'w-[calc(100vw-0rem)] md:w-[calc(100vw-20rem)]'}`}
     >
-      <form
-        className="space-y-6"
-        onSubmit={handleSubmit(() => {
-          console.log('Form OK')
-        })}
-      >
+      {isInitialLoading && <p>Loading...</p>}
+      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
         {/* Título */}
         <div className="flex flex-col items-center justify-between gap-1 sm:flex-row">
           <div className="flex flex-col space-y-4">
@@ -125,6 +178,8 @@ const ConfigCommunity = ({
               <Button
                 onClick={() => inputRef.current?.click()}
                 variant="outline"
+                size="sm"
+                type="button"
                 className="flex gap-2 transition-all hover:bg-purple-600 hover:text-white dark:hover:bg-purple-600"
               >
                 <Upload size={16} />
@@ -132,11 +187,18 @@ const ConfigCommunity = ({
               </Button>
 
               <input
-                ref={inputRef}
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={handleImageChange}
+                {...register('image', {
+                  onChange: (e) => {
+                    handleImageChange(e)
+                  },
+                })}
+                ref={(el) => {
+                  register('image').ref(el)
+                  inputRef.current = el
+                }}
               />
             </div>
 
@@ -189,26 +251,35 @@ const ConfigCommunity = ({
               <Label className="text-zinc-800 dark:text-zinc-200">
                 Categoria
               </Label>
-              <Select>
-                <SelectTrigger className="border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800">
-                  <SelectValue placeholder="Selecione uma categoria" />
-                </SelectTrigger>
-                <SelectContent className="border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-                  <SelectItem value="ansiedade">
-                    Sobre como vencer a Ansiedade
-                  </SelectItem>
-                  <SelectItem value="depressao">
-                    Sobre como vencer a Depressão
-                  </SelectItem>
-                  <SelectItem value="arte">
-                    Sobre o controle Emocional
-                  </SelectItem>
-                  <SelectItem value="tristeza">
-                    Sobre como vencer a Tristeza
-                  </SelectItem>
-                  <SelectItem value="gerais">Assuntos Gerais</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="category"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800">
+                      <SelectValue placeholder="Selecione uma categoria" />
+                    </SelectTrigger>
+                    <SelectContent className="border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+                      <SelectItem value="ansiedade">
+                        Sobre como vencer a Ansiedade
+                      </SelectItem>
+                      <SelectItem value="depressao">
+                        Sobre como vencer a Depressão
+                      </SelectItem>
+                      <SelectItem value="arte">
+                        Sobre o controle Emocional
+                      </SelectItem>
+                      <SelectItem value="tristeza">
+                        Sobre como vencer a Tristeza
+                      </SelectItem>
+                      <SelectItem value="gerais">Assuntos Gerais</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.category && (
+                <p className="text-red-500">{errors.category.message}</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -225,34 +296,52 @@ const ConfigCommunity = ({
               <Label className="text-zinc-800 dark:text-zinc-200">
                 Quem pode postar?
               </Label>
-              <Select>
-                <SelectTrigger className="border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800">
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent className="border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-                  <SelectItem value="todos">Todos os membros</SelectItem>
-                  <SelectItem value="admins">
-                    Somente administradores
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="whoCanPost"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent className="border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+                      <SelectItem value="members">Todos os membros</SelectItem>
+                      <SelectItem value="admins">
+                        Somente administradores
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.whoCanPost && (
+                <p className="text-red-500">{errors.whoCanPost.message}</p>
+              )}
             </div>
 
             <div className="space-y-1">
               <Label className="text-zinc-800 dark:text-zinc-200">
                 Quem pode comentar?
               </Label>
-              <Select>
-                <SelectTrigger className="border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800">
-                  <SelectValue placeholder="Selecione" />
-                </SelectTrigger>
-                <SelectContent className="border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-                  <SelectItem value="todos">Todos os membros</SelectItem>
-                  <SelectItem value="admins">
-                    Somente administradores
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="whoCanComment"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent className="border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+                      <SelectItem value="members">Todos os membros</SelectItem>
+                      <SelectItem value="admins">
+                        Somente administradores
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.whoCanComment && (
+                <p className="text-red-500">{errors.whoCanComment.message}</p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -265,20 +354,54 @@ const ConfigCommunity = ({
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-1">
-              <Label className="text-zinc-800 dark:text-zinc-200">
-                Palavras proibidas
-              </Label>
-              <Textarea
-                className={`max-h-[500px] border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${prohibitedCommunity.error ? 'border-red-500 focus:ring-red-500' : ''}`}
-                onChange={prohibitedCommunity.handleChange}
-                placeholder="Separe por vírgulas..."
-              />
-              <MessageForms
-                error={prohibitedCommunity.error}
-                valueLength={prohibitedCommunity.value.length}
-                maxLength={prohibitedCommunity.maxLength}
-              />
+            <div className="w-full space-y-2">
+              <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-100">
+                Limite de membros
+              </label>
+
+              <div className="flex items-center gap-4">
+                <Controller
+                  name="limit"
+                  control={control}
+                  render={({ field }) => (
+                    <>
+                      <input
+                        type="range"
+                        min={10}
+                        max={999}
+                        value={field.value ? String(field.value) : ''}
+                        onChange={(e) => field.onChange(Number(e.target.value))}
+                        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-zinc-200 accent-purple-600 dark:bg-zinc-700"
+                      />
+
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min={10}
+                          max={999}
+                          value={field.value ? String(field.value) : ''}
+                          onChange={(e) => {
+                            const v = Number(e.target.value)
+                            if (v >= 10 && v <= 999)
+                              field.onChange(Number(e.target.value))
+                          }}
+                          className="w-20 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm font-medium shadow-sm outline-none transition-all focus:border-purple-600 focus:ring-2 focus:ring-purple-300 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                        />
+                        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-400">
+                          /999
+                        </span>
+                      </div>
+                    </>
+                  )}
+                />
+                {errors.limit && (
+                  <p className="text-red-500">{errors.limit.message}</p>
+                )}
+              </div>
+
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Defina o total máximo de membros da comunidade.
+              </p>
             </div>
 
             <div className="space-y-1">
@@ -286,8 +409,10 @@ const ConfigCommunity = ({
                 Regras da comunidade
               </Label>
               <Textarea
+                {...register('rules', {
+                  onChange: rulesCommunity.handleChange,
+                })}
                 className={`max-h-[500px] border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${rulesCommunity.error ? 'border-red-500 focus:ring-red-500' : ''}`}
-                onChange={rulesCommunity.handleChange}
                 placeholder="Liste as regras que os membros devem seguir."
               />
               <MessageForms
@@ -315,13 +440,22 @@ const ConfigCommunity = ({
                   </p>
                 </div>
               </div>
-              <Button
-                onClick={() => setIsPrivate(!isPrivate)}
-                variant="outline"
-                className="rounded-full border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30"
-              >
-                {isPrivate ? 'Tornar pública' : 'Tornar privada'}
-              </Button>
+              <Controller
+                name="isPrivate"
+                control={control}
+                render={({ field }) => (
+                  <Button
+                    onClick={() => {
+                      setIsPrivate(field.value ? false : true)
+                      field.onChange(!field.value)
+                    }}
+                    variant="outline"
+                    className="rounded-full border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30"
+                  >
+                    {field.value ? 'Tornar pública' : 'Tornar privada'}
+                  </Button>
+                )}
+              />
             </div>
           </CardContent>
         </Card>

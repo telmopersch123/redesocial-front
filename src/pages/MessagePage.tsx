@@ -24,6 +24,7 @@ import { useLimitForms } from '../hooks/useLimitForms'
 import { getCheckUserChat, getUser } from '../services/authService'
 import { socket } from '../services/socket'
 import { alertMessage } from '../utils/components/alertMensage'
+import { LoadingComponent } from '../utils/components/Loading'
 
 interface HeaderUserView {
   id: number
@@ -656,14 +657,7 @@ const MessagePage = () => {
                   )}
 
                   {((loadingChatMessageInitial && chatMessages.length === 0) ||
-                    loadingInitial) && (
-                    <div className="flex h-full w-full items-center justify-center bg-zinc-50 dark:bg-zinc-900">
-                      <div className="relative h-8 w-8">
-                        <div className="absolute inset-0 rounded-full border-2 border-zinc-300/40 dark:border-zinc-600/40" />
-                        <div className="absolute inset-0 animate-spin rounded-full border-2 border-zinc-400 border-t-zinc-500 dark:border-zinc-500 dark:border-t-zinc-300" />
-                      </div>
-                    </div>
-                  )}
+                    loadingInitial) && <LoadingComponent />}
 
                   {!loadingChatMessageInitial &&
                   chatMessages.length === 0 &&

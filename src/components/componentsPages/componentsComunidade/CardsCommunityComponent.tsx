@@ -6,6 +6,7 @@ import {
   UserRoundPlus,
   UsersRound,
 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import type { UserType } from '../../../types'
 import { Button } from '../../ui/button'
 import {
@@ -39,9 +40,19 @@ const CardsCommunityComponent = ({
 }: CommunityCardProps) => {
   const { image, nameComunity, _count, description, isPrivate, members } =
     valuesComunity
-
   const isYouMember = members?.some((m) => m.userId === user?.id)
+  const navigate = useNavigate()
 
+  const handleNavigation = () => {
+    if (isYouMember) {
+      const urlName = nameComunity.toLowerCase().replace(/\s+/g, '-')
+      navigate(`/comunidades/comunidades-do-usuario/${urlName}`, {
+        state: { communityId: valuesComunity.id },
+      })
+    } else {
+      alert('clicando em participar da comunidade')
+    }
+  }
   return (
     <Card className="group relative !mb-5 w-[calc(100vw-3rem)] flex-shrink-0 overflow-hidden rounded-2xl border-none bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:bg-zinc-900 md:w-full">
       {/* Header com Imagem */}
@@ -121,7 +132,10 @@ const CardsCommunityComponent = ({
       <CardFooter className="p-5 pt-2">
         {isYouMember ? (
           // Botão para quem JÁ É membro
-          <Button className="w-full gap-2 rounded-xl border border-purple-500/30 bg-purple-500/10 font-bold text-purple-600 hover:bg-purple-500/20 dark:text-purple-400">
+          <Button
+            onClick={handleNavigation}
+            className="w-full gap-2 rounded-xl border border-purple-500/30 bg-purple-500/10 font-bold text-purple-600 hover:bg-purple-500/20 dark:text-purple-400"
+          >
             <CheckCircle2 className="h-4 w-4" />
             Já sou membro
           </Button>

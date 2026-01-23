@@ -255,12 +255,17 @@ const CreateCommunityPage = () => {
                       <SelectContent className="border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
                         <SelectGroup>
                           <SelectLabel>Categorias</SelectLabel>
-                          <SelectItem value="autoajuda">Autoajuda</SelectItem>
-                          <SelectItem value="mindfulness">
-                            Mindfulness
+                          <SelectItem value="ansiedade">
+                            Sobre como vencer a Ansiedade
                           </SelectItem>
-                          <SelectItem value="fé">
-                            Fé & Espiritualidade
+                          <SelectItem value="depressao">
+                            Sobre como vencer a Depressão
+                          </SelectItem>
+                          <SelectItem value="arte">
+                            Sobre o controle Emocional
+                          </SelectItem>
+                          <SelectItem value="tristeza">
+                            Sobre como vencer a Tristeza
                           </SelectItem>
                           <SelectItem value="saúde">Saúde mental</SelectItem>
                           <SelectItem value="outros">Outros</SelectItem>

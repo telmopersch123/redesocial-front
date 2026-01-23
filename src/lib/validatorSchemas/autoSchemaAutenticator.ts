@@ -79,6 +79,7 @@ export const createCommunitySchema = z.object({
 })
 
 export const configCommunitySchema = z.object({
+  image: z.string().nullable().optional(),
   nameComunity: z
     .string()
     .min(10, 'Nome muito curto, escreva pelo menos 10 caracteres')
@@ -88,6 +89,11 @@ export const configCommunitySchema = z.object({
     .min(50, 'Descrição muito curta, escreva pelo menos 50 caracteres')
     .max(256, 'Descrição muito longa'),
   category: z.string().min(1, 'Selecione uma categoria'),
+  whoCanPost: z.enum(['members', 'admins']).optional(),
+  whoCanComment: z.enum(['members', 'admins']).optional(),
+  limit: z.number().min(10).max(999).optional(),
+  rules: z.string().max(256).nullable().optional(),
+  isPrivate: z.boolean().optional(),
 })
 
 export const postDialogSchema = z
