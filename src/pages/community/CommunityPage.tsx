@@ -50,29 +50,29 @@ const CommunityPage = () => {
     startIndex + itemsPerPage
   )
 
-  useEffect(() => {
-    const fetchCommunities = async () => {
-      setIsLoading(true)
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/auth/comunity/getAllCommunities`,
-          {
-            credentials: 'include',
-          }
-        )
-
-        if (response.ok) {
-          const data = await response.json()
-          setCommunities(data)
+  const fetchCommunities = async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/comunity/getAllCommunities`,
+        {
+          credentials: 'include',
         }
-      } catch (error) {
-        toast.error('Erro ao carregar comunidades')
-        setIsLoading(false)
-      } finally {
-        setIsLoading(false)
-      }
-    }
+      )
 
+      if (response.ok) {
+        const data = await response.json()
+        setCommunities(data)
+      }
+    } catch (error) {
+      toast.error('Erro ao carregar comunidades')
+      setIsLoading(false)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
     fetchCommunities()
   }, [])
 
@@ -144,6 +144,7 @@ const CommunityPage = () => {
                   <CardsCommunityComponent
                     valuesComunity={community}
                     user={user}
+                    onRefresh={fetchCommunities}
                   />
                 </div>
               ))

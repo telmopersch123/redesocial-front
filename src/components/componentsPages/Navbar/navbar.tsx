@@ -72,6 +72,8 @@ export function AppSidebar() {
   let isInComunidades =
     currentPath === '/comunidades/comunidades-do-usuario' ||
     currentPath === `/comunidades/comunidades-do-usuario/${communityName}` ||
+    currentPath ===
+      `/comunidades/comunidades-do-usuario/${communityName}/config` ||
     currentPath === `/comunidades/comunidades-do-usuario/${communityName}/${id}`
 
   useEffect(() => {
@@ -86,6 +88,8 @@ export function AppSidebar() {
     } else if (
       pathname === '/comunidades/comunidades-do-usuario' ||
       pathname === `/comunidades/comunidades-do-usuario/${communityName}` ||
+      pathname ===
+        `/comunidades/comunidades-do-usuario/${communityName}/config` ||
       pathname ===
         `/comunidades/comunidades-do-usuario/${communityName}/${id}` ||
       pathname === '/comunidades/criar' ||
@@ -131,6 +135,8 @@ export function AppSidebar() {
         pathname === '/' ||
         pathname === '/comunidades/comunidades-do-usuario' ||
         pathname === `/comunidades/comunidades-do-usuario/${communityName}` ||
+        pathname ===
+          `/comunidades/comunidades-do-usuario/${communityName}/config` ||
         pathname ===
           `/comunidades/comunidades-do-usuario/${communityName}/${id}` ||
         pathname === `/perfil`

@@ -110,6 +110,7 @@ export interface CommunityInterface {
   description: string
   isPrivate: boolean
   nameComunity: string
+  rules: string
   _count: {
     members: number
     posts: number

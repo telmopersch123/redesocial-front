@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Fullscreen, Globe, Lock, SquarePlus, Upload, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import FullscreenDialog from '../../components/componentsPages/componentsFeed/FullscreenDialog'
 import { MessageForms } from '../../components/formCustomer/MessageForms'
@@ -55,7 +56,7 @@ const CreateCommunityPage = () => {
     control,
     handleSubmit,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<CreateCommunityFormData>({
     resolver: zodResolver(createCommunitySchema),
     defaultValues: {
@@ -127,6 +128,7 @@ const CreateCommunityPage = () => {
         category: data.category,
         image: mediaUrl,
         limit: limitUsers,
+        rules: data.rules,
         whoCanPost: whoCanPost,
         whoCanComment: whoCanComment,
         isPrivate: isPrivate,
@@ -145,7 +147,8 @@ const CreateCommunityPage = () => {
       )
 
       if (response.ok) {
-        console.log('Comunidade criada com sucesso!')
+        navigate(`/comunidades`)
+        toast.success('Comunidade criada com sucesso!')
       } else {
         console.error('Erro ao criar')
       }
@@ -156,7 +159,7 @@ const CreateCommunityPage = () => {
 
   return (
     <>
-      <div className="mb-4 flex w-[calc(100vw-0rem)] flex-col px-5 md:w-[calc(100vw-20rem)]">
+      <div className="mb-4 mt-4 flex w-[calc(100vw-0rem)] flex-col px-5 md:w-[calc(100vw-50rem)]">
         <div className="space-y-4">
           <h1 className="text-center text-xl font-bold text-zinc-800 dark:text-zinc-100 md:text-left md:text-4xl">
             Criar nova comunidade
@@ -368,7 +371,7 @@ const CreateCommunityPage = () => {
                 </Label>
                 <Textarea
                   id="rules"
-                  onChange={communityRules.handleChange}
+                  {...register('rules')}
                   placeholder="Liste as principais regras e boas práticas da comunidade..."
                   rows={3}
                   className={`max-h-[500px] border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${communityRules.error ? 'border-red-500 focus:!ring-red-500' : ''}`}
@@ -505,6 +508,7 @@ const CreateCommunityPage = () => {
               <div className="flex flex-col-reverse items-center justify-end gap-3 sm:flex-row">
                 <Button
                   onClick={() => navigate(-1)}
+                  type="button"
                   variant="outline"
                   className="w-full border-zinc-300 text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 sm:w-auto"
                 >
@@ -519,7 +523,15 @@ const CreateCommunityPage = () => {
                   }
                   className="bg-linear-purple w-full text-white hover:shadow-lg disabled:cursor-not-allowed disabled:bg-zinc-400 disabled:opacity-60 disabled:hover:shadow-none sm:w-auto"
                 >
-                  <SquarePlus className="mr-2 h-4 w-4" /> Criar comunidade
+                  <SquarePlus className="mr-2 h-4 w-4" />
+                  {isSubmitting ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <span>Criando</span>
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                    </div>
+                  ) : (
+                    'Criar comunidade'
+                  )}
                 </Button>
               </div>
             </CardContent>

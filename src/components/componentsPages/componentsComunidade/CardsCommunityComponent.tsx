@@ -3,11 +3,16 @@ import {
   Lock,
   MessageSquare,
   Unlock,
-  UserRoundPlus,
   UsersRound,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { UserType } from '../../../types'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '../../ui/accordion'
 import { Button } from '../../ui/button'
 import {
   Card,
@@ -17,6 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from '../../ui/card'
+import { JoinButton } from './JoinButton'
 
 interface CommunityCardProps {
   valuesComunity: {
@@ -26,6 +32,7 @@ interface CommunityCardProps {
     description: string
     isPrivate: boolean
     nameComunity: string
+    rules: string
     _count: {
       members: number
       posts: number
@@ -33,13 +40,22 @@ interface CommunityCardProps {
     members: { userId: string }[]
   }
   user: UserType | null
+  onRefresh: () => void
 }
 const CardsCommunityComponent = ({
   valuesComunity,
   user,
+  onRefresh,
 }: CommunityCardProps) => {
-  const { image, nameComunity, _count, description, isPrivate, members } =
-    valuesComunity
+  const {
+    image,
+    nameComunity,
+    _count,
+    description,
+    isPrivate,
+    members,
+    rules,
+  } = valuesComunity
   const isYouMember = members?.some((m) => m.userId === user?.id)
   const navigate = useNavigate()
 
@@ -55,10 +71,8 @@ const CardsCommunityComponent = ({
   }
   return (
     <Card className="group relative !mb-5 w-[calc(100vw-3rem)] flex-shrink-0 overflow-hidden rounded-2xl border-none bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:bg-zinc-900 md:w-full">
-      {/* Header com Imagem */}
       <CardHeader className="m-0 p-0">
         <div className="relative h-[140px] w-full overflow-hidden">
-          {/* Overlay de gradiente para legibilidade se precisar colocar algo sobre a imagem */}
           <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/20 to-transparent" />
 
           {image ? (
@@ -73,7 +87,6 @@ const CardsCommunityComponent = ({
             </div>
           )}
 
-          {/* Badge de Categoria ou Privacidade flutuante */}
           <div className="absolute right-3 top-3 z-20">
             <span
               className={`flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider backdrop-blur-md ${
@@ -100,13 +113,23 @@ const CardsCommunityComponent = ({
           <CardDescription className="line-clamp-2 min-h-[40px] text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
             {description || 'Sem descrição disponível para esta comunidade.'}
           </CardDescription>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="rules">
+              <AccordionTrigger>Regras da comunidade</AccordionTrigger>
+
+              <AccordionContent>
+                <p className="line-clamp-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                  {rules}
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </CardHeader>
 
-      {/* Status / Infos */}
       <CardContent className="mt-4 flex items-center gap-4 px-5 py-2">
         <div className="flex items-center gap-1.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
+          <div className="flex h-7 w-7 items-center justify-center !rounded-full bg-purple-100 dark:bg-purple-900/30">
             <UsersRound className="h-4 w-4 text-purple-600 dark:text-purple-400" />
           </div>
           <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
@@ -118,7 +141,7 @@ const CardsCommunityComponent = ({
         </div>
 
         <div className="flex items-center gap-1.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+          <div className="flex h-7 w-7 items-center justify-center !rounded-full bg-blue-100 dark:bg-blue-900/30">
             <MessageSquare className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           </div>
           <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
@@ -128,34 +151,25 @@ const CardsCommunityComponent = ({
         </div>
       </CardContent>
 
-      {/* Footer com Botão */}
       <CardFooter className="p-5 pt-2">
         {isYouMember ? (
           // Botão para quem JÁ É membro
           <Button
             onClick={handleNavigation}
-            className="w-full gap-2 rounded-xl border border-purple-500/30 bg-purple-500/10 font-bold text-purple-600 hover:bg-purple-500/20 dark:text-purple-400"
+            className="w-full gap-2 !rounded-xl border border-purple-500/30 bg-purple-500/10 font-bold text-purple-600 hover:bg-purple-500/20 dark:text-purple-400"
           >
             <CheckCircle2 className="h-4 w-4" />
             Já sou membro
           </Button>
         ) : (
           // Botão para quem NÃO É membro
-          <Button
-            disabled={isPrivate}
-            className={`w-full gap-2 rounded-xl font-bold transition-all active:scale-95 ${
-              isPrivate
-                ? 'bg-zinc-200 text-zinc-500 dark:bg-zinc-800'
-                : 'bg-linear-purple text-white shadow-md hover:shadow-purple-500/20'
-            }`}
-          >
-            {isPrivate ? (
-              <Lock className="h-4 w-4" />
-            ) : (
-              <UserRoundPlus className="h-4 w-4" />
-            )}
-            {isPrivate ? 'Comunidade Privada' : 'Participar agora'}
-          </Button>
+          <JoinButton
+            nameComunity={nameComunity}
+            communityId={valuesComunity.id}
+            isPrivate={isPrivate}
+            onRefresh={onRefresh}
+            // isMember={isYouMember}
+          />
         )}
       </CardFooter>
     </Card>

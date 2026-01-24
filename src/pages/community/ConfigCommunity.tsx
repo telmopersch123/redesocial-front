@@ -24,7 +24,6 @@ import {
   SelectValue,
 } from '../../components/ui/select'
 import { Textarea } from '../../components/ui/textarea'
-import { useLimitForms } from '../../hooks/useLimitForms'
 import {
   configCommunitySchema,
   type ConfigCommunityFormData,
@@ -33,6 +32,7 @@ import {
   getConfigCommunities,
   updateCommunityDetails,
 } from '../../services/authService'
+import { LoadingComponent } from '../../utils/components/Loading'
 interface ConfigCommunityProps {
   showButtonReturn?: boolean
   methodW_fullscreen?: boolean
@@ -46,9 +46,6 @@ const ConfigCommunity = ({
   const [isPrivate, setIsPrivate] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
-  const nameCommunity = useLimitForms(50)
-  const descriptionCommunity = useLimitForms(256)
-  const rulesCommunity = useLimitForms(256)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
 
   const communityId = location.state?.communityIdState
@@ -59,45 +56,53 @@ const ConfigCommunity = ({
       setImagePreview(previewURL)
     }
   }
-  const {
-    register,
-    handleSubmit,
-    reset,
-    control,
-    formState: { errors },
-  } = useForm<ConfigCommunityFormData>({
-    resolver: zodResolver(configCommunitySchema),
-    defaultValues: {
-      nameComunity: '',
-      description: '',
-      category: '',
-      whoCanPost: 'members',
-      whoCanComment: 'members',
-      rules: '',
-      limit: 500,
-      isPrivate: false,
-      image: '',
-    },
-  })
+  const { register, handleSubmit, reset, control, formState, watch } =
+    useForm<ConfigCommunityFormData>({
+      resolver: zodResolver(configCommunitySchema),
+      defaultValues: {
+        nameComunity: '',
+        description: '',
+        category: '',
+        whoCanPost: 'members',
+        whoCanComment: 'members',
+        rules: '',
+        limit: 500,
+        isPrivate: false,
+        image: '',
+      },
+    })
+  const nameValue = watch('nameComunity') || ''
+  const descriptionValue = watch('description') || ''
+  const rulesValue = watch('rules') || ''
+  const { errors, isDirty, isSubmitting } = formState
 
   useEffect(() => {
     const loadCommunityData = async () => {
       setIsInitialLoading(true)
       try {
         const response = await getConfigCommunities(communityId)
+
         // O reset do useForm preenche todos os campos de uma vez
-        reset({
-          image: response.image,
-          nameComunity: response.nameComunity,
-          description: response.description,
-          category: response.category,
-          whoCanPost: response.whoCanPost,
-          whoCanComment: response.whoCanComment,
-          limit: response.memberLimit,
-          rules: response.rules,
-          isPrivate: response.isPrivate,
+        const data = {
+          image: response.image || '',
+          nameComunity: response.nameComunity || '',
+          description: response.description || '',
+          category: response.category ? String(response.category) : '',
+          whoCanPost: response.whoCanPost || 'members',
+          whoCanComment: response.whoCanComment || 'members',
+          limit: response.memberLimit || 500,
+          rules: response.rules || '',
+          isPrivate: !!response.isPrivate,
+        }
+
+        reset(data, {
+          keepIsSubmitted: false,
+          keepDirty: false,
+          keepValues: false,
         })
+
         if (response.image) setImagePreview(response.image)
+        setIsPrivate(!!data.isPrivate)
       } catch (error) {
         console.log(error)
       } finally {
@@ -109,10 +114,39 @@ const ConfigCommunity = ({
   }, [communityId, reset])
 
   const onSubmit = async (formData: ConfigCommunityFormData) => {
-    console.log('Alterações salvas com sucesso!')
-    console.log('ola?')
     try {
-      await updateCommunityDetails(communityId, formData)
+      let finalImageUrl = imagePreview
+      const imageFile = inputRef.current?.files?.[0]
+
+      if (imageFile instanceof File) {
+        const formData = new FormData()
+        formData.append('file', imageFile)
+        formData.append('upload_preset', 'posts_tess')
+        formData.append('folder', 'comunidades')
+
+        const cloudinaryRes = await fetch(
+          `https://api.cloudinary.com/v1_1/di5dwqjq7/image/upload`,
+          {
+            method: 'POST',
+            body: formData,
+          }
+        )
+
+        const cloudinaryData = await cloudinaryRes.json()
+        if (cloudinaryData.secure_url) {
+          finalImageUrl = cloudinaryData.secure_url
+        }
+      }
+
+      const payload = {
+        ...formData,
+        image: finalImageUrl,
+        limit: Number(formData.limit),
+      }
+
+      console.log(payload)
+
+      await updateCommunityDetails(communityId, payload)
       toast.success('Alterações salvas com sucesso!')
       navigation('/comunidades')
     } catch (error) {
@@ -121,9 +155,17 @@ const ConfigCommunity = ({
     }
   }
 
+  if (isInitialLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <LoadingComponent />
+      </div>
+    )
+  }
+
   return (
     <div
-      className={`mx-auto mb-4 px-5 ${methodW_fullscreen ? 'w-[1000px]' : 'w-[calc(100vw-0rem)] md:w-[calc(100vw-20rem)]'}`}
+      className={`mx-auto mb-4 mt-4 px-5 ${methodW_fullscreen ? 'w-[1000px]' : 'w-[calc(100vw-0rem)] md:w-[calc(100vw-50rem)]'}`}
     >
       {isInitialLoading && <p>Loading...</p>}
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -140,9 +182,9 @@ const ConfigCommunity = ({
 
           {!showButtonReturn && (
             <Button
-              variant="outline"
               onClick={() => navigation(-1)}
-              className="flex items-center gap-2 border-zinc-300 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              type="button"
+              className="flex items-center gap-2 border-zinc-300 text-zinc-700 shadow-md hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
             >
               <ArrowLeft size={16} />
               Voltar
@@ -208,19 +250,17 @@ const ConfigCommunity = ({
                 Nome da comunidade
               </Label>
               <Input
-                {...register('nameComunity', {
-                  onChange: nameCommunity.handleChange,
-                })}
-                className={`border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${nameCommunity.error ? 'border-red-500 focus:ring-red-500' : ''}`}
+                {...register('nameComunity')}
+                className={`border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${errors.nameComunity?.message ? 'border-red-500 focus:ring-red-500' : ''}`}
                 placeholder="Ex: Programadores Brasil"
               />
               {errors.nameComunity && (
                 <p className="text-red-500">{errors.nameComunity.message}</p>
               )}
               <MessageForms
-                error={nameCommunity.error}
-                valueLength={nameCommunity.value.length}
-                maxLength={nameCommunity.maxLength}
+                error={errors.nameComunity?.message || ''}
+                valueLength={nameValue.length}
+                maxLength={50}
               />
             </div>
 
@@ -230,19 +270,17 @@ const ConfigCommunity = ({
                 Descrição
               </Label>
               <Textarea
-                {...register('description', {
-                  onChange: descriptionCommunity.handleChange,
-                })}
-                className={`max-h-[500px] border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${descriptionCommunity.error ? 'border-red-500 focus:ring-red-500' : ''}`}
+                {...register('description')}
+                className={`max-h-[500px] border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${errors.description?.message ? 'border-red-500 focus:ring-red-500' : ''}`}
                 placeholder="Sobre o que é sua comunidade?"
               />
               {errors.description && (
                 <p className="text-red-500">{errors.description.message}</p>
               )}
               <MessageForms
-                error={descriptionCommunity.error}
-                valueLength={descriptionCommunity.value.length}
-                maxLength={descriptionCommunity.maxLength}
+                error={errors.description?.message || ''}
+                valueLength={descriptionValue.length}
+                maxLength={256}
               />
             </div>
 
@@ -255,7 +293,10 @@ const ConfigCommunity = ({
                 name="category"
                 control={control}
                 render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || ''}
+                  >
                     <SelectTrigger className="border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800">
                       <SelectValue placeholder="Selecione uma categoria" />
                     </SelectTrigger>
@@ -272,7 +313,7 @@ const ConfigCommunity = ({
                       <SelectItem value="tristeza">
                         Sobre como vencer a Tristeza
                       </SelectItem>
-                      <SelectItem value="gerais">Assuntos Gerais</SelectItem>
+                      <SelectItem value="outros">Assuntos Gerais</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
@@ -409,16 +450,14 @@ const ConfigCommunity = ({
                 Regras da comunidade
               </Label>
               <Textarea
-                {...register('rules', {
-                  onChange: rulesCommunity.handleChange,
-                })}
-                className={`max-h-[500px] border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${rulesCommunity.error ? 'border-red-500 focus:ring-red-500' : ''}`}
+                {...register('rules')}
+                className={`max-h-[500px] border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${errors.rules?.message ? 'border-red-500 focus:ring-red-500' : ''}`}
                 placeholder="Liste as regras que os membros devem seguir."
               />
               <MessageForms
-                error={rulesCommunity.error}
-                valueLength={rulesCommunity.value.length}
-                maxLength={rulesCommunity.maxLength}
+                error={errors.rules?.message || ''}
+                valueLength={rulesValue.length}
+                maxLength={256}
               />
             </div>
 
@@ -450,6 +489,7 @@ const ConfigCommunity = ({
                       field.onChange(!field.value)
                     }}
                     variant="outline"
+                    type="button"
                     className="rounded-full border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30"
                   >
                     {field.value ? 'Tornar pública' : 'Tornar privada'}
@@ -463,10 +503,17 @@ const ConfigCommunity = ({
         {/* Botão fixo no mobile */}
         <div className="p-4 sm:p-0">
           <Button
-            disabled={!!nameCommunity.error || !!descriptionCommunity.error}
+            disabled={!isDirty || isSubmitting}
             className="bg-linear-purple mt-4 h-12 w-full text-lg font-semibold transition-shadow hover:shadow-md"
           >
-            Salvar alterações
+            {isSubmitting ? (
+              <div className="flex items-center justify-center gap-2">
+                <span>Salvando</span>
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+              </div>
+            ) : (
+              'Salvar alterações'
+            )}
           </Button>
         </div>
       </form>

@@ -420,32 +420,44 @@ export async function getConfigCommunities(communityId: number) {
 }
 export async function updateCommunityDetails(
   communityId: number,
-  data: ConfigCommunityFormData
+  payload: ConfigCommunityFormData
 ) {
   const formData = new FormData()
-  formData.append('nameComunity', data.nameComunity)
-  formData.append('description', data.description)
-  formData.append('category', data.category)
-  formData.append('whoCanPost', data.whoCanPost ?? '')
-  formData.append('whoCanComment', data.whoCanComment ?? '')
-  formData.append('rules', data.rules ?? '')
-  formData.append('limit', String(data.limit))
-  formData.append('isPrivate', String(data.isPrivate))
-  if (data.image && data.image[0]) {
-    formData.append('image', data.image[0])
+  formData.append('nameComunity', payload.nameComunity)
+  formData.append('description', payload.description)
+  formData.append('category', payload.category)
+  formData.append('whoCanPost', payload.whoCanPost ?? '')
+  formData.append('whoCanComment', payload.whoCanComment ?? '')
+  formData.append('rules', payload.rules ?? '')
+  formData.append('limit', String(payload.limit))
+  formData.append('isPrivate', String(payload.isPrivate))
+  if (payload.image && payload.image[0]) {
+    formData.append('image', payload.image[0])
   }
-  console.log('ola?')
+
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/comunity/update/${communityId}`,
     {
       method: 'PUT',
-      body: formData,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
       credentials: 'include',
     }
   )
-  if (!res.ok) {
-    throw new Error('Erro ao atualizar a comunidade')
-  }
   if (!res.ok) throw new Error('Erro ao atualizar a comunidade')
+  return await res.json()
+}
+
+export const joinCommunity = async (communityId: number) => {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/join/${communityId}`,
+    {
+      method: 'POST',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) throw new Error('Erro ao entrar na comunidade')
   return await res.json()
 }

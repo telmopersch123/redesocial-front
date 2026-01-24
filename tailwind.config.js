@@ -5,33 +5,6 @@ export default {
   theme: {
     extend: {
       colors: {
-        dm: '#121212',
-        'dm-light': '#1C1C1E',
-        'dm-card': '#1A1A1A',
-        'dm-border': '#2A2A2A',
-        'dm-text': '#E5E5E5',
-        'dm-muted': '#9E9E9E',
-      },
-      screens: {
-        im: '400px',
-        om: '470px',
-        sm: '640px',
-        md: '768px',
-        ym: '860px',
-        lg: '1024px',
-        xl: '1280px',
-        dm: '1000px',
-        tm: '1340px',
-        ny: '1640px',
-        vm: '1800px',
-        max: '2000px',
-      },
-      borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
-      },
-      colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
@@ -82,6 +55,47 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
+      },
+      screens: {
+        im: '400px',
+        om: '470px',
+        sm: '640px',
+        md: '768px',
+        ym: '860px',
+        lg: '1024px',
+        xl: '1280px',
+        dm: '1000px',
+        tm: '1340px',
+        ny: '1640px',
+        vm: '1800px',
+        max: '2000px',
+      },
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
+      },
+      keyframes: {
+        'accordion-down': {
+          from: {
+            height: '0',
+          },
+          to: {
+            height: 'var(--radix-accordion-content-height)',
+          },
+        },
+        'accordion-up': {
+          from: {
+            height: 'var(--radix-accordion-content-height)',
+          },
+          to: {
+            height: '0',
+          },
+        },
+      },
+      animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
       },
     },
   },
