@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import { useAuth } from '../../../context/getMe'
 import { Button } from '../..//ui/button'
 import {
   Dialog,
@@ -35,6 +36,7 @@ import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 import { Checkbox } from '../../ui/checkbox'
 import { ConfirmationRemoveUserDialog } from './ConfirmationRemoveUserDialog'
 import InvitationDialog from './InvitationDialog'
+import { LeaveButton } from './LeaveButton'
 
 type User = {
   id: number
@@ -43,6 +45,10 @@ type User = {
   role: 'member' | 'moderator' | 'admin'
   joinedAt: string
   online: boolean
+}
+type MyComponentProps = {
+  communityIdFromState: number
+  communityName: string | undefined
 }
 
 const sampleUsers: User[] = [
@@ -130,10 +136,14 @@ const sampleUsers: User[] = [
 
 const PAGE_SIZE = 6
 
-const ficticioAdminComunidade = true
-const ficticioModeradorComunidade = true
+const ficticioModeradorComunidade = false
 
-const UsersCommunityDialog = () => {
+const UsersCommunityDialog = ({
+  communityIdFromState,
+  communityName,
+}: MyComponentProps) => {
+  const { isAdmin } = useAuth()
+  const adminStatus = isAdmin(communityIdFromState)
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | User['role']>('all')
@@ -142,7 +152,6 @@ const UsersCommunityDialog = () => {
   const [page, setPage] = useState(1)
   const pathname = window.location.pathname
   const [users, setUsers] = useState<User[]>(sampleUsers)
-
   // responsavel por filtrar os usuários com base na no nome e cargo
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -154,19 +163,16 @@ const UsersCommunityDialog = () => {
       )
     })
   }, [users, query, roleFilter])
-
   // responsavel por calcular e mostrar uma certa quantidade de usuários  por pagina
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   // responsavel por distribuir os usuários por pagina
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-
   // responsavel por selecionar ou desselecionar um item
   const toggleSelectMuted = (id: number) => {
     setSelectedMuted((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     )
   }
-
   // responsavel por selecionar ou desselecionar todos os itens da página
   const selectAllPage = () => {
     const ids = pageItems.map((u) => u.id)
@@ -177,14 +183,12 @@ const UsersCommunityDialog = () => {
         : [...new Set([...prev, ...ids])]
     )
   }
-
   // responsavel por remover os itens selecionados
   const removeSelected = () => {
     if (!selectedRemove.length) return
     setUsers((prev) => prev.filter((u) => !selectedRemove.includes(u.id)))
     setSelectedRemove([])
   }
-
   // responsavel por promover um usuário
   const promote = (id: number) => {
     setUsers((prev) =>
@@ -195,7 +199,6 @@ const UsersCommunityDialog = () => {
       )
     )
   }
-
   // responsavel por demover um usuário
   const demote = (id: number) => {
     setUsers((prev) =>
@@ -203,6 +206,7 @@ const UsersCommunityDialog = () => {
     )
   }
 
+  console.log(adminStatus)
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -333,7 +337,7 @@ const UsersCommunityDialog = () => {
                       />
 
                       <div className="flex items-center gap-1">
-                        {ficticioAdminComunidade && (
+                        {adminStatus && (
                           <>
                             <Button
                               size="icon"
@@ -353,8 +357,7 @@ const UsersCommunityDialog = () => {
                             </Button>
                           </>
                         )}
-                        {(ficticioAdminComunidade ||
-                          ficticioModeradorComunidade) && (
+                        {(adminStatus || ficticioModeradorComunidade) && (
                           <>
                             <TooltipComponent
                               Tag={
@@ -404,7 +407,7 @@ const UsersCommunityDialog = () => {
 
             {/* Paginação + ações em massa */}
             <div className="flex flex-wrap items-center justify-center gap-3 md:justify-between">
-              {ficticioAdminComunidade && (
+              {adminStatus && (
                 <div className="flex flex-col items-center gap-2 sm:flex-row">
                   <Button variant="outline" onClick={selectAllPage}>
                     <CheckSquare className="h-4 w-4" /> Selecionar Todos
@@ -442,20 +445,30 @@ const UsersCommunityDialog = () => {
             </div>
           </div>
 
-          <DialogFooter className="mt-4 flex items-center justify-between">
-            <div className="text-sm text-zinc-600 dark:text-zinc-400">
-              Total de membros: {users.length}
+          <DialogFooter className="mt-4 flex items-center !justify-between">
+            <div>
+              {!adminStatus && (
+                <LeaveButton
+                  communityId={communityIdFromState}
+                  communityName={communityName}
+                />
+              )}
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" onClick={() => setOpen(false)}>
-                Fechar
-              </Button>
-              <Button
-                className="bg-linear-purple text-white"
-                onClick={() => alert('Salvar alterações (implementar)')}
-              >
-                Salvar
-              </Button>
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                Total de membros: {users.length}
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" onClick={() => setOpen(false)}>
+                  Fechar
+                </Button>
+                <Button
+                  className="bg-linear-purple text-white"
+                  onClick={() => alert('Salvar alterações (implementar)')}
+                >
+                  Salvar
+                </Button>
+              </div>
             </div>
           </DialogFooter>
         </DialogContent>

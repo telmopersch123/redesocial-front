@@ -14,12 +14,22 @@ interface AuthContextType {
   user: UserType | null
   setUser: (user: UserType | null) => void
   handleLogout: () => Promise<void>
+  isMember: (communityId: number) => boolean
+  isAdmin: (communityId: number) => boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate()
+
+  const isMember = (communityId: number) => {
+    return !!user?.communities?.[communityId]
+  }
+
+  const isAdmin = (communityId: number) => {
+    return user?.communities?.[communityId] === 'admin'
+  }
 
   const [user, setUser] = useState<UserType | null>(null)
   const handleLogout = async () => {
@@ -50,7 +60,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, setUser, handleLogout }}>
+    <AuthContext.Provider
+      value={{ user, setUser, handleLogout, isMember, isAdmin }}
+    >
       {children}
     </AuthContext.Provider>
   )

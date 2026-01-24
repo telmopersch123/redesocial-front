@@ -165,7 +165,11 @@ const ConfigCommunity = ({
 
   return (
     <div
-      className={`mx-auto mb-4 mt-4 px-5 ${methodW_fullscreen ? 'w-[1000px]' : 'w-[calc(100vw-0rem)] md:w-[calc(100vw-50rem)]'}`}
+      className={`mb-4 mt-4 px-4 md:mx-auto ${
+        methodW_fullscreen
+          ? 'max-w-[1000px]'
+          : 'w-[90vw] md:max-w-[calc(100vw-20rem)] dm:max-w-[calc(100vw-30rem)] ny:max-w-[calc(100vw-50rem)]'
+      } `}
     >
       {isInitialLoading && <p>Loading...</p>}
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -205,7 +209,7 @@ const ConfigCommunity = ({
               Capa da Comunidade
             </p>
             <div className="flex flex-col items-center gap-4">
-              <div className="relative flex h-[100px] w-[240px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-500/60 to-indigo-500/60 shadow-lg ring-2 ring-purple-300/40 transition-all duration-300 hover:shadow-xl im:h-[150px] im:w-[340px]">
+              <div className="relative flex h-[100px] w-full max-w-[240px] items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-500/60 to-indigo-500/60 shadow-lg ring-2 ring-purple-300/40 transition-all duration-300 hover:shadow-xl im:h-[150px] im:w-[340px] im:max-w-[340px]">
                 {imagePreview ? (
                   <img
                     src={imagePreview}
@@ -461,41 +465,45 @@ const ConfigCommunity = ({
               />
             </div>
 
-            <div className="flex items-center justify-between rounded-lg bg-zinc-50 p-4 dark:bg-zinc-800/50">
-              <div className="flex items-center gap-3">
+            <div className="flex w-full flex-col items-start justify-between rounded-lg bg-zinc-50 p-4 dark:bg-zinc-800/50 md:flex-row md:items-center">
+              <div className="flex min-w-0 items-start gap-3">
                 {isPrivate ? (
-                  <Lock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  <Lock className="h-6 w-6 shrink-0 text-purple-600 dark:text-purple-400" />
                 ) : (
-                  <Globe className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  <Globe className="h-6 w-6 shrink-0 text-purple-600 dark:text-purple-400" />
                 )}
-                <div>
-                  <p className="text-sm font-medium text-zinc-800 dark:text-zinc-100">
+
+                <div className="min-w-0 max-w-full">
+                  <p className="break-words text-sm font-medium text-zinc-800 dark:text-zinc-100">
                     {isPrivate ? 'Comunidade privada' : 'Comunidade pública'}
                   </p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+
+                  <div className="break-words text-xs text-zinc-500 dark:text-zinc-400">
                     {isPrivate
                       ? 'Somente membros aprovados podem ver e interagir com as postagens.'
                       : 'Qualquer usuário pode participar e visualizar as postagens.'}
-                  </p>
+                  </div>
                 </div>
               </div>
-              <Controller
-                name="isPrivate"
-                control={control}
-                render={({ field }) => (
-                  <Button
-                    onClick={() => {
-                      setIsPrivate(field.value ? false : true)
-                      field.onChange(!field.value)
-                    }}
-                    variant="outline"
-                    type="button"
-                    className="rounded-full border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30"
-                  >
-                    {field.value ? 'Tornar pública' : 'Tornar privada'}
-                  </Button>
-                )}
-              />
+              <div className="ml-3 md:ml-0">
+                <Controller
+                  name="isPrivate"
+                  control={control}
+                  render={({ field }) => (
+                    <Button
+                      onClick={() => {
+                        setIsPrivate(field.value ? false : true)
+                        field.onChange(!field.value)
+                      }}
+                      variant="outline"
+                      type="button"
+                      className="mt-2 rounded-full border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30"
+                    >
+                      {field.value ? 'Tornar pública' : 'Tornar privada'}
+                    </Button>
+                  )}
+                />
+              </div>
             </div>
           </CardContent>
         </Card>

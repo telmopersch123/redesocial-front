@@ -85,6 +85,7 @@ export type UserType = {
   name_at: string
   email: string
   image?: string | null
+  communities: Record<number, string>
 }
 
 export type UserTypeSearch = {

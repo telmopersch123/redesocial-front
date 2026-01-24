@@ -25,7 +25,7 @@ export const normalizeURL = (s: string) =>
     .toLowerCase()
 
 export default function AreaCommunitiesUserPage() {
-  const { user } = useAuth()
+  const { user, isAdmin } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
   const [novoComentario, setNovoComentario] = useState('')
   const [loadedCount, setLoadedCount] = useState(10)
@@ -37,6 +37,7 @@ export default function AreaCommunitiesUserPage() {
   const location = useLocation()
   const [showSettings, setShowSettings] = useState(false)
   const communityIdFromState = location.state?.communityId
+  const adminStatus = isAdmin(communityIdFromState)
   const { setOpenDialogPostNotification, openDialogPostNotification } =
     useCriarPostDialog()
   const { loadMoreRef } = useInfiniteScroll({
@@ -67,7 +68,7 @@ export default function AreaCommunitiesUserPage() {
         pageNumber
       )
       if (postsData.length < 10) {
-        setHasMore(false) // Se veio menos de 10, o banco acabou
+        setHasMore(false)
       }
       const normalizedPosts = postsData.map((post: Post) => ({
         ...post,
@@ -128,20 +129,28 @@ export default function AreaCommunitiesUserPage() {
           >
             {showSettings && (
               <>
-                <NavLink
-                  state={{ communityIdState: communityIdFromState }}
-                  to={'config'}
-                >
-                  <TooltipComponent
-                    Tag={
-                      <div className="cursor-pointer text-muted-foreground transition-colors hover:text-purple-600">
-                        <Settings />
-                      </div>
-                    }
-                    description="Configurações da Comunidade"
-                  />
-                </NavLink>
-                <UsersCommunityDialog />
+                {adminStatus && (
+                  <NavLink
+                    state={{ communityIdState: communityIdFromState }}
+                    to={'config'}
+                  >
+                    <TooltipComponent
+                      Tag={
+                        <div className="cursor-pointer text-muted-foreground transition-colors hover:text-purple-600">
+                          <Settings />
+                        </div>
+                      }
+                      description="Configurações da Comunidade"
+                    />
+                  </NavLink>
+                )}
+                <UsersCommunityDialog
+                  communityName={pathname
+                    .split('/')
+                    .pop()
+                    ?.replaceAll('-', ' ')}
+                  communityIdFromState={communityIdFromState}
+                />
               </>
             )}
           </div>

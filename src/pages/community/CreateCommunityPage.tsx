@@ -159,7 +159,7 @@ const CreateCommunityPage = () => {
 
   return (
     <>
-      <div className="mb-4 mt-4 flex w-[calc(100vw-0rem)] flex-col px-5 md:w-[calc(100vw-50rem)]">
+      <div className="mb-4 mt-4 flex w-[90vw] flex-col px-5 md:max-w-[calc(100vw-20rem)] dm:max-w-[calc(100vw-30rem)] ny:max-w-[calc(100vw-50rem)]">
         <div className="space-y-4">
           <h1 className="text-center text-xl font-bold text-zinc-800 dark:text-zinc-100 md:text-left md:text-4xl">
             Criar nova comunidade
@@ -472,8 +472,8 @@ const CreateCommunityPage = () => {
               </div>
 
               {/* Privacidade */}
-              <div className="flex items-center justify-between rounded-lg bg-zinc-50 p-4 dark:bg-zinc-800/50">
-                <div className="flex items-center gap-3">
+              <div className="flex w-full flex-col items-start justify-between rounded-lg bg-zinc-50 p-4 dark:bg-zinc-800/50 md:flex-row md:items-center">
+                <div className="flex min-w-0 items-start gap-3">
                   {isPrivate ? (
                     <Lock className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                   ) : (
@@ -496,7 +496,7 @@ const CreateCommunityPage = () => {
                     setIsPrivate(!isPrivate)
                   }}
                   variant="outline"
-                  className="rounded-full border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30"
+                  className="mt-2 rounded-full border-purple-300 text-purple-600 hover:bg-purple-100 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30"
                 >
                   {isPrivate ? 'Tornar pública' : 'Tornar privada'}
                 </Button>

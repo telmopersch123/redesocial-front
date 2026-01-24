@@ -130,7 +130,7 @@ const CommunityPage = () => {
             animate={{ opacity: 1, height: 'auto', y: 0 }} // sobe para a posição normal
             exit={{ opacity: 0, height: 0, y: 20 }} // sai descendo
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="mt-10 grid min-h-[650px] grid-cols-1 gap-6 gap-y-14 ym:grid-cols-2 xl:grid-cols-3"
+            className="mt-10 grid min-h-[650px] grid-cols-1 gap-6 gap-y-44 ym:grid-cols-2 xl:grid-cols-3"
           >
             {isLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
