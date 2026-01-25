@@ -15,7 +15,9 @@ interface AuthContextType {
   setUser: (user: UserType | null) => void
   handleLogout: () => Promise<void>
   isMember: (communityId: number) => boolean
+  isModerator: (communityId: number) => boolean
   isAdmin: (communityId: number) => boolean
+  canManage: (communityId: number) => boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -27,8 +29,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return !!user?.communities?.[communityId]
   }
 
+  const isModerator = (communityId: number) => {
+    return user?.communities?.[communityId] === 'moderator'
+  }
+
   const isAdmin = (communityId: number) => {
     return user?.communities?.[communityId] === 'admin'
+  }
+
+  const canManage = (communityId: number) => {
+    const role = user?.communities?.[communityId]
+    return role === 'admin' || role === 'moderator'
   }
 
   const [user, setUser] = useState<UserType | null>(null)
@@ -61,7 +72,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, setUser, handleLogout, isMember, isAdmin }}
+      value={{
+        user,
+        setUser,
+        handleLogout,
+        isMember,
+        isAdmin,
+        isModerator,
+        canManage,
+      }}
     >
       {children}
     </AuthContext.Provider>

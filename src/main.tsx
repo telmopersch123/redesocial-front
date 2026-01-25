@@ -12,6 +12,7 @@ import { AuthProvider } from './context/getMe.tsx'
 import { OpenMentionsProvider } from './context/openMentions.tsx'
 
 import { ChatProvider } from './context/ChatContext.tsx'
+import { NotificationProvider } from './context/NotificationProvider.tsx'
 import { PostsProvider } from './context/PostsContext.tsx'
 import { ResetPasswordProvider } from './context/ResetPasswordContext.tsx'
 import { VideoProvider } from './context/VideoContext.tsx'
@@ -22,23 +23,25 @@ createRoot(document.getElementById('root')!).render(
       <ResetPasswordProvider>
         <AuthProvider>
           <ChatProvider>
-            <PostsProvider>
-              <VideoProvider>
-                <ThemeProvider>
-                  <OpenMentionsProvider>
-                    <BreathingProvider>
-                      <ComunidadesProvider>
-                        <SidebarProvider>
-                          <CriarPostDialogProvider>
-                            <App />
-                          </CriarPostDialogProvider>
-                        </SidebarProvider>
-                      </ComunidadesProvider>
-                    </BreathingProvider>
-                  </OpenMentionsProvider>
-                </ThemeProvider>
-              </VideoProvider>
-            </PostsProvider>
+            <NotificationProvider>
+              <PostsProvider>
+                <VideoProvider>
+                  <ThemeProvider>
+                    <OpenMentionsProvider>
+                      <BreathingProvider>
+                        <ComunidadesProvider>
+                          <SidebarProvider>
+                            <CriarPostDialogProvider>
+                              <App />
+                            </CriarPostDialogProvider>
+                          </SidebarProvider>
+                        </ComunidadesProvider>
+                      </BreathingProvider>
+                    </OpenMentionsProvider>
+                  </ThemeProvider>
+                </VideoProvider>
+              </PostsProvider>
+            </NotificationProvider>
           </ChatProvider>
         </AuthProvider>
       </ResetPasswordProvider>

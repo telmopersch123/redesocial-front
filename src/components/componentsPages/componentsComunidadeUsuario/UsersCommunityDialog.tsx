@@ -9,11 +9,19 @@ import {
   Search,
   Trash2,
   Users,
-  VolumeOff,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../../context/getMe'
+import { showUserRoleToast } from '../../../Helpers/showUserRoleToast'
+import {
+  demoteUser,
+  getUsersCommunitys,
+  promoteUser,
+  removeUserCommunity,
+} from '../../../services/authService'
+import { formatDateTime } from '../../../utils/functions'
 import { Button } from '../..//ui/button'
 import {
   Dialog,
@@ -33,106 +41,26 @@ import {
 } from '../..//ui/select'
 import { Separator } from '../..//ui/separator'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
-import { Checkbox } from '../../ui/checkbox'
+
 import { ConfirmationRemoveUserDialog } from './ConfirmationRemoveUserDialog'
 import InvitationDialog from './InvitationDialog'
 import { LeaveButton } from './LeaveButton'
 
 type User = {
   id: number
-  name: string
-  username: string
   role: 'member' | 'moderator' | 'admin'
-  joinedAt: string
-  online: boolean
+  user: {
+    id: number
+    avatar: string
+    name_at: string
+  }
+  createdAt: string
+  // online: boolean
 }
 type MyComponentProps = {
   communityIdFromState: number
   communityName: string | undefined
 }
-
-const sampleUsers: User[] = [
-  {
-    id: 1,
-    name: 'Mariana Souza',
-    username: 'mariana',
-    role: 'admin',
-    joinedAt: '2024-03-12',
-    online: true,
-  },
-  {
-    id: 2,
-    name: 'Carlos Pereira',
-    username: 'carlosp',
-    role: 'moderator',
-    joinedAt: '2024-05-02',
-    online: false,
-  },
-  {
-    id: 3,
-    name: 'Ana Clara',
-    username: 'anac',
-    role: 'member',
-    joinedAt: '2024-07-08',
-    online: true,
-  },
-  {
-    id: 4,
-    name: 'Lucas Martins',
-    username: 'lucasm',
-    role: 'member',
-    joinedAt: '2024-10-21',
-    online: false,
-  },
-  {
-    id: 5,
-    name: 'João Neto',
-    username: 'joaon',
-    role: 'member',
-    joinedAt: '2025-01-03',
-    online: true,
-  },
-  {
-    id: 6,
-    name: 'Beatriz Lima',
-    username: 'beal',
-    role: 'moderator',
-    joinedAt: '2023-12-18',
-    online: false,
-  },
-  {
-    id: 7,
-    name: 'Pedro Santos',
-    username: 'pedros',
-    role: 'member',
-    joinedAt: '2025-02-14',
-    online: true,
-  },
-  {
-    id: 8,
-    name: 'Clara Ribeiro',
-    username: 'clarar',
-    role: 'member',
-    joinedAt: '2024-11-30',
-    online: false,
-  },
-  {
-    id: 9,
-    name: 'Rafael Gomes',
-    username: 'rafaelg',
-    role: 'member',
-    joinedAt: '2024-08-05',
-    online: true,
-  },
-  {
-    id: 10,
-    name: 'Marcos Vinícius',
-    username: 'mv',
-    role: 'member',
-    joinedAt: '2024-09-29',
-    online: false,
-  },
-]
 
 const PAGE_SIZE = 6
 
@@ -147,66 +75,103 @@ const UsersCommunityDialog = ({
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | User['role']>('all')
-  const [selectedRemove, setSelectedRemove] = useState<number[]>([])
-  const [_, setSelectedMuted] = useState<number[]>([])
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  // const [selectedRemove, setSelectedRemove] = useState<number[]>([])
+
   const [page, setPage] = useState(1)
   const pathname = window.location.pathname
-  const [users, setUsers] = useState<User[]>(sampleUsers)
+  const [users, setUsers] = useState<User[]>([])
   // responsavel por filtrar os usuários com base na no nome e cargo
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     return users.filter((u) => {
       if (roleFilter !== 'all' && u.role !== roleFilter) return false
       if (!q) return true
-      return (
-        u.name.toLowerCase().includes(q) || u.username.toLowerCase().includes(q)
-      )
+      return u.user.name_at.toLowerCase().includes(q)
     })
   }, [users, query, roleFilter])
   // responsavel por calcular e mostrar uma certa quantidade de usuários  por pagina
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   // responsavel por distribuir os usuários por pagina
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-  // responsavel por selecionar ou desselecionar um item
-  const toggleSelectMuted = (id: number) => {
-    setSelectedMuted((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    )
-  }
   // responsavel por selecionar ou desselecionar todos os itens da página
   const selectAllPage = () => {
-    const ids = pageItems.map((u) => u.id)
-    const allSelected = ids.every((id) => selectedRemove.includes(id))
-    setSelectedRemove((prev) =>
-      allSelected
-        ? prev.filter((id) => !ids.includes(id))
-        : [...new Set([...prev, ...ids])]
-    )
+    // const ids = pageItems.map((u) => u.id)
+    // const allSelected = ids.every((id) => selectedRemove.includes(id))
+    // setSelectedRemove((prev) =>
+    //   allSelected
+    //     ? prev.filter((id) => !ids.includes(id))
+    //     : [...new Set([...prev, ...ids])]
+    // )
   }
   // responsavel por remover os itens selecionados
-  const removeSelected = () => {
-    if (!selectedRemove.length) return
-    setUsers((prev) => prev.filter((u) => !selectedRemove.includes(u.id)))
-    setSelectedRemove([])
+  const removeUser = async (id: number) => {
+    // if (!selectedRemove.length) return
+    try {
+      const res = await removeUserCommunity(communityIdFromState, id)
+      setUsers((prev) => prev.filter((u) => u.user.id !== res.userId))
+      showUserRoleToast({
+        userName: res.username,
+        action: 'remove',
+      })
+    } catch {
+      toast.error('Erro ao remover o usuário')
+    }
+
+    // setSelectedRemove([])
   }
   // responsavel por promover um usuário
-  const promote = (id: number) => {
-    setUsers((prev) =>
-      prev.map((u) =>
-        u.id === id
-          ? { ...u, role: u.role === 'member' ? 'moderator' : 'admin' }
-          : u
+  const promote = async (id: number) => {
+    try {
+      const res = await promoteUser(communityIdFromState, id)
+
+      showUserRoleToast({
+        userName: res.username,
+        action: 'promote',
+      })
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.user.id === id ? { ...u, role: res.promotedUser } : u
+        )
       )
-    )
+    } catch {
+      toast.error('Esse usuário nao pode ser promovido')
+    }
   }
   // responsavel por demover um usuário
-  const demote = (id: number) => {
-    setUsers((prev) =>
-      prev.map((u) => (u.id === id ? { ...u, role: 'member' } : u))
-    )
+  const demote = async (id: number) => {
+    try {
+      const res = await demoteUser(communityIdFromState, id)
+      console.log(res)
+      showUserRoleToast({
+        userName: res.username,
+        action: 'demote',
+      })
+      setUsers((prev) =>
+        prev.map((u) => (u.user.id === id ? { ...u, role: res.demoteUser } : u))
+      )
+    } catch {
+      toast.error('Esse usuário nao pode ser demovido')
+    }
   }
 
-  console.log(adminStatus)
+  const fetchUsers = async () => {
+    setIsRefreshing(true)
+    try {
+      const res = await getUsersCommunitys(communityIdFromState)
+      setUsers(res)
+    } catch (err) {
+      console.error(err)
+      setIsRefreshing(false)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchUsers()
+  }, [pathname])
+
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -270,10 +235,30 @@ const UsersCommunityDialog = ({
                   </SelectContent>
                 </Select>
               </div>
-              <div
-                className={`${pathname === '/comunidades/comunidades-do-usuario' ? 'hidden' : ''}`}
-              >
-                <InvitationDialog />
+              <div className="flex items-center gap-2">
+                <div
+                  className={`${pathname === '/comunidades/comunidades-do-usuario' ? 'hidden' : ''}`}
+                >
+                  <InvitationDialog />
+                </div>
+                <TooltipComponent
+                  description="Atualizar lista"
+                  Tag={
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => fetchUsers()}
+                      disabled={isRefreshing}
+                      className="relative h-10 w-10 cursor-pointer border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800"
+                    >
+                      <RotateCcw
+                        className={`${
+                          isRefreshing ? 'animate-spin' : ''
+                        } h-4 w-4 text-zinc-500 dark:text-zinc-400`}
+                      />
+                    </Button>
+                  }
+                />
               </div>
             </div>
 
@@ -291,7 +276,7 @@ const UsersCommunityDialog = ({
                   >
                     <div className="flex w-[120px] items-center gap-3 md:w-[500px]">
                       <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-indigo-400 font-semibold text-white">
-                        {u.name
+                        {u.user.name_at
                           .split(' ')
                           .map((s) => s[0])
                           .slice(0, 2)
@@ -303,11 +288,8 @@ const UsersCommunityDialog = ({
                         className="flex min-w-0 flex-col"
                       >
                         <div className="flex items-center gap-2">
-                          <span className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                            {u.name}
-                          </span>
                           <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                            @{u.username}
+                            @{u.user.name_at}
                           </span>
                           <span
                             className={`-mt-4 ml-2 inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-medium ${
@@ -325,76 +307,63 @@ const UsersCommunityDialog = ({
                           </span>
                         </div>
                         <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                          Entrou em {u.joinedAt}
+                          Entrou em {formatDateTime(u.createdAt)}
                         </span>
                       </NavLink>
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span
+                      {/* <span
                         className={`h-2 w-2 rounded-full ${u.online ? 'bg-emerald-500' : 'bg-zinc-400 dark:bg-zinc-600'}`}
                         title={u.online ? 'Online' : 'Offline'}
-                      />
+                      /> */}
 
-                      <div className="flex items-center gap-1">
-                        {adminStatus && (
-                          <>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              onClick={() => promote(u.id)}
-                              title="Promover"
-                            >
-                              <Crown className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                            </Button>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              onClick={() => demote(u.id)}
-                              title="Demover"
-                            >
-                              <RotateCcw className="h-4 w-4" />
-                            </Button>
-                          </>
-                        )}
-                        {(adminStatus || ficticioModeradorComunidade) && (
-                          <>
-                            <TooltipComponent
-                              Tag={
-                                <Checkbox
-                                  onClick={() => toggleSelectMuted(u.id)}
-                                  icon={
-                                    <VolumeOff className="h-4 w-4 text-red-600 dark:text-red-400" />
-                                  }
-                                  className="h-5 w-5 rounded-md border border-zinc-300 shadow-sm transition-all hover:border-purple-400 hover:bg-purple-50 data-[state=checked]:border-purple-600 data-[state=checked]:bg-purple-600 data-[state=checked]:text-white dark:border-zinc-600 dark:hover:bg-purple-900/30"
-                                />
-                              }
-                              description="Silenciar usuário"
-                            />
-
-                            <ConfirmationRemoveUserDialog
-                              userName={u.name}
-                              onConfirm={() => {
-                                setUsers((prev) =>
-                                  prev.filter((x) => x.id !== u.id)
-                                )
-                                setSelectedRemove((s) =>
-                                  s.filter((id) => id !== u.id)
-                                )
-                              }}
-                              trigger={
+                      {u.role !== 'admin' && (
+                        <div className="flex items-center gap-1">
+                          {adminStatus && (
+                            <>
+                              {u.role === 'member' && (
                                 <Button
                                   size="icon"
-                                  variant="destructive"
-                                  title="Remover"
+                                  variant="ghost"
+                                  onClick={() => promote(u.user.id)}
+                                  title="Promover"
                                 >
-                                  <Trash2 className="h-4 w-4" />
+                                  <Crown className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
                                 </Button>
-                              }
-                            />
-                          </>
-                        )}
-                      </div>
+                              )}
+                              {u.role === 'moderator' && (
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => demote(u.user.id)}
+                                  title="Demover"
+                                >
+                                  <RotateCcw className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </>
+                          )}
+                          {(adminStatus || ficticioModeradorComunidade) && (
+                            <>
+                              <ConfirmationRemoveUserDialog
+                                userName={u.user.name_at}
+                                onConfirm={() => removeUser(u.user.id)}
+                                trigger={
+                                  <Button
+                                    size="icon"
+                                    variant="destructive"
+                                    className="ml-2"
+                                    title="Remover"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                }
+                              />
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))
@@ -414,11 +383,11 @@ const UsersCommunityDialog = ({
                   </Button>
                   <Button
                     variant="destructive"
-                    onClick={removeSelected}
-                    disabled={!selectedRemove.length}
+                    onClick={() => alert('Funcionalidade em desenvolvimento')}
+                    // disabled={!selectedRemove.length}
                   >
-                    <Trash2 className="h-4 w-4" /> Remover (
-                    {selectedRemove.length})
+                    <Trash2 className="h-4 w-4" /> Remover
+                    {/* {selectedRemove.length}) */}
                   </Button>
                 </div>
               )}

@@ -119,7 +119,7 @@ const CardsCommunityComponent = ({
 
               <AccordionContent>
                 <p className="line-clamp-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-                  {rules}
+                  {rules || 'Sem regras disponíveis para esta comunidade.'}
                 </p>
               </AccordionContent>
             </AccordionItem>

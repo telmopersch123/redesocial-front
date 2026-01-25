@@ -461,3 +461,82 @@ export const joinCommunity = async (communityId: number) => {
   if (!res.ok) throw new Error('Erro ao entrar na comunidade')
   return await res.json()
 }
+export const getUsersCommunitys = async (communityId: number) => {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/${communityId}/getUsersCommunity`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) throw new Error('Erro ao buscar as comunidades')
+  return await res.json()
+}
+export const promoteUser = async (
+  communityId: number,
+  targetUserId: number
+) => {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/${communityId}/promoteUser`,
+    {
+      method: 'PUT',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ targetUserId }),
+    }
+  )
+
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error ?? 'Erro ao promover usuário')
+  }
+
+  return await res.json()
+}
+
+export const demoteUser = async (communityId: number, targetUserId: number) => {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/${communityId}/demoteUser`,
+    {
+      method: 'PUT',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ targetUserId }),
+    }
+  )
+
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error ?? 'Erro ao rebaixar usuário')
+  }
+
+  return await res.json()
+}
+
+export const removeUserCommunity = async (
+  communityId: number,
+  targetUserId: number
+) => {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/${communityId}/removeUserCommunity`,
+    {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ targetUserId }),
+    }
+  )
+
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error ?? 'Erro ao remover usuário')
+  }
+
+  return await res.json()
+}
