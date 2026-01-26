@@ -42,6 +42,7 @@ import {
 import { Separator } from '../..//ui/separator'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 
+import { Checkbox } from '../../ui/checkbox'
 import { ConfirmationRemoveUserDialog } from './ConfirmationRemoveUserDialog'
 import InvitationDialog from './InvitationDialog'
 import { LeaveButton } from './LeaveButton'
@@ -64,20 +65,18 @@ type MyComponentProps = {
 
 const PAGE_SIZE = 6
 
-const ficticioModeradorComunidade = false
-
 const UsersCommunityDialog = ({
   communityIdFromState,
   communityName,
 }: MyComponentProps) => {
-  const { isAdmin } = useAuth()
+  const { isAdmin, user, isModerator } = useAuth()
+  const moderatorStatus = isModerator(communityIdFromState)
   const adminStatus = isAdmin(communityIdFromState)
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | User['role']>('all')
   const [isRefreshing, setIsRefreshing] = useState(false)
-  // const [selectedRemove, setSelectedRemove] = useState<number[]>([])
-
+  const [selectedRemove, setSelectedRemove] = useState<number[]>([])
   const [page, setPage] = useState(1)
   const pathname = window.location.pathname
   const [users, setUsers] = useState<User[]>([])
@@ -96,13 +95,15 @@ const UsersCommunityDialog = ({
   const pageItems = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
   // responsavel por selecionar ou desselecionar todos os itens da página
   const selectAllPage = () => {
-    // const ids = pageItems.map((u) => u.id)
-    // const allSelected = ids.every((id) => selectedRemove.includes(id))
-    // setSelectedRemove((prev) =>
-    //   allSelected
-    //     ? prev.filter((id) => !ids.includes(id))
-    //     : [...new Set([...prev, ...ids])]
-    // )
+    const ids = pageItems
+      .filter((u) => u.role !== 'admin')
+      .map((u) => u.user.id)
+    const allSelected = ids.every((id) => selectedRemove.includes(id))
+    setSelectedRemove((prev) =>
+      allSelected
+        ? prev.filter((id) => !ids.includes(id))
+        : [...new Set([...prev, ...ids])]
+    )
   }
   // responsavel por remover os itens selecionados
   const removeUser = async (id: number) => {
@@ -172,9 +173,23 @@ const UsersCommunityDialog = ({
     fetchUsers()
   }, [pathname])
 
+  useEffect(() => {
+    console.log(selectedRemove)
+  }, [selectedRemove])
+
   return (
     <>
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={(value) => {
+          setOpen(value)
+          if (!value) {
+            setSelectedRemove([])
+            setRoleFilter('all')
+            setPage(1)
+          }
+        }}
+      >
         {/* TRIGGER */}
         <TooltipComponent
           Tag={
@@ -284,7 +299,11 @@ const UsersCommunityDialog = ({
                       </div>
 
                       <NavLink
-                        to={`/perfil/${u.id}`}
+                        to={
+                          Number(user?.id) === u.user.id
+                            ? '/perfil'
+                            : `/usuarios/perfil/${u.user.id}`
+                        }
                         className="flex min-w-0 flex-col"
                       >
                         <div className="flex items-center gap-2">
@@ -344,7 +363,24 @@ const UsersCommunityDialog = ({
                               )}
                             </>
                           )}
-                          {(adminStatus || ficticioModeradorComunidade) && (
+                          {adminStatus && (
+                            <Checkbox
+                              id="terms-checkbox-basic"
+                              name="terms-checkbox-basic"
+                              checked={selectedRemove.includes(u.user.id)}
+                              onCheckedChange={(checked) =>
+                                setSelectedRemove((prev) => {
+                                  if (checked) {
+                                    return prev.includes(u.user.id)
+                                      ? prev
+                                      : [...prev, u.user.id]
+                                  }
+                                  return prev.filter((id) => id !== u.user.id)
+                                })
+                              }
+                            />
+                          )}
+                          {(adminStatus || moderatorStatus) && (
                             <>
                               <ConfirmationRemoveUserDialog
                                 userName={u.user.name_at}

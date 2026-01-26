@@ -63,10 +63,6 @@ const RegisterFinally = ({ firstStepData }: RegisterFormData) => {
         throw new Error(error.message || 'Username indisponível')
       }
 
-      if (resCheck.ok) {
-        console.log('Username disponível')
-      }
-
       const registerData = {
         name: firstStepData.name,
         password: firstStepData.password,

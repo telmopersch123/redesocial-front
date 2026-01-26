@@ -87,7 +87,6 @@ export const NotificationProvider = ({
 
     const handleIncoming = (data: Notification) => {
       setNotifications((prev) => [data, ...prev])
-      console.log(data)
       if (data.type === 'PROMOTION' || data.type === 'DEMOTION') {
         toast.custom((t) => (
           <AlertCommunityRoleToast
@@ -102,7 +101,6 @@ export const NotificationProvider = ({
       }
     }
 
-    // Certifique-se de que o nome do evento aqui é o mesmo que você deu no console.log
     socket.on('notification:promotion', handleIncoming)
     socket.on('notification:demotion', handleIncoming)
     socket.on('notification:new', handleIncoming) // Caso você tenha unificado
