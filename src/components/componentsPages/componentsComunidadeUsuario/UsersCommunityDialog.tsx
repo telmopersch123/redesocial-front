@@ -5,6 +5,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Crown,
+  Loader2,
   RotateCcw,
   Search,
   Trash2,
@@ -20,6 +21,7 @@ import {
   getUsersCommunitys,
   promoteUser,
   removeUserCommunity,
+  removeUsersSelectedCommuntity,
 } from '../../../services/authService'
 import { formatDateTime } from '../../../utils/functions'
 import { Button } from '../..//ui/button'
@@ -77,6 +79,7 @@ const UsersCommunityDialog = ({
   const [roleFilter, setRoleFilter] = useState<'all' | User['role']>('all')
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [selectedRemove, setSelectedRemove] = useState<number[]>([])
+  const [loadingremoveSelected, setLoadingremoveSelected] = useState(false)
   const [page, setPage] = useState(1)
   const pathname = window.location.pathname
   const [users, setUsers] = useState<User[]>([])
@@ -107,7 +110,6 @@ const UsersCommunityDialog = ({
   }
   // responsavel por remover os itens selecionados
   const removeUser = async (id: number) => {
-    // if (!selectedRemove.length) return
     try {
       const res = await removeUserCommunity(communityIdFromState, id)
       setUsers((prev) => prev.filter((u) => u.user.id !== res.userId))
@@ -118,8 +120,30 @@ const UsersCommunityDialog = ({
     } catch {
       toast.error('Erro ao remover o usuário')
     }
-
-    // setSelectedRemove([])
+  }
+  const removeSelectedUsers = async () => {
+    if (selectedRemove.length === 0) return
+    setLoadingremoveSelected(true)
+    try {
+      const res = await removeUsersSelectedCommuntity(
+        communityIdFromState,
+        selectedRemove
+      )
+      showUserRoleToast({
+        userName: '',
+        message: res.message,
+        action: 'remove',
+      })
+      setUsers((prev) =>
+        prev.filter((u) => !selectedRemove.includes(u.user.id))
+      )
+      setSelectedRemove([])
+    } catch {
+      toast.error('Erro ao remover o usuário')
+      setLoadingremoveSelected(false)
+    } finally {
+      setLoadingremoveSelected(false)
+    }
   }
   // responsavel por promover um usuário
   const promote = async (id: number) => {
@@ -155,7 +179,6 @@ const UsersCommunityDialog = ({
       toast.error('Esse usuário nao pode ser demovido')
     }
   }
-
   const fetchUsers = async () => {
     setIsRefreshing(true)
     try {
@@ -419,11 +442,16 @@ const UsersCommunityDialog = ({
                   </Button>
                   <Button
                     variant="destructive"
-                    onClick={() => alert('Funcionalidade em desenvolvimento')}
-                    // disabled={!selectedRemove.length}
+                    onClick={removeSelectedUsers}
+                    disabled={!selectedRemove.length || loadingremoveSelected}
                   >
-                    <Trash2 className="h-4 w-4" /> Remover
-                    {/* {selectedRemove.length}) */}
+                    {loadingremoveSelected ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                    Remover&nbsp;
+                    {selectedRemove.length} Usuários
                   </Button>
                 </div>
               )}

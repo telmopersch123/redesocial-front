@@ -38,12 +38,7 @@ export function AlertToast({ title, message, type }: AlertToastProps) {
 
 import { Crown, RotateCcw, Trash2 } from 'lucide-react'
 
-type UserRoleToastProps = {
-  userName: string
-  action: 'promote' | 'demote' | 'remove'
-}
-
-export function UserRoleToast({ userName, action }: UserRoleToastProps) {
+export function UserRoleToast({ userName, action, message }: Params) {
   const isPromote = action === 'promote'
   const isRemove = action === 'remove'
 
@@ -60,7 +55,7 @@ export function UserRoleToast({ userName, action }: UserRoleToastProps) {
       >
         {isPromote ? (
           <Crown className="h-5 w-5" />
-        ) : isRemove ? (
+        ) : isRemove || message ? (
           <Trash2 className="h-5 w-5" />
         ) : (
           <RotateCcw className="h-5 w-5" />
@@ -70,11 +65,13 @@ export function UserRoleToast({ userName, action }: UserRoleToastProps) {
       <div className="flex flex-col">
         <span className="text-sm font-semibold">{userName}</span>
         <span className="text-xs opacity-80">
-          {isPromote
-            ? 'foi promovido a moderador'
-            : isRemove
-              ? 'foi removido da comunidade'
-              : 'foi rebaixado para membro'}
+          {!message
+            ? isPromote
+              ? 'foi promovido a moderador'
+              : isRemove
+                ? 'foi removido da comunidade'
+                : 'foi rebaixado para membro'
+            : message}
         </span>
       </div>
     </div>
@@ -82,6 +79,7 @@ export function UserRoleToast({ userName, action }: UserRoleToastProps) {
 }
 
 import { CheckCircle, XCircle } from 'lucide-react'
+import type { Params } from '../../Helpers/showUserRoleToast'
 
 type ToastType = 'PROMOTION' | 'DEMOTION'
 

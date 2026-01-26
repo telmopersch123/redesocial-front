@@ -540,3 +540,22 @@ export const removeUserCommunity = async (
 
   return await res.json()
 }
+export const removeUsersSelectedCommuntity = async (
+  communityId: number,
+  userIds: number[]
+) => {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/${communityId}/removeUsersSelectedCommuntity`,
+    {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userIds }),
+    }
+  )
+  console.log(res)
+  if (!res.ok) throw new Error('Erro ao remover os usuários da comunidade')
+  return await res.json()
+}
