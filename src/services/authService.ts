@@ -461,9 +461,14 @@ export const joinCommunity = async (communityId: number) => {
   if (!res.ok) throw new Error('Erro ao entrar na comunidade')
   return await res.json()
 }
-export const getUsersCommunitys = async (communityId: number) => {
+export const getUsersCommunitys = async (
+  communityId: number,
+  page: number,
+  query: string,
+  PAGE_SIZE: number
+) => {
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/comunity/${communityId}/getUsersCommunity`,
+    `${import.meta.env.VITE_API_URL}/auth/comunity/${communityId}/getUsersCommunity?page=${page}&limit=${PAGE_SIZE}&search=${query}`,
     {
       method: 'GET',
       credentials: 'include',
