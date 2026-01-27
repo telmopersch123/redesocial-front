@@ -40,25 +40,35 @@ export const NotificationProvider = ({
       const data = await res.json()
       setNotifications(data)
 
-      // Se o cara logar e tiver uma promoção não lida, manda o Toast
-      const unreadProm = data.find(
-        (n: Notification) => n.type === 'PROMOTION' && !n.read
+      const unreadAlerts = data.filter(
+        (n: Notification) =>
+          (n.type === 'PROMOTION' || n.type === 'DEMOTION') && !n.read
       )
-      if (unreadProm) {
-        toast.custom((t) => (
-          <AlertCommunityRoleToast
-            type={unreadProm.type}
-            message={unreadProm.message}
-            onAction={() => {
-              markAsRead(unreadProm.id)
-              toast.dismiss(t.id)
-            }}
-          />
-        ))
-      }
+
+      unreadAlerts.forEach((n: Notification) => {
+        showRoleToast(n)
+        markAsRead(n.id)
+      })
     } catch (err) {
       console.error(err)
     }
+  }
+
+  const showRoleToast = (n: Notification) => {
+    toast.custom(
+      (t) => (
+        <AlertCommunityRoleToast
+          visible={t.visible}
+          type={n.type as 'PROMOTION' | 'DEMOTION'}
+          message={n.message}
+          onAction={() => {
+            markAsRead(n.id)
+            toast.dismiss(t.id)
+          }}
+        />
+      ),
+      { duration: 6000 }
+    ) // Define um tempo para sumir
   }
 
   const markAsRead = async (id: number) => {
@@ -88,29 +98,23 @@ export const NotificationProvider = ({
     const handleIncoming = (data: Notification) => {
       setNotifications((prev) => [data, ...prev])
       if (data.type === 'PROMOTION' || data.type === 'DEMOTION') {
-        toast.custom((t) => (
-          <AlertCommunityRoleToast
-            type={data.type}
-            message={data.message}
-            onAction={() => {
-              markAsRead(data.id)
-              toast.dismiss(t.id)
-            }}
-          />
-        ))
+        showRoleToast(data)
+        markAsRead(data.id)
       }
     }
 
-    socket.on('notification:promotion', handleIncoming)
-    socket.on('notification:demotion', handleIncoming)
-    socket.on('notification:new', handleIncoming) // Caso você tenha unificado
-
+    socket.on('notification:new', handleIncoming)
     return () => {
-      socket.off('notification:promotion')
-      socket.off('notification:demotion')
       socket.off('notification:new')
     }
   }, [socket])
+
+  useEffect(() => {
+    if (!user) {
+      setNotifications([])
+      toast.dismiss()
+    }
+  }, [user])
 
   const unreadCount = notifications.filter((n) => !n.read).length
 

@@ -44,6 +44,7 @@ import {
 import { Separator } from '../..//ui/separator'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 
+import { socket } from '../../../services/socket'
 import { Checkbox } from '../../ui/checkbox'
 import { ConfirmationRemoveUserDialog } from './ConfirmationRemoveUserDialog'
 import InvitationDialog from './InvitationDialog'
@@ -58,7 +59,7 @@ type User = {
     name_at: string
   }
   createdAt: string
-  // online: boolean
+  isOnline?: boolean
 }
 type MyComponentProps = {
   communityIdFromState: number
@@ -82,6 +83,7 @@ const UsersCommunityDialog = ({
   const [validetedLoading, setValidetedLoading] = useState(false)
   const [totalPageCount, setTotalPageCount] = useState(1)
   const [totalUsers, setTotalUsers] = useState(0)
+  const [filterRole, setfilterRole] = useState('')
   const [page, setPage] = useState(1)
   const pathname = window.location.pathname
   const [users, setUsers] = useState<User[]>([])
@@ -104,6 +106,8 @@ const UsersCommunityDialog = ({
         userName: res.username,
         action: 'remove',
       })
+
+      fetchUsers()
     } catch {
       toast.error('Erro ao remover o usuário')
     }
@@ -174,7 +178,8 @@ const UsersCommunityDialog = ({
         communityIdFromState,
         page,
         query,
-        PAGE_SIZE
+        PAGE_SIZE,
+        filterRole
       )
       setUsers(res.members)
       setTotalPageCount(res.meta.lastPage)
@@ -190,7 +195,44 @@ const UsersCommunityDialog = ({
   }
 
   useEffect(() => {
-    if (!validetedLoading) {
+    if (!socket) return
+
+    const handleInitialList = ({ users: onlineIds }: { users: number[] }) => {
+      setUsers((prev) =>
+        prev.map((u) => ({
+          ...u,
+          isOnline: onlineIds.includes(u.user.id),
+        }))
+      )
+    }
+
+    const handleUserOnline = (userId: number) => {
+      setUsers((prev) =>
+        prev.map((u) => (u.user.id === userId ? { ...u, isOnline: true } : u))
+      )
+    }
+
+    const handleUserOffline = (userId: number) => {
+      setUsers((prev) =>
+        prev.map((u) => (u.user.id === userId ? { ...u, isOnline: false } : u))
+      )
+    }
+
+    socket.on('users:online:list', handleInitialList)
+    socket.on('userOnline', handleUserOnline)
+    socket.on('userOffline', handleUserOffline)
+
+    socket.emit('get:online:users')
+
+    return () => {
+      socket.off('users:online:list', handleInitialList)
+      socket.off('userOnline', handleUserOnline)
+      socket.off('userOffline', handleUserOffline)
+    }
+  })
+
+  useEffect(() => {
+    if (!validetedLoading || filterRole) {
       setIsRefreshing(true)
     }
     if (open) {
@@ -200,7 +242,13 @@ const UsersCommunityDialog = ({
 
       return () => clearTimeout(delayDebounceFn)
     }
-  }, [open, page, query, pathname])
+  }, [open, page, query, pathname, filterRole])
+
+  useEffect(() => {
+    if (open && socket) {
+      socket.emit('get:online:users')
+    }
+  }, [open])
 
   return (
     <>
@@ -252,6 +300,7 @@ const UsersCommunityDialog = ({
                     value={query}
                     onChange={(e) => {
                       setQuery(e.target.value)
+                      setUsers([])
                       setPage(1)
                     }}
                     placeholder="Buscar por nome ou usuário..."
@@ -260,7 +309,10 @@ const UsersCommunityDialog = ({
                 </div>
 
                 <Select
-                  onValueChange={() => {
+                  value={filterRole}
+                  onValueChange={(value) => {
+                    setfilterRole(value)
+                    setUsers([])
                     setPage(1)
                   }}
                 >
@@ -269,7 +321,6 @@ const UsersCommunityDialog = ({
                   </SelectTrigger>
                   <SelectContent className="bg-white dark:bg-zinc-900">
                     <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="admin">Administradores</SelectItem>
                     <SelectItem value="moderator">Moderadores</SelectItem>
                     <SelectItem value="user">Membros</SelectItem>
                   </SelectContent>
@@ -319,7 +370,17 @@ const UsersCommunityDialog = ({
                       key={u.id}
                       className="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-700 dark:bg-zinc-800"
                     >
-                      <div className="flex w-[120px] items-center gap-3 md:w-[500px]">
+                      <div className="relative flex w-[120px] items-center gap-3 md:w-[500px]">
+                        <span
+                          className={`absolute -left-2 -top-2 inline-block h-2 w-2 rounded-full shadow-sm shadow-black/50 transition-colors duration-300 ${
+                            u.isOnline
+                              ? 'bg-emerald-500 shadow-emerald-500/50'
+                              : 'bg-zinc-300 dark:bg-zinc-600'
+                          }`}
+                          title={
+                            u.isOnline ? 'Usuário Online' : 'Usuário Offline'
+                          }
+                        />
                         <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-indigo-400 font-semibold text-white">
                           {u.user.name_at
                             .split(' ')
@@ -364,11 +425,6 @@ const UsersCommunityDialog = ({
                       </div>
 
                       <div className="flex items-center gap-3">
-                        {/* <span
-                        className={`h-2 w-2 rounded-full ${u.online ? 'bg-emerald-500' : 'bg-zinc-400 dark:bg-zinc-600'}`}
-                        title={u.online ? 'Online' : 'Offline'}
-                      /> */}
-
                         {u.role !== 'admin' && (
                           <div className="flex items-center gap-1">
                             {adminStatus && (
@@ -414,20 +470,24 @@ const UsersCommunityDialog = ({
                             )}
                             {(adminStatus || moderatorStatus) && (
                               <>
-                                <ConfirmationRemoveUserDialog
-                                  userName={u.user.name_at}
-                                  onConfirm={() => removeUser(u.user.id)}
-                                  trigger={
-                                    <Button
-                                      size="icon"
-                                      variant="destructive"
-                                      className="ml-2"
-                                      title="Remover"
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                  }
-                                />
+                                {(adminStatus ||
+                                  (moderatorStatus && u.role === 'user')) &&
+                                  u.role?.toString() !== 'admin' && (
+                                    <ConfirmationRemoveUserDialog
+                                      userName={u.user.name_at}
+                                      onConfirm={() => removeUser(u.user.id)}
+                                      trigger={
+                                        <Button
+                                          size="icon"
+                                          variant="destructive"
+                                          className="ml-2"
+                                          title="Remover"
+                                        >
+                                          <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                      }
+                                    />
+                                  )}
                               </>
                             )}
                           </div>

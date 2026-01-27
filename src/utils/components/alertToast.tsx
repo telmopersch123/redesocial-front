@@ -38,12 +38,14 @@ export function AlertToast({ title, message, type }: AlertToastProps) {
 
 import { Crown, RotateCcw, Trash2 } from 'lucide-react'
 
-export function UserRoleToast({ userName, action, message }: Params) {
+export function UserRoleToast({ userName, action, message, visible }: Params) {
   const isPromote = action === 'promote'
   const isRemove = action === 'remove'
 
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-indigo-200 bg-white px-4 py-3 text-zinc-800 shadow-lg dark:border-indigo-500/30 dark:bg-[#0b1020] dark:text-zinc-100">
+    <div
+      className={`flex items-center gap-3 rounded-xl border border-indigo-200 bg-white px-4 py-3 text-zinc-800 shadow-lg dark:border-indigo-500/30 dark:bg-[#0b1020] dark:text-zinc-100 ${visible ? 'animate-toast-in' : 'animate-toast-out'}`}
+    >
       <div
         className={`flex h-10 w-10 items-center justify-center rounded-full ${
           isPromote
@@ -87,21 +89,22 @@ export function AlertCommunityRoleToast({
   type,
   message,
   onAction,
+  visible,
 }: {
   type: ToastType
   message: string
   onAction: () => void
+  visible: boolean
 }) {
   const isPromotion = type === 'PROMOTION'
 
   return (
     <div
-      className={
-        'flex items-center gap-3 rounded-xl border px-4 py-3 shadow-lg ' +
-        (isPromotion
+      className={`flex items-center gap-3 rounded-xl border px-4 py-3 shadow-lg transition-all duration-500 ease-out ${visible ? 'animate-toast-in' : 'animate-toast-out'} ${
+        isPromotion
           ? 'border-indigo-200 bg-white text-zinc-800 dark:border-indigo-500/30 dark:bg-[#0b1020] dark:text-zinc-100'
-          : 'border-red-200 bg-white text-zinc-800 dark:border-red-500/30 dark:bg-[#0b1020] dark:text-zinc-100')
-      }
+          : 'border-red-200 bg-white text-zinc-800 dark:border-red-500/30 dark:bg-[#0b1020] dark:text-zinc-100'
+      } `}
     >
       {isPromotion ? (
         <CheckCircle className="h-5 w-5 text-green-500" />

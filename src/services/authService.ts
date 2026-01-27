@@ -465,10 +465,12 @@ export const getUsersCommunitys = async (
   communityId: number,
   page: number,
   query: string,
-  PAGE_SIZE: number
+  PAGE_SIZE: number,
+  filterRole?: string
 ) => {
+  console.log(filterRole)
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/comunity/${communityId}/getUsersCommunity?page=${page}&limit=${PAGE_SIZE}&search=${query}`,
+    `${import.meta.env.VITE_API_URL}/auth/comunity/${communityId}/getUsersCommunity?page=${page}&limit=${PAGE_SIZE}&search=${query}&filterRole=${filterRole}`,
     {
       method: 'GET',
       credentials: 'include',

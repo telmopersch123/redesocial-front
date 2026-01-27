@@ -5,13 +5,19 @@ export type Params = {
   userName: string
   action: 'promote' | 'demote' | 'remove'
   message?: string | undefined
+  visible?: boolean
 }
 
 export function showUserRoleToast({ userName, action, message }: Params) {
   toast.custom(
-    <UserRoleToast userName={userName} action={action} message={message} />,
-    {
-      duration: 4000,
-    }
+    (t) => (
+      <UserRoleToast
+        visible={t.visible}
+        userName={userName}
+        action={action}
+        message={message}
+      />
+    ),
+    { duration: 4000 }
   )
 }
