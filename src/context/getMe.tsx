@@ -18,6 +18,7 @@ interface AuthContextType {
   isModerator: (communityId: number) => boolean
   isAdmin: (communityId: number) => boolean
   canManage: (communityId: number) => boolean
+  refreshUser: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -50,23 +51,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     navigate('/auth', { replace: true })
   }
-  useEffect(() => {
-    async function fetchUser() {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
-          credentials: 'include', // envia o cookie HTTP-only
-        })
-        if (!res.ok) {
-          setUser(null)
-          return
-        }
-        const data = await res.json()
-        setUser(data.user)
-      } catch {
-        setUser(null)
-      }
-    }
 
+  async function fetchUser() {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
+        credentials: 'include',
+      })
+      if (!res.ok) {
+        setUser(null)
+        return
+      }
+      const data = await res.json()
+      setUser(data.user)
+    } catch {
+      setUser(null)
+    }
+  }
+  useEffect(() => {
     fetchUser()
   }, [])
 
@@ -80,6 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAdmin,
         isModerator,
         canManage,
+        refreshUser: fetchUser,
       }}
     >
       {children}

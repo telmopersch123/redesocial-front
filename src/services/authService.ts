@@ -566,3 +566,36 @@ export const removeUsersSelectedCommuntity = async (
   if (!res.ok) throw new Error('Erro ao remover os usuários da comunidade')
   return await res.json()
 }
+
+export const generateCommunityInvite = async (communityId: number) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/${communityId}/generateInvite`,
+    {
+      method: 'POST',
+      credentials: 'include',
+    }
+  )
+  if (!response.ok) throw new Error('Erro ao gerar convite')
+  return await response.json()
+}
+export const validateCommunityInvite = async (token: string) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/invite/validate/${token}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    }
+  )
+  if (!response.ok) throw new Error('Convite inválido ou expirado')
+  return await response.json()
+}
+export const getCommunityDetailsByName = async (communityName: string) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/${communityName}/getCommunityByName`,
+    {
+      credentials: 'include',
+    }
+  )
+  if (!response.ok) throw new Error('Não encontrada')
+  return response.json()
+}

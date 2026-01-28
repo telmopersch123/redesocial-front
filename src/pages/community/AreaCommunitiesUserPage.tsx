@@ -2,20 +2,32 @@
 
 import { MessageCircleHeart, Settings, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Button } from '../../components/ui/button'
 
+import toast from 'react-hot-toast'
 import CardsPostCommunityComponent from '../../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
 import PostComponentDialog from '../../components/componentsPages/PostsComponent.tsx/PostComponentDialog'
 import UsersCommunityDialog from '../../components/componentsPages/componentsComunidadeUsuario/UsersCommunityDialog'
 import { PostCardSkeleton } from '../../components/componentsPages/componentsPerfil/Skeleton'
 import { TooltipComponent } from '../../components/globalcomponents/tooltipComponent'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../../components/ui/dialog'
 import { useCriarPostDialog } from '../../context/ContextDialogPost'
 import { useAuth } from '../../context/getMe'
 import { useInfiniteScroll } from '../../hooks/effectsSkeletons'
-import { getCommunityPosts } from '../../services/authService'
+import {
+  getCommunityDetailsByName,
+  getCommunityPosts,
+  joinCommunity,
+  validateCommunityInvite,
+} from '../../services/authService'
 import type { Post } from '../../types'
-
 export const normalizeURL = (s: string) =>
   s
     .normalize('NFD')
@@ -26,10 +38,20 @@ export const normalizeURL = (s: string) =>
 
 export default function AreaCommunitiesUserPage() {
   const { user, isAdmin } = useAuth()
+  const navigate = useNavigate()
+  const { token, communityName: urlCommunityName } = useParams()
   const [posts, setPosts] = useState<Post[]>([])
+  const [inviteData, setInviteData] = useState<{
+    id: number
+    name: string
+  } | null>(null)
+  const [activeCommunityId, setActiveCommunityId] = useState<number | null>(
+    null
+  )
   const [novoComentario, setNovoComentario] = useState('')
   const [loadedCount, setLoadedCount] = useState(10)
   const [isLoading, setIsLoading] = useState(true)
+  const [showInviteModal, setShowInviteModal] = useState(false)
   const [isLoadingSkeleton, setIsLoadingSkeleton] = useState(true)
   const [hasMore, setHasMore] = useState(true)
   const [page, setPage] = useState(1)
@@ -37,7 +59,8 @@ export default function AreaCommunitiesUserPage() {
   const location = useLocation()
   const [showSettings, setShowSettings] = useState(false)
   const communityIdFromState = location.state?.communityId
-  const adminStatus = isAdmin(communityIdFromState)
+  const adminStatus = isAdmin(communityIdFromState || activeCommunityId)
+  const [isInvitePending, setIsInvitePending] = useState(!!token)
   const { setOpenDialogPostNotification, openDialogPostNotification } =
     useCriarPostDialog()
   const { loadMoreRef } = useInfiniteScroll({
@@ -50,7 +73,6 @@ export default function AreaCommunitiesUserPage() {
       fetchPosts(nextPage)
     },
   })
-
   const fetchPosts = async (
     pageNumber: number,
     isFirstLoad: boolean = false
@@ -60,7 +82,7 @@ export default function AreaCommunitiesUserPage() {
     }
     try {
       const communityUrlName = pathname.split('/').pop()
-      const targetId = communityIdFromState || 0
+      const targetId = communityIdFromState || activeCommunityId
 
       const postsData: Post[] = await getCommunityPosts(
         targetId,
@@ -97,19 +119,124 @@ export default function AreaCommunitiesUserPage() {
   }
 
   useEffect(() => {
-    setPage(1)
-    setHasMore(true)
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth',
-    })
-    setIsLoading(true)
-    fetchPosts(1, true)
-    setShowSettings(false)
-  }, [communityIdFromState, pathname])
+    const resolveId = async () => {
+      if (location.state?.communityId) {
+        setActiveCommunityId(location.state.communityId)
+        return
+      }
+
+      if (urlCommunityName) {
+        try {
+          const response = await getCommunityDetailsByName(urlCommunityName)
+          console.log(response.id)
+          setActiveCommunityId(response.id)
+        } catch (err) {
+          console.error('Não foi possível encontrar o ID desta comunidade')
+        }
+      }
+    }
+    resolveId()
+  }, [urlCommunityName, location.state])
+
+  useEffect(() => {
+    if (activeCommunityId && !isInvitePending) {
+      setPage(1)
+      setHasMore(true)
+      setIsLoading(true)
+      fetchPosts(1, true)
+      setShowSettings(false)
+    }
+  }, [activeCommunityId, isInvitePending])
+
+  useEffect(() => {
+    const checkToken = async () => {
+      if (token) {
+        try {
+          const data = await validateCommunityInvite(token)
+          setInviteData({ id: data.communityId, name: data.communityName })
+          setShowInviteModal(true)
+        } catch (err) {
+          toast.error('Este link de convite não é mais válido.')
+          navigate(`/comunidades/comunidades-do-usuario/${urlCommunityName}`, {
+            replace: true,
+          })
+        }
+      }
+    }
+
+    checkToken()
+  }, [token])
+
+  const handleAcceptInvite = async () => {
+    const targetId = inviteData?.id
+    if (!targetId) {
+      toast.error('Dados da comunidade não encontrados.')
+      return
+    }
+    try {
+      await joinCommunity(targetId)
+      toast.success(`Bem-vindo à comunidade ${inviteData?.name}!`)
+      setIsInvitePending(false)
+      setShowInviteModal(false)
+      navigate(`/comunidades/comunidades-do-usuario/${urlCommunityName}`, {
+        replace: true,
+        state: { communityId: targetId },
+      })
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes('já faz parte')) {
+          setIsInvitePending(false)
+          setShowInviteModal(false)
+          navigate(`/comunidades/comunidades-do-usuario/${urlCommunityName}`, {
+            replace: true,
+          })
+        } else {
+          toast.error(error.message || 'Erro ao entrar na comunidade.')
+        }
+        console.error(error)
+      }
+    }
+  }
 
   return (
     <>
+      <Dialog open={showInviteModal} onOpenChange={setShowInviteModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">
+              Convite para Comunidade
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center py-4 text-center">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
+              <Users className="h-6 w-6 text-purple-600" />
+            </div>
+            <p className="text-gray-600 dark:text-zinc-400">
+              Você foi convidado para participar da comunidade:
+            </p>
+            <h3 className="mt-1 text-xl font-bold text-gray-900 dark:text-white">
+              {inviteData?.name || urlCommunityName?.replaceAll('-', ' ')}
+            </h3>
+          </div>
+          <DialogFooter className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setShowInviteModal(false)
+                navigate(`/comunidades`, { replace: true })
+              }}
+            >
+              Agora não
+            </Button>
+            <Button
+              className="bg-linear-purple text-white"
+              onClick={handleAcceptInvite}
+            >
+              Aceitar Convite
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <div className="fixed">
         <PostComponentDialog
           valuePosts={posts[0]}
@@ -131,7 +258,10 @@ export default function AreaCommunitiesUserPage() {
               <>
                 {adminStatus && (
                   <NavLink
-                    state={{ communityIdState: communityIdFromState }}
+                    state={{
+                      communityIdState:
+                        communityIdFromState ?? activeCommunityId,
+                    }}
                     to={'config'}
                   >
                     <TooltipComponent
@@ -149,7 +279,9 @@ export default function AreaCommunitiesUserPage() {
                     .split('/')
                     .pop()
                     ?.replaceAll('-', ' ')}
-                  communityIdFromState={communityIdFromState}
+                  communityIdFromState={
+                    communityIdFromState ?? activeCommunityId
+                  }
                 />
               </>
             )}

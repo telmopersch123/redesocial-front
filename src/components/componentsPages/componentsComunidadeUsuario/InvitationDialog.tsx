@@ -1,5 +1,6 @@
 import { Check, Copy, UserPlus } from 'lucide-react'
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { useParams } from 'react-router-dom'
 import { Button } from '../../../components/ui/button'
 import {
@@ -10,37 +11,36 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../../components/ui/dialog'
+import { generateCommunityInvite } from '../../../services/authService'
 
-const InvitationDialog = () => {
+interface MyComponentGenerateProps {
+  communityIdFromState: number
+}
+
+const InvitationDialog = ({
+  communityIdFromState,
+}: MyComponentGenerateProps) => {
   const [open, setOpen] = useState(false)
   const [invite, setInvite] = useState<any>(null)
   const [inviteLink, setInviteLink] = useState('')
   const [copied, setCopied] = useState(false)
   const { communityName } = useParams()
-  function generateInviteToken() {
-    return crypto.randomUUID().replace(/-/g, '').slice(0, 20)
-  }
 
-  const handleInvite = () => {
-    const token = generateInviteToken()
+  const handleInvite = async () => {
+    try {
+      const data = await generateCommunityInvite(communityIdFromState)
+      const token = data.token
 
-    const inviteData = {
-      token,
-      communityId: 123,
-      createdAt: new Date().toISOString().split('T')[0],
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000) // expira em 24h
-        .toISOString()
-        .split('T')[0],
-      maxUses: 1,
-      uses: 0,
+      const safeName = encodeURIComponent(communityName || '')
+      const link = `${window.location.origin}/comunidades/comunidades-do-usuario/${safeName}/${token}`
+      console.log(window.location.origin)
+      setInviteLink(link)
+      setInvite(data)
+      setCopied(false)
+    } catch (error) {
+      toast.error('Não foi possível gerar o link de convite.')
     }
-    const link = `${window.location.origin}/comunidades/comunidades-do-usuario/${communityName}/${token}`
-    setInviteLink(link)
-    setInvite(inviteData)
-    setCopied(false)
-    setOpen(true)
   }
-
   const handleCopy = async () => {
     await navigator.clipboard.writeText(inviteLink)
     setCopied(true)

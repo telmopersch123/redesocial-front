@@ -19,11 +19,13 @@ import { Button } from '../../ui/button'
 interface LeaveButtonProps {
   communityId: number
   communityName: string | undefined
+  setOpen?: (open: boolean) => void
 }
 
 export const LeaveButton = ({
   communityId,
   communityName,
+  setOpen,
 }: LeaveButtonProps) => {
   const [isLeaving, setIsLeaving] = useState(false)
 
@@ -43,6 +45,7 @@ export const LeaveButton = ({
       if (!response.ok) throw new Error()
 
       toast.success(`Você saiu de ${communityName}`)
+      if (setOpen) setOpen(false)
       navigate('/comunidades', { replace: true })
     } catch (error) {
       toast.error('Erro ao sair da comunidade')

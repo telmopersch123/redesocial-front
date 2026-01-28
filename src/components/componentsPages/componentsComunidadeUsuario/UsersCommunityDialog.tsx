@@ -13,7 +13,7 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '../../../context/getMe'
 import { showUserRoleToast } from '../../../Helpers/showUserRoleToast'
 import {
@@ -72,9 +72,11 @@ const UsersCommunityDialog = ({
   communityIdFromState,
   communityName,
 }: MyComponentProps) => {
-  const { isAdmin, user, isModerator } = useAuth()
-  const moderatorStatus = isModerator(communityIdFromState)
+  const { isAdmin, user, isModerator, refreshUser } = useAuth()
   const adminStatus = isAdmin(communityIdFromState)
+  const moderatorStatus = isModerator(communityIdFromState)
+  const [onlineUsers, setOnlineUsers] = useState<number[]>([])
+
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -85,8 +87,9 @@ const UsersCommunityDialog = ({
   const [totalUsers, setTotalUsers] = useState(0)
   const [filterRole, setfilterRole] = useState('')
   const [page, setPage] = useState(1)
-  const pathname = window.location.pathname
+  const { pathname } = useLocation()
   const [users, setUsers] = useState<User[]>([])
+
   // responsavel por selecionar ou desselecionar todos os itens da página
   const selectAllPage = () => {
     const ids = users.filter((u) => u.role !== 'admin').map((u) => u.user.id)
@@ -184,6 +187,8 @@ const UsersCommunityDialog = ({
       setUsers(res.members)
       setTotalPageCount(res.meta.lastPage)
       setTotalUsers(res.meta.total)
+
+      refreshUser()
     } catch (err) {
       console.error(err)
       setIsRefreshing(false)
@@ -197,25 +202,18 @@ const UsersCommunityDialog = ({
   useEffect(() => {
     if (!socket) return
 
-    const handleInitialList = ({ users: onlineIds }: { users: number[] }) => {
-      setUsers((prev) =>
-        prev.map((u) => ({
-          ...u,
-          isOnline: onlineIds.includes(u.user.id),
-        }))
-      )
+    const handleInitialList = ({ users }: { users: number[] }) => {
+      setOnlineUsers(users)
     }
 
     const handleUserOnline = (userId: number) => {
-      setUsers((prev) =>
-        prev.map((u) => (u.user.id === userId ? { ...u, isOnline: true } : u))
+      setOnlineUsers((prev) =>
+        prev.includes(userId) ? prev : [...prev, userId]
       )
     }
 
     const handleUserOffline = (userId: number) => {
-      setUsers((prev) =>
-        prev.map((u) => (u.user.id === userId ? { ...u, isOnline: false } : u))
-      )
+      setOnlineUsers((prev) => prev.filter((id) => id !== userId))
     }
 
     socket.on('users:online:list', handleInitialList)
@@ -229,7 +227,7 @@ const UsersCommunityDialog = ({
       socket.off('userOnline', handleUserOnline)
       socket.off('userOffline', handleUserOffline)
     }
-  })
+  }, [])
 
   useEffect(() => {
     if (!validetedLoading || filterRole) {
@@ -244,6 +242,18 @@ const UsersCommunityDialog = ({
     }
   }, [open, page, query, pathname, filterRole])
 
+  useEffect(() => {
+    refreshUser()
+  }, [open, pathname])
+  useEffect(() => {
+    if (!users.length) return
+    setUsers((prev) =>
+      prev.map((u) => ({
+        ...u,
+        isOnline: onlineUsers.includes(u.user.id),
+      }))
+    )
+  }, [onlineUsers, users.length])
   useEffect(() => {
     if (open && socket) {
       socket.emit('get:online:users')
@@ -330,7 +340,9 @@ const UsersCommunityDialog = ({
                 <div
                   className={`${pathname === '/comunidades/comunidades-do-usuario' ? 'hidden' : ''}`}
                 >
-                  <InvitationDialog />
+                  <InvitationDialog
+                    communityIdFromState={communityIdFromState}
+                  />
                 </div>
                 <TooltipComponent
                   description="Atualizar lista"
@@ -338,7 +350,10 @@ const UsersCommunityDialog = ({
                     <Button
                       variant="outline"
                       size="icon"
-                      onClick={() => fetchUsers()}
+                      onClick={async () => {
+                        await fetchUsers()
+                        socket.emit('get:online:users')
+                      }}
                       disabled={isRefreshing}
                       className="relative h-10 w-10 cursor-pointer border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800"
                     >
@@ -390,6 +405,7 @@ const UsersCommunityDialog = ({
                         </div>
 
                         <NavLink
+                          onClick={() => setOpen(false)}
                           to={
                             Number(user?.id) === u.user.id
                               ? '/perfil'
@@ -562,6 +578,7 @@ const UsersCommunityDialog = ({
                 <LeaveButton
                   communityId={communityIdFromState}
                   communityName={communityName}
+                  setOpen={setOpen}
                 />
               )}
             </div>
