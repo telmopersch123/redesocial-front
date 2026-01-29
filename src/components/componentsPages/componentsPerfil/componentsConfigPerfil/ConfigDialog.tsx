@@ -109,7 +109,7 @@ export function ConfigDialog({
               setOpen={setOpenDialog}
             />
           ) : tab === 2 ? (
-            <OptionsCommunity />
+            <OptionsCommunity tab={tab} />
           ) : (
             tab === 3 && (
               <ActivityComponent setOpenDialogPost={setOpenDialogPost} />

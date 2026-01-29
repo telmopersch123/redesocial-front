@@ -8,7 +8,11 @@ import {
   DialogTrigger,
 } from '../../../ui/dialog'
 
-const ShowCommunityDialog = () => {
+const ShowCommunityDialog = ({
+  communityIdMananger,
+}: {
+  communityIdMananger: number
+}) => {
   return (
     <>
       <Dialog modal={false}>
@@ -27,7 +31,11 @@ const ShowCommunityDialog = () => {
           </DialogHeader>
           {/* Conteúdo real */}
 
-          <ConfigCommunity methodW_fullscreen={true} showButtonReturn={true} />
+          <ConfigCommunity
+            communityIdMananger={communityIdMananger}
+            methodW_fullscreen={true}
+            showButtonReturn={true}
+          />
         </DialogContent>
       </Dialog>
     </>

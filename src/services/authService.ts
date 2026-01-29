@@ -3,6 +3,7 @@ import type {
   ConfigCommunityFormData,
   PostDialogSchema,
 } from '../lib/validatorSchemas/autoSchemaAutenticator'
+import type { PayloadTypeCreate } from '../pages/community/CreateCommunityPage'
 import type { UserTypeSearch, ValidedCodeResponse } from '../types'
 import { socket } from './socket'
 
@@ -382,8 +383,9 @@ export async function getCommunityPosts(
   page: number = 1
 ) {
   const params = new URLSearchParams()
-
-  params.append('communityId', targetId.toString())
+  if (targetId) {
+    params.append('communityId', targetId.toString())
+  }
   if (targetName && targetName !== 'all') {
     params.append('communityName', targetName)
   }
@@ -446,8 +448,33 @@ export async function updateCommunityDetails(
       credentials: 'include',
     }
   )
-  if (!res.ok) throw new Error('Erro ao atualizar a comunidade')
-  return await res.json()
+  const body = await res.json()
+  if (!res.ok) {
+    throw new Error(body.message || 'Erro ao editar comunidade')
+  }
+
+  return body
+}
+
+export const createCommunity = async (payload: PayloadTypeCreate) => {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/CreateCommunities`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(payload),
+    }
+  )
+
+  const body = await res.json()
+  if (!res.ok) {
+    throw new Error(body.message || 'Erro ao criar comunidade')
+  }
+
+  return body
 }
 
 export const joinCommunity = async (communityId: number) => {
@@ -458,7 +485,10 @@ export const joinCommunity = async (communityId: number) => {
       credentials: 'include',
     }
   )
-  if (!res.ok) throw new Error('Erro ao entrar na comunidade')
+  const data = await res.json().catch(() => null)
+  if (!res.ok) {
+    throw new Error(data?.error || 'Erro ao entrar na comunidade')
+  }
   return await res.json()
 }
 export const getUsersCommunitys = async (
@@ -502,7 +532,6 @@ export const promoteUser = async (
 
   return await res.json()
 }
-
 export const demoteUser = async (communityId: number, targetUserId: number) => {
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/comunity/${communityId}/demoteUser`,
@@ -523,7 +552,6 @@ export const demoteUser = async (communityId: number, targetUserId: number) => {
 
   return await res.json()
 }
-
 export const removeUserCommunity = async (
   communityId: number,
   targetUserId: number
@@ -566,7 +594,6 @@ export const removeUsersSelectedCommuntity = async (
   if (!res.ok) throw new Error('Erro ao remover os usuários da comunidade')
   return await res.json()
 }
-
 export const generateCommunityInvite = async (communityId: number) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/comunity/${communityId}/generateInvite`,

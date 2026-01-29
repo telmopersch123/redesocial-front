@@ -33,7 +33,18 @@ import {
   createCommunitySchema,
   type CreateCommunityFormData,
 } from '../../lib/validatorSchemas/autoSchemaAutenticator'
-
+import { createCommunity } from '../../services/authService'
+export type PayloadTypeCreate = {
+  nameComunity: string
+  description: string
+  category: string
+  image: string | null
+  limit: number
+  rules: string | null | undefined
+  isPrivate: boolean
+  whoCanPost: 'members' | 'admins'
+  whoCanComment: 'members' | 'admins'
+}
 const CreateCommunityPage = () => {
   const [limitUsers, setLimitUsers] = useState<number>(500)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -56,6 +67,7 @@ const CreateCommunityPage = () => {
     control,
     handleSubmit,
     setValue,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<CreateCommunityFormData>({
     resolver: zodResolver(createCommunitySchema),
@@ -134,26 +146,21 @@ const CreateCommunityPage = () => {
         isPrivate: isPrivate,
       }
 
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/auth/comunity/CreateCommunities`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify(payload),
-        }
-      )
-
-      if (response.ok) {
-        navigate(`/comunidades`)
-        toast.success('Comunidade criada com sucesso!')
-      } else {
-        console.error('Erro ao criar')
-      }
+      await createCommunity(payload)
+      toast.success('Comunidade criada com sucesso!')
+      navigate('/comunidades')
     } catch (error) {
-      console.error('Erro na requisição:', error)
+      if (error instanceof Error) {
+        if (error.message.includes('comunidade')) {
+          setError('nameComunity', {
+            type: 'server',
+            message: error.message,
+          })
+          return
+        }
+
+        toast.error(error.message)
+      }
     }
   }
 

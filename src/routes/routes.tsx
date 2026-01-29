@@ -30,6 +30,7 @@ export default function AppRoutes() {
 
             <Route path=":communityName">
               <Route index element={<AreaCommunitiesUserPage />} />
+              <Route path=":token" element={<AreaCommunitiesUserPage />} />
               <Route path="config" element={<ConfigCommunity />} />
             </Route>
           </Route>

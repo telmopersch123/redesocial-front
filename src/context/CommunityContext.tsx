@@ -1,13 +1,13 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 interface ComunidadesContextType {
-  filtro: string | 'all'
-  setFiltro: (f: string | 'all') => void
+  filtro: number | 'all'
+  setFiltro: (f: number | 'all') => void
 }
 const ComunidadesContext = createContext<ComunidadesContextType | undefined>(
   undefined
 )
 export function ComunidadesProvider({ children }: { children: ReactNode }) {
-  const [filtro, setFiltro] = useState<string | 'all'>('all')
+  const [filtro, setFiltro] = useState<number | 'all'>('all')
 
   return (
     <ComunidadesContext.Provider

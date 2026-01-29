@@ -36,10 +36,12 @@ import { LoadingComponent } from '../../utils/components/Loading'
 interface ConfigCommunityProps {
   showButtonReturn?: boolean
   methodW_fullscreen?: boolean
+  communityIdMananger?: number
 }
 const ConfigCommunity = ({
   showButtonReturn,
   methodW_fullscreen,
+  communityIdMananger,
 }: ConfigCommunityProps) => {
   const navigation = useNavigate()
   const location = useLocation()
@@ -48,7 +50,7 @@ const ConfigCommunity = ({
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
 
-  const communityId = location.state?.communityIdState
+  const communityId = location.state?.communityIdState ?? communityIdMananger
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -56,7 +58,7 @@ const ConfigCommunity = ({
       setImagePreview(previewURL)
     }
   }
-  const { register, handleSubmit, reset, control, formState, watch } =
+  const { register, handleSubmit, reset, setError, control, formState, watch } =
     useForm<ConfigCommunityFormData>({
       resolver: zodResolver(configCommunitySchema),
       defaultValues: {
@@ -150,8 +152,17 @@ const ConfigCommunity = ({
       toast.success('Alterações salvas com sucesso!')
       navigation('/comunidades')
     } catch (error) {
-      console.log(error)
-      toast.error('Erro ao salvar alterações')
+      if (error instanceof Error) {
+        if (error.message.includes('comunidade')) {
+          setError('nameComunity', {
+            type: 'server',
+            message: error.message,
+          })
+          return
+        }
+
+        toast.error(error.message)
+      }
     }
   }
 
@@ -167,7 +178,7 @@ const ConfigCommunity = ({
     <div
       className={`mb-4 mt-4 px-4 md:mx-auto ${
         methodW_fullscreen
-          ? 'max-w-[1000px]'
+          ? 'w-[90vw] xl:w-[1000px]'
           : 'w-[90vw] md:max-w-[calc(100vw-20rem)] dm:max-w-[calc(100vw-30rem)] ny:max-w-[calc(100vw-50rem)]'
       } `}
     >
@@ -258,9 +269,7 @@ const ConfigCommunity = ({
                 className={`border-zinc-300 focus:ring-purple-600 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 ${errors.nameComunity?.message ? 'border-red-500 focus:ring-red-500' : ''}`}
                 placeholder="Ex: Programadores Brasil"
               />
-              {errors.nameComunity && (
-                <p className="text-red-500">{errors.nameComunity.message}</p>
-              )}
+
               <MessageForms
                 error={errors.nameComunity?.message || ''}
                 valueLength={nameValue.length}

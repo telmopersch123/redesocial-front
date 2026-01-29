@@ -70,7 +70,7 @@ const CardsCommunityComponent = ({
     }
   }
   return (
-    <Card className="group relative !mb-5 w-[calc(100vw-3rem)] flex-shrink-0 overflow-hidden rounded-2xl border-none bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:bg-zinc-900 md:w-full">
+    <Card className="group relative !mb-5 w-[calc(100vw-3rem)] flex-shrink-0 overflow-hidden border-none bg-white shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl dark:bg-zinc-900 md:w-full">
       <CardHeader className="m-0 p-0">
         <div className="relative h-[140px] w-full overflow-hidden">
           <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/20 to-transparent" />
@@ -79,7 +79,7 @@ const CardsCommunityComponent = ({
             <img
               src={image}
               alt={nameComunity}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              className="h-full w-full object-cover transition-transform duration-500"
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-zinc-100 dark:bg-zinc-800">
@@ -89,7 +89,7 @@ const CardsCommunityComponent = ({
 
           <div className="absolute right-3 top-3 z-20">
             <span
-              className={`flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider backdrop-blur-md ${
+              className={`flex items-center gap-1 !rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider backdrop-blur-md ${
                 isPrivate
                   ? 'border border-red-500/30 bg-red-500/20 text-red-100'
                   : 'border border-emerald-500/30 bg-emerald-500/20 text-emerald-100'

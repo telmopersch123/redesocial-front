@@ -36,7 +36,8 @@ import ErrorsPostDialog from './ErrorsPostDialog'
 import FullscreenDialog from './FullscreenDialog'
 
 export function PostDialog() {
-  const { isOpen, close, postCommunity, myCommunities } = useCriarPostDialog()
+  const { isOpen, close, postCommunity, myCommunities, setPermissionRefresch } =
+    useCriarPostDialog()
   const [uploadType, setUploadType] = useState<'image' | 'video' | null>(null)
   const [file, setFile] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -64,7 +65,6 @@ export function PostDialog() {
   })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const destinationType = watch('destination.type')
-  const communityId = watch('destination.communityId')
 
   useEffect(() => {
     if (postCommunity) {
@@ -200,11 +200,13 @@ export function PostDialog() {
         media: mediaUrl ? { url: mediaUrl, type: mediaType! } : null,
       })
 
+      setPermissionRefresch(true)
       handleCloseDialog()
       setTags([])
       close()
     } catch (err) {
       console.log(err)
+      setPermissionRefresch(false)
     }
   }
   return (

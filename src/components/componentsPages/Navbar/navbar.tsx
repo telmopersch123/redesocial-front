@@ -46,13 +46,9 @@ const items = [
   { title: 'Autocuidado', url: '/autocuidado', icon: Heart },
 ]
 
-const isSelected = (name: string, filtro: string) => {
+const isSelected = (communityId: number, filtro: 'all' | number) => {
   if (filtro === 'all') return false
-
-  const normalizedFiltro = filtro.replace(/\s+/g, '').toLowerCase()
-  const normalizedCommunity = name.replace(/\s+/g, '').toLowerCase()
-
-  return normalizedFiltro === normalizedCommunity
+  return communityId === filtro
 }
 
 export function AppSidebar() {
@@ -114,10 +110,7 @@ export function AppSidebar() {
     )
 
     if (found) {
-      setFiltro(found.nameComunity)
-    } else {
-      const nomeLimpo = communityName.replace(/-/g, ' ')
-      setFiltro(nomeLimpo)
+      setFiltro(found.id)
     }
   }, [communityName, myCommunities, setFiltro])
 
@@ -263,17 +256,17 @@ export function AppSidebar() {
                       <Button
                         key={community.id}
                         variant={
-                          isSelected(community.nameComunity, filtro)
+                          isSelected(community.id, filtro)
                             ? 'default'
                             : 'outline'
                         }
                         className={`w-full justify-start gap-2 text-sm font-medium transition-colors ${
-                          isSelected(community.nameComunity, filtro)
+                          isSelected(community.id, filtro)
                             ? `bg-purple-600 text-white hover:bg-purple-700 dark:bg-purple-600 dark:hover:bg-purple-500`
                             : `border-zinc-300 text-zinc-700 hover:bg-purple-50 hover:text-purple-700 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-purple-400`
                         }`}
                         onClick={() => {
-                          setFiltro(community.nameComunity)
+                          setFiltro(community.id)
                           const nomeURL = normalizeURL(community.nameComunity)
                           navigate(
                             `/comunidades/comunidades-do-usuario/${nomeURL}`,
@@ -281,11 +274,17 @@ export function AppSidebar() {
                           )
                         }}
                       >
-                        <img
-                          className="h-4 w-4 rounded-full"
-                          src={community.image}
-                          alt={community.nameComunity}
-                        />
+                        {community.image ? (
+                          <img
+                            className="h-4 w-4 rounded-full"
+                            src={community.image}
+                            alt={community.nameComunity}
+                          />
+                        ) : (
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
+                            <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                          </div>
+                        )}
                         <span className="truncate">
                           {community.nameComunity}
                         </span>
