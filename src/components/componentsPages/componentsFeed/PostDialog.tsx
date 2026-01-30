@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 
+import { useRefreshPermission } from '../../../context/RefreshPermissionContext'
 import { useLimitForms } from '../../../hooks/useLimitForms'
 import {
   postDialogSchema,
@@ -36,8 +37,8 @@ import ErrorsPostDialog from './ErrorsPostDialog'
 import FullscreenDialog from './FullscreenDialog'
 
 export function PostDialog() {
-  const { isOpen, close, postCommunity, myCommunities, setPermissionRefresch } =
-    useCriarPostDialog()
+  const { isOpen, close, postCommunity, myCommunities } = useCriarPostDialog()
+  const { allowRefresh, resetRefresh } = useRefreshPermission()
   const [uploadType, setUploadType] = useState<'image' | 'video' | null>(null)
   const [file, setFile] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -200,13 +201,13 @@ export function PostDialog() {
         media: mediaUrl ? { url: mediaUrl, type: mediaType! } : null,
       })
 
-      setPermissionRefresch(true)
+      allowRefresh()
       handleCloseDialog()
       setTags([])
       close()
     } catch (err) {
       console.log(err)
-      setPermissionRefresch(false)
+      resetRefresh()
     }
   }
   return (

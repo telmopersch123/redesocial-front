@@ -70,7 +70,10 @@ export function AppSidebar() {
     currentPath === `/comunidades/comunidades-do-usuario/${communityName}` ||
     currentPath ===
       `/comunidades/comunidades-do-usuario/${communityName}/config` ||
-    currentPath === `/comunidades/comunidades-do-usuario/${communityName}/${id}`
+    currentPath ===
+      `/comunidades/comunidades-do-usuario/${communityName}/${id}` ||
+    currentPath ===
+      `/comunidades/comunidades-do-usuario/${communityName}/archived`
 
   useEffect(() => {
     setOpenMobile(false)
@@ -88,6 +91,8 @@ export function AppSidebar() {
         `/comunidades/comunidades-do-usuario/${communityName}/config` ||
       pathname ===
         `/comunidades/comunidades-do-usuario/${communityName}/${id}` ||
+      pathname ===
+        `/comunidades/comunidades-do-usuario/${communityName}/archived` ||
       pathname === '/comunidades/criar' ||
       pathname === '/comunidades/comunidades-do-usuario/config'
     ) {
@@ -132,6 +137,8 @@ export function AppSidebar() {
           `/comunidades/comunidades-do-usuario/${communityName}/config` ||
         pathname ===
           `/comunidades/comunidades-do-usuario/${communityName}/${id}` ||
+        pathname ===
+          `/comunidades/comunidades-do-usuario/${communityName}/archived` ||
         pathname === `/perfil`
           ? '2xl:w-[134px]'
           : ''

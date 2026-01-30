@@ -6,17 +6,29 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import { VideoContext, type VideoState } from '../../../context/VideoContext'
 import type { Post } from '../../../types'
 
+import { useAuth } from '../../../context/getMe'
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
 import ActionsPost from './components/ActionsPostComponent'
+import { ModalConfirmArchivePost } from './components/ModalConfirmArqPost'
+import { ModalConfirmDelPost } from './components/ModalConfirmDelPost'
 
 interface PostCardProps {
   posts: Post[]
   valuePost: Post
   setPosts: React.Dispatch<React.SetStateAction<Post[]>>
+  communityShowButtonArchived?: boolean
 }
 
-const CardsPostComponent = ({ posts, valuePost, setPosts }: PostCardProps) => {
+const CardsPostComponent = ({
+  posts,
+  valuePost,
+  setPosts,
+  communityShowButtonArchived,
+}: PostCardProps) => {
   const [novoComentario, setNovoComentario] = useState('')
+  const { isModerator, isAdmin } = useAuth()
+  const validatedModerator = isModerator(valuePost.communityId ?? 0)
+  const validatedAdmin = isAdmin(valuePost.communityId ?? 0)
 
   const { videoState, setVideoState } = useContext(VideoContext)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -51,7 +63,7 @@ const CardsPostComponent = ({ posts, valuePost, setPosts }: PostCardProps) => {
       key={valuePost.id}
       className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-[#1b1b1b]"
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="flex flex-row items-center justify-between gap-4 px-4 pb-3 pt-4">
         <div className="flex items-center gap-3">
           {valuePost.user.avatar ? (
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-sm font-bold text-white">
@@ -62,10 +74,11 @@ const CardsPostComponent = ({ posts, valuePost, setPosts }: PostCardProps) => {
               <Users className="h-5 w-5" />
             </div>
           )}
+
           <div>
             <CardTitle className="text-base text-gray-800 dark:text-gray-200">
               <span className="font-semibold text-purple-600 dark:text-purple-400">
-                {valuePost.community}
+                {valuePost.communityName}
               </span>{' '}
               • {valuePost.user.name_at}
             </CardTitle>
@@ -89,6 +102,17 @@ const CardsPostComponent = ({ posts, valuePost, setPosts }: PostCardProps) => {
             </div>
           </div>
         </div>
+        {communityShowButtonArchived && validatedModerator ? (
+          <ModalConfirmArchivePost
+            postId={valuePost.id}
+            nameUser={valuePost.user.name_at}
+          />
+        ) : (
+          validatedAdmin &&
+          communityShowButtonArchived && (
+            <ModalConfirmDelPost nameUser={valuePost.user.name_at} />
+          )
+        )}
       </CardHeader>
 
       <CardContent className="pb-0 pt-0">
@@ -126,7 +150,7 @@ const CardsPostComponent = ({ posts, valuePost, setPosts }: PostCardProps) => {
             ) : (
               <img
                 src={valuePost.mediaUrl}
-                alt={valuePost.community}
+                alt={valuePost.communityName}
                 className="h-full w-full object-cover"
               />
             )}

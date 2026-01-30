@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from '../../components/ui/dialog'
 import { useCriarPostDialog } from '../../context/ContextDialogPost'
+import { useRefreshPermission } from '../../context/RefreshPermissionContext'
 import { useAuth } from '../../context/getMe'
 import { useInfiniteScroll } from '../../hooks/effectsSkeletons'
 import {
@@ -48,11 +49,9 @@ export interface ApiError {
 }
 export default function AreaCommunitiesUserPage() {
   const { user, isAdmin } = useAuth()
-  const {
-    setOpenDialogPostNotification,
-    openDialogPostNotification,
-    permissionRefresch,
-  } = useCriarPostDialog()
+  const { setOpenDialogPostNotification, openDialogPostNotification } =
+    useCriarPostDialog()
+  const { permissionRefresh } = useRefreshPermission()
   const navigate = useNavigate()
   const { token, communityName: urlCommunityName } = useParams()
   const [posts, setPosts] = useState<Post[]>([])
@@ -201,7 +200,7 @@ export default function AreaCommunitiesUserPage() {
       fetchPosts(1, true)
       setShowSettings(false)
     }
-  }, [activeCommunityId, isInvitePending, permissionRefresch])
+  }, [activeCommunityId, isInvitePending, permissionRefresh])
 
   useEffect(() => {
     const checkToken = async () => {
@@ -359,6 +358,7 @@ export default function AreaCommunitiesUserPage() {
                           posts={posts}
                           valuePost={post}
                           setPosts={setPosts}
+                          communityShowButtonArchived={true}
                         />
                       )}
                     </div>

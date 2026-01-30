@@ -157,7 +157,32 @@ export const usernameSchema = z.object({
       'Use apenas letras, números, ponto (.) ou underline (_), começando com letra'
     ),
 })
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
+const ACCEPTED_IMAGE_TYPES = ['image/png', 'image/jpeg']
 
+export const archivePostSchema = z.object({
+  motivo: z
+    .string()
+    .min(10, 'A justificativa deve ter pelo menos 10 caracteres')
+    .max(5000, 'A justificativa é muito longa'),
+
+  imagens: z
+    .array(
+      z
+        .instanceof(File)
+        .refine(
+          (file) => ACCEPTED_IMAGE_TYPES.includes(file.type),
+          'Formato inválido (apenas PNG ou JPG)'
+        )
+        .refine(
+          (file) => file.size <= MAX_IMAGE_SIZE,
+          'Imagem muito grande (máx. 5MB)'
+        )
+    )
+    .optional(),
+})
+
+export type ArchivePostFormData = z.infer<typeof archivePostSchema>
 export type UsernameFormData = z.infer<typeof usernameSchema>
 export type PostDialogSchema = z.infer<typeof postDialogSchema>
 export type CreateCommunityFormData = z.infer<typeof createCommunitySchema>

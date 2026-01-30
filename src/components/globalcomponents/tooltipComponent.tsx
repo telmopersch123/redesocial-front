@@ -18,10 +18,8 @@ export function TooltipComponent({
   return (
     <TooltipProvider delayDuration={150}>
       <Tooltip disableHoverableContent>
-        <TooltipTrigger asChild tabIndex={-1}>
-          {Element}
-        </TooltipTrigger>
-        <TooltipContent className="z-[90] bg-purple-600 font-medium">
+        <TooltipTrigger asChild>{Element}</TooltipTrigger>
+        <TooltipContent className="z-[90] bg-purple-600 font-medium text-white">
           <p>{description}</p>
         </TooltipContent>
       </Tooltip>

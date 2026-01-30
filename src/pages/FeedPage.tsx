@@ -58,8 +58,8 @@ const FeedPage = () => {
   const hasMore = visibleCount < posts.length
   const { loadMoreRef } = useInfiniteScroll({
     totalItems: posts.length,
-    itemsPerPage: 10,
-    delayInMs: 1000,
+    // itemsPerPage: 10,
+    // delayInMs: 1000,
     rootMargin: '600px',
     enabled: hasMore,
     onLoadMore: () => {
@@ -86,7 +86,7 @@ const FeedPage = () => {
     <>
       <div className="fixed">
         <PostComponentDialog
-          valuePost={posts[0]}
+          valuePosts={posts[0]}
           novoComentario={novoComentario}
           setNovoComentario={setNovoComentario}
           setPosts={setPosts}

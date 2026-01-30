@@ -13,8 +13,6 @@ interface CriarPostDialogContextType {
   setOpenActionPosts: React.Dispatch<React.SetStateAction<boolean>>
   setMyCommunities: React.Dispatch<React.SetStateAction<CommunityInterface[]>>
   myCommunities: CommunityInterface[]
-  permissionRefresch: boolean
-  setPermissionRefresch: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const CriarPostDialogContext = createContext<
@@ -23,7 +21,7 @@ const CriarPostDialogContext = createContext<
 
 export function CriarPostDialogProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false)
-  const [permissionRefresch, setPermissionRefresch] = useState(false)
+
   const [myCommunities, setMyCommunities] = useState<CommunityInterface[]>([])
   const [postCommunity, setPostCommunity] = useState<boolean>(false)
   const [openActionPosts, setOpenActionPosts] = useState(false)
@@ -47,8 +45,6 @@ export function CriarPostDialogProvider({ children }: { children: ReactNode }) {
         setOpenActionPosts,
         setMyCommunities,
         myCommunities,
-        permissionRefresch,
-        setPermissionRefresch,
       }}
     >
       {children}

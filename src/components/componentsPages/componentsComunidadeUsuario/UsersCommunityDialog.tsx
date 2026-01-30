@@ -5,6 +5,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Crown,
+  Inbox,
   Loader2,
   RotateCcw,
   Search,
@@ -522,26 +523,40 @@ const UsersCommunityDialog = ({
             {/* Paginação + ações em massa */}
             <div className="flex flex-wrap items-center justify-center gap-3 md:justify-between">
               {adminStatus && (
-                <div className="flex flex-col items-center gap-2 sm:flex-row">
-                  <Button variant="outline" onClick={selectAllPage}>
-                    <CheckSquare className="h-4 w-4" /> Selecionar Todos
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={removeSelectedUsers}
-                    disabled={!selectedRemove.length || loadingremoveSelected}
-                  >
-                    {loadingremoveSelected ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-4 w-4" />
-                    )}
-                    Remover&nbsp;
-                    {selectedRemove.length} Usuários
-                  </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex flex-col items-center gap-2 sm:flex-row">
+                    <Button variant="outline" onClick={selectAllPage}>
+                      <CheckSquare className="h-4 w-4" /> Selecionar Todos
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={removeSelectedUsers}
+                      disabled={!selectedRemove.length || loadingremoveSelected}
+                    >
+                      {loadingremoveSelected ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                      Remover&nbsp;
+                      {selectedRemove.length} Usuários
+                    </Button>
+                  </div>
+                  <TooltipComponent description="Mostrar posts arquivados">
+                    <NavLink to={`archived`}>
+                      {' '}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="group rounded-full p-2 text-gray-600 transition-all hover:bg-purple-100 hover:text-purple-600 dark:text-gray-300 dark:hover:bg-purple-500/10 dark:hover:text-purple-400"
+                        aria-label="Mostrar posts arquivados"
+                      >
+                        <Inbox className="h-5 w-5 transition-transform group-hover:scale-110" />
+                      </Button>
+                    </NavLink>
+                  </TooltipComponent>
                 </div>
               )}
-
               <div className="flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-2 py-1 dark:border-zinc-700 dark:bg-zinc-800">
                 <button
                   className="p-1 disabled:opacity-40"

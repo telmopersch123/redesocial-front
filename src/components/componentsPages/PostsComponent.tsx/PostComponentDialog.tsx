@@ -291,7 +291,7 @@ const PostComponentDialog = ({
                       ) : (
                         <img
                           src={postAtualizado.mediaUrl}
-                          alt={postAtualizado.community}
+                          alt={postAtualizado.communityName}
                           className="h-full w-full object-cover"
                         />
                       )}

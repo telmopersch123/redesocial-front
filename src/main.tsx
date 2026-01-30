@@ -14,6 +14,7 @@ import { OpenMentionsProvider } from './context/openMentions.tsx'
 import { ChatProvider } from './context/ChatContext.tsx'
 import { NotificationProvider } from './context/NotificationProvider.tsx'
 import { PostsProvider } from './context/PostsContext.tsx'
+import { RefreshPermissionProvider } from './context/RefreshPermissionContext.tsx'
 import { ResetPasswordProvider } from './context/ResetPasswordContext.tsx'
 import { VideoProvider } from './context/VideoContext.tsx'
 import './index.css'
@@ -24,23 +25,25 @@ createRoot(document.getElementById('root')!).render(
         <AuthProvider>
           <ChatProvider>
             <NotificationProvider>
-              <PostsProvider>
-                <VideoProvider>
-                  <ThemeProvider>
-                    <OpenMentionsProvider>
-                      <BreathingProvider>
-                        <ComunidadesProvider>
-                          <SidebarProvider>
-                            <CriarPostDialogProvider>
-                              <App />
-                            </CriarPostDialogProvider>
-                          </SidebarProvider>
-                        </ComunidadesProvider>
-                      </BreathingProvider>
-                    </OpenMentionsProvider>
-                  </ThemeProvider>
-                </VideoProvider>
-              </PostsProvider>
+              <RefreshPermissionProvider>
+                <PostsProvider>
+                  <VideoProvider>
+                    <ThemeProvider>
+                      <OpenMentionsProvider>
+                        <BreathingProvider>
+                          <ComunidadesProvider>
+                            <SidebarProvider>
+                              <CriarPostDialogProvider>
+                                <App />
+                              </CriarPostDialogProvider>
+                            </SidebarProvider>
+                          </ComunidadesProvider>
+                        </BreathingProvider>
+                      </OpenMentionsProvider>
+                    </ThemeProvider>
+                  </VideoProvider>
+                </PostsProvider>
+              </RefreshPermissionProvider>
             </NotificationProvider>
           </ChatProvider>
         </AuthProvider>

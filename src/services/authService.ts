@@ -626,3 +626,27 @@ export const getCommunityDetailsByName = async (communityName: string) => {
   if (!response.ok) throw new Error('Não encontrada')
   return response.json()
 }
+export const ArchivedPostsCommunity = async (
+  postId: string | number,
+  mediaType: string,
+  mediaUrl: string,
+  reason: string
+) => {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/${postId}/archivedPost`,
+    {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reason, mediaType, mediaUrl }),
+    }
+  )
+
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error ?? 'Erro ao arquivar post')
+  }
+  return await res.json()
+}

@@ -28,7 +28,8 @@ export interface Post {
   feelingPost: string
   createdAt: Date
   updatedAt: string
-  community: string
+  communityName: string
+  communityId: number | null
   likesCount: number
   likedByMe: boolean
   user: User

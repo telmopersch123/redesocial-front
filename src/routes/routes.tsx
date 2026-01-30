@@ -7,6 +7,7 @@ import AreaCommunitiesUserPage from '../pages/community/AreaCommunitiesUserPage'
 import CommunityPage from '../pages/community/CommunityPage'
 import ConfigCommunity from '../pages/community/ConfigCommunity'
 import CreateCommunityPage from '../pages/community/CreateCommunityPage'
+import { PostsArchived } from '../pages/community/PostsArchived'
 import ConfigPerfilPage from '../pages/ConfigPerfilPage'
 import DiaryPage from '../pages/DiaryPage'
 import FeedPage from '../pages/FeedPage'
@@ -31,6 +32,7 @@ export default function AppRoutes() {
             <Route path=":communityName">
               <Route index element={<AreaCommunitiesUserPage />} />
               <Route path=":token" element={<AreaCommunitiesUserPage />} />
+              <Route path="archived" element={<PostsArchived />} />
               <Route path="config" element={<ConfigCommunity />} />
             </Route>
           </Route>
