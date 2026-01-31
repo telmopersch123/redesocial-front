@@ -2,6 +2,7 @@ import { Bookmark, Heart, Share2 } from 'lucide-react'
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import { useAuth } from '../../../../context/getMe'
 import { usePosts } from '../../../../context/PostsContext'
+import type { ExtendedPost } from '../../../../pages/community/PostsArchived'
 import { savedPost, updateLikedPost } from '../../../../services/authService'
 import type { Post } from '../../../../types'
 import { TooltipComponent } from '../../../globalcomponents/tooltipComponent'
@@ -13,7 +14,7 @@ interface ActionsPostProps {
   valuePost: Post
   novoComentario: string
   setNovoComentario: React.Dispatch<React.SetStateAction<string>>
-  setPosts: React.Dispatch<React.SetStateAction<Post[]>>
+  setPosts: React.Dispatch<React.SetStateAction<ExtendedPost[]>>
   posts: Post[]
   validated?: boolean
   pauseVideo: () => void
@@ -95,7 +96,7 @@ const ActionsPost = ({
     try {
       const response = await savedPost(id.toString())
       setPosts((prev) =>
-        prev.map((post: Post) =>
+        prev.map((post: ExtendedPost) =>
           post.id === id ? { ...post, saved: response.saved } : post
         )
       )

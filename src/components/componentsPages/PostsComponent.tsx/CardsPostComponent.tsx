@@ -7,6 +7,7 @@ import { VideoContext, type VideoState } from '../../../context/VideoContext'
 import type { Post } from '../../../types'
 
 import { useAuth } from '../../../context/getMe'
+import type { ExtendedPost } from '../../../pages/community/PostsArchived'
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
 import ActionsPost from './components/ActionsPostComponent'
 import { ModalConfirmArchivePost } from './components/ModalConfirmArqPost'
@@ -16,7 +17,7 @@ import { PostAdminActions } from './components/PostAdminActions'
 interface PostCardProps {
   posts: Post[]
   valuePost: Post
-  setPosts: React.Dispatch<React.SetStateAction<Post[]>>
+  setPosts: React.Dispatch<React.SetStateAction<ExtendedPost[]>>
   communityShowButtonArchived?: boolean
   postsArchived?: boolean
 }

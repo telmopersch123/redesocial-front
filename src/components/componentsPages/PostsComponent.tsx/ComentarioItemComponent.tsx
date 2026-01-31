@@ -15,12 +15,13 @@ import React, {
 } from 'react'
 import { useMentionLogic } from '../../../context/openMentions'
 import { useLimitForms } from '../../../hooks/useLimitForms'
-import type { ComentarioPost, Post } from '../../../types'
+import type { ComentarioPost } from '../../../types'
 import { formatMentions } from '../../../utils/formatMentions'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 import { Button } from '../../ui/button'
 
 import { useAuth } from '../../../context/getMe'
+import type { ExtendedPost } from '../../../pages/community/PostsArchived'
 import { deleteComment } from '../../../services/authService'
 import ListMarcation from './ListMarcation'
 import { MentionInput } from './components/MentionsInput'
@@ -38,7 +39,7 @@ interface ComentarioItemProps {
     SetStateAction<{ [commentId: string]: boolean }>
   >
   scrollRef: RefObject<HTMLDivElement | null>
-  setPosts: React.Dispatch<React.SetStateAction<Post[]>>
+  setPosts: React.Dispatch<React.SetStateAction<ExtendedPost[]>>
 }
 
 const CommentItem = ({

@@ -21,6 +21,7 @@ import { VideoContext, type VideoState } from '../../../context/VideoContext'
 import { createComment } from '../../../services/authService'
 
 import { usePosts } from '../../../context/PostsContext'
+import type { ExtendedPost } from '../../../pages/community/PostsArchived'
 import ListMarcation from './ListMarcation'
 import ActionsPost from './components/ActionsPostComponent'
 import { MentionInput } from './components/MentionsInput'
@@ -29,7 +30,7 @@ export interface PostProp {
   valuePosts: Post
   novoComentario: string
   setNovoComentario: React.Dispatch<React.SetStateAction<string>>
-  setPosts: React.Dispatch<React.SetStateAction<Post[]>>
+  setPosts: React.Dispatch<React.SetStateAction<ExtendedPost[]>>
   posts: Post[]
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -92,7 +93,7 @@ const PostComponentDialog = ({
             }
           }
           return p
-        })
+        }) as ExtendedPost[]
       )
       setSelectedPost(postAtualizado)
 
@@ -130,7 +131,7 @@ const PostComponentDialog = ({
             }
           }
           return p
-        })
+        }) as ExtendedPost[]
       )
       setSelectedPost(postAtualizado)
       setTextoResposta('')
