@@ -1,4 +1,8 @@
 import { Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import toast from 'react-hot-toast'
+import { useRefreshPermission } from '../../../../context/RefreshPermissionContext'
+import { DeletePostCommunity } from '../../../../services/authService'
 import { TooltipComponent } from '../../../globalcomponents/tooltipComponent'
 import {
   AlertDialog,
@@ -15,14 +19,42 @@ import { Button } from '../../../ui/button'
 
 interface ModalConfirmDelPostProps {
   nameUser: string
+  open?: boolean
+  setOpen?: (open: boolean) => void
+  disabled?: boolean
+  postId: string | number
 }
 
-export const ModalConfirmDelPost = ({ nameUser }: ModalConfirmDelPostProps) => {
+export const ModalConfirmDelPost = ({
+  nameUser,
+  open,
+  setOpen,
+  disabled,
+  postId,
+}: ModalConfirmDelPostProps) => {
+  const [loading, setLoading] = useState(false)
+  const { allowRefresh, resetRefresh } = useRefreshPermission()
+  const handleDeletePost = async () => {
+    setLoading(true)
+    try {
+      await DeletePostCommunity(postId)
+      toast.success('Postagem excluída com sucesso')
+      if (setOpen) setOpen(false)
+      allowRefresh()
+    } catch (error) {
+      toast.error('Erro ao excluir postagem')
+      console.error('Erro ao excluir postagem:', error)
+      resetRefresh()
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <TooltipComponent description="Excluir Postagem">
         <AlertDialogTrigger asChild>
-          <div className="flex justify-end">
+          <div className={`${disabled && 'hidden'} flex justify-end`}>
             <Button
               type="button"
               className="group flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-700 shadow-sm transition-all hover:border-red-400 hover:bg-red-50 hover:text-red-600 hover:shadow-md dark:border-gray-700 dark:bg-[#1b1b1b] dark:text-gray-300 dark:hover:border-red-500 dark:hover:bg-red-500/10 dark:hover:text-red-400"
@@ -55,11 +87,16 @@ export const ModalConfirmDelPost = ({ nameUser }: ModalConfirmDelPostProps) => {
 
           <AlertDialogAction
             className="rounded-xl bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
-            onClick={() => {
-              alert('Postagem excluída!')
-            }}
+            onClick={() => handleDeletePost()}
           >
-            Excluir
+            {loading ? (
+              <>
+                Excluindo
+                <span className="ml-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              </>
+            ) : (
+              'Exluir'
+            )}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

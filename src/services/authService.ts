@@ -650,3 +650,47 @@ export const ArchivedPostsCommunity = async (
   }
   return await res.json()
 }
+export const getArchivedPostsCommunity = async (communityId: number) => {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/getArchivedPosts/${communityId}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) {
+    throw new Error('Erro ao buscar os posts arquivados')
+  }
+  const data = await res.json()
+  return data
+}
+
+export const UnarchivePostCommunity = async (postId: string | number) => {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/unarchivePost/${postId}`,
+    {
+      method: 'DELETE',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error ?? 'Erro ao desarquivar post')
+  }
+  return await res.json()
+}
+
+export const DeletePostCommunity = async (postId: string | number) => {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/comunity/deletePostCommunity/${postId}`,
+    {
+      method: 'DELETE',
+      credentials: 'include',
+    }
+  )
+  if (!res.ok) {
+    const error = await res.json()
+    throw new Error(error.error ?? 'Erro ao deletar o post')
+  }
+  return await res.json()
+}

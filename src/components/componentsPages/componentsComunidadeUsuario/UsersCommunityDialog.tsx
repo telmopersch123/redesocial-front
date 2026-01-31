@@ -543,7 +543,13 @@ const UsersCommunityDialog = ({
                     </Button>
                   </div>
                   <TooltipComponent description="Mostrar posts arquivados">
-                    <NavLink to={`archived`}>
+                    <NavLink
+                      state={{
+                        communityId: communityIdFromState,
+                        communityName: communityName,
+                      }}
+                      to={`archived`}
+                    >
                       {' '}
                       <Button
                         type="button"

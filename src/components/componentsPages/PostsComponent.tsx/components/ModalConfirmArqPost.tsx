@@ -29,16 +29,22 @@ import { Textarea } from '../../../ui/textarea'
 interface ModalConfirmArchivePostProps {
   nameUser: string
   postId: string | number
+  open?: boolean
+  setOpen?: (open: boolean) => void
+  disabled?: boolean
 }
 
 export const ModalConfirmArchivePost = ({
   nameUser,
   postId,
+  open,
+  setOpen,
+  disabled,
 }: ModalConfirmArchivePostProps) => {
   const [loading, setLoading] = useState(false)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const { allowRefresh, resetRefresh } = useRefreshPermission()
-  const [open, setOpen] = useState(false)
+
   const {
     register,
     handleSubmit,
@@ -107,11 +113,15 @@ export const ModalConfirmArchivePost = ({
       })
       setPreviewImage(null)
       setValue('imagens', [])
-      setOpen(false)
+      if (setOpen !== undefined) {
+        setOpen(false)
+      }
       allowRefresh()
     } catch {
       toast.error('Erro ao arquivar post')
-      setOpen(true)
+      if (setOpen !== undefined) {
+        setOpen(true)
+      }
       resetRefresh()
     } finally {
       setLoading(false)
@@ -125,7 +135,7 @@ export const ModalConfirmArchivePost = ({
           <AlertDialogTrigger asChild>
             <Button
               type="button"
-              className="group flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-700 shadow-sm transition-all hover:border-purple-400 hover:bg-purple-50 hover:text-purple-600 dark:border-gray-700 dark:bg-[#1b1b1b] dark:text-gray-300 dark:hover:border-purple-500 dark:hover:bg-purple-500/10 dark:hover:text-purple-400"
+              className={`dark:hover:text-purple-40 group flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 text-gray-700 shadow-sm transition-all hover:border-purple-400 hover:bg-purple-50 hover:text-purple-600 dark:border-gray-700 dark:bg-[#1b1b1b] dark:text-gray-300 dark:hover:border-purple-500 dark:hover:bg-purple-500/10 ${disabled && 'hidden'}`}
             >
               <Archive className="h-4 w-4 transition-transform group-hover:scale-110" />
               <span className="text-sm font-medium">Arquivar</span>

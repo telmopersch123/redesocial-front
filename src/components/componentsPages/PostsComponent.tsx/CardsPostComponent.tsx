@@ -11,12 +11,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
 import ActionsPost from './components/ActionsPostComponent'
 import { ModalConfirmArchivePost } from './components/ModalConfirmArqPost'
 import { ModalConfirmDelPost } from './components/ModalConfirmDelPost'
+import { PostAdminActions } from './components/PostAdminActions'
 
 interface PostCardProps {
   posts: Post[]
   valuePost: Post
   setPosts: React.Dispatch<React.SetStateAction<Post[]>>
   communityShowButtonArchived?: boolean
+  postsArchived?: boolean
 }
 
 const CardsPostComponent = ({
@@ -24,6 +26,7 @@ const CardsPostComponent = ({
   valuePost,
   setPosts,
   communityShowButtonArchived,
+  postsArchived,
 }: PostCardProps) => {
   const [novoComentario, setNovoComentario] = useState('')
   const { isModerator, isAdmin } = useAuth()
@@ -102,15 +105,24 @@ const CardsPostComponent = ({
             </div>
           </div>
         </div>
-        {communityShowButtonArchived && validatedModerator ? (
+        {communityShowButtonArchived && validatedModerator && !postsArchived ? (
           <ModalConfirmArchivePost
             postId={valuePost.id}
             nameUser={valuePost.user.name_at}
           />
+        ) : validatedAdmin && communityShowButtonArchived && !postsArchived ? (
+          <ModalConfirmDelPost
+            nameUser={valuePost.user.name_at}
+            postId={valuePost.id}
+          />
         ) : (
-          validatedAdmin &&
-          communityShowButtonArchived && (
-            <ModalConfirmDelPost nameUser={valuePost.user.name_at} />
+          communityShowButtonArchived &&
+          postsArchived &&
+          validatedAdmin && (
+            <PostAdminActions
+              postId={valuePost.id}
+              nameUser={valuePost.user.name_at}
+            />
           )
         )}
       </CardHeader>
