@@ -498,7 +498,6 @@ export const getUsersCommunitys = async (
   PAGE_SIZE: number,
   filterRole?: string
 ) => {
-  console.log(filterRole)
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/comunity/${communityId}/getUsersCommunity?page=${page}&limit=${PAGE_SIZE}&search=${query}&filterRole=${filterRole}`,
     {
@@ -630,10 +629,11 @@ export const ArchivedPostsCommunity = async (
   postId: string | number,
   mediaType: string,
   mediaUrl: string,
-  reason: string
+  reason: string,
+  communityId: number
 ) => {
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/comunity/${postId}/archivedPost`,
+    `${import.meta.env.VITE_API_URL}/auth/comunity/${postId}/${communityId}/archivedPost`,
     {
       method: 'POST',
       credentials: 'include',
@@ -650,12 +650,21 @@ export const ArchivedPostsCommunity = async (
   }
   return await res.json()
 }
-export const getArchivedPostsCommunity = async (communityId: number) => {
+export const getArchivedPostsCommunity = async (
+  communityId: number,
+  page: number = 1
+) => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+  })
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/comunity/getArchivedPosts/${communityId}`,
+    `${import.meta.env.VITE_API_URL}/auth/comunity/getArchivedPosts/${communityId}?${params.toString()}`,
     {
       method: 'GET',
       credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     }
   )
   if (!res.ok) {
@@ -665,9 +674,12 @@ export const getArchivedPostsCommunity = async (communityId: number) => {
   return data
 }
 
-export const UnarchivePostCommunity = async (postId: string | number) => {
+export const UnarchivePostCommunity = async (
+  postId: string | number,
+  communityId: number
+) => {
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/comunity/unarchivePost/${postId}`,
+    `${import.meta.env.VITE_API_URL}/auth/comunity/unarchivePost/${postId}/${communityId}`,
     {
       method: 'DELETE',
       credentials: 'include',
@@ -680,12 +692,18 @@ export const UnarchivePostCommunity = async (postId: string | number) => {
   return await res.json()
 }
 
-export const DeletePostCommunity = async (postId: string | number) => {
+export const DeletePostCommunity = async (
+  postId: string | number,
+  communityId: number
+) => {
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/comunity/deletePostCommunity/${postId}`,
+    `${import.meta.env.VITE_API_URL}/auth/comunity/deletePostCommunity/${postId}/${communityId}`,
     {
       method: 'DELETE',
       credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     }
   )
   if (!res.ok) {

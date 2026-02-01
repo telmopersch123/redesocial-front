@@ -146,8 +146,6 @@ const ConfigCommunity = ({
         limit: Number(formData.limit),
       }
 
-      console.log(payload)
-
       await updateCommunityDetails(communityId, payload)
       toast.success('Alterações salvas com sucesso!')
       navigation('/comunidades')

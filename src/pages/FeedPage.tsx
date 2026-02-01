@@ -57,10 +57,10 @@ const FeedPage = () => {
   const [loadedCount, setLoadedCount] = useState(10)
   const hasMore = visibleCount < posts.length
   const { loadMoreRef } = useInfiniteScroll({
-    totalItems: posts.length,
     // itemsPerPage: 10,
     // delayInMs: 1000,
     rootMargin: '600px',
+    isLoading: visibleCount < loadedCount,
     enabled: hasMore,
     onLoadMore: () => {
       const nextDisplay = Math.min(visibleCount + 10, posts.length)

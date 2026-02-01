@@ -33,7 +33,7 @@ const InvitationDialog = ({
 
       const safeName = encodeURIComponent(communityName || '')
       const link = `${window.location.origin}/comunidades/comunidades-do-usuario/${safeName}/${token}`
-      console.log(window.location.origin)
+
       setInviteLink(link)
       setInvite(data)
       setCopied(false)

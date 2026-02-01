@@ -23,29 +23,24 @@ export type Persons = {
 export interface Post {
   id: number
   description: string
-  mediaType: 'image' | 'video' | null
-  mediaUrl: string | undefined
-  feelingPost: string
+  mediaType?: 'image' | 'video' | null
+  mediaUrl?: string
+  feelingPost?: string
   createdAt: Date
-  updatedAt: string
+  updatedAt?: string
   communityName: string
   communityId: number | null
   likesCount: number
   likedByMe: boolean
   user: User
-  comments: ComentarioPost[]
+  comments?: ComentarioPost[]
+  postTags?: { tag: { id: number; name: string } }[]
   likes: Like[]
   saves: Save[]
   saved: boolean
   tags: string[]
-  _count: {
-    likes: number
-  }
-
-  // remover dps
-  friend: boolean
-  avatar: string | null
-  autor: string
+  _count?: { likes: number }
+  anonymous?: boolean
 }
 
 interface User {

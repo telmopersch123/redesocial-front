@@ -1,5 +1,6 @@
 import { Bookmark, Heart, Share2 } from 'lucide-react'
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
+import toast from 'react-hot-toast'
 import { useAuth } from '../../../../context/getMe'
 import { usePosts } from '../../../../context/PostsContext'
 import type { ExtendedPost } from '../../../../pages/community/PostsArchived'
@@ -32,12 +33,13 @@ const ActionsPost = ({
   const { setSelectedPost } = usePosts()
   const pathname = window.location.pathname
   const [openDialog, setOpenDialog] = useState(false)
-  const [liked, setLiked] = useState(false)
+  const [liked, setLiked] = useState(valuePost.likedByMe ?? false)
+  const likesCount = valuePost._count?.likes ?? 0
   const { user: authUser } = useAuth()
   const validatedRouter = pathname.includes(`perfil/config`) ? true : false
 
   useEffect(() => {
-    setLiked(valuePost.likedByMe)
+    setLiked(valuePost.likedByMe ?? false)
   }, [valuePost])
 
   const handleShare = async () => {
@@ -63,6 +65,36 @@ const ActionsPost = ({
   }
 
   const handleLiked = async (id: number) => {
+    const wasLiked = liked
+    const currentLikes = likesCount
+    const optimisticLikes = wasLiked ? currentLikes - 1 : currentLikes + 1
+    setLiked(!wasLiked)
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === id
+          ? {
+              ...post,
+              likedByMe: !wasLiked,
+              _count: {
+                ...post._count,
+                likes: optimisticLikes,
+              },
+            }
+          : post
+      )
+    )
+    setSelectedPost((prev) =>
+      prev?.id === id
+        ? {
+            ...prev,
+            likedByMe: !wasLiked,
+            _count: {
+              ...prev._count,
+              likes: optimisticLikes,
+            },
+          }
+        : prev
+    )
     try {
       const updated = await updateLikedPost(id)
       setLiked(updated.liked)
@@ -73,7 +105,10 @@ const ActionsPost = ({
             ? {
                 ...post,
                 likedByMe: updated.liked,
-                likesCount: updated.likesCount,
+                _count: {
+                  ...post._count,
+                  likes: updated.likesCount,
+                },
               }
             : post
         )
@@ -83,16 +118,26 @@ const ActionsPost = ({
           ? {
               ...prev,
               likedByMe: updated.liked,
-              likesCount: updated.likesCount,
+              _count: {
+                ...prev._count,
+                likes: updated.likesCount,
+              },
             }
           : prev
       )
     } catch (error) {
+      setLiked(wasLiked)
       console.log(error)
     }
   }
 
   const handleSalvar = async (id: number) => {
+    const wasSaved = valuePost.saved
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === id ? { ...post, saved: !wasSaved } : post
+      )
+    )
     try {
       const response = await savedPost(id.toString())
       setPosts((prev) =>
@@ -105,6 +150,12 @@ const ActionsPost = ({
       )
     } catch (error) {
       console.log(error)
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === id ? { ...post, saved: wasSaved } : post
+        )
+      )
+      toast.error('Erro ao salvar o post')
     }
   }
 
@@ -138,7 +189,7 @@ const ActionsPost = ({
             }`}
           >
             <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />{' '}
-            {valuePost.likesCount}
+            {likesCount}
           </Button>
           {!validatedRouter && (
             <PostComponentDialog

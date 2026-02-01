@@ -17,11 +17,13 @@ import { ModalConfirmUnarchivePost } from './ModalConfirmUnarchivePost'
 interface PostAdminActionsProps {
   postId: number | string
   nameUser: string
+  communityId: number
 }
 
 export const PostAdminActions = ({
   postId,
   nameUser,
+  communityId,
 }: PostAdminActionsProps) => {
   const [openArchive, setOpenArchive] = useState(false)
   const [openDelete, setOpenDelete] = useState(false)
@@ -65,6 +67,7 @@ export const PostAdminActions = ({
         open={openArchive}
         setOpen={setOpenArchive}
         disabled={true}
+        communityId={communityId}
       />
 
       <ModalConfirmDelPost
@@ -73,6 +76,7 @@ export const PostAdminActions = ({
         setOpen={setOpenDelete}
         disabled={true}
         postId={postId}
+        communityId={communityId}
       />
     </>
   )

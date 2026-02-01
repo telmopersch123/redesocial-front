@@ -21,6 +21,7 @@ import {
 import { useAuth } from '../../context/getMe'
 import { useRefreshPermission } from '../../context/RefreshPermissionContext'
 
+import { useInfiniteScroll } from '../../hooks/effectsSkeletons'
 import { getArchivedPostsCommunity } from '../../services/authService'
 import type { Post } from '../../types'
 
@@ -63,31 +64,52 @@ export interface ExtendedPost extends Post {
 
 export const PostsArchived = () => {
   const { user } = useAuth()
-  const { permissionRefresh } = useRefreshPermission()
+  const { refreshTrigger } = useRefreshPermission()
   const location = useLocation()
   const navigate = useNavigate()
-
   const communityId = location.state?.communityId as number | undefined
   const communityName = location.state?.communityName as string | undefined
-
   const [posts, setPosts] = useState<ExtendedPost[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingSkeleton, setIsLoadingSkeleton] = useState(true)
   const [selectedEvidence, setSelectedEvidence] = useState<ExtendedPost | null>(
     null
   )
+  const [hasMore, setHasMore] = useState(true)
+  const [page, setPage] = useState(1)
+  const { loadMoreRef } = useInfiniteScroll({
+    enabled: hasMore && !isLoadingSkeleton,
+    rootMargin: '300px 0px 0px 0px',
+    threshold: 0.1,
+    isLoading,
+    onLoadMore: () => {
+      if (isLoading || posts.length < 5) return
+      const nextPage = page + 1
+      setPage(nextPage)
+      fetchArchivedPosts(nextPage)
+    },
+  })
 
-  const fetchArchivedPosts = async () => {
+  const fetchArchivedPosts = async (
+    pageNumber: number,
+    isFirstLoad: boolean = false
+  ) => {
     if (!communityId) {
       toast.error('ID da comunidade não encontrado')
       setIsLoading(false)
+      setIsLoadingSkeleton(false)
       return
     }
 
-    setIsLoading(true)
+    if (!isLoading && !isFirstLoad) {
+      setIsLoadingSkeleton(true)
+    }
 
     try {
-      const data: ArchivedPostData[] =
-        await getArchivedPostsCommunity(communityId)
+      const data: ArchivedPostData[] = await getArchivedPostsCommunity(
+        communityId,
+        pageNumber
+      )
 
       const normalized = data.map((archived) => ({
         ...archived.post,
@@ -103,20 +125,33 @@ export const PostsArchived = () => {
         saved: !!archived.post.saves?.length,
         likesCount: archived.post._count?.likes ?? 0,
       }))
-
-      setPosts(normalized)
+      if (normalized.length < 10) {
+        setHasMore(false)
+      }
+      if (isFirstLoad) {
+        setPosts(normalized)
+      } else {
+        setPosts((prev) => [...prev, ...normalized])
+      }
     } catch (error) {
       console.error(error)
       toast.error('Erro ao carregar posts arquivados')
       setPosts([])
+      setIsLoadingSkeleton(false)
+      setIsLoading(false)
     } finally {
+      setIsLoadingSkeleton(false)
       setIsLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchArchivedPosts()
-  }, [communityId, permissionRefresh])
+    setHasMore(true)
+    setIsLoading(true)
+    setPosts([])
+    setPage(1)
+    fetchArchivedPosts(1, true)
+  }, [communityId, refreshTrigger])
 
   if (!communityId) {
     return (
@@ -195,9 +230,7 @@ export const PostsArchived = () => {
                 key={post.id}
                 className="overflow-hidden rounded-2xl border border-zinc-200 shadow-sm transition-shadow hover:shadow-md dark:border-zinc-800 dark:hover:shadow-zinc-950/40"
               >
-                {/* Bloco de moderação - layout profissional */}
                 <div className="relative border-b border-zinc-200 px-3 py-2 dark:border-zinc-800">
-                  {/* Data no canto superior direito */}
                   {post.archivedAt && (
                     <div className="text-xs text-zinc-500 dark:text-zinc-400">
                       {formatDistanceToNow(new Date(post.archivedAt), {
@@ -208,19 +241,13 @@ export const PostsArchived = () => {
                   )}
 
                   <div className="flex flex-col gap-4 pr-28">
-                    {' '}
-                    {/* pr-28 reserva espaço pra data */}
-                    {/* Motivo alinhado à esquerda, bem integrado */}
                     <div className="max-h-[200px] w-[50vw] overflow-y-auto break-words text-[15px] leading-relaxed text-zinc-800 dark:text-zinc-200">
                       <span className="font-semibold text-zinc-950 dark:text-zinc-50">
                         Motivo:{' '}
                       </span>
                       {post.archivedReason}{' '}
-                      KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
-                      KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
-                      KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK
                     </div>
-                    {/* Quem arquivou */}
+
                     <div className="text-xs text-zinc-600 dark:text-zinc-400">
                       Pelo moderador{' '}
                       <span className="font-medium text-zinc-800 dark:text-zinc-200">
@@ -229,7 +256,6 @@ export const PostsArchived = () => {
                     </div>
                   </div>
 
-                  {/* Ver evidência no canto inferior direito */}
                   {post.evidenceMediaUrl && (
                     <div className="relative sm:absolute sm:bottom-0 sm:right-1">
                       <button
@@ -257,7 +283,6 @@ export const PostsArchived = () => {
           </div>
         )}
 
-        {/* Modal - mantido com imagem bem exibida */}
         <Dialog
           open={!!selectedEvidence}
           onOpenChange={() => setSelectedEvidence(null)}
@@ -316,6 +341,18 @@ export const PostsArchived = () => {
           </DialogContent>
         </Dialog>
       </div>
+      {hasMore && user && (
+        <div
+          ref={loadMoreRef}
+          className="flex min-h-[120px] items-center justify-center py-16" // altura maior ajuda na detecção
+        >
+          {isLoadingSkeleton && !isLoading && (
+            <div className="w-full animate-pulse">
+              <PostCardSkeleton />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

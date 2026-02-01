@@ -30,11 +30,10 @@ const PerfilUsuario = () => {
     hasMore = visibleCount < posts.length
   }
   const { loadMoreRef } = useInfiniteScroll({
-    totalItems: posts.length,
-    itemsPerPage: 10,
-    delayInMs: 1000,
-    rootMargin: '600px',
     enabled: hasMore,
+    rootMargin: '300px 0px 0px 0px',
+    threshold: 0.1,
+    isLoading: loading,
     onLoadMore: () => {
       const nextDisplay = Math.min(visibleCount + 10, posts.length)
       setVisibleCount(nextDisplay)

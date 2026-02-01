@@ -25,6 +25,7 @@ interface ModalConfirmUnarchivePostProps {
   open?: boolean
   setOpen?: (open: boolean) => void
   disabled?: boolean
+  communityId: number
 }
 
 export const ModalConfirmUnarchivePost = ({
@@ -33,20 +34,20 @@ export const ModalConfirmUnarchivePost = ({
   open,
   setOpen,
   disabled,
+  communityId,
 }: ModalConfirmUnarchivePostProps) => {
   const [loading, setLoading] = useState(false)
-  const { allowRefresh, resetRefresh } = useRefreshPermission()
+  const { triggerRefresh } = useRefreshPermission()
 
   const handleUnarchive = async () => {
     setLoading(true)
     try {
-      await UnarchivePostCommunity(postId)
+      await UnarchivePostCommunity(postId, communityId)
       toast.success('Post desarquivado com sucesso')
-      allowRefresh()
+      triggerRefresh()
       if (setOpen) setOpen(false)
     } catch {
       toast.error('Erro ao desarquivar post')
-      resetRefresh()
     } finally {
       setLoading(false)
     }

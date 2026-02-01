@@ -1,5 +1,6 @@
 'use client'
 
+import { debounce } from 'lodash'
 import Lottie from 'lottie-react'
 import {
   AlertTriangle,
@@ -51,7 +52,7 @@ export default function AreaCommunitiesUserPage() {
   const { user, isAdmin } = useAuth()
   const { setOpenDialogPostNotification, openDialogPostNotification } =
     useCriarPostDialog()
-  const { permissionRefresh } = useRefreshPermission()
+  const { refreshTrigger } = useRefreshPermission()
   const navigate = useNavigate()
   const { token, communityName: urlCommunityName } = useParams()
   const [posts, setPosts] = useState<Post[]>([])
@@ -77,24 +78,27 @@ export default function AreaCommunitiesUserPage() {
   const adminStatus = isAdmin(communityIdFromState || activeCommunityId)
 
   const [isInvitePending, setIsInvitePending] = useState(!!token)
-
+  const debouncedOnLoadMore = debounce(() => {
+    if (isLoading || !hasMore || posts.length < 5) return
+    const nextPage = page + 1
+    setPage(nextPage)
+    fetchPosts(nextPage)
+  }, 300)
   const { loadMoreRef } = useInfiniteScroll({
-    totalItems: posts.length,
-    enabled: hasMore && !isLoadingSkeleton,
-    rootMargin: '600px',
-    onLoadMore: () => {
-      const nextPage = page + 1
-      setPage(nextPage)
-      fetchPosts(nextPage)
-    },
+    enabled: hasMore,
+    rootMargin: '400px 0px 0px 0px',
+    threshold: 0.1,
+    isLoading,
+    onLoadMore: debouncedOnLoadMore,
   })
+
   const fetchPosts = async (
     pageNumber: number,
     isFirstLoad: boolean = false
   ) => {
-    if (!isLoading) {
-      setIsLoadingSkeleton(true)
-    }
+    if (isLoading && !isFirstLoad) return
+
+    setIsLoadingSkeleton(true)
 
     try {
       const communityUrlName = pathname.split('/').pop()
@@ -109,17 +113,11 @@ export default function AreaCommunitiesUserPage() {
       if (postsData.length < 10) {
         setHasMore(false)
       }
-      const normalizedPosts = postsData.map((post: Post) => ({
-        ...post,
-        likedByMe:
-          post.likes?.some((l: any) => l.userId === Number(user?.id)) ?? false,
-        saved: Array.isArray(post.saves) ? post.saves.length > 0 : false,
-        likesCount: post._count?.likes ?? 0,
-      }))
+
       if (isFirstLoad) {
-        setPosts(normalizedPosts)
+        setPosts(postsData)
       } else {
-        setPosts((prev) => [...prev, ...normalizedPosts])
+        setPosts((prev) => [...prev, ...postsData])
       }
       setLoadedCount((prev) => (isFirstLoad ? 10 : prev + 10))
     } catch (err) {
@@ -127,6 +125,7 @@ export default function AreaCommunitiesUserPage() {
       setIsLoading(false)
       setIsLoadingSkeleton(false)
       if (isFirstLoad) setPosts([])
+      setHasMore(false)
     } finally {
       setIsLoading(false)
       setIsLoadingSkeleton(false)
@@ -166,41 +165,60 @@ export default function AreaCommunitiesUserPage() {
   }
 
   useEffect(() => {
+    let ignore = false
+
     const resolveId = async () => {
-      if (location.state?.communityId) {
-        setActiveCommunityId(location.state.communityId)
-        setCommunityNotFound(false)
-        return
-      }
+      if (ignore) return
 
-      if (urlCommunityName) {
-        try {
-          const response = await getCommunityDetailsByName(urlCommunityName)
-          setActiveCommunityId(response.id)
-          setCommunityNotFound(false)
-        } catch (err) {
-          setCommunityNotFound(true)
-        }
-      } else {
-        setActiveCommunityId(null)
-        setPage(1)
-        setHasMore(true)
-        setIsLoading(true)
-        fetchPosts(1, true)
-      }
-    }
-    resolveId()
-  }, [urlCommunityName, location.state, pathname])
-
-  useEffect(() => {
-    if (activeCommunityId && !isInvitePending) {
+      setPosts([])
       setPage(1)
       setHasMore(true)
+      setLoadedCount(10)
       setIsLoading(true)
-      fetchPosts(1, true)
-      setShowSettings(false)
+      setIsLoadingSkeleton(true)
+      setCommunityNotFound(false)
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+
+      try {
+        let targetCommunityId = location.state?.communityId
+
+        if (targetCommunityId) {
+          setActiveCommunityId(targetCommunityId)
+          setCommunityNotFound(false)
+        } else if (urlCommunityName) {
+          const community = await getCommunityDetailsByName(urlCommunityName)
+          if (ignore) return
+          targetCommunityId = community.id
+          setActiveCommunityId(targetCommunityId)
+        }
+
+        if (!isInvitePending) {
+          await fetchPosts(1, true)
+        }
+      } catch (err) {
+        console.error(err)
+        setCommunityNotFound(true)
+        setPosts([])
+        setHasMore(false)
+      } finally {
+        if (!ignore) {
+          setIsLoading(false)
+          setIsLoadingSkeleton(false)
+        }
+      }
     }
-  }, [activeCommunityId, isInvitePending, permissionRefresh])
+
+    resolveId()
+
+    return () => {
+      ignore = true
+    }
+  }, [
+    urlCommunityName,
+    location.state?.communityId,
+    isInvitePending,
+    refreshTrigger,
+  ])
 
   useEffect(() => {
     const checkToken = async () => {
@@ -394,10 +412,16 @@ export default function AreaCommunitiesUserPage() {
                     )}
                   </>
                 )}
-
-                {hasMore && (
-                  <div ref={loadMoreRef}>
-                    {isLoadingSkeleton && !isLoading && <PostCardSkeleton />}
+                {hasMore && user && (
+                  <div
+                    ref={loadMoreRef}
+                    className="flex min-h-[300px] items-center justify-center"
+                  >
+                    {isLoadingSkeleton && !isLoading && (
+                      <div className="w-full animate-pulse">
+                        <PostCardSkeleton />
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -23,6 +23,7 @@ interface ModalConfirmDelPostProps {
   setOpen?: (open: boolean) => void
   disabled?: boolean
   postId: string | number
+  communityId: number
 }
 
 export const ModalConfirmDelPost = ({
@@ -31,20 +32,20 @@ export const ModalConfirmDelPost = ({
   setOpen,
   disabled,
   postId,
+  communityId,
 }: ModalConfirmDelPostProps) => {
   const [loading, setLoading] = useState(false)
-  const { allowRefresh, resetRefresh } = useRefreshPermission()
+  const { triggerRefresh } = useRefreshPermission()
   const handleDeletePost = async () => {
     setLoading(true)
     try {
-      await DeletePostCommunity(postId)
+      await DeletePostCommunity(postId, communityId)
       toast.success('Postagem excluída com sucesso')
       if (setOpen) setOpen(false)
-      allowRefresh()
+      triggerRefresh()
     } catch (error) {
       toast.error('Erro ao excluir postagem')
       console.error('Erro ao excluir postagem:', error)
-      resetRefresh()
     } finally {
       setLoading(false)
     }

@@ -32,6 +32,7 @@ interface ModalConfirmArchivePostProps {
   open?: boolean
   setOpen?: (open: boolean) => void
   disabled?: boolean
+  communityId: number
 }
 
 export const ModalConfirmArchivePost = ({
@@ -40,10 +41,11 @@ export const ModalConfirmArchivePost = ({
   open,
   setOpen,
   disabled,
+  communityId,
 }: ModalConfirmArchivePostProps) => {
   const [loading, setLoading] = useState(false)
   const [previewImage, setPreviewImage] = useState<string | null>(null)
-  const { allowRefresh, resetRefresh } = useRefreshPermission()
+  const { triggerRefresh } = useRefreshPermission()
 
   const {
     register,
@@ -105,7 +107,13 @@ export const ModalConfirmArchivePost = ({
         const result = await response.json()
         mediaUrl = result.secure_url
       }
-      await ArchivedPostsCommunity(postId, mediaType, mediaUrl, data.motivo)
+      await ArchivedPostsCommunity(
+        postId,
+        mediaType,
+        mediaUrl,
+        data.motivo,
+        communityId
+      )
       toast.success('Post arquivado com sucesso')
       reset({
         motivo: '',
@@ -116,13 +124,12 @@ export const ModalConfirmArchivePost = ({
       if (setOpen !== undefined) {
         setOpen(false)
       }
-      allowRefresh()
+      triggerRefresh()
     } catch {
       toast.error('Erro ao arquivar post')
       if (setOpen !== undefined) {
         setOpen(true)
       }
-      resetRefresh()
     } finally {
       setLoading(false)
     }

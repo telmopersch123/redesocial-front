@@ -82,7 +82,7 @@ const CardsPostComponent = ({
           <div>
             <CardTitle className="text-base text-gray-800 dark:text-gray-200">
               <span className="font-semibold text-purple-600 dark:text-purple-400">
-                {valuePost.communityName}
+                {valuePost.communityName || 'Comunidade Pessoal'}
               </span>{' '}
               • {valuePost.user.name_at}
             </CardTitle>
@@ -110,11 +110,13 @@ const CardsPostComponent = ({
           <ModalConfirmArchivePost
             postId={valuePost.id}
             nameUser={valuePost.user.name_at}
+            communityId={valuePost.communityId ?? 0}
           />
         ) : validatedAdmin && communityShowButtonArchived && !postsArchived ? (
           <ModalConfirmDelPost
             nameUser={valuePost.user.name_at}
             postId={valuePost.id}
+            communityId={valuePost.communityId ?? 0}
           />
         ) : (
           communityShowButtonArchived &&
@@ -123,6 +125,7 @@ const CardsPostComponent = ({
             <PostAdminActions
               postId={valuePost.id}
               nameUser={valuePost.user.name_at}
+              communityId={valuePost.communityId ?? 0}
             />
           )
         )}

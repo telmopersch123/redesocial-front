@@ -2,19 +2,21 @@
 import { useEffect, useRef } from 'react'
 
 interface PropsScroll {
-  totalItems: number
   root?: HTMLElement | null
   rootMargin?: string
   enabled?: boolean
   onLoadMore: () => void
+  threshold?: number
+  isLoading: boolean
 }
 
 export function useInfiniteScroll({
-  totalItems,
   root,
   rootMargin = '0px',
   enabled = true,
   onLoadMore,
+  threshold = 0.01,
+  isLoading,
 }: PropsScroll) {
   const loadMoreRef = useRef<HTMLDivElement>(null)
 
@@ -29,21 +31,21 @@ export function useInfiniteScroll({
     // Só recria o observer se algo realmente importante mudou
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
+        if (entry.isIntersecting && !isLoading) {
           loadMoreCallback.current()
         }
       },
       {
         root,
         rootMargin,
-        threshold: 0.1,
+        threshold,
       }
     )
 
     observer.observe(loadMoreRef.current)
 
     return () => observer.disconnect()
-  }, [onLoadMore, root, rootMargin, totalItems])
+  }, [enabled, root, rootMargin, threshold, onLoadMore])
 
   return { loadMoreRef }
 }

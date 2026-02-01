@@ -1,9 +1,8 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
 
 interface RefreshPermissionContextType {
-  permissionRefresh: boolean
-  allowRefresh: () => void
-  resetRefresh: () => void
+  refreshTrigger: number
+  triggerRefresh: () => void
 }
 
 const RefreshPermissionContext = createContext<
@@ -15,19 +14,14 @@ export function RefreshPermissionProvider({
 }: {
   children: ReactNode
 }) {
-  const [permissionRefresh, setPermissionRefresh] = useState(false)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-  function allowRefresh() {
-    setPermissionRefresh(true)
+  function triggerRefresh() {
+    setRefreshTrigger((prev) => prev + 1)
   }
-
-  function resetRefresh() {
-    setPermissionRefresh(false)
-  }
-
   return (
     <RefreshPermissionContext.Provider
-      value={{ permissionRefresh, allowRefresh, resetRefresh }}
+      value={{ refreshTrigger, triggerRefresh }}
     >
       {children}
     </RefreshPermissionContext.Provider>
