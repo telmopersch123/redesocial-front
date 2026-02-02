@@ -166,7 +166,7 @@ const ConfigCommunity = ({
 
   if (isInitialLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div className="flex h-screen w-[90vw] items-center justify-center xl:w-[1000px]">
         <LoadingComponent />
       </div>
     )
@@ -180,7 +180,6 @@ const ConfigCommunity = ({
           : 'w-[90vw] md:max-w-[calc(100vw-20rem)] dm:max-w-[calc(100vw-30rem)] ny:max-w-[calc(100vw-50rem)]'
       } `}
     >
-      {isInitialLoading && <p>Loading...</p>}
       <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
         {/* Título */}
         <div className="flex flex-col items-center justify-between gap-1 sm:flex-row">

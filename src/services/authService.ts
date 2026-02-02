@@ -184,9 +184,12 @@ export async function createPosts(post: PostDialogSchema): Promise<boolean> {
   }
   return res.ok
 }
-export async function getPostsByPerfilUser(id: string | undefined) {
+export async function getPostsByPerfilUser(
+  id: string | undefined,
+  pageNumber: number
+) {
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/getPostsMyPerfil/${id}`,
+    `${import.meta.env.VITE_API_URL}/auth/getPostsMyPerfil/${id}/${pageNumber}`,
     {
       credentials: 'include',
     }
@@ -198,9 +201,12 @@ export async function getPostsByPerfilUser(id: string | undefined) {
 
   return data.normalizedPosts
 }
-export async function getPostsByUser(id: string | undefined) {
+export async function getPostsByUser(
+  id: string | undefined,
+  pageNumber: number
+) {
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/getPostsByUser/${id}`,
+    `${import.meta.env.VITE_API_URL}/auth/getPostsByUser/${id}/${pageNumber}`,
     {
       credentials: 'include',
     }

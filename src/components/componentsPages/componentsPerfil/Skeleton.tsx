@@ -1,9 +1,11 @@
 import { Card } from '../../ui/card'
 import { Skeleton } from '../../ui/skeleton'
 
-export const PostCardSkeleton = () => {
+export const PostCardSkeleton = ({ value }: { value?: number }) => {
   return (
-    <Card className="!mb-10 h-[300px] overflow-hidden rounded-3xl border-none bg-white/90 dark:bg-zinc-900/80 dark:shadow-zinc-800">
+    <Card
+      className={`!mb-10 ${value ? `w-[${value}px]` : 'w-full'} h-[300px] overflow-hidden rounded-3xl border-none bg-gradient-to-b dark:shadow-zinc-800`}
+    >
       <div className="flex flex-col space-y-4 p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -29,6 +31,46 @@ export const PostCardSkeleton = () => {
         </div>
       </div>
     </Card>
+  )
+}
+
+export const ProfileHeaderSkeleton = () => {
+  return (
+    <header className="bg-gradient-to-b px-5 pb-10 pt-8">
+      <div>
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-end">
+          {/* Avatar + botão */}
+          <div className="flex flex-col items-center">
+            <Skeleton className="h-28 w-28 rounded-full shadow-2xl sm:h-32 sm:w-32" />
+
+            <Skeleton className="mt-3 h-9 w-36 rounded-lg" />
+          </div>
+
+          {/* Info do usuário */}
+          <div className="flex-1 space-y-3">
+            <Skeleton className="h-8 w-64" />
+
+            <Skeleton className="h-5 w-40" />
+
+            <Skeleton className="h-4 w-full max-w-lg" />
+            <Skeleton className="h-4 w-4/5 max-w-md" />
+
+            {/* Stats */}
+            <div className="mt-5 flex gap-8">
+              <Skeleton className="h-5 w-24" />
+              <Skeleton className="h-5 w-24" />
+            </div>
+          </div>
+
+          {/* Botões direita */}
+          <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
+            <Skeleton className="h-10 w-24 rounded-full" />
+            <Skeleton className="h-10 w-32 rounded-full" />
+            <Skeleton className="h-10 w-36 rounded-full" />
+          </div>
+        </div>
+      </div>
+    </header>
   )
 }
 

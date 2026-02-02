@@ -79,7 +79,7 @@ export default function AreaCommunitiesUserPage() {
 
   const [isInvitePending, setIsInvitePending] = useState(!!token)
   const debouncedOnLoadMore = debounce(() => {
-    if (isLoading || !hasMore || posts.length < 5) return
+    if (isLoadingSkeleton || !hasMore || posts.length < 5) return
     const nextPage = page + 1
     setPage(nextPage)
     fetchPosts(nextPage)
@@ -286,7 +286,7 @@ export default function AreaCommunitiesUserPage() {
                   <Users className="h-6 w-6 text-purple-600" />
                 </div>
                 <p className="text-gray-600 dark:text-zinc-400">
-                  Você foi convidado para participar da comunidade:
+                  Você foi convidado para participar da comunidade:'
                 </p>
                 <h3 className="mt-1 text-xl font-bold text-gray-900 dark:text-white">
                   {inviteData?.name || urlCommunityName?.replaceAll('-', ' ')}

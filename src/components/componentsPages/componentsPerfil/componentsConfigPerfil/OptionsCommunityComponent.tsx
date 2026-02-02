@@ -14,15 +14,18 @@ const OptionsCommunity = ({ tab }: OptionsCommunityProps) => {
   const [communities, setCommunities] = useState<CommunityInterface[]>([])
   const [loading, setLoading] = useState(false)
   const { isAdmin, isModerator } = useAuth()
+  const [showError, setShowError] = useState(false)
 
   useEffect(() => {
     async function handleSearchMyComunity() {
       setLoading(true)
       try {
         const res = await getMyCommunities()
+        setShowError(false)
         setCommunities(res)
       } catch (error) {
         console.error('Erro ao buscar comunidades:', error)
+        setShowError(true)
         setLoading(false)
       } finally {
         setLoading(false)
@@ -31,7 +34,18 @@ const OptionsCommunity = ({ tab }: OptionsCommunityProps) => {
     handleSearchMyComunity()
   }, [tab])
 
-  if (loading) {
+  if (showError) {
+    return (
+      <div className="mt-4 flex flex-col gap-4">
+        <div className="flex items-center gap-4 rounded-xl border bg-white p-3 shadow-sm transition-all hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-zinc-800">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Não foi possível carregar as comunidades
+          </p>
+        </div>
+      </div>
+    )
+  }
+  if (loading && !showError) {
     return (
       <div className="absolute left-1/2 top-1/2 flex h-40 w-full -translate-x-1/2 -translate-y-1/2 items-center justify-center">
         <LoadingComponent />

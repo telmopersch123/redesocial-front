@@ -8,6 +8,7 @@ import {
   getSavedPosts,
 } from '../../../../services/authService'
 import type { Post } from '../../../../types'
+import { LoadingComponent } from '../../../../utils/components/Loading'
 import { Button } from '../../../ui/button'
 
 interface TypeSaved {
@@ -19,42 +20,77 @@ interface TypeSaved {
 
 interface ActivityComponentProps {
   setOpenDialogPost: Dispatch<SetStateAction<boolean>>
+  openDialogPost: boolean
 }
 
 export const ActivityComponent = ({
   setOpenDialogPost,
+  openDialogPost,
 }: ActivityComponentProps) => {
-  const { posts } = usePosts()
   const [tab, setTab] = useState<'saved' | 'liked' | 'comment'>('saved')
+
   const [savedPosts, setSavedPosts] = useState<TypeSaved[]>([])
   const [likedPosts, setLikedPosts] = useState<TypeSaved[]>([])
-
   const [commentedPosts, setCommentedPosts] = useState<Post[]>([])
+
+  const [loadingSaved, setLoadingSaved] = useState(true)
+  const [loadingLiked, setLoadingLiked] = useState(true)
+  const [loadingCommented, setLoadingCommented] = useState(true)
+
+  const [showError, setShowError] = useState(false)
+
+  const handleTabChange = (newTab: 'saved' | 'liked' | 'comment') => {
+    setTab(newTab)
+
+    if (newTab === 'saved') {
+      setLoadingSaved(true)
+      setSavedPosts([])
+    }
+
+    if (newTab === 'liked') {
+      setLoadingLiked(true)
+      setLikedPosts([])
+    }
+
+    if (newTab === 'comment') {
+      setLoadingCommented(true)
+      setCommentedPosts([])
+    }
+  }
 
   useEffect(() => {
     async function fetchByTab() {
       try {
+        setShowError(false)
+
         if (tab === 'saved') {
           const response = await getSavedPosts()
           setSavedPosts(response)
+          setLoadingSaved(false)
         }
 
         if (tab === 'liked') {
           const response = await getLikedPosts()
           setLikedPosts(response)
+          setLoadingLiked(false)
         }
 
         if (tab === 'comment') {
           const response = await getMessagePosts()
           setCommentedPosts(response)
+          setLoadingCommented(false)
         }
-      } catch (error) {
-        console.error('Erro ao buscar posts salvos:', error)
+      } catch {
+        setShowError(true)
+
+        setLoadingSaved(false)
+        setLoadingLiked(false)
+        setLoadingCommented(false)
       }
     }
-    fetchByTab()
-  }, [tab, posts])
 
+    fetchByTab()
+  }, [tab, openDialogPost])
   return (
     <div className="flex w-full flex-col gap-6">
       <div className="flex w-full items-center justify-center gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-800">
@@ -65,7 +101,9 @@ export const ActivityComponent = ({
               ? 'bg-purple-600 text-white shadow-md dark:bg-purple-600'
               : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
           }`}
-          onClick={() => setTab('saved')}
+          onClick={() => {
+            handleTabChange('saved')
+          }}
         >
           <Bookmark className="h-5 w-5" />
           <span className="hidden sm:block">Salvos</span>
@@ -78,7 +116,9 @@ export const ActivityComponent = ({
               ? 'bg-red-600 text-white shadow-md dark:bg-red-600'
               : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
           }`}
-          onClick={() => setTab('liked')}
+          onClick={() => {
+            handleTabChange('liked')
+          }}
         >
           <Heart className="h-5 w-5" />
           <span className="hidden sm:block">Curtidos</span>
@@ -91,30 +131,39 @@ export const ActivityComponent = ({
               ? 'bg-purple-600 text-white shadow-md dark:bg-purple-600'
               : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
           }`}
-          onClick={() => setTab('comment')}
+          onClick={() => {
+            handleTabChange('comment')
+          }}
         >
           <MessageCircleMore className="h-5 w-5" />
           <span className="hidden sm:block">Comentários</span>
         </Button>
       </div>
 
-      {/* Conteúdo das abas */}
       {tab === 'saved' && (
         <SavedPostList
           setOpenDialogPost={setOpenDialogPost}
           savedPosts={savedPosts}
+          showError={showError}
+          loading={loadingSaved}
         />
       )}
+
       {tab === 'liked' && (
         <LikedPostList
           setOpenDialogPost={setOpenDialogPost}
           likedPosts={likedPosts}
+          showError={showError}
+          loading={loadingLiked}
         />
       )}
+
       {tab === 'comment' && (
         <CommentedPostList
           setOpenDialogPost={setOpenDialogPost}
           commentedPosts={commentedPosts}
+          showError={showError}
+          loading={loadingCommented}
         />
       )}
     </div>
@@ -124,13 +173,31 @@ export const ActivityComponent = ({
 const SavedPostList = ({
   setOpenDialogPost,
   savedPosts,
+  showError,
+  loading,
 }: {
   setOpenDialogPost: Dispatch<SetStateAction<boolean>>
   savedPosts: TypeSaved[]
+  showError: boolean
+  loading: boolean
 }) => {
-  if (!savedPosts.length)
-    return <EmptyState message="Nenhum vídeo salvo ainda." />
+  if (showError) {
+    return (
+      <EmptyState message="Erro ao carregar os posts. Tente novamente mais tarde." />
+    )
+  }
 
+  if (loading) {
+    return (
+      <div className="mt-10">
+        <LoadingComponent />
+      </div>
+    )
+  }
+
+  if (savedPosts.length === 0) {
+    return <EmptyState message="Nenhum post salvo encontrado." />
+  }
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {savedPosts.map((post) => (
@@ -147,13 +214,31 @@ const SavedPostList = ({
 const LikedPostList = ({
   setOpenDialogPost,
   likedPosts,
+  showError,
+  loading,
 }: {
   setOpenDialogPost: Dispatch<SetStateAction<boolean>>
   likedPosts: TypeSaved[]
+  showError: boolean
+  loading: boolean
 }) => {
-  if (!likedPosts.length)
-    return <EmptyState message="Você ainda não curtiu nenhum vídeo." />
+  if (showError) {
+    return (
+      <EmptyState message="Erro ao carregar os posts. Tente novamente mais tarde." />
+    )
+  }
 
+  if (loading) {
+    return (
+      <div className="mt-10">
+        <LoadingComponent />
+      </div>
+    )
+  }
+
+  if (likedPosts.length === 0) {
+    return <EmptyState message="Nenhum post curtido encontrado." />
+  }
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {likedPosts.map((post) => (
@@ -170,13 +255,31 @@ const LikedPostList = ({
 const CommentedPostList = ({
   setOpenDialogPost,
   commentedPosts,
+  showError,
+  loading,
 }: {
   setOpenDialogPost: Dispatch<SetStateAction<boolean>>
   commentedPosts: Post[]
+  showError: boolean
+  loading: boolean
 }) => {
-  if (!commentedPosts.length)
-    return <EmptyState message="Você ainda não comentou em nenhum vídeo." />
+  if (showError) {
+    return (
+      <EmptyState message="Erro ao carregar os posts. Tente novamente mais tarde." />
+    )
+  }
 
+  if (loading) {
+    return (
+      <div className="mt-10">
+        <LoadingComponent />
+      </div>
+    )
+  }
+
+  if (commentedPosts.length === 0) {
+    return <EmptyState message="Nenhum post comentado encontrado." />
+  }
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {commentedPosts.map((post) => (
@@ -207,7 +310,7 @@ const PostCard = ({
           likedByMe:
             posts.likes?.some((l) => l.userId === Number(user?.id)) ?? false,
           saved: Array.isArray(posts.saves) ? posts.saves.length > 0 : false,
-          likesCount: posts._count.likes,
+          likesCount: posts._count?.likes || 0,
         }
         setSelectedPost(normalizedPosts)
         setPosts((prev) => {

@@ -322,26 +322,26 @@ const PostComponentDialog = ({
                       )}
                   </div>
                 </div>
-                <div>
-                  {(pathname.includes(`perfil/config`) ||
-                    (openActionPosts && open === true)) && (
-                    <ActionsPost
-                      valuePost={postAtualizado}
-                      novoComentario={novoComentario}
-                      setNovoComentario={setNovoComentario}
-                      setPosts={setPosts}
-                      posts={posts}
-                      pauseVideo={pauseVideo as () => void}
-                      validated={
-                        (pathname.includes(`perfil/config`) ||
-                          openActionPosts) &&
-                        open === true
-                      }
-                    />
-                  )}
-                </div>
               </div>
             )}
+
+            <div>
+              {(pathname.includes(`perfil/config`) ||
+                (openActionPosts && open === true)) && (
+                <ActionsPost
+                  valuePost={postAtualizado}
+                  novoComentario={novoComentario}
+                  setNovoComentario={setNovoComentario}
+                  setPosts={setPosts}
+                  posts={posts}
+                  pauseVideo={pauseVideo as () => void}
+                  validated={
+                    (pathname.includes(`perfil/config`) || openActionPosts) &&
+                    open === true
+                  }
+                />
+              )}
+            </div>
 
             <div
               ref={scrollRef}
@@ -355,7 +355,7 @@ const PostComponentDialog = ({
               <div className="relative h-full md:h-2/3 md:max-h-full 2xl:h-full">
                 <div className="space-y-4 pb-10 pt-8 2xl:pb-10 2xl:pt-0">
                   {(postAtualizado.comments?.length ?? 0) > 0 ? (
-                    postAtualizado.comments.map((c: ComentarioPost) => (
+                    postAtualizado.comments?.map((c: ComentarioPost) => (
                       <CommentItem
                         key={c.id}
                         comentario={c}

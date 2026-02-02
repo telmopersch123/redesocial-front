@@ -1,12 +1,15 @@
 import { AnimatePresence, motion } from 'framer-motion'
+import { debounce } from 'lodash'
 import { Edit2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NavLink, useParams } from 'react-router-dom'
 import BlockedConfirmDialog from '../components/componentsPages/componentsPerfil/BlockedConfirmDialog'
-import { FollowersDialog } from '../components/componentsPages/componentsPerfil/FollowersDialog'
 import { FriendsDialog } from '../components/componentsPages/componentsPerfil/FriendsDialog'
 import ReportDialog from '../components/componentsPages/componentsPerfil/ReportDialog'
-import { PostCardSkeleton } from '../components/componentsPages/componentsPerfil/Skeleton'
+import {
+  PostCardSkeleton,
+  ProfileHeaderSkeleton,
+} from '../components/componentsPages/componentsPerfil/Skeleton'
 import CardsPostComponent from '../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Button } from '../components/ui/button'
@@ -22,28 +25,30 @@ const PerfilUsuario = () => {
   const { id } = useParams<{ id?: string }>()
   const [profileUser, setProfileUser] = useState<UserTypeSearch | null>(null)
   const [loading, setLoading] = useState(true)
-  const [visibleCount, setVisibleCount] = useState(10)
-  const [loadedCount, setLoadedCount] = useState(10)
+  const [page, setPage] = useState(1)
+  const loadingRef = useRef(false)
+  const [loadedCount, setLoadedCount] = useState(100)
+  const [isLoadingSkeleton, setIsLoadingSkeleton] = useState(true)
+  const [hasMore, setHasMore] = useState(true)
   const { posts, setPosts } = usePosts()
-  let hasMore = false
-  if (posts.length > 0) {
-    hasMore = visibleCount < posts.length
-  }
+  const debouncedOnLoadMore = debounce(() => {
+    if (isLoadingSkeleton || !hasMore || posts.length < 5 || loadingRef.current)
+      return
+    setPage((prev) => {
+      const next = prev + 1
+      fetchPosts(next)
+      return next
+    })
+  }, 300)
   const { loadMoreRef } = useInfiniteScroll({
-    enabled: hasMore,
-    rootMargin: '300px 0px 0px 0px',
+    enabled: hasMore && !isLoadingSkeleton,
+    rootMargin: '200px 0px 0px 0px',
     threshold: 0.1,
-    isLoading: loading,
-    onLoadMore: () => {
-      const nextDisplay = Math.min(visibleCount + 10, posts.length)
-      setVisibleCount(nextDisplay)
-      setTimeout(() => {
-        setLoadedCount(nextDisplay)
-      }, 1000)
-    },
+    isLoading: isLoadingSkeleton,
+    onLoadMore: debouncedOnLoadMore,
   })
 
-  const euUsuario = !id || profileUser?.id === authUser?.id
+  const euUsuario = !id || profileUser?.user.id === authUser?.id
 
   useEffect(() => {
     async function fetchProfile() {
@@ -75,39 +80,72 @@ const PerfilUsuario = () => {
     fetchProfile()
   }, [id])
 
-  useEffect(() => {
-    async function fetchPosts() {
-      if (!profileUser) return
-      try {
-        let postsData: Post[] = []
-        if (euUsuario) {
-          postsData = await getPostsByPerfilUser(authUser?.id)
-        } else {
-          if (!profileUser.id) return
-          postsData = await getPostsByUser(profileUser.id.toString())
-        }
+  const fetchPosts = async (
+    pageNumber: number,
+    isFirstLoad: boolean = false
+  ) => {
+    if (!profileUser && !isFirstLoad) return
+    if (loadingRef.current) return
 
-        const normalizedPosts = postsData.map((post: Post) => ({
-          ...post,
-          likedByMe: post.likedByMe ?? false,
-          saved: Array.isArray(post.saves) ? post.saves.length > 0 : false,
-        }))
-
-        setPosts(normalizedPosts)
-      } catch (err) {
-        console.log(err)
-        setPosts([])
+    loadingRef.current = true
+    setIsLoadingSkeleton(true)
+    try {
+      let postsData: Post[] = []
+      if (euUsuario) {
+        postsData = await getPostsByPerfilUser(authUser?.id, pageNumber)
+      } else {
+        if (!profileUser || !profileUser.user.id) return
+        postsData = await getPostsByUser(
+          profileUser.user.id.toString(),
+          pageNumber
+        )
       }
+
+      if (postsData.length < 10) {
+        setHasMore(false)
+      }
+
+      if (isFirstLoad) {
+        setPosts(postsData)
+      } else {
+        setPosts((prev) => [...prev, ...postsData])
+      }
+      setLoadedCount((prev) => (isFirstLoad ? 10 : prev + 10))
+    } catch (err) {
+      setIsLoadingSkeleton(false)
+      console.log(err)
+      setPosts([])
+      setHasMore(false)
+    } finally {
+      loadingRef.current = false
+      setIsLoadingSkeleton(false)
     }
-    fetchPosts()
+  }
+
+  useEffect(() => {
+    setPosts([])
+    setPage(1)
+    setHasMore(true)
+    setLoadedCount(10)
+    setIsLoadingSkeleton(true)
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    fetchPosts(page, true)
   }, [authUser, euUsuario, profileUser])
 
   if (loading) {
-    return <div>Carregando perfil...</div>
+    return (
+      <div className="mt-10">
+        <ProfileHeaderSkeleton />
+        <div className="mt-10">
+          <PostCardSkeleton />
+          <PostCardSkeleton />
+        </div>
+      </div>
+    )
   }
 
   return profileUser ? (
-    <div className="mb-4 min-h-screen w-[99vw] overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] xl:px-5 2xl:w-full">
+    <div className="my-6 min-h-screen w-[99vw] overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] xl:px-5 2xl:w-full">
       {/* Header do Perfil */}
       <motion.header
         initial={{ opacity: 0, y: 20 }}
@@ -154,20 +192,21 @@ const PerfilUsuario = () => {
             {/* Info do usuário */}
             <div className="flex-1">
               <h1 className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100 sm:text-3xl">
-                {profileUser && profileUser.name_at}
+                {profileUser && profileUser.user.name}
               </h1>
               <p className="text-lg font-medium text-purple-600 dark:text-purple-400">
-                @carlosalmeida
+                @{profileUser && profileUser.user.name_at}
               </p>
-              <p className="mt-2 text-zinc-600 dark:text-zinc-300">
-                Aqui compartilho minha jornada com a ansiedade e o crescimento
-                pessoal
+              <p className="mt-2 text-zinc-600 dark:text-zinc-300 sm:max-w-lg">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                Placeat, dolorem nisi at sed molestias exercitationem nobis
+                optio, neque voluptatum earum quas alias quis, a veritatis
+                corporis libero. Nam, saepe ut!
               </p>
 
               {/* Stats */}
               <div className="mt-5 flex gap-8 text-sm">
                 <FriendsDialog euUsuario={euUsuario || false} />
-                <FollowersDialog euUsuario={euUsuario || false} />
               </div>
             </div>
 
@@ -179,7 +218,7 @@ const PerfilUsuario = () => {
                 </Button>
                 <NavLink
                   state={{ chatId: false }}
-                  to={`/mensagens/${profileUser.id}`}
+                  to={`/mensagens/${profileUser.user.id}`}
                   onClick={() => {
                     sessionStorage.setItem('__internal_nav', '1')
                   }}
@@ -204,7 +243,7 @@ const PerfilUsuario = () => {
         <div className="flex w-auto flex-col space-y-24 tm:w-[1000px] max:w-[1500px]">
           {posts.length > 0 ? (
             <>
-              {posts.slice(0, visibleCount).map((post, index) => {
+              {posts.map((post, index) => {
                 const isLoaded = index < loadedCount
 
                 return (
@@ -217,27 +256,44 @@ const PerfilUsuario = () => {
                       duration: 0.4,
                     }}
                   >
-                    {isLoaded ? (
+                    {isLoaded && (
                       <CardsPostComponent
                         posts={posts}
                         valuePost={post}
                         setPosts={setPosts}
                       />
-                    ) : (
-                      <PostCardSkeleton />
                     )}
                   </motion.div>
                 )
               })}
-
-              {visibleCount < posts.length && (
-                <div ref={loadMoreRef} className="col-span-2 h-10" />
+              {hasMore && authUser && (
+                <div
+                  ref={loadMoreRef}
+                  className="flex min-h-[300px] items-center justify-center"
+                >
+                  {isLoadingSkeleton && (
+                    <div className="w-full animate-pulse">
+                      <PostCardSkeleton />
+                    </div>
+                  )}
+                </div>
               )}
             </>
           ) : (
-            <div>
-              <p className="text-center text-zinc-600 dark:text-zinc-300">
+            <>
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+            </>
+          )}
+
+          {posts.length === 0 && !isLoadingSkeleton && (
+            <div className="mt-20 flex flex-col items-center justify-center">
+              <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
                 Nenhum post encontrado
+              </h2>
+              <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+                Parece que este usuário ainda não fez nenhum post.
               </p>
             </div>
           )}
