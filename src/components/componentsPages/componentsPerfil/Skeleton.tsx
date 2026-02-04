@@ -1,4 +1,5 @@
 import { Card } from '../../ui/card'
+import { Separator } from '../../ui/separator'
 import { Skeleton } from '../../ui/skeleton'
 
 export const PostCardSkeleton = ({ value }: { value?: number }) => {
@@ -113,5 +114,78 @@ export const CommunityCardSkeleton = () => {
         </div>
       </div>
     </Card>
+  )
+}
+
+export const ConfigPerfilSkeleton = () => {
+  return (
+    <div className="mb-2 mt-5 flex w-[80vw] flex-col space-y-3 overflow-hidden md:w-[50vw] 2xl:flex-row 2xl:items-start 2xl:space-x-8 2xl:space-y-0">
+      <div className="flex flex-col space-y-4 2xl:w-[20vw]">
+        <Card className="p-6">
+          <div className="flex w-full flex-col items-center gap-6 im:flex-row">
+            <Skeleton className="h-28 w-28 flex-shrink-0 rounded-full" />
+            <div className="flex-1 space-y-4">
+              <Skeleton className="h-9 w-3/4" />
+              <Skeleton className="h-7 w-32 rounded-full" />
+            </div>
+          </div>
+        </Card>
+
+        <Skeleton className="h-14 w-full rounded-xl" />
+      </div>
+
+      <div className="2xl:w-[40vw] 2xl:flex-1">
+        <Card>
+          <div className="space-y-8 p-8">
+            <Skeleton className="h-8 w-56" />
+
+            <div className="space-y-4">
+              <Skeleton className="h-5 w-40" />
+              <Skeleton className="h-16 w-full rounded-xl" />
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <Skeleton className="h-5 w-40" />
+              <Skeleton className="h-32 w-full rounded-md" />
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <Skeleton className="h-5 w-56" />
+              <Skeleton className="h-14 w-full rounded-md" />
+            </div>
+
+            <Separator />
+
+            <div className="space-y-5">
+              <Skeleton className="h-5 w-40" />
+              <div className="grid grid-cols-4 gap-4 dm:grid-cols-8">
+                {[...Array(8)].map((_, i) => (
+                  <Skeleton key={i} className="h-28 w-full rounded-2xl" />
+                ))}
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-5">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="h-10 w-32 rounded-md" />
+              </div>
+              <div className="space-y-4">
+                <Skeleton className="h-16 w-full rounded-lg" />
+                <Skeleton className="h-16 w-full rounded-lg" />
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <Skeleton className="mt-6 h-[80px] w-full rounded-xl shadow-xl" />
+      </div>
+    </div>
   )
 }

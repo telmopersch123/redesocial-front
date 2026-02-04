@@ -1,9 +1,10 @@
 import { Edit2, X } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect } from 'react'
+import { useProfile } from '../../../../context/ProfileContext'
 import { useLimitForms } from '../../../../hooks/useLimitForms'
 import { MessageForms } from '../../../formCustomer/MessageForms'
 import { Button } from '../../../ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../../../ui/card'
+import { Card, CardContent, CardHeader } from '../../../ui/card'
 import { Label } from '../../../ui/label'
 import {
   Select,
@@ -15,20 +16,21 @@ import {
 import { Separator } from '../../../ui/separator'
 import { Textarea } from '../../../ui/textarea'
 import DialogAddMetodo from './AddMetodoDialog'
+import { ConfigDialog } from './ConfigDialog'
 
 interface InformacaoBasicaProps {
   nomeUser: string
   selectedAvatar: number | null
   coresFundos: string[]
 
-  sentimentoAtual: string[]
-  setSentimentoAtual: (sentimentoAtual: string[]) => void
   setSelectedAvatar: (selectedAvatar: number) => void
   setFile: (file: string | null) => void
   avataresSimbolicos: { icon: any; nome: string; id: number }[]
   abrirDialogConfig: () => void
+  setRawFile: React.Dispatch<React.SetStateAction<File | null>>
+  setNomeUser: React.Dispatch<React.SetStateAction<string>>
 }
-const sentimentos = [
+export const sentimentos = [
   { value: 'feliz', label: 'Feliz', emoji: '😊' },
   { value: 'esperancoso', label: 'Esperançoso', emoji: '🌱' },
   { value: 'ansioso', label: 'Ansioso', emoji: '😰' },
@@ -40,26 +42,40 @@ const BasicInformationComponent = ({
   nomeUser,
   selectedAvatar,
   coresFundos,
-  sentimentoAtual,
-  setSentimentoAtual,
   setSelectedAvatar,
   setFile,
   avataresSimbolicos,
   abrirDialogConfig,
+  setRawFile,
+  setNomeUser,
 }: InformacaoBasicaProps) => {
+  const {
+    bio,
+    setBio,
+    metodosAutocuidado,
+    setMetodosAutocuidado,
+    sentimentoAtual,
+    setSentimentoAtual,
+  } = useProfile()
   const BiographyControl = useLimitForms(256)
-  const [metodosAutocuidado, setMetodosAutocuidado] = useState([
-    'Meditar 10 minutos ao acordar',
-    'Beber 2L de água',
-  ])
 
+  useEffect(() => {
+    if (bio !== undefined) {
+      BiographyControl.setValue(bio)
+    }
+  }, [bio])
   function removerMetodo(i: number) {
-    setMetodosAutocuidado((prev) => prev.filter((_, index) => index !== i))
+    setMetodosAutocuidado((prev: string[]) =>
+      prev.filter((_, index) => index !== i)
+    )
   }
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Informações Básicas</CardTitle>
+      <CardHeader className="flex flex-col-reverse items-center justify-between space-y-0 om:flex-row">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Informações Básicas
+        </h1>
+        <ConfigDialog nomeUser={nomeUser} setNomeUser={setNomeUser} />
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Nome de Exibição */}
@@ -91,7 +107,11 @@ const BasicInformationComponent = ({
         <div className="space-y-2">
           <Label>Lema ou biografia</Label>
           <Textarea
-            onChange={BiographyControl.handleChange}
+            value={BiographyControl.value}
+            onChange={(e) => {
+              BiographyControl.handleChange(e)
+              setBio(e.target.value)
+            }}
             placeholder="Escreva algo sobre você..."
             className="min-h-20 resize-none"
           />
@@ -149,15 +169,16 @@ const BasicInformationComponent = ({
                   onClick={() => {
                     setSelectedAvatar(item.id)
                     setFile(null)
+                    setRawFile(null)
                   }}
                   variant="ghost"
-                  className={`relative flex h-24 flex-col items-center justify-center rounded-2xl border-2 p-3 transition-all duration-300 hover:scale-105 ${
+                  className={`relative flex h-24 flex-col items-center justify-center rounded-2xl border-2 p-3 px-5 transition-all duration-300 hover:scale-105 ${
                     isSelected
                       ? 'border-[#a5c9ff] ring-2 ring-[#a5c9ff]/40'
                       : 'border-[#a5c9ff]/40'
                   }`}
                 >
-                  <span className={`${bgColor} rounded-xl p-3 text-white`}>
+                  <span className={`${bgColor} rounded-xl p-3 text-white/80`}>
                     <Icon className="!h-8 !w-8" />
                   </span>
                   <span className="mt-1 text-xs font-medium">{item.nome}</span>

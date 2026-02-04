@@ -73,7 +73,7 @@ export function ConfigDialog({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <div>
-            <Button className="relative bottom-1 right-1 z-10 w-[calc(100vw-5rem)] cursor-pointer select-none rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 shadow-md backdrop-blur-sm transition-all duration-700 hover:scale-[105%] hover:bg-white/80 hover:text-purple-600 hover:shadow-lg dark:bg-zinc-800 dark:text-zinc-200 dark:hover:text-purple-400 im:absolute im:w-auto 2xl:relative 2xl:mt-20">
+            <Button className="-mt-5 mb-7 w-[90vw] cursor-pointer select-none rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-zinc-700 shadow-md backdrop-blur-sm transition-all duration-700 hover:scale-[105%] hover:bg-white/80 hover:text-purple-600 hover:shadow-lg dark:bg-zinc-800 dark:text-zinc-200 dark:hover:text-purple-400 om:mb-0 om:mt-0 om:w-auto 2xl:relative">
               Configurações
             </Button>
           </div>

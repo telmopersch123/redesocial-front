@@ -43,13 +43,6 @@ export interface Post {
   anonymous?: boolean
 }
 
-interface User {
-  id: string
-  name: string
-  name_at: string
-  avatar: string | null
-}
-
 export interface Like {
   userId: number
 }
@@ -84,12 +77,32 @@ export type UserType = {
   communities: Record<number, string>
 }
 
-export type UserTypeSearch = {
+export interface InformationUser {
   id: number
-  name_at: string
-  avatar?: string
-  friendsCount: number
+  bio: string | null
+  feeling: string | null
+  selfCareMethods: string[]
+  userId: number
+  emoji: string
 }
+
+export interface User {
+  id: number
+  name: string
+  name_at: string
+  email: string
+  avatar: string | null
+  sexo: string | null
+  createdAt: string | Date
+  termsAcceptedAt: string | Date
+  communities: Record<number, string>
+  informationUser: InformationUser[]
+}
+
+export interface AuthMeResponse {
+  user: User
+}
+
 export interface ResetPassWordProps {
   setPermissionCode: (value: boolean) => void
   setIsLogin: (value: boolean) => void

@@ -38,7 +38,7 @@ import FullscreenDialog from './FullscreenDialog'
 
 export function PostDialog() {
   const { isOpen, close, postCommunity, myCommunities } = useCriarPostDialog()
-  const { allowRefresh, resetRefresh } = useRefreshPermission()
+  const { triggerRefresh } = useRefreshPermission()
   const [uploadType, setUploadType] = useState<'image' | 'video' | null>(null)
   const [file, setFile] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -201,13 +201,12 @@ export function PostDialog() {
         media: mediaUrl ? { url: mediaUrl, type: mediaType! } : null,
       })
 
-      allowRefresh()
+      triggerRefresh()
       handleCloseDialog()
       setTags([])
       close()
     } catch (err) {
       console.log(err)
-      resetRefresh()
     }
   }
   return (

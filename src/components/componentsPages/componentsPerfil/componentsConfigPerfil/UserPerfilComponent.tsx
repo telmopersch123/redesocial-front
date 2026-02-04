@@ -1,11 +1,11 @@
 import { Images, LogOut, Trash, User } from 'lucide-react'
 import { useRef } from 'react'
 import { useAuth } from '../../../../context/getMe'
+import { UserAvatar } from '../../../../utils/components/UserAvatar'
 import { Avatar, AvatarFallback } from '../../../ui/avatar'
 import { Badge } from '../../../ui/badge'
 import { Button } from '../../../ui/button'
 import { Card, CardContent } from '../../../ui/card'
-import { ConfigDialog } from './ConfigDialog'
 
 interface UserPerfilComponentProps {
   file: string | null
@@ -21,9 +21,10 @@ interface UserPerfilComponentProps {
     id: number
   }>
   nomeUser: string
-  setNomeUser: React.Dispatch<React.SetStateAction<string>>
+
   sentimentoAtual: Array<string>
   coresFundos: Array<string>
+  setRawFile: React.Dispatch<React.SetStateAction<File | null>>
 }
 
 const UserPerfilComponent = ({
@@ -36,9 +37,9 @@ const UserPerfilComponent = ({
   avatarContainerRef,
   avataresSimbolicos,
   nomeUser,
-  setNomeUser,
   sentimentoAtual,
   coresFundos,
+  setRawFile,
 }: UserPerfilComponentProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { user, handleLogout } = useAuth()
@@ -49,6 +50,7 @@ const UserPerfilComponent = ({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      setRawFile(file)
       const previewURL = URL.createObjectURL(file)
       setFile(previewURL)
       setSelectedAvatar(null)
@@ -59,6 +61,7 @@ const UserPerfilComponent = ({
     if (file) URL.revokeObjectURL(file)
     setFile(null)
     setSelectedAvatar(null)
+    setRawFile(null)
     // Limpa o input para permitir selecionar a mesma imagem de novo
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
@@ -66,8 +69,8 @@ const UserPerfilComponent = ({
   }
 
   return (
-    <Card>
-      <CardContent className="relative flex w-full flex-col items-center gap-5 p-6 im:flex-row">
+    <Card className="">
+      <CardContent className="relative flex w-full flex-col items-center gap-5 p-8 pt-10 im:flex-row">
         {/* AVATAR COM BOTÃO DE REMOVER FORA */}
         {user && (
           <Button
@@ -89,10 +92,10 @@ const UserPerfilComponent = ({
             className={`group-hover:border-linear-purple border-1 h-24 w-24 border-background transition-all duration-300 group-hover:scale-105 ${isAvatarHovered ? 'ring-4 ring-purple-400/30' : ''} `}
           >
             {file ? (
-              <img
-                src={file}
-                alt="Avatar do usuário"
-                className="h-full w-full rounded-full object-cover"
+              <UserAvatar
+                url={file || `SYMBOLIC_${selectedAvatar}`}
+                name={nomeUser}
+                className="h-full w-full rounded-full shadow-2xl ring-4 ring-white dark:ring-zinc-900"
               />
             ) : selectedAvatar ? (
               <div
@@ -157,13 +160,14 @@ const UserPerfilComponent = ({
         </div>
 
         <div className="space-y-2">
-          <h2 className="text-2xl font-bold">{nomeUser}</h2>
+          <h2 className="line-clamp-2 max-w-[250px] break-words pt-3 text-center text-2xl font-bold hover:underline">
+            @{nomeUser}
+          </h2>
           <Badge variant="secondary" className="space-x-2 text-sm">
             <span>{sentimentoAtual[1]}</span>
             <span>{sentimentoAtual[0]}</span>
           </Badge>
         </div>
-        <ConfigDialog nomeUser={nomeUser} setNomeUser={setNomeUser} />
       </CardContent>
     </Card>
   )

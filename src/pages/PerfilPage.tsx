@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { debounce } from 'lodash'
 import { Edit2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { NavLink, useParams } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import BlockedConfirmDialog from '../components/componentsPages/componentsPerfil/BlockedConfirmDialog'
 import { FriendsDialog } from '../components/componentsPages/componentsPerfil/FriendsDialog'
 import ReportDialog from '../components/componentsPages/componentsPerfil/ReportDialog'
@@ -11,20 +11,20 @@ import {
   ProfileHeaderSkeleton,
 } from '../components/componentsPages/componentsPerfil/Skeleton'
 import CardsPostComponent from '../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
-import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Button } from '../components/ui/button'
 import { Separator } from '../components/ui/separator'
 import { useAuth } from '../context/getMe'
 import { usePosts } from '../context/PostsContext'
+import { useProfile } from '../context/ProfileContext'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
 import { getPostsByPerfilUser, getPostsByUser } from '../services/authService'
-import type { Post, UserTypeSearch } from '../types'
+import type { Post } from '../types'
+import { UserAvatar } from '../utils/components/UserAvatar'
 
 const PerfilUsuario = () => {
   const { user: authUser } = useAuth()
-  const { id } = useParams<{ id?: string }>()
-  const [profileUser, setProfileUser] = useState<UserTypeSearch | null>(null)
-  const [loading, setLoading] = useState(true)
+
+  const { bio, id, profileUser, loading } = useProfile()
   const [page, setPage] = useState(1)
   const loadingRef = useRef(false)
   const [loadedCount, setLoadedCount] = useState(100)
@@ -49,36 +49,6 @@ const PerfilUsuario = () => {
   })
 
   const euUsuario = !id || profileUser?.user.id === authUser?.id
-
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        setLoading(true)
-
-        const endpoint = id ? `/auth/users/${id}` : `/auth/me`
-
-        const res = await fetch(`${import.meta.env.VITE_API_URL}${endpoint}`, {
-          credentials: 'include',
-        })
-
-        if (!res.ok) {
-          setProfileUser(null)
-          return
-        }
-
-        const data = await res.json()
-
-        setProfileUser(data)
-      } catch (err) {
-        setProfileUser(null)
-        console.log(err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchProfile()
-  }, [id])
 
   const fetchPosts = async (
     pageNumber: number,
@@ -157,15 +127,11 @@ const PerfilUsuario = () => {
             {/* Avatar com hover de edição */}
             <div className="flex flex-col items-center">
               <div className="group relative">
-                <Avatar className="h-28 w-28 shadow-2xl ring-4 ring-white dark:ring-zinc-900 sm:h-32 sm:w-32">
-                  <AvatarImage
-                    src="https://i.pravatar.cc/300"
-                    alt="Carlos Almeida"
-                  />
-                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-3xl font-bold text-white">
-                    CA
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar
+                  url={profileUser.user.avatar || undefined}
+                  name={profileUser.user.name}
+                  className="h-28 w-28 shadow-2xl ring-4 ring-white dark:ring-zinc-900 sm:h-32 sm:w-32"
+                />
                 {euUsuario && (
                   <NavLink to="config">
                     <div className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center rounded-full bg-black/50 opacity-0 backdrop-blur-sm transition-all group-hover:opacity-100">
@@ -198,10 +164,7 @@ const PerfilUsuario = () => {
                 @{profileUser && profileUser.user.name_at}
               </p>
               <p className="mt-2 text-zinc-600 dark:text-zinc-300 sm:max-w-lg">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Placeat, dolorem nisi at sed molestias exercitationem nobis
-                optio, neque voluptatum earum quas alias quis, a veritatis
-                corporis libero. Nam, saepe ut!
+                {profileUser && bio}
               </p>
 
               {/* Stats */}

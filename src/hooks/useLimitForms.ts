@@ -19,5 +19,6 @@ export function useLimitForms(maxLength: number) {
     error,
     handleChange,
     maxLength,
+    setValue,
   }
 }
