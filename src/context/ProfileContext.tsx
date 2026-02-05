@@ -6,7 +6,8 @@ import React, {
   useState,
 } from 'react'
 import { useParams } from 'react-router-dom'
-import { sentimentos } from '../components/componentsPages/componentsPerfil/componentsConfigPerfil/BasicInformationComponent'
+
+import { sentimentos } from '../components/componentsPages/componentsPerfil/componentsConfigPerfil/UserPerfilComponent'
 import type { AuthMeResponse } from '../types'
 
 interface ProfileContextData {
@@ -27,6 +28,8 @@ interface ProfileContextData {
   id: string | undefined
   profileUser: AuthMeResponse | null
   setProfileUser: React.Dispatch<React.SetStateAction<AuthMeResponse | null>>
+  hasUnsavedChanges: boolean
+  setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ProfileContext = createContext<ProfileContextData>(
@@ -37,6 +40,7 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [nomeUser, setNomeUser] = useState('')
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [file, setFile] = useState<string | null>(null)
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null)
   const [profileUser, setProfileUser] = useState<AuthMeResponse | null>(null)
@@ -138,6 +142,8 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
         id,
         profileUser,
         setProfileUser,
+        hasUnsavedChanges,
+        setHasUnsavedChanges,
       }}
     >
       {children}

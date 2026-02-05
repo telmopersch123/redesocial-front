@@ -30,6 +30,7 @@ import DialogHelp from './DialogHelp'
 import { useComunidades } from '../../../context/CommunityContext'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import { useAuth } from '../../../context/getMe'
+import { useProfile } from '../../../context/ProfileContext'
 import { normalizeURL } from '../../../pages/community/AreaCommunitiesUserPage'
 import { getMyCommunities } from '../../../services/authService'
 import type { CommunityInterface } from '../../../types'
@@ -55,6 +56,7 @@ export function AppSidebar() {
   const navigate = useNavigate()
   const { open, setPostCommunity, myCommunities, setMyCommunities } =
     useCriarPostDialog()
+  const { hasUnsavedChanges } = useProfile()
   const [active, setActive] = useState('Feed')
   const { setOpenMobile } = useSidebar()
   const { filtro, setFiltro } = useComunidades()
@@ -127,6 +129,19 @@ export function AppSidebar() {
     handleSearchMyComunity()
   }, [pathname])
 
+  const handleSafeNavigate = (url: string, title?: string) => {
+    if (hasUnsavedChanges) {
+      const proceed = window.confirm(
+        'Você tem alterações não salvas no perfil. Deseja sair e descartar as mudanças?'
+      )
+      if (!proceed) return
+    }
+
+    if (title) setActive(title)
+    navigate(url)
+    setActive(title || 'Feed')
+  }
+
   return (
     <div
       className={`${
@@ -194,7 +209,10 @@ export function AppSidebar() {
                               ? 'bg-purple-100 text-purple-800 shadow-sm dark:bg-purple-900/50 dark:text-purple-300'
                               : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
                           }`}
-                          onClick={() => setActive(item.title)}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handleSafeNavigate(item.url, item.title)
+                          }}
                         >
                           <item.icon className="h-5 w-5" />
                           <span>{item.title}</span>
@@ -306,7 +324,9 @@ export function AppSidebar() {
 
         <SidebarFooter className="border-t border-zinc-200 p-4 dark:border-zinc-800">
           <NavLink
-            onClick={() => setActive('Perfil')}
+            onClick={() => {
+              handleSafeNavigate(user ? `/perfil` : '/auth', 'Perfil')
+            }}
             to={user ? `/perfil` : '/auth'}
           >
             <div

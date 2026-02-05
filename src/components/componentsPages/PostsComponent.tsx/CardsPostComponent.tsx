@@ -8,6 +8,8 @@ import type { Post } from '../../../types'
 
 import { useAuth } from '../../../context/getMe'
 import type { ExtendedPost } from '../../../pages/community/PostsArchived'
+import { UserAvatar } from '../../../utils/components/UserAvatar'
+import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
 import ActionsPost from './components/ActionsPostComponent'
 import { ModalConfirmArchivePost } from './components/ModalConfirmArqPost'
@@ -29,10 +31,11 @@ const CardsPostComponent = ({
   communityShowButtonArchived,
   postsArchived,
 }: PostCardProps) => {
+  console.log('valuePost', valuePost)
   const [novoComentario, setNovoComentario] = useState('')
   const { isModerator, isAdmin } = useAuth()
-  const validatedModerator = isModerator(valuePost.communityId ?? 0)
-  const validatedAdmin = isAdmin(valuePost.communityId ?? 0)
+  const validatedModerator = isModerator(valuePost.community?.id ?? 0)
+  const validatedAdmin = isAdmin(valuePost.community?.id ?? 0)
 
   const { videoState, setVideoState } = useContext(VideoContext)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -70,9 +73,11 @@ const CardsPostComponent = ({
       <CardHeader className="flex flex-row items-center justify-between gap-4 px-4 pb-3 pt-4">
         <div className="flex items-center gap-3">
           {valuePost.user.avatar ? (
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-sm font-bold text-white">
-              {valuePost.user.avatar}
-            </div>
+            <UserAvatar
+              url={valuePost.user.avatar || undefined}
+              name={valuePost.user.name}
+              className="!h-10 !w-10 shadow-2xl ring-4 ring-white dark:ring-zinc-900 sm:h-32 sm:w-32"
+            />
           ) : (
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-xs text-gray-500 dark:bg-gray-700 dark:text-gray-300">
               <Users className="h-5 w-5" />
@@ -80,11 +85,19 @@ const CardsPostComponent = ({
           )}
 
           <div>
-            <CardTitle className="text-base text-gray-800 dark:text-gray-200">
-              <span className="font-semibold text-purple-600 dark:text-purple-400">
-                {valuePost.communityName || 'Comunidade Pessoal'}
-              </span>{' '}
-              • {valuePost.user.name_at}
+            <CardTitle className="flex gap-2 text-base text-gray-800 dark:text-gray-200">
+              <TooltipComponent
+                Tag={
+                  valuePost.community && (
+                    <span className="font-semibold text-purple-600 hover:underline dark:text-purple-400">
+                      {valuePost.community.nameComunity} •
+                    </span>
+                  )
+                }
+                description="Comunidade do Tess"
+              />
+
+              {valuePost.user.name_at}
             </CardTitle>
             <div className="flex items-center gap-1 text-xs text-muted-foreground dark:text-gray-400">
               <Clock className="h-3 w-3" />
@@ -110,13 +123,13 @@ const CardsPostComponent = ({
           <ModalConfirmArchivePost
             postId={valuePost.id}
             nameUser={valuePost.user.name_at}
-            communityId={valuePost.communityId ?? 0}
+            communityId={valuePost.community.id ?? 0}
           />
         ) : validatedAdmin && communityShowButtonArchived && !postsArchived ? (
           <ModalConfirmDelPost
             nameUser={valuePost.user.name_at}
             postId={valuePost.id}
-            communityId={valuePost.communityId ?? 0}
+            communityId={valuePost.community.id ?? 0}
           />
         ) : (
           communityShowButtonArchived &&
@@ -125,7 +138,7 @@ const CardsPostComponent = ({
             <PostAdminActions
               postId={valuePost.id}
               nameUser={valuePost.user.name_at}
-              communityId={valuePost.communityId ?? 0}
+              communityId={valuePost.community.id ?? 0}
             />
           )
         )}
@@ -166,7 +179,7 @@ const CardsPostComponent = ({
             ) : (
               <img
                 src={valuePost.mediaUrl}
-                alt={valuePost.communityName}
+                alt={valuePost.description}
                 className="h-full w-full object-cover"
               />
             )}

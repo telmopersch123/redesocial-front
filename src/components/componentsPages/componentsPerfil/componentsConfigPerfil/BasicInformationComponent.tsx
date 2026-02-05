@@ -1,6 +1,5 @@
 import { Edit2, X } from 'lucide-react'
 import { useEffect } from 'react'
-import { useProfile } from '../../../../context/ProfileContext'
 import { useLimitForms } from '../../../../hooks/useLimitForms'
 import { MessageForms } from '../../../formCustomer/MessageForms'
 import { Button } from '../../../ui/button'
@@ -17,6 +16,7 @@ import { Separator } from '../../../ui/separator'
 import { Textarea } from '../../../ui/textarea'
 import DialogAddMetodo from './AddMetodoDialog'
 import { ConfigDialog } from './ConfigDialog'
+import { sentimentos } from './UserPerfilComponent'
 
 interface InformacaoBasicaProps {
   nomeUser: string
@@ -29,14 +29,13 @@ interface InformacaoBasicaProps {
   abrirDialogConfig: () => void
   setRawFile: React.Dispatch<React.SetStateAction<File | null>>
   setNomeUser: React.Dispatch<React.SetStateAction<string>>
+  localBio: string
+  setLocalBio: React.Dispatch<React.SetStateAction<string>>
+  localSentimento: string
+  setLocalSentimento: React.Dispatch<React.SetStateAction<string>>
+  localMetodos: string[]
+  setLocalMetodos: React.Dispatch<React.SetStateAction<string[]>>
 }
-export const sentimentos = [
-  { value: 'feliz', label: 'Feliz', emoji: '😊' },
-  { value: 'esperancoso', label: 'Esperançoso', emoji: '🌱' },
-  { value: 'ansioso', label: 'Ansioso', emoji: '😰' },
-  { value: 'agradecido', label: 'Agradecido', emoji: '🙏' },
-  { value: 'triste', label: 'Triste', emoji: '😢' },
-]
 
 const BasicInformationComponent = ({
   nomeUser,
@@ -48,15 +47,13 @@ const BasicInformationComponent = ({
   abrirDialogConfig,
   setRawFile,
   setNomeUser,
+  localBio: bio,
+  setLocalBio: setBio,
+  localSentimento: sentimentoAtual,
+  setLocalSentimento: setSentimentoAtual,
+  localMetodos: metodosAutocuidado,
+  setLocalMetodos: setMetodosAutocuidado,
 }: InformacaoBasicaProps) => {
-  const {
-    bio,
-    setBio,
-    metodosAutocuidado,
-    setMetodosAutocuidado,
-    sentimentoAtual,
-    setSentimentoAtual,
-  } = useProfile()
   const BiographyControl = useLimitForms(256)
 
   useEffect(() => {
@@ -129,17 +126,23 @@ const BasicInformationComponent = ({
           <Label>Como você está se sentindo hoje?</Label>
           <Select
             onValueChange={(value) => {
-              const sentimento = sentimentos.find((s) => s.value === value)
-              if (sentimento) {
-                setSentimentoAtual([sentimento.value, sentimento.emoji])
-              }
+              setSentimentoAtual(value)
             }}
-            value={sentimentoAtual[0]}
+            value={sentimentoAtual}
           >
             <SelectTrigger className="w-full">
               <SelectValue>
-                <span className="mr-2">{sentimentoAtual[1]}</span>
-                {sentimentoAtual[0]}
+                {(() => {
+                  const s =
+                    sentimentos.find((s) => s.value === sentimentoAtual) ||
+                    sentimentos[1]
+                  return (
+                    <div className="flex items-center gap-2">
+                      <span>{s.emoji}</span>
+                      <span>{s.label}</span>
+                    </div>
+                  )
+                })()}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>

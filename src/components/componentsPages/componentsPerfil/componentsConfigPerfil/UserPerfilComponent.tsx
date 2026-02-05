@@ -21,12 +21,26 @@ interface UserPerfilComponentProps {
     id: number
   }>
   nomeUser: string
-
-  sentimentoAtual: Array<string>
+  localSentimento: string
   coresFundos: Array<string>
   setRawFile: React.Dispatch<React.SetStateAction<File | null>>
 }
+export const sentimentos = [
+  { value: 'feliz', label: 'Feliz', emoji: '😊' },
+  { value: 'esperancoso', label: 'Esperançoso', emoji: '🌱' },
+  { value: 'ansioso', label: 'Ansioso', emoji: '😰' },
+  { value: 'agradecido', label: 'Agradecido', emoji: '🙏' },
+  { value: 'triste', label: 'Triste', emoji: '😢' },
+]
 
+export const validFeeling = (feeling: string) => {
+  if (!feeling) return
+  const sentimento = sentimentos.find((item) => item.value === feeling)
+
+  if (sentimento) {
+    return sentimento.emoji
+  }
+}
 const UserPerfilComponent = ({
   file,
   setFile,
@@ -37,18 +51,23 @@ const UserPerfilComponent = ({
   avatarContainerRef,
   avataresSimbolicos,
   nomeUser,
-  sentimentoAtual,
+  localSentimento,
   coresFundos,
   setRawFile,
 }: UserPerfilComponentProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  console.log('0', file)
   const { user, handleLogout } = useAuth()
   const handleSelect = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
     fileInputRef.current?.click()
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
+    console.log('1', file)
     if (file) {
       setRawFile(file)
       const previewURL = URL.createObjectURL(file)
@@ -91,9 +110,9 @@ const UserPerfilComponent = ({
           <Avatar
             className={`group-hover:border-linear-purple border-1 h-24 w-24 border-background transition-all duration-300 group-hover:scale-105 ${isAvatarHovered ? 'ring-4 ring-purple-400/30' : ''} `}
           >
-            {file ? (
+            {file && !file.startsWith('SYMBOLIC_') ? (
               <UserAvatar
-                url={file || `SYMBOLIC_${selectedAvatar}`}
+                url={file}
                 name={nomeUser}
                 className="h-full w-full rounded-full shadow-2xl ring-4 ring-white dark:ring-zinc-900"
               />
@@ -103,14 +122,14 @@ const UserPerfilComponent = ({
                   coresFundos[Number(selectedAvatar) - 1]
                 }`}
               >
-                {avataresSimbolicos
-                  .filter((item: any) => item.id === selectedAvatar)
-                  .map((item: any) => {
-                    const Icon = item.icon
-                    return (
-                      <Icon key={item.id} className="h-10 w-10 text-white" />
-                    )
-                  })}
+                {(() => {
+                  const item = avataresSimbolicos.find(
+                    (a) => a.id === selectedAvatar
+                  )
+                  if (!item) return <User className="h-10 w-10" />
+                  const Icon = item.icon
+                  return <Icon className="h-10 w-10 text-white" />
+                })()}
               </div>
             ) : (
               <AvatarFallback className="text-sm text-muted-foreground">
@@ -123,10 +142,7 @@ const UserPerfilComponent = ({
               className={`pointer-events-none absolute inset-0 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-sm transition-all duration-200 ${isAvatarHovered ? 'opacity-100' : 'opacity-0'} group-hover:opacity-100`}
             >
               <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleSelect()
-                }}
+                onClick={handleSelect}
                 className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white transition-all hover:bg-white/30"
                 aria-label="Alterar avatar"
               >
@@ -163,9 +179,8 @@ const UserPerfilComponent = ({
           <h2 className="line-clamp-2 max-w-[250px] break-words pt-3 text-center text-2xl font-bold hover:underline">
             @{nomeUser}
           </h2>
-          <Badge variant="secondary" className="space-x-2 text-sm">
-            <span>{sentimentoAtual[1]}</span>
-            <span>{sentimentoAtual[0]}</span>
+          <Badge variant="secondary" className="text-sm">
+            {validFeeling(localSentimento)} {localSentimento}
           </Badge>
         </div>
       </CardContent>
