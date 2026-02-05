@@ -9,7 +9,6 @@ import DialogEditNome from './EditNomeDialog'
 import ListUsersBlock from './ListUsersBlock'
 interface SessionPersonProps {
   nomeUser?: string
-  setNomeUser?: (nomeUser: string) => void
   darkMode: boolean
   setDarkMode: (value: boolean) => void
   notifications: boolean
@@ -23,11 +22,11 @@ interface SessionPersonProps {
   setShowStatus: (value: boolean) => void
   open: boolean[]
   setOpen: React.Dispatch<React.SetStateAction<boolean[]>>
+  setLocalNome?: (nomeUser: string) => void
 }
 
 const SessionPerson = ({
   nomeUser,
-  setNomeUser,
   darkMode,
   setDarkMode,
   notifications,
@@ -41,6 +40,7 @@ const SessionPerson = ({
   setShowStatus,
   open,
   setOpen,
+  setLocalNome,
 }: SessionPersonProps) => {
   const [mentions, setMentions] = useState(true)
   return (
@@ -59,13 +59,14 @@ const SessionPerson = ({
 
               <p
                 id="profileName"
-                className="mt-1 rounded-sm bg-foreground/5 p-2 text-lg font-semibold text-foreground"
+                className="my-1 flex h-10 w-full items-center rounded-md border border-input bg-muted/30 px-3 py-2 text-sm font-medium text-foreground ring-offset-background"
               >
-                {nomeUser || 'Usuário'}
+                @{nomeUser || 'usuario'}
               </p>
 
               <p className="text-xs text-muted-foreground/80">
-                Este nome será exibido publicamente no seu perfil.
+                Este é o seu identificador exclusivo. É assim que as pessoas
+                encontrarão e mencionarão você.
               </p>
             </div>
 
@@ -74,7 +75,7 @@ const SessionPerson = ({
                 open={open[3]}
                 setOpen={setOpen}
                 nomeUser={nomeUser || ''}
-                setNomeUser={setNomeUser || (() => {})}
+                setLocalNome={setLocalNome}
               />
             </div>
           </div>

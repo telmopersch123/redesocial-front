@@ -25,6 +25,7 @@ const ConfigPerfilPage = () => {
   const navigation = useNavigate()
   const {
     setNomeUser: setGlobalNome,
+    nomeUser,
     setFile: setGlobalFile,
     setSelectedAvatar: setGlobalAvatar,
     loading,
@@ -49,6 +50,12 @@ const ConfigPerfilPage = () => {
   const [isSaving, setIsSaving] = useState(false)
   const avatarContainerRef = useRef<HTMLDivElement>(null)
   const [rawFile, setRawFile] = useState<File | null>(null)
+
+  useEffect(() => {
+    if (nomeUser) {
+      setLocalNome(nomeUser)
+    }
+  }, [nomeUser])
 
   const handleSaveInformationPerfil = async () => {
     setIsSaving(true)
@@ -85,7 +92,6 @@ const ConfigPerfilPage = () => {
           },
           credentials: 'include',
           body: JSON.stringify({
-            name: localNome,
             avatar: finalAvatarValue,
             bio: localBio,
             feeling: localSentimento,
@@ -143,7 +149,6 @@ const ConfigPerfilPage = () => {
   const hasChanges = () => {
     if (!initialData) return false
 
-    const isNameChanged = localNome !== initialData.nomeUser
     const currentAvatar = localSelectedAvatar
       ? `SYMBOLIC_${localSelectedAvatar}`
       : localFile
@@ -155,7 +160,6 @@ const ConfigPerfilPage = () => {
       JSON.stringify(localMetodos) !== initialData.metodos
 
     return (
-      isNameChanged ||
       isAvatarChanged ||
       isFeelingChanged ||
       isBioChanged ||
@@ -264,7 +268,7 @@ const ConfigPerfilPage = () => {
             setIsAvatarHovered={setIsAvatarHovered}
             avatarContainerRef={avatarContainerRef}
             avataresSimbolicos={avataresSimbolicos}
-            nomeUser={localNome}
+            nomeUser={nomeUser}
             localSentimento={localSentimento}
             coresFundos={coresFundos}
             setRawFile={setRawFile}
@@ -319,7 +323,7 @@ const ConfigPerfilPage = () => {
           open={dialogConfigOpen}
           setOpen={setDialogConfigOpen}
           nomeUser={localNome}
-          setNomeUser={setLocalNome}
+          setLocalNome={setLocalNome}
         />
       </div>
     </>

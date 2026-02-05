@@ -31,7 +31,6 @@ const CardsPostComponent = ({
   communityShowButtonArchived,
   postsArchived,
 }: PostCardProps) => {
-  console.log('valuePost', valuePost)
   const [novoComentario, setNovoComentario] = useState('')
   const { isModerator, isAdmin } = useAuth()
   const validatedModerator = isModerator(valuePost.community?.id ?? 0)

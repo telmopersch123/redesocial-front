@@ -24,7 +24,7 @@ interface DialogConfigProps {
   open?: boolean
   setOpen?: (open: boolean) => void
   nomeUser?: string
-  setNomeUser?: (nomeUser: string) => void
+  setLocalNome?: (nomeUser: string) => void
 }
 
 interface OpenOnlyProps {
@@ -39,7 +39,7 @@ export function ConfigDialog({
   open,
   setOpen,
   nomeUser,
-  setNomeUser,
+  setLocalNome,
 }: DialogConfigProps) {
   const { posts, setPosts, selectedPost } = usePosts()
   const [openDialogPost, setOpenDialogPost] = useState(false)
@@ -93,7 +93,6 @@ export function ConfigDialog({
           {tab === 1 ? (
             <SessionPerson
               nomeUser={nomeUser || ''}
-              setNomeUser={setNomeUser || (() => {})}
               darkMode={darkMode}
               setDarkMode={setDarkMode}
               notifications={notifications}
@@ -107,6 +106,7 @@ export function ConfigDialog({
               confirmDisableTwoFactor={confirmDisableTwoFactor}
               open={openDialog}
               setOpen={setOpenDialog}
+              setLocalNome={setLocalNome}
             />
           ) : tab === 2 ? (
             <OptionsCommunity tab={tab} />

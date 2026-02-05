@@ -56,7 +56,7 @@ const UserPerfilComponent = ({
   setRawFile,
 }: UserPerfilComponentProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  console.log('0', file)
+
   const { user, handleLogout } = useAuth()
   const handleSelect = () => {
     if (fileInputRef.current) {
@@ -67,7 +67,7 @@ const UserPerfilComponent = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    console.log('1', file)
+
     if (file) {
       setRawFile(file)
       const previewURL = URL.createObjectURL(file)

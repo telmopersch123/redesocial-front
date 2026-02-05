@@ -24,7 +24,8 @@ import { UserAvatar } from '../utils/components/UserAvatar'
 const PerfilUsuario = () => {
   const { user: authUser } = useAuth()
 
-  const { bio, id, profileUser, loading } = useProfile()
+  const { bio, id, profileUser, loading, setProfileUser, nomeUser } =
+    useProfile()
   const [page, setPage] = useState(1)
   const loadingRef = useRef(false)
   const [loadedCount, setLoadedCount] = useState(100)
@@ -91,6 +92,21 @@ const PerfilUsuario = () => {
       setIsLoadingSkeleton(false)
     }
   }
+
+  useEffect(() => {
+    if (profileUser && nomeUser && profileUser.user.name_at !== nomeUser) {
+      setProfileUser((prev) => {
+        if (!prev) return null
+        return {
+          ...prev,
+          user: {
+            ...prev.user,
+            name_at: nomeUser,
+          },
+        }
+      })
+    }
+  }, [nomeUser])
 
   useEffect(() => {
     setPosts([])

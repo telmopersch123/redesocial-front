@@ -444,7 +444,7 @@ const MessagePage = () => {
       socket.emit('chat:read', { chatId: selectedChat })
     }
   }, [chatMessages, selectedChat])
-  console.log(loadingInitial)
+
   return (
     <div className="flex h-screen w-full flex-col gap-0 p-2 md:w-[calc(100vw-16rem)] md:flex-row md:gap-4 md:p-4 dm:w-[calc(100vw-18rem)]">
       {/* ===== LISTA DE CONVERSAS ===== */}

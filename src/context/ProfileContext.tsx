@@ -84,7 +84,7 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
         }
 
         setProfileUser(data)
-        setNomeUser(data.user.name)
+        setNomeUser(data.user.name_at)
         if (data.user.avatar?.startsWith('SYMBOLIC_')) {
           const symbolId = parseInt(data.user.avatar.replace('SYMBOLIC_', ''))
           setSelectedAvatar(symbolId)

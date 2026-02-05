@@ -34,8 +34,6 @@ const DialogReportPost = () => {
       imagens,
     }
 
-    console.log('Report enviado:', data)
-
     onOpenChange(false)
     setMotivo('')
     setImagens([])
