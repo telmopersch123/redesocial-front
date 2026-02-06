@@ -73,6 +73,9 @@ export type UserType = {
   name_at: string
   email: string
   image?: string | null
+  confirmTwoSteps: {
+    two_factor_enabled: boolean
+  }
   communities: Record<number, string>
 }
 

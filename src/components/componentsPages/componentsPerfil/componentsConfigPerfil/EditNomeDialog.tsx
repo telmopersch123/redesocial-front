@@ -32,13 +32,20 @@ const EditNomeDialog = ({
   setOpen,
   setLocalNome,
 }: DialogEditNomeProps) => {
-  const nameUserControl = useLimitForms(50)
+  const nameUserControl = useLimitForms(30)
   const [isUpdating, setIsUpdating] = useState(false)
   const [backendError, setBackendError] = useState<string | null>(null)
-  const { setNomeUser } = useProfile()
-  const { setUser, user } = useAuth()
+  const [tempNome, setTempNome] = useState(nomeUser || '')
   const [originalName, setOriginalName] = useState<string | null>(null)
 
+  const { setNomeUser } = useProfile()
+  const { setUser, user } = useAuth()
+
+  useEffect(() => {
+    if (open) {
+      setTempNome(nomeUser || '')
+    }
+  }, [open, nomeUser])
   const handleEditName = async () => {
     setIsUpdating(true)
     setBackendError(null)
@@ -49,7 +56,7 @@ const EditNomeDialog = ({
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ name: nomeUser }),
+          body: JSON.stringify({ name: tempNome }),
         }
       )
       const data = await res.json()
@@ -85,7 +92,7 @@ const EditNomeDialog = ({
 
   useEffect(() => {
     if (open && originalName === null) {
-      setOriginalName(nomeUser)
+      setOriginalName(tempNome)
     }
     if (!open && originalName !== null && setLocalNome) {
       setLocalNome(originalName)
@@ -136,9 +143,11 @@ const EditNomeDialog = ({
         <div className="flex flex-col items-center gap-2">
           <Input
             disabled={isUpdating}
-            value={nomeUser || ''}
+            value={tempNome}
             onChange={(e) => {
-              const value = e.target.value.toLowerCase()
+              const value = e.target.value.toLowerCase().replace(/\s/g, '')
+              if (value.length > 31) return
+              setTempNome(value)
               if (setLocalNome) setLocalNome(value)
               nameUserControl.handleChange({
                 ...e,
@@ -177,7 +186,7 @@ const EditNomeDialog = ({
               await handleEditName()
               setOriginalName(null)
             }}
-            disabled={isUpdating || !nomeUser || !!nameUserControl.error}
+            disabled={isUpdating || !tempNome || !!nameUserControl.error}
             className="bg-linear-purple w-full transition-shadow hover:shadow-md"
           >
             {isUpdating ? (

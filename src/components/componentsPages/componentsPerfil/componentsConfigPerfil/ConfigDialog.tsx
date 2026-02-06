@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Button } from '../../../ui/button'
 import {
@@ -13,6 +13,8 @@ import {
   DialogTrigger,
 } from '../../../ui/dialog'
 
+import toast from 'react-hot-toast'
+import { useAuth } from '../../../../context/getMe'
 import { usePosts } from '../../../../context/PostsContext'
 import PostComponentDialog from '../../PostsComponent.tsx/PostComponentDialog'
 import { ActivityComponent } from './AcitivyComponent'
@@ -45,23 +47,67 @@ export function ConfigDialog({
   const [openDialogPost, setOpenDialogPost] = useState(false)
   const [novoComentario, setNovoComentario] = useState('')
   const [notifications, setNotifications] = useState(true)
-  const [darkMode, setDarkMode] = useState(false)
   const [twoFactor, setTwoFactor] = useState(false)
   const [anonMode, setAnonMode] = useState(false)
   const [showStatus, setShowStatus] = useState(true)
   const [tab, setTab] = useState(1)
   const [openDialog, setOpenDialog] = useState([false, false, false, false])
-  const handleTwoFactorChange = (checked: boolean) => {
-    if (!checked && twoFactor) {
-      openOnly({ index: 2, setOpenDialog })
+  const { user } = useAuth()
+  console.log(user)
+  useEffect(() => {
+    if (user?.confirmTwoSteps.two_factor_enabled) {
+      setTwoFactor(true)
     } else {
-      setTwoFactor(checked)
+      setTwoFactor(false)
+    }
+  }, [user])
+  const handleTwoFactorChange = async (checked: boolean) => {
+    if (!checked) {
+      openOnly({ index: 2, setOpenDialog })
+      return
+    }
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/me/update-2fa`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ twoFactorEnabled: true }),
+        }
+      )
+      if (!res.ok) {
+        throw new Error('Erro ao ativar 2fa')
+      }
+      if (res.ok) {
+        setTwoFactor(true)
+        toast.success('Autenticação em duas etapas ativada!')
+      } else {
+        toast.error('Erro ao ativar 2FA. Tente novamente.')
+      }
+    } catch (error) {
+      console.log(error)
     }
   }
-
-  const confirmDisableTwoFactor = () => {
-    setTwoFactor(false)
-    setOpenDialog((prev) => prev.map(() => false))
+  const confirmDisableTwoFactor = async () => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/me/update-2fa`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ twoFactorEnabled: false }),
+        }
+      )
+      if (res.ok) {
+        setTwoFactor(false)
+        setOpenDialog((prev) => prev.map(() => false))
+        toast.success('Proteção 2FA desativada.')
+      }
+    } catch (error) {
+      toast.error('Erro ao desativar. Tente novamente.')
+    }
   }
 
   return (
@@ -93,8 +139,6 @@ export function ConfigDialog({
           {tab === 1 ? (
             <SessionPerson
               nomeUser={nomeUser || ''}
-              darkMode={darkMode}
-              setDarkMode={setDarkMode}
               notifications={notifications}
               setNotifications={setNotifications}
               anonMode={anonMode}

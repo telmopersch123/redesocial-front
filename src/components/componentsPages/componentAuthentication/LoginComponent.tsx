@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 import { Button } from '../../../components/ui/button'
 import {
   Card,
@@ -23,6 +23,7 @@ import {
   type LoginFormData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 import { loginUser } from '../../../services/authService'
+import ValidatedCodeLogin from './ValidatedCodeLogin'
 
 interface LoginComponentProps {
   onSwitchToRegister: () => void
@@ -33,10 +34,17 @@ const LoginComponent = ({
   onSwitchToRegister,
   setForgotPassword,
 }: LoginComponentProps) => {
-  const navigate = useNavigate()
   const { setUser } = useAuth()
-  const [showPassword, setShowPassword] = useState(false)
   const { setIsLoading } = useResetPassword()
+  const [step, setStep] = useState<'login' | '2fa'>('login')
+  const [twoFactorData, setTwoFactorData] = useState<{
+    userId: number
+    rememberMe: boolean
+    email: string
+  } | null>(null)
+  const [otpCode, setOtpCode] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+
   const {
     register,
     handleSubmit,
@@ -55,16 +63,23 @@ const LoginComponent = ({
     async function login() {
       try {
         setIsLoading(true)
-        const loggedUser = await loginUser(
+        const response = await loginUser(
           data.email,
           data.password,
           data.rememberMe
         )
-        if (loggedUser) {
-          setUser(loggedUser)
+        if (response.twoFactorRequired) {
+          setTwoFactorData({
+            userId: response.userId,
+            rememberMe: data.rememberMe ?? false,
+            email: data.email,
+          })
+          setStep('2fa')
+        } else if (response.user) {
+          setUser(response.user)
           window.location.href = '/'
         } else {
-          alert('Email ou senha incorretos')
+          toast.error('Email ou senha incorretos')
         }
       } catch (error) {
         console.log(error)
@@ -74,7 +89,8 @@ const LoginComponent = ({
     }
     login()
   }
-  return (
+
+  return step === 'login' ? (
     <Card className="m-auto w-full max-w-md border-0 bg-white text-black shadow-2xl">
       <CardHeader className="bg-linear-purple rounded-md py-10 text-center text-white">
         <CardTitle className="text-4xl font-bold">
@@ -185,6 +201,12 @@ const LoginComponent = ({
         </p>
       </CardFooter>
     </Card>
+  ) : (
+    <ValidatedCodeLogin
+      userId={twoFactorData?.userId || 0}
+      rememberMe={twoFactorData?.rememberMe || false}
+      onBack={() => setStep('login')}
+    />
   )
 }
 

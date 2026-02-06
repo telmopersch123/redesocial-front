@@ -1,3 +1,4 @@
+import { useTheme } from 'next-themes'
 import type React from 'react'
 import { useState } from 'react'
 import { Button } from '../../../ui/button'
@@ -9,8 +10,7 @@ import DialogEditNome from './EditNomeDialog'
 import ListUsersBlock from './ListUsersBlock'
 interface SessionPersonProps {
   nomeUser?: string
-  darkMode: boolean
-  setDarkMode: (value: boolean) => void
+
   notifications: boolean
   setNotifications: (value: boolean) => void
   twoFactor: boolean
@@ -27,8 +27,6 @@ interface SessionPersonProps {
 
 const SessionPerson = ({
   nomeUser,
-  darkMode,
-  setDarkMode,
   notifications,
   setNotifications,
   twoFactor,
@@ -43,6 +41,8 @@ const SessionPerson = ({
   setLocalNome,
 }: SessionPersonProps) => {
   const [mentions, setMentions] = useState(true)
+  const { theme, setTheme } = useTheme()
+
   return (
     <>
       <div className="flex flex-col gap-6">
@@ -92,7 +92,12 @@ const SessionPerson = ({
                 Ativar tema escuro no aplicativo.
               </p>
             </div>
-            <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+            <Switch
+              checked={theme === 'dark'}
+              onCheckedChange={(checked) => {
+                setTheme(checked ? 'dark' : 'light')
+              }}
+            />
           </div>
         </div>
 
@@ -145,20 +150,23 @@ const SessionPerson = ({
 
             {twoFactor && (
               <div className="mt-3 rounded-lg border border-border/40 bg-background/70 p-3 text-sm text-muted-foreground shadow-inner">
-                <p className="mb-1 font-medium text-foreground">
-                  ⚠️ Proteja sua conta
+                <p className="mb-1 flex items-center gap-2 font-medium text-green-600 dark:text-green-400">
+                  <span className="relative flex h-2 w-2">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
+                  </span>
+                  Sua conta está protegida
                 </p>
                 <p>
-                  Um código será enviado ao seu e-mail cadastrado sempre que
-                  você fizer login. Certifique-se de que seu endereço esteja
-                  atualizado.
+                  O sistema solicitará um código enviado ao seu e-mail sempre
+                  que detectar um novo login.
                 </p>
                 <Button
-                  variant="secondary"
-                  size="sm"
-                  className="mt-3 w-fit text-xs font-medium"
+                  onClick={() => handleTwoFactorChange(false)}
+                  variant="link"
+                  className="h-auto p-0 text-xs text-red-500 hover:text-red-600"
                 >
-                  Ativar a verificação em duas etapas
+                  Desativar proteção extra
                 </Button>
               </div>
             )}

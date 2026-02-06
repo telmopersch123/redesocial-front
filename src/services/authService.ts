@@ -4,7 +4,7 @@ import type {
   PostDialogSchema,
 } from '../lib/validatorSchemas/autoSchemaAutenticator'
 import type { PayloadTypeCreate } from '../pages/community/CreateCommunityPage'
-import type { UserTypeSearch, ValidedCodeResponse } from '../types'
+import { type ValidedCodeResponse } from '../types'
 import { socket } from './socket'
 
 function useDebounce(value: string, delay: number) {
@@ -21,7 +21,7 @@ function useDebounce(value: string, delay: number) {
 }
 export function useUserSearch() {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<UserTypeSearch[]>([])
+  const [results, setResults] = useState<[]>([])
   const debouncedQuery = useDebounce(query, 300)
 
   useEffect(() => {
@@ -62,6 +62,25 @@ export async function logoutUser(): Promise<boolean> {
     return false
   }
 }
+
+export async function verify2FALogin(
+  userId: number,
+  code: string,
+  rememberMe: boolean
+) {
+  const res = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/me/verify-login-2fa`,
+    {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, code, rememberMe }),
+    }
+  )
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error || 'Código inválido')
+  return data.user
+}
 export async function loginUser(
   email: string,
   password: string,
@@ -82,12 +101,13 @@ export async function loginUser(
     if (!res.ok) throw new Error('Credenciais inválidas')
 
     const data = await res.json()
-    return data.user // já retorna só o usuário
+    return data
   } catch (err) {
     console.error(err)
     return null
   }
 }
+
 export async function sendVerificationEmail(email: string): Promise<void> {
   await fetch(`${import.meta.env.VITE_API_URL}/auth/send-verification-email`, {
     method: 'POST',
