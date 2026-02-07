@@ -28,7 +28,8 @@ export interface Post {
   feelingPost?: string
   createdAt: Date
   updatedAt?: string
-  community: { id: number; nameComunity: string }
+  communityId: number
+  communityName: string
   likesCount: number
   likedByMe: boolean
   user: User
@@ -73,6 +74,7 @@ export type UserType = {
   name_at: string
   email: string
   image?: string | null
+  anonMode: boolean
   confirmTwoSteps: {
     two_factor_enabled: boolean
   }
@@ -114,7 +116,13 @@ export interface ResetPassWordProps {
 export interface ValidedCodeResponse {
   resetToken: string
 }
-
+export interface userTypeSearch {
+  avatar: string
+  friends: number
+  id: number
+  name: string
+  name_at: string
+}
 export interface CommunityInterface {
   image: string
   id: number

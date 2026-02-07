@@ -1,6 +1,6 @@
 // src/components/auth/ValidatedCodeLogin.tsx
 import { CornerUpLeft } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { useAuth } from '../../../context/getMe'
 import { verify2FALogin } from '../../../services/authService' // Sua função de 2FA
 import { alertMessage } from '../../../utils/components/alertMensage'
@@ -27,7 +27,7 @@ const ValidatedCodeLogin = ({
   onBack,
 }: ValidatedCodeLoginProps) => {
   const { setUser } = useAuth()
-  const [timerForgot, setTimerForgot] = useState<number>(0)
+
   const [isLoading, setIsLoading] = useState(false)
   const [verificationCode, setVerificationCode] = useState([
     '',
@@ -38,7 +38,6 @@ const ValidatedCodeLogin = ({
     '',
   ])
 
-  const timerRef = useRef<number | null>(null)
   const codeRefs = Array.from({ length: 6 }, () =>
     useRef<HTMLInputElement>(null)
   )
@@ -62,17 +61,6 @@ const ValidatedCodeLogin = ({
     }
   }
 
-  const startTimer = () => {
-    if (timerRef.current) clearInterval(timerRef.current)
-    let current = 60
-    setTimerForgot(current)
-    timerRef.current = setInterval(() => {
-      current -= 1
-      setTimerForgot(current)
-      if (current === 0) clearInterval(timerRef.current!)
-    }, 1000)
-  }
-
   async function handleValidate2FA() {
     const codeStr = verificationCode.join('')
     if (codeStr.length < 6) return
@@ -90,13 +78,6 @@ const ValidatedCodeLogin = ({
       setIsLoading(false)
     }
   }
-
-  useEffect(() => {
-    startTimer()
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current)
-    }
-  }, [])
 
   return (
     <Card className="m-auto w-full max-w-md border-0 bg-white text-black shadow-2xl">
@@ -140,12 +121,6 @@ const ValidatedCodeLogin = ({
         >
           {isLoading ? 'Verificando...' : 'Confirmar Login'}
         </Button>
-
-        {timerForgot > 0 && (
-          <p className="text-center text-xs font-medium text-purple-600">
-            Aguarde {timerForgot}s para reenviar
-          </p>
-        )}
       </CardContent>
     </Card>
   )

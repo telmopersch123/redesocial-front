@@ -5,7 +5,6 @@ import React, {
   useEffect,
   useState,
 } from 'react'
-import { useParams } from 'react-router-dom'
 
 import { sentimentos } from '../components/componentsPages/componentsPerfil/componentsConfigPerfil/UserPerfilComponent'
 import type { AuthMeResponse } from '../types'
@@ -18,14 +17,13 @@ interface ProfileContextData {
   selectedAvatar: number | null
   setSelectedAvatar: React.Dispatch<React.SetStateAction<number | null>>
   loading: boolean
-  refreshProfile: () => Promise<void>
+  refreshProfile: (idUser?: number) => Promise<void>
   sentimentoAtual: string[]
   setSentimentoAtual: React.Dispatch<React.SetStateAction<string[]>>
   metodosAutocuidado: string[]
   setMetodosAutocuidado: React.Dispatch<React.SetStateAction<string[]>>
   bio: string
   setBio: React.Dispatch<React.SetStateAction<string>>
-  id: string | undefined
   profileUser: AuthMeResponse | null
   setProfileUser: React.Dispatch<React.SetStateAction<AuthMeResponse | null>>
   hasUnsavedChanges: boolean
@@ -44,17 +42,20 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
   const [file, setFile] = useState<string | null>(null)
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null)
   const [profileUser, setProfileUser] = useState<AuthMeResponse | null>(null)
-  const { id } = useParams<{ id?: string }>()
+
   const [loading, setLoading] = useState(true)
   const [sentimentoAtual, setSentimentoAtual] = useState(['esperancoso', '🌱'])
   const [metodosAutocuidado, setMetodosAutocuidado] = useState<string[]>([])
   const [bio, setBio] = useState('')
 
-  const refreshProfile = useCallback(async () => {
+  const refreshProfile = useCallback(async (idUser?: number) => {
+    console.log('entrou?')
     try {
       setLoading(true)
 
-      const endpoint = id ? `/auth/users/${id}` : `/auth/me`
+      setProfileUser(null)
+
+      const endpoint = idUser ? `/auth/users/${idUser}` : `/auth/me`
 
       const res = await fetch(`${import.meta.env.VITE_API_URL}${endpoint}`, {
         credentials: 'include',
@@ -62,11 +63,13 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (!res.ok) {
         setProfileUser(null)
+        setLoading(false)
         return
       }
 
       if (res.ok) {
         const data = await res.json()
+
         const infoOriginal = data.user.informationUser[0]
         const feelingSlug = infoOriginal?.feeling
         const feelingSearch = sentimentos.find((s) => s.value === feelingSlug)
@@ -117,11 +120,9 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
       setLoading(false)
     }
   }, [])
-
   useEffect(() => {
     refreshProfile()
-  }, [id])
-
+  }, [refreshProfile])
   return (
     <ProfileContext.Provider
       value={{
@@ -139,7 +140,6 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
         setMetodosAutocuidado,
         bio,
         setBio,
-        id,
         profileUser,
         setProfileUser,
         hasUnsavedChanges,

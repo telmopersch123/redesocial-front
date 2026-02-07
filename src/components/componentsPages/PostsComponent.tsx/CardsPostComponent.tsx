@@ -6,6 +6,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react'
 import { VideoContext, type VideoState } from '../../../context/VideoContext'
 import type { Post } from '../../../types'
 
+import { useLocation } from 'react-router-dom'
 import { useAuth } from '../../../context/getMe'
 import type { ExtendedPost } from '../../../pages/community/PostsArchived'
 import { UserAvatar } from '../../../utils/components/UserAvatar'
@@ -33,10 +34,11 @@ const CardsPostComponent = ({
 }: PostCardProps) => {
   const [novoComentario, setNovoComentario] = useState('')
   const { isModerator, isAdmin } = useAuth()
-  const validatedModerator = isModerator(valuePost.community?.id ?? 0)
-  const validatedAdmin = isAdmin(valuePost.community?.id ?? 0)
-
+  const params = useLocation()
+  const validatedModerator = isModerator(valuePost.communityId ?? 0)
+  const validatedAdmin = isAdmin(valuePost.communityId ?? 0)
   const { videoState, setVideoState } = useContext(VideoContext)
+  const { user } = useAuth()
   const videoRef = useRef<HTMLVideoElement>(null)
 
   const pauseVideo = () => {
@@ -85,19 +87,31 @@ const CardsPostComponent = ({
 
           <div>
             <CardTitle className="flex gap-2 text-base text-gray-800 dark:text-gray-200">
-              <TooltipComponent
-                Tag={
-                  valuePost.community && (
-                    <span className="font-semibold text-purple-600 hover:underline dark:text-purple-400">
-                      {valuePost.community.nameComunity} •
-                    </span>
-                  )
-                }
-                description="Comunidade do Tess"
-              />
+              {valuePost.communityId &&
+                params.pathname.split('/').pop()?.replaceAll('-', ' ') !==
+                  valuePost.communityName &&
+                params.pathname.split('/').pop()?.replaceAll('-', ' ') !==
+                  'archived' && (
+                  <TooltipComponent
+                    Tag={
+                      <span className="font-semibold text-purple-600 hover:underline dark:text-purple-400">
+                        {valuePost.communityName} •
+                      </span>
+                    }
+                    description="Comunidade do Tess"
+                  />
+                )}
 
-              {valuePost.user.name_at}
+              <span className="font-bold">@{valuePost.user.name_at}</span>
+
+              {valuePost.anonymous &&
+                valuePost.user.id === Number(user?.id) && (
+                  <span className="inline-flex items-center rounded-full border border-zinc-200 bg-zinc-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
+                    Anônimo
+                  </span>
+                )}
             </CardTitle>
+
             <div className="flex items-center gap-1 text-xs text-muted-foreground dark:text-gray-400">
               <Clock className="h-3 w-3" />
               {isNaN(new Date(valuePost.createdAt).getTime())
@@ -122,13 +136,13 @@ const CardsPostComponent = ({
           <ModalConfirmArchivePost
             postId={valuePost.id}
             nameUser={valuePost.user.name_at}
-            communityId={valuePost.community.id ?? 0}
+            communityId={valuePost.communityId ?? 0}
           />
         ) : validatedAdmin && communityShowButtonArchived && !postsArchived ? (
           <ModalConfirmDelPost
             nameUser={valuePost.user.name_at}
             postId={valuePost.id}
-            communityId={valuePost.community.id ?? 0}
+            communityId={valuePost.communityId ?? 0}
           />
         ) : (
           communityShowButtonArchived &&
@@ -137,7 +151,7 @@ const CardsPostComponent = ({
             <PostAdminActions
               postId={valuePost.id}
               nameUser={valuePost.user.name_at}
-              communityId={valuePost.community.id ?? 0}
+              communityId={valuePost.communityId ?? 0}
             />
           )
         )}

@@ -4,7 +4,7 @@ import type {
   PostDialogSchema,
 } from '../lib/validatorSchemas/autoSchemaAutenticator'
 import type { PayloadTypeCreate } from '../pages/community/CreateCommunityPage'
-import { type ValidedCodeResponse } from '../types'
+import { type userTypeSearch, type ValidedCodeResponse } from '../types'
 import { socket } from './socket'
 
 function useDebounce(value: string, delay: number) {
@@ -21,7 +21,7 @@ function useDebounce(value: string, delay: number) {
 }
 export function useUserSearch() {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<[]>([])
+  const [results, setResults] = useState<userTypeSearch[]>([])
   const debouncedQuery = useDebounce(query, 300)
 
   useEffect(() => {
@@ -43,7 +43,7 @@ export function useUserSearch() {
     }
     fetchUsers()
   }, [debouncedQuery])
-
+  console.log(results)
   return { setQuery, query, results }
 }
 export async function logoutUser(): Promise<boolean> {

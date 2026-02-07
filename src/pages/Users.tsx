@@ -96,8 +96,8 @@ const Users = () => {
                         <div className="flex items-center gap-1 text-sm text-zinc-500 dark:text-zinc-400">
                           <UsersIcon className="h-4 w-4" />
                           <span>
-                            {user.friendsCount} amigo
-                            {user.friendsCount !== 1 ? 's' : ''}
+                            {/* {user.friendsCount} amigo
+                            {user.friendsCount !== 1 ? 's' : ''} */}
                           </span>
                         </div>
                       </div>

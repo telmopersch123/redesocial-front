@@ -53,9 +53,8 @@ export function ConfigDialog({
   const [tab, setTab] = useState(1)
   const [openDialog, setOpenDialog] = useState([false, false, false, false])
   const { user } = useAuth()
-  console.log(user)
   useEffect(() => {
-    if (user?.confirmTwoSteps.two_factor_enabled) {
+    if (user?.confirmTwoSteps && user?.confirmTwoSteps.two_factor_enabled) {
       setTwoFactor(true)
     } else {
       setTwoFactor(false)

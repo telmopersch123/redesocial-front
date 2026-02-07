@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 
+import { useAuth } from '../../../context/getMe'
 import { useRefreshPermission } from '../../../context/RefreshPermissionContext'
 import { useLimitForms } from '../../../hooks/useLimitForms'
 import {
@@ -45,6 +46,8 @@ export function PostDialog() {
   const [typeError, setTypeError] = useState('')
   const [tagInput, setTagInput] = useState<string>('')
   const [tags, setTags] = useState<string[]>([])
+  const { user } = useAuth()
+  const isGlobalAnon = user?.anonMode === true
 
   const { value, error, handleChange, maxLength } = useLimitForms(5000)
 
@@ -58,6 +61,7 @@ export function PostDialog() {
     resolver: zodResolver(postDialogSchema),
     mode: 'onChange',
     defaultValues: {
+      anonymous: isGlobalAnon,
       destination: {
         type: 'geral',
         communityId: null,
@@ -198,6 +202,7 @@ export function PostDialog() {
 
       await createPosts({
         ...data,
+        anonymous: isGlobalAnon ? true : data.anonymous,
         media: mediaUrl ? { url: mediaUrl, type: mediaType! } : null,
       })
 
@@ -536,8 +541,11 @@ export function PostDialog() {
                     render={({ field }) => (
                       <Switch
                         id="anonimo"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
+                        checked={isGlobalAnon ? true : field.value}
+                        disabled={isGlobalAnon}
+                        onCheckedChange={(checked) => {
+                          if (!isGlobalAnon) field.onChange(checked)
+                        }}
                         className="data-[state=checked]:bg-linear-purple"
                       />
                     )}

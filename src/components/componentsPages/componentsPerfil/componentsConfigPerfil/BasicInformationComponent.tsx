@@ -72,7 +72,7 @@ const BasicInformationComponent = ({
         <h1 className="text-2xl font-semibold tracking-tight">
           Informações Básicas
         </h1>
-        <ConfigDialog nomeUser={nomeUser} setNomeUser={setNomeUser} />
+        <ConfigDialog nomeUser={nomeUser} />
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Nome de Exibição */}

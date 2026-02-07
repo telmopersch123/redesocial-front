@@ -1,6 +1,8 @@
 import { useTheme } from 'next-themes'
 import type React from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
+import { useAuth } from '../../../../context/getMe'
 import { Button } from '../../../ui/button'
 import { Label } from '../../../ui/label'
 import { Switch } from '../../../ui/switch'
@@ -42,6 +44,14 @@ const SessionPerson = ({
 }: SessionPersonProps) => {
   const [mentions, setMentions] = useState(true)
   const { theme, setTheme } = useTheme()
+  const user = useAuth()
+  useEffect(() => {
+    if (user.user?.anonMode) {
+      setAnonMode(user.user.anonMode)
+    } else {
+      setAnonMode(false)
+    }
+  }, [user, open])
 
   return (
     <>
@@ -184,7 +194,34 @@ const SessionPerson = ({
                 Oculta seu nome em publicações e interações públicas.
               </p>
             </div>
-            <Switch checked={anonMode} onCheckedChange={setAnonMode} />
+            <Switch
+              checked={anonMode}
+              onCheckedChange={async (checked) => {
+                setAnonMode(checked)
+
+                const res = await fetch(
+                  `${import.meta.env.VITE_API_URL}/auth/me/statusUser`,
+                  {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ anonMode: checked }),
+                  }
+                )
+                if (res.ok) {
+                  setAnonMode(checked)
+                  if (user.user && user.setUser) {
+                    user.setUser({
+                      ...user.user,
+                      anonMode: checked,
+                    })
+                  }
+                } else {
+                  toast.error('Ops! Algo deu errado!!!')
+                  setAnonMode(!checked)
+                }
+              }}
+            />
           </div>
 
           <div className="flex items-center justify-between rounded-xl border border-border/50 bg-muted/40 p-3 shadow-sm transition-all hover:shadow-md">

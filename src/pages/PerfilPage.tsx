@@ -1,8 +1,10 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { debounce } from 'lodash'
+import Lottie from 'lottie-react'
 import { Edit2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useParams } from 'react-router-dom'
+import notfounduser from '../assets/animations/notfounduser.json'
 import BlockedConfirmDialog from '../components/componentsPages/componentsPerfil/BlockedConfirmDialog'
 import { FriendsDialog } from '../components/componentsPages/componentsPerfil/FriendsDialog'
 import ReportDialog from '../components/componentsPages/componentsPerfil/ReportDialog'
@@ -23,9 +25,15 @@ import { UserAvatar } from '../utils/components/UserAvatar'
 
 const PerfilUsuario = () => {
   const { user: authUser } = useAuth()
-
-  const { bio, id, profileUser, loading, setProfileUser, nomeUser } =
-    useProfile()
+  const { id } = useParams<{ id?: string }>()
+  const {
+    bio,
+    profileUser,
+    loading,
+    setProfileUser,
+    nomeUser,
+    refreshProfile,
+  } = useProfile()
   const [page, setPage] = useState(1)
   const loadingRef = useRef(false)
   const [loadedCount, setLoadedCount] = useState(100)
@@ -48,8 +56,15 @@ const PerfilUsuario = () => {
     isLoading: isLoadingSkeleton,
     onLoadMore: debouncedOnLoadMore,
   })
-
-  const euUsuario = !id || profileUser?.user.id === authUser?.id
+  useEffect(() => {
+    refreshProfile(Number(id) || undefined)
+  }, [id, refreshProfile])
+  const euUsuario = Boolean(
+    !id ||
+      (profileUser?.user.id !== undefined &&
+        authUser?.id !== undefined &&
+        Number(profileUser.user.id) === Number(authUser.id))
+  )
 
   const fetchPosts = async (
     pageNumber: number,
@@ -117,6 +132,14 @@ const PerfilUsuario = () => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
     fetchPosts(page, true)
   }, [authUser, euUsuario, profileUser])
+  useEffect(() => {
+    setPosts([])
+    setHasMore(true)
+    setPage(1)
+    refreshProfile(Number(id))
+
+    window.scrollTo(0, 0)
+  }, [id])
 
   if (loading) {
     return (
@@ -282,29 +305,51 @@ const PerfilUsuario = () => {
   ) : (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.5 }}
-        className="fixed inset-0 flex items-center justify-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-50/80 p-4 backdrop-blur-sm dark:bg-zinc-950/80"
       >
-        <div className="flex items-center space-x-2 rounded-xl border border-red-300 bg-white px-6 py-4 text-red-600 shadow-lg dark:border-red-700 dark:bg-[#1a1a1a] dark:text-red-400">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-red-600 dark:text-red-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="flex max-w-md flex-col items-center text-center"
+        >
+          {/* Container da Animação Lottie */}
+          <div className="h-64 w-64 sm:h-80 sm:w-80">
+            <Lottie
+              animationData={notfounduser}
+              loop={true}
+              className="h-full w-full"
             />
-          </svg>
-          <span className="text-lg font-semibold">Usuário não encontrado</span>
-        </div>
+          </div>
+
+          <div className="mt-2 space-y-2">
+            <h2 className="text-3xl font-black tracking-tight text-zinc-900 dark:text-zinc-100">
+              Ops! Usuário sumiu?
+            </h2>
+            <p className="font-medium text-zinc-600 dark:text-zinc-400">
+              Não conseguimos encontrar ninguém com esse identificador. O perfil
+              pode ter sido alterado ou não existe mais.
+            </p>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-4 sm:flex-row">
+            <Button
+              onClick={() => window.history.back()}
+              variant="outline"
+              className="rounded-full border-zinc-300 px-8 font-bold hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+            >
+              Voltar
+            </Button>
+
+            <NavLink to="/">
+              <Button className="rounded-full bg-purple-600 px-8 font-bold text-white shadow-lg shadow-purple-500/20 hover:bg-purple-700">
+                Ir para o Início
+              </Button>
+            </NavLink>
+          </div>
+        </motion.div>
       </motion.div>
     </AnimatePresence>
   )
