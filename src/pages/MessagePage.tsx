@@ -78,7 +78,8 @@ const MessagePage = () => {
   const responsive = 1000
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const { id: ChatIdOrUserId } = useParams<{ id: string }>()
-  const isOnline = onlineUsers.has(usersDate?.id ?? 0)
+  const isOnline = onlineUsers.has(Number(usersDate?.id))
+
   const typingTimeout = useRef<number | null>(null)
   // effect de inicialização
   useEffect(() => {

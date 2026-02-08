@@ -47,6 +47,7 @@ export function ConfigDialog({
   const [openDialogPost, setOpenDialogPost] = useState(false)
   const [novoComentario, setNovoComentario] = useState('')
   const [notifications, setNotifications] = useState(true)
+
   const [twoFactor, setTwoFactor] = useState(false)
   const [anonMode, setAnonMode] = useState(false)
   const [showStatus, setShowStatus] = useState(true)

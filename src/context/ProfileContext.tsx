@@ -49,7 +49,6 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
   const [bio, setBio] = useState('')
 
   const refreshProfile = useCallback(async (idUser?: number) => {
-    console.log('entrou?')
     try {
       setLoading(true)
 

@@ -45,6 +45,7 @@ import {
 import { Separator } from '../..//ui/separator'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 
+import { useChat } from '../../../context/ChatContext'
 import { socket } from '../../../services/socket'
 import { Checkbox } from '../../ui/checkbox'
 import { ConfirmationRemoveUserDialog } from './ConfirmationRemoveUserDialog'
@@ -76,7 +77,7 @@ const UsersCommunityDialog = ({
   const { isAdmin, user, isModerator, refreshUser } = useAuth()
   const adminStatus = isAdmin(communityIdFromState)
   const moderatorStatus = isModerator(communityIdFromState)
-  const [onlineUsers, setOnlineUsers] = useState<number[]>([])
+  const { onlineUsers } = useChat()
 
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -200,35 +201,10 @@ const UsersCommunityDialog = ({
     }
   }
 
-  useEffect(() => {
-    if (!socket) return
-
-    const handleInitialList = ({ users }: { users: number[] }) => {
-      setOnlineUsers(users)
-    }
-
-    const handleUserOnline = (userId: number) => {
-      setOnlineUsers((prev) =>
-        prev.includes(userId) ? prev : [...prev, userId]
-      )
-    }
-
-    const handleUserOffline = (userId: number) => {
-      setOnlineUsers((prev) => prev.filter((id) => id !== userId))
-    }
-
-    socket.on('users:online:list', handleInitialList)
-    socket.on('userOnline', handleUserOnline)
-    socket.on('userOffline', handleUserOffline)
-
-    socket.emit('get:online:users')
-
-    return () => {
-      socket.off('users:online:list', handleInitialList)
-      socket.off('userOnline', handleUserOnline)
-      socket.off('userOffline', handleUserOffline)
-    }
-  }, [])
+  const usersWithOnlineStatus = users.map((user) => ({
+    ...user,
+    isOnline: onlineUsers.has(user.user.id),
+  }))
 
   useEffect(() => {
     if (!validetedLoading || filterRole) {
@@ -242,19 +218,18 @@ const UsersCommunityDialog = ({
       return () => clearTimeout(delayDebounceFn)
     }
   }, [open, page, query, pathname, filterRole])
-
   useEffect(() => {
     refreshUser()
   }, [open, pathname])
-  useEffect(() => {
-    if (!users.length) return
-    setUsers((prev) =>
-      prev.map((u) => ({
-        ...u,
-        isOnline: onlineUsers.includes(u.user.id),
-      }))
-    )
-  }, [onlineUsers, users.length])
+  // useEffect(() => {
+  //   if (!users.length) return
+  //   setUsers((prev) =>
+  //     prev.map((u) => ({
+  //       ...u,
+  //       isOnline: onlineUsers.includes(u.user.id),
+  //     }))
+  //   )
+  // }, [onlineUsers, users.length])
   useEffect(() => {
     if (open && socket) {
       socket.emit('get:online:users')
@@ -380,8 +355,8 @@ const UsersCommunityDialog = ({
                   <Loader2 className="h-4 w-4 animate-spin" />
                 </div>
               )}
-              {users.length > 0
-                ? users.map((u) => (
+              {usersWithOnlineStatus.length > 0
+                ? usersWithOnlineStatus.map((u) => (
                     <div
                       key={u.id}
                       className="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-700 dark:bg-zinc-800"

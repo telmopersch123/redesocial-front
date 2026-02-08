@@ -3,6 +3,7 @@ import type React from 'react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../../../context/getMe'
+import { socket } from '../../../../services/socket'
 import { Button } from '../../../ui/button'
 import { Label } from '../../../ui/label'
 import { Switch } from '../../../ui/switch'
@@ -12,7 +13,6 @@ import DialogEditNome from './EditNomeDialog'
 import ListUsersBlock from './ListUsersBlock'
 interface SessionPersonProps {
   nomeUser?: string
-
   notifications: boolean
   setNotifications: (value: boolean) => void
   twoFactor: boolean
@@ -36,15 +36,30 @@ const SessionPerson = ({
   confirmDisableTwoFactor,
   anonMode,
   setAnonMode,
-  showStatus,
+  showStatus: showOnlineStatus,
   setShowStatus,
   open,
   setOpen,
   setLocalNome,
 }: SessionPersonProps) => {
+  const [showViewStatus, setShowViewStatus] = useState(true)
   const [mentions, setMentions] = useState(true)
   const { theme, setTheme } = useTheme()
   const user = useAuth()
+
+  useEffect(() => {
+    if (user.user?.showOnlineStatus) {
+      setShowStatus(user.user.showOnlineStatus)
+    } else {
+      setShowStatus(false)
+    }
+    if (user.user?.showViewStatus) {
+      setShowViewStatus(user.user.showViewStatus)
+    } else {
+      setShowViewStatus(false)
+    }
+  }, [open])
+
   useEffect(() => {
     if (user.user?.anonMode) {
       setAnonMode(user.user.anonMode)
@@ -53,6 +68,7 @@ const SessionPerson = ({
     }
   }, [user, open])
 
+  console.log(showViewStatus)
   return (
     <>
       <div className="flex flex-col gap-6">
@@ -233,7 +249,80 @@ const SessionPerson = ({
                 Permitir que outros vejam quando você está ativo.
               </p>
             </div>
-            <Switch checked={showStatus} onCheckedChange={setShowStatus} />
+            <Switch
+              checked={showOnlineStatus}
+              onCheckedChange={async (checked) => {
+                const newStatus = checked
+                setShowStatus(newStatus)
+                const res = await fetch(
+                  `${import.meta.env.VITE_API_URL}/auth/me/statusUser`,
+                  {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      showOnlineStatus: newStatus,
+                    }),
+                  }
+                )
+
+                if (res.ok) {
+                  if (user.user && user.setUser) {
+                    socket.emit('user:update:privacy', {
+                      showOnlineStatus: newStatus,
+                    })
+                    user.setUser({
+                      ...user.user,
+                      showOnlineStatus: newStatus,
+                    })
+                  }
+                } else {
+                  toast.error('Ops! Algo deu errado!!!')
+                  setShowStatus(!newStatus)
+                }
+              }}
+            />
+          </div>
+          <div className="flex items-center justify-between rounded-xl border border-border/50 bg-muted/40 p-3 shadow-sm transition-all hover:shadow-md">
+            <div>
+              <Label className="text-sm font-medium">
+                Mostrar visualização de mensagens
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Permitir que outros vejam quando você visualiza mensagens.
+              </p>
+            </div>
+            <Switch
+              checked={showViewStatus}
+              onCheckedChange={async (checked) => {
+                console.log(checked)
+                setShowViewStatus(checked)
+                const res = await fetch(
+                  `${import.meta.env.VITE_API_URL}/auth/me/statusUser`,
+                  {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ showViewStatus: checked }),
+                  }
+                )
+
+                if (res.ok) {
+                  if (user.user && user.setUser) {
+                    // socket.emit('user:update:privacy', {
+                    //   showViewStatus: checked,
+                    // })
+                    user.setUser({
+                      ...user.user,
+                      showViewStatus: checked,
+                    })
+                  }
+                } else {
+                  toast.error('Ops! Algo deu errado!!!')
+                  setShowViewStatus(!checked)
+                }
+              }}
+            />
           </div>
           <div>
             <ListUsersBlock open={open[0]} setOpen={setOpen} />

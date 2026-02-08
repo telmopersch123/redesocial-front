@@ -253,8 +253,6 @@ const ConfigPerfilPage = () => {
     }
   }, [loading, profileUser])
 
-  console.log(loading)
-
   if (loading) return <ConfigPerfilSkeleton />
 
   return (

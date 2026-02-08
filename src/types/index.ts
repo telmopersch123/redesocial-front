@@ -74,6 +74,8 @@ export type UserType = {
   name_at: string
   email: string
   image?: string | null
+  showOnlineStatus: boolean
+  showViewStatus: boolean
   anonMode: boolean
   confirmTwoSteps: {
     two_factor_enabled: boolean

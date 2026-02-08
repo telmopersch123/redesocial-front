@@ -43,7 +43,7 @@ export function useUserSearch() {
     }
     fetchUsers()
   }, [debouncedQuery])
-  console.log(results)
+
   return { setQuery, query, results }
 }
 export async function logoutUser(): Promise<boolean> {

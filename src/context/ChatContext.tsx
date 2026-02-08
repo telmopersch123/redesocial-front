@@ -311,17 +311,21 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
   useEffect(() => {
     socket.on('users:online:list', ({ users }: { users: number[] }) => {
-      setOnlineUsers(new Set(users))
+      if (user?.showOnlineStatus === false) {
+        setOnlineUsers(new Set())
+        return
+      }
+      setOnlineUsers(new Set(users.map((id) => Number(id))))
     })
 
     socket.on('user:online', ({ userId }) => {
-      setOnlineUsers((prev) => new Set(prev).add(userId))
+      setOnlineUsers((prev) => new Set(prev).add(Number(userId)))
     })
 
     socket.on('user:offline', ({ userId }) => {
       setOnlineUsers((prev) => {
         const next = new Set(prev)
-        next.delete(userId)
+        next.delete(Number(userId))
         return next
       })
     })
