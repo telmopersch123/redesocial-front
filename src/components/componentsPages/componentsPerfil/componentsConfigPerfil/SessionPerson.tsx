@@ -68,7 +68,6 @@ const SessionPerson = ({
     }
   }, [user, open])
 
-  console.log(showViewStatus)
   return (
     <>
       <div className="flex flex-col gap-6">

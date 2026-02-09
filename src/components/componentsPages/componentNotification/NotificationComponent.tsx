@@ -1,13 +1,12 @@
 import {
-  AtSign,
   Bell,
+  Check,
+  CheckCheck,
   Heart,
   MessageCircle,
-  Trash2,
-  UserPlus,
   Users,
 } from 'lucide-react'
-import { useState } from 'react'
+
 import { Button } from '../../../components/ui/button'
 import {
   Popover,
@@ -15,81 +14,47 @@ import {
   PopoverTrigger,
 } from '../../../components/ui/popover'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
-
-type Notification = {
-  id: number
-  type:
-    | 'message'
-    | 'like'
-    | 'comment'
-    | 'mention'
-    | 'community_add'
-    | 'community_remove'
-  text: string
-  time: string
-  read: boolean
-}
+import type { Notification } from '../../../context/NotificationProvider'
+import { useNotification } from '../../../context/NotificationProvider'
 
 const iconForType = {
-  message: <MessageCircle className="h-4 w-4 text-blue-500" />,
-  like: <Heart className="h-4 w-4 text-red-500" />,
-  comment: <MessageCircle className="h-4 w-4 text-green-500" />,
-  mention: <AtSign className="h-4 w-4 text-purple-500" />,
-  community_add: <UserPlus className="h-4 w-4 text-yellow-500" />,
-  community_remove: <Users className="h-4 w-4 text-gray-500" />,
+  MESSAGE: <MessageCircle className="h-4 w-4 text-blue-700" />,
+  LIKE: <Heart className="h-4 w-4 text-purple-700" />, // FEITO
+  COMMENT: <MessageCircle className="h-4 w-4 text-green-700" />, // FEITO
+  // FOLLOW_REQUEST: <Users className="h-4 w-4 text-gray-500" />,
+  COMMENT_REPLY: <MessageCircle className="h-4 w-4 text-gray-700" />, // FEITO
+  // MENTION: <AtSign className="h-4 w-4 text-purple-500" />,
+  COMMUNITY_REMOVE: <Users className="h-4 w-4 text-red-700" />,
 }
 
 const NotificationComponent = () => {
+  const { notifications, unreadCount, markAsRead } = useNotification()
   const { setOpenDialogPostNotification, setOpenActionPosts } =
     useCriarPostDialog()
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: 1,
-      type: 'message',
-      text: 'Você recebeu uma nova mensagem',
-      time: '2 min atrás',
-      read: false,
-    },
-    {
-      id: 2,
-      type: 'like',
-      text: 'Maria curtiu seu post',
-      time: '10 min atrás',
-      read: false,
-    },
-    {
-      id: 3,
-      type: 'mention',
-      text: 'Você foi mencionado em um comentário',
-      time: '1 hora atrás',
-      read: true,
-    },
-  ])
 
-  const unreadCount = notifications.filter((n) => !n.read).length
+  const activeNotifications = notifications.filter((n) => !n.read)
+  console.log(unreadCount)
+  const handleNotificationClick = async (n: Notification) => {
+    await markAsRead(n.id)
 
-  const markAllAsRead = () => {
-    setNotifications([])
-  }
-
-  const handleRemoveNotification = (id: number) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id))
+    if (n.type === 'LIKE' || n.type === 'COMMENT') {
+      setOpenActionPosts(true)
+      setOpenDialogPostNotification(true)
+    }
   }
 
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" className="relative hover:bg-transparent">
-          <Bell
-            className="!h-6 !w-6 text-purple-600 dark:text-purple-400"
-            style={{
-              filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.8))',
-            }}
-          />
-
+        <Button
+          variant="ghost"
+          size="icon"
+          className="relative transition-colors hover:bg-accent/50"
+        >
+          <Bell className="h-[1.2rem] w-[1.2rem] text-purple-600 transition-all group-hover:scale-110 dark:text-purple-400" />
           {unreadCount > 0 && (
-            <span className="absolute -right-1 -top-1 flex h-4 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-              {unreadCount}
+            <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white ring-2 ring-background">
+              {unreadCount > 9 ? '+9' : unreadCount}
             </span>
           )}
         </Button>
@@ -97,52 +62,70 @@ const NotificationComponent = () => {
 
       <PopoverContent
         align="end"
-        className="w-80 overflow-hidden rounded-xl p-0 shadow-xl animate-in fade-in slide-in-from-top-2"
+        className="w-80 overflow-hidden rounded-xl border-border bg-background p-0 shadow-2xl"
       >
-        <div className="flex items-center justify-between border-b p-3">
-          <h3 className="text-sm font-semibold">Notificações</h3>
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-border bg-muted/20 px-4 py-3">
+          <h3 className="text-sm font-bold text-foreground">Notificações</h3>
           {unreadCount > 0 && (
             <button
-              onClick={markAllAsRead}
-              className="text-xs text-purple-600 hover:underline"
+              onClick={() => markAsRead('all')}
+              className="flex items-center gap-1.5 text-xs font-semibold text-purple-600 transition-colors hover:text-purple-500 dark:text-purple-400 dark:hover:text-purple-300"
             >
+              <CheckCheck className="h-3.5 w-3.5" />
               Marcar todas como lidas
             </button>
           )}
         </div>
 
-        <div className="max-h-80 space-y-2 overflow-y-auto p-2">
-          {notifications.length === 0 ? (
-            <p className="py-4 text-center text-sm text-gray-500">
-              Nenhuma notificação
-            </p>
+        {/* List */}
+        <div className="custom-scrollbar max-h-[350px] overflow-y-auto overflow-x-hidden py-1">
+          {activeNotifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center px-4 py-10 text-center">
+              <div className="mb-3 rounded-full bg-muted p-3 text-muted-foreground/40">
+                <Check className="h-6 w-6" />
+              </div>
+              <p className="text-sm font-medium text-foreground">
+                Tudo em dia!
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Você não tem novas notificações no momento.
+              </p>
+            </div>
           ) : (
-            notifications.map((n) => (
+            activeNotifications.map((n) => (
               <div
-                onClick={() => handleRemoveNotification(n.id)}
                 key={n.id}
-                className={`relative flex cursor-pointer items-start gap-3 rounded-lg border transition-all`}
+                onClick={() => handleNotificationClick(n)}
+                className="group relative flex cursor-pointer items-start gap-3 border-b border-border/40 px-4 py-4 transition-all last:border-0 hover:bg-accent/60"
               >
-                <div
-                  className="w-full p-3"
-                  onClick={() => {
-                    setOpenActionPosts(true)
-                    setOpenDialogPostNotification(true)
-                  }}
-                >
-                  <div className="mt-1">{iconForType[n.type]}</div>
+                <div className="mt-0.5 shrink-0 rounded-full bg-muted/50 p-2 transition-colors group-hover:bg-background">
+                  {iconForType[n.type as keyof typeof iconForType]}
+                </div>
 
-                  <div className="flex flex-col">
-                    <span className="text-sm">{n.text}</span>
-                    <span className="text-xs text-gray-500">{n.time}</span>
-                  </div>
+                <div className="flex flex-col space-y-1 pr-6">
+                  <span className="text-sm font-medium leading-snug text-foreground transition-colors group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                    {n.message}
+                  </span>
+                  <span className="text-[10px] font-medium text-muted-foreground">
+                    {new Date(n.createdAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
                 </div>
-                <div
-                  onClick={() => handleRemoveNotification(n.id)}
-                  className="absolute right-1 top-1 rounded-md bg-red-600 p-2 transition-colors hover:bg-red-400"
+
+                {/* Botão de lida individual (estilo "Done") */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    markAsRead(n.id)
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md bg-transparent p-1.5 text-muted-foreground opacity-0 transition-all hover:bg-purple-100 hover:text-purple-600 group-hover:opacity-100 dark:hover:bg-purple-900/30 dark:hover:text-purple-400"
+                  title="Marcar como lida"
                 >
-                  <Trash2 className="h-4 w-4 text-white" />
-                </div>
+                  <Check className="h-4 w-4" />
+                </button>
               </div>
             ))
           )}

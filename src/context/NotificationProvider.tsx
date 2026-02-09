@@ -5,10 +5,11 @@ import { socket } from '../services/socket'
 import { AlertCommunityRoleToast } from '../utils/components/alertToast'
 import { useAuth } from './getMe'
 
-interface Notification {
+export interface Notification {
   id: number
   message: string
-  type: 'DEMOTION' | 'PROMOTION'
+  type: string
+  link?: string
   read: boolean
   createdAt: string
 }
@@ -16,7 +17,7 @@ interface Notification {
 interface NotificationContextType {
   notifications: Notification[]
   unreadCount: number
-  markAsRead: (id: number) => Promise<void>
+  markAsRead: (id: number | 'all') => Promise<void>
 }
 
 const NotificationContext = createContext<NotificationContextType | null>(null)
@@ -71,17 +72,19 @@ export const NotificationProvider = ({
     ) // Define um tempo para sumir
   }
 
-  const markAsRead = async (id: number) => {
+  const markAsRead = async (id: number | 'all') => {
     try {
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === id || id === 'all' ? { ...n, read: true } : n
+        )
+      )
       await fetch(
         `${import.meta.env.VITE_API_URL}/auth/notifications/${id}/read`,
         {
           method: 'PATCH',
           credentials: 'include',
         }
-      )
-      setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
       )
     } catch (err) {
       console.error(err)
@@ -96,16 +99,34 @@ export const NotificationProvider = ({
     if (!socket) return
 
     const handleIncoming = (data: Notification) => {
-      setNotifications((prev) => [data, ...prev])
+      setNotifications((prev) => {
+        const exists = prev.find((n) => n.id === data.id)
+
+        if (exists) return prev
+
+        return [...prev, data]
+      })
       if (data.type === 'PROMOTION' || data.type === 'DEMOTION') {
         showRoleToast(data)
         markAsRead(data.id)
       }
     }
 
+    const handleSync = (data: { chatId: string }) => {
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.type === 'MESSAGE' && n.link?.includes(data.chatId)
+            ? { ...n, read: true }
+            : n
+        )
+      )
+    }
+
     socket.on('notification:new', handleIncoming)
+    socket.on('notifications:sync', handleSync)
     return () => {
       socket.off('notification:new')
+      socket.off('notifications:sync')
     }
   }, [socket])
 
