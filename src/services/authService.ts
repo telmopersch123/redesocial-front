@@ -240,8 +240,9 @@ export async function getPostsByUser(
 export async function createComment(
   postId: number,
   content: string,
-  parentId?: number,
-  respondendoPara?: string
+  parentId?: number | null,
+  respondendoPara?: string,
+  mentionedUserIds: number[] = []
 ) {
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/createComment`,
@@ -249,7 +250,13 @@ export async function createComment(
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ postId, content, parentId, respondendoPara }),
+      body: JSON.stringify({
+        postId,
+        content,
+        parentId,
+        respondendoPara,
+        mentionedUserIds,
+      }),
     }
   )
   if (!res.ok) {
@@ -737,4 +744,19 @@ export const DeletePostCommunity = async (
     throw new Error(error.error ?? 'Erro ao deletar o post')
   }
   return await res.json()
+}
+export const searchUsersMentions = async (query: string) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/searchMentions/${encodeURIComponent(query)}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  if (!response.ok) throw new Error('Erro ao buscar usuários')
+  return response.json()
 }

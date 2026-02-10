@@ -81,8 +81,18 @@ const PostComponentDialog = ({
   const adicionarComentario = async (postId: number) => {
     if (!novoComentario.trim()) return
 
+    const mentionedUserIds = sugestoes
+      .filter((u) => novoComentario.includes(`@${u.name_at}`))
+      .map((u) => u.id)
+
     try {
-      const response = await createComment(postId, novoComentario)
+      const response = await createComment(
+        postId,
+        novoComentario,
+        null,
+        undefined,
+        mentionedUserIds
+      )
       const newComment = await response.json()
       setPosts(
         posts.map((p: Post) => {
@@ -96,7 +106,7 @@ const PostComponentDialog = ({
         }) as ExtendedPost[]
       )
       setSelectedPost(postAtualizado)
-
+      setClickedMention(false)
       setNovoComentario('')
     } catch (err) {
       console.log(err)
@@ -109,12 +119,17 @@ const PostComponentDialog = ({
   ) => {
     if (!textoResposta.trim()) return
 
+    const mentionedUserIds = sugestoes
+      .filter((u) => novoComentario.includes(`@${u.name_at}`))
+      .map((u) => u.id)
+
     try {
       const response = await createComment(
         postAtualizado.id,
         textoResposta,
         comentarioId,
-        respondendoPara
+        respondendoPara,
+        mentionedUserIds
       )
       const { comment: novaResposta } = await response.json()
 

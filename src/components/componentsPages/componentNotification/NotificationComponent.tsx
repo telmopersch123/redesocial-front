@@ -1,12 +1,15 @@
 import {
+  AtSign,
   Bell,
-  Check,
   CheckCheck,
+  ChevronDown,
+  ChevronUp,
   Heart,
   MessageCircle,
   Users,
 } from 'lucide-react'
 
+import { useState } from 'react'
 import { Button } from '../../../components/ui/button'
 import {
   Popover,
@@ -16,31 +19,174 @@ import {
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import type { Notification } from '../../../context/NotificationProvider'
 import { useNotification } from '../../../context/NotificationProvider'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs'
 
 const iconForType = {
-  MESSAGE: <MessageCircle className="h-4 w-4 text-blue-700" />,
+  MESSAGE: <MessageCircle className="h-4 w-4 text-blue-700" />, // FEITO
   LIKE: <Heart className="h-4 w-4 text-purple-700" />, // FEITO
   COMMENT: <MessageCircle className="h-4 w-4 text-green-700" />, // FEITO
   // FOLLOW_REQUEST: <Users className="h-4 w-4 text-gray-500" />,
   COMMENT_REPLY: <MessageCircle className="h-4 w-4 text-gray-700" />, // FEITO
-  // MENTION: <AtSign className="h-4 w-4 text-purple-500" />,
-  COMMUNITY_REMOVE: <Users className="h-4 w-4 text-red-700" />,
+  MENTION: <AtSign className="h-4 w-4 text-purple-500" />,
+  COMMUNITY_REMOVE: <Users className="h-4 w-4 text-red-700" />, // FEITO
 }
 
 const NotificationComponent = () => {
   const { notifications, unreadCount, markAsRead } = useNotification()
+
   const { setOpenDialogPostNotification, setOpenActionPosts } =
     useCriarPostDialog()
-
   const activeNotifications = notifications.filter((n) => !n.read)
-  console.log(unreadCount)
+  const msgNotifications = activeNotifications.filter(
+    (n) => n.type === 'MESSAGE'
+  )
+  const interactionNotifications = activeNotifications.filter((m) =>
+    ['LIKE', 'COMMENT', 'COMMENT_REPLY', 'MENTION'].includes(m.type)
+  )
+
+  const communitNotifications = activeNotifications.filter(
+    (n) => n.type === 'COMMUNITY_REMOVE'
+  )
+
+  const countedChats = msgNotifications.length
+  const countedSocial = interactionNotifications.length
+  const countedCom = communitNotifications.length
+
   const handleNotificationClick = async (n: Notification) => {
     await markAsRead(n.id)
 
-    if (n.type === 'LIKE' || n.type === 'COMMENT') {
+    if (['LIKE', 'COMMENT', 'MENTION', 'COMMENT_REPLY'].includes(n.type)) {
       setOpenActionPosts(true)
       setOpenDialogPostNotification(true)
     }
+  }
+
+  const NotificationList = ({ items }: { items: Notification[] }) => {
+    const grouped = items.reduce(
+      (acc, n) => {
+        let groupKey = n.type
+        if (n.type === 'COMMUNITY_REMOVE') {
+          groupKey = `SINGLE_NOTIF_${n.id}`
+        } else if (n.type === 'MESSAGE' && n.link) {
+          groupKey = `CHAT_${n.link}`
+        }
+        if (!acc[groupKey]) acc[groupKey] = []
+        acc[groupKey].push(n)
+        return acc
+      },
+      {} as Record<string, Notification[]>
+    )
+
+    const [expandedGroups, setExpandedGroups] = useState<string[]>([])
+
+    const toggleGroup = (type: string) => {
+      setExpandedGroups((prev) =>
+        prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+      )
+    }
+
+    if (items.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center px-4 py-10 text-center text-muted-foreground">
+          <p className="text-sm font-medium">Nada por aqui!</p>
+        </div>
+      )
+    }
+    return (
+      <div className="custom-scrollbar max-h-[350px] overflow-y-auto overflow-x-hidden">
+        {Object.entries(grouped).map(([type, groupItems]) => {
+          const isCommunityRemove = groupItems[0].type === 'COMMUNITY_REMOVE'
+          if (groupItems.length === 1 || isCommunityRemove) {
+            const n = groupItems[0]
+            return (
+              <div
+                key={n.id}
+                onClick={() => handleNotificationClick(n)}
+                className="group relative flex cursor-pointer items-start gap-3 border-b border-border/40 px-4 py-4 transition-all hover:bg-accent/60"
+              >
+                <div className="mt-0.5 shrink-0 rounded-full bg-muted/50 p-2 group-hover:bg-background">
+                  {iconForType[n.type as keyof typeof iconForType]}
+                </div>
+                <div className="flex flex-col space-y-1 pr-6">
+                  <span className="text-sm font-medium leading-snug text-foreground group-hover:text-purple-600">
+                    {n.message}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {new Date(n.createdAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </div>
+              </div>
+            )
+          }
+
+          const isExpanded = expandedGroups.includes(type)
+          const isChat = type.startsWith('CHAT_')
+          const labelRaw = isChat
+            ? `${groupItems[0].message.split(':')[0]}`
+            : {
+                LIKE: 'Curtidas',
+                COMMENT: 'Comentários',
+                COMMENT_REPLY: 'Respostas',
+                MESSAGE: 'Mensagens',
+                COMMUNITY_REMOVE: 'Comunidade',
+                MENTION: 'Menções',
+              }[groupItems[0].type] || 'Notificações'
+          const label =
+            labelRaw.length > 15 ? `${labelRaw.substring(0, 15)}...` : labelRaw
+          return (
+            <div key={type} className="border-b border-border/40 last:border-0">
+              {/* Cabeçalho do Grupo */}
+              <button
+                onClick={() => toggleGroup(type)}
+                className="flex w-full items-center justify-between bg-muted/10 px-4 py-3 transition-colors hover:bg-muted/30"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="opacity-70">
+                    {iconForType[type as keyof typeof iconForType]}
+                  </div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                    {label} ({groupItems.length})
+                  </span>
+                </div>
+                {isExpanded ? (
+                  <ChevronUp className="h-3 w-3" />
+                ) : (
+                  <ChevronDown className="h-3 w-3" />
+                )}
+              </button>
+
+              {/* Itens do Grupo (Só aparecem se expandido) */}
+              {isExpanded && (
+                <div className="bg-background/50">
+                  {groupItems.map((n) => (
+                    <div
+                      key={n.id}
+                      onClick={() => handleNotificationClick(n)}
+                      className="group relative flex cursor-pointer items-start gap-3 border-l-2 border-transparent px-6 py-3 transition-all hover:border-purple-500 hover:bg-accent/40"
+                    >
+                      <div className="flex flex-col space-y-0.5">
+                        <span className="text-sm leading-snug text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                          {n.message}
+                        </span>
+                        <span className="text-[9px] text-muted-foreground">
+                          {new Date(n.createdAt).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    )
   }
 
   return (
@@ -78,58 +224,55 @@ const NotificationComponent = () => {
           )}
         </div>
 
-        {/* List */}
-        <div className="custom-scrollbar max-h-[350px] overflow-y-auto overflow-x-hidden py-1">
-          {activeNotifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center px-4 py-10 text-center">
-              <div className="mb-3 rounded-full bg-muted p-3 text-muted-foreground/40">
-                <Check className="h-6 w-6" />
-              </div>
-              <p className="text-sm font-medium text-foreground">
-                Tudo em dia!
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Você não tem novas notificações no momento.
-              </p>
-            </div>
-          ) : (
-            activeNotifications.map((n) => (
-              <div
-                key={n.id}
-                onClick={() => handleNotificationClick(n)}
-                className="group relative flex cursor-pointer items-start gap-3 border-b border-border/40 px-4 py-4 transition-all last:border-0 hover:bg-accent/60"
-              >
-                <div className="mt-0.5 shrink-0 rounded-full bg-muted/50 p-2 transition-colors group-hover:bg-background">
-                  {iconForType[n.type as keyof typeof iconForType]}
-                </div>
+        <Tabs defaultValue="all" className="w-full">
+          <TabsList className="grid h-10 w-full grid-cols-3 rounded-none border-b bg-transparent p-0">
+            <TabsTrigger
+              value="chats"
+              className="rounded-none text-[11px] data-[state=active]:border-b-2 data-[state=active]:border-purple-600"
+            >
+              Chat{' '}
+              {countedChats > 0 && (
+                <span className="ml-1 rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  {countedChats}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger
+              value="social"
+              className="rounded-none text-[11px] data-[state=active]:border-b-2 data-[state=active]:border-purple-600"
+            >
+              Posts{' '}
+              {countedSocial > 0 && (
+                <span className="ml-1 rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  {countedSocial}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger
+              value="com"
+              className="rounded-none text-[11px] data-[state=active]:border-b-2 data-[state=active]:border-purple-600"
+            >
+              Comun.{' '}
+              {countedCom > 0 && (
+                <span className="ml-1 rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  {countedCom}
+                </span>
+              )}
+            </TabsTrigger>
+          </TabsList>
 
-                <div className="flex flex-col space-y-1 pr-6">
-                  <span className="text-sm font-medium leading-snug text-foreground transition-colors group-hover:text-purple-600 dark:group-hover:text-purple-400">
-                    {n.message}
-                  </span>
-                  <span className="text-[10px] font-medium text-muted-foreground">
-                    {new Date(n.createdAt).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                </div>
+          <TabsContent value="chats" className="m-0">
+            <NotificationList items={msgNotifications} />
+          </TabsContent>
 
-                {/* Botão de lida individual (estilo "Done") */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    markAsRead(n.id)
-                  }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md bg-transparent p-1.5 text-muted-foreground opacity-0 transition-all hover:bg-purple-100 hover:text-purple-600 group-hover:opacity-100 dark:hover:bg-purple-900/30 dark:hover:text-purple-400"
-                  title="Marcar como lida"
-                >
-                  <Check className="h-4 w-4" />
-                </button>
-              </div>
-            ))
-          )}
-        </div>
+          <TabsContent value="social" className="m-0">
+            <NotificationList items={interactionNotifications} />
+          </TabsContent>
+
+          <TabsContent value="com" className="m-0">
+            <NotificationList items={communitNotifications} />
+          </TabsContent>
+        </Tabs>
       </PopoverContent>
     </Popover>
   )
