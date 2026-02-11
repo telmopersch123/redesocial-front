@@ -706,7 +706,6 @@ export const getArchivedPostsCommunity = async (
   const data = await res.json()
   return data
 }
-
 export const UnarchivePostCommunity = async (
   postId: string | number,
   communityId: number
@@ -724,7 +723,6 @@ export const UnarchivePostCommunity = async (
   }
   return await res.json()
 }
-
 export const DeletePostCommunity = async (
   postId: string | number,
   communityId: number
@@ -759,4 +757,59 @@ export const searchUsersMentions = async (query: string) => {
 
   if (!response.ok) throw new Error('Erro ao buscar usuários')
   return response.json()
+}
+export const requestFriendship = async (userBId: number) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/requestFriendship`,
+    {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userBId }),
+    }
+  )
+  if (!response.ok) throw new Error('Erro ao enviar solicitação de seguimento')
+  return response.json()
+}
+export const AcceptFriendship = async (notificationId: number) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/auth/friendship/accept`,
+      {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ notificationId }),
+      }
+    )
+    if (!response.ok) throw new Error('Erro ao aceitar')
+
+    return response.json()
+  } catch (error) {
+    throw new Error('Erro ao aceitar')
+  }
+}
+export const DeclineFriendship = async (notificationId: number) => {
+  try {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/auth/friendship/decline`,
+      {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ notificationId }),
+      }
+    )
+    if (!response.ok) throw new Error('Erro ao aceitar')
+
+    return response.json()
+  } catch (error) {
+    throw new Error('Erro ao aceitar')
+  }
 }

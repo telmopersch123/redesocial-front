@@ -59,13 +59,15 @@ const CommentItem = ({
   const { user: authUser } = useAuth()
   const inputRef = useRef<HTMLInputElement>(null)
   const comentarios = useLimitForms(5000)
-
+  const [usuariosSelecionados, setUsuariosSelecionados] = useState<
+    { id: number; name_at: string }[]
+  >([])
   const openMarcation = useState(false)
   const { getMatches, sugestoes, setActiveInputId, activeInputId } =
     useMentionLogic()
   const estaRespondendo = respondendoA === comentario.id
   const idInput = 'comment-' + comentario.id
-  const userId = 12
+  console.log(comentario)
 
   // responsavel por exibir todas as respostas
   const toggleReplies = (commentId: number) => {
@@ -248,7 +250,7 @@ const CommentItem = ({
 
           <p
             dangerouslySetInnerHTML={{
-              __html: formatMentions(comentario.content, userId || ''),
+              __html: formatMentions(comentario.content, comentario.mentions),
             }}
             className="mt-3 break-words text-sm leading-relaxed text-gray-700 dark:text-zinc-300"
           />
@@ -277,12 +279,22 @@ const CommentItem = ({
                     <ListMarcation
                       setClickedMention={setClickedMention}
                       sugestoes={sugestoes}
-                      setNovoComentario={setTextoResposta}
+                      setNovoComentario={(valor) => {
+                        setTextoResposta(valor)
+                      }}
+                      onUserClick={(user) => {
+                        setUsuariosSelecionados((prev) => {
+                          const jaExiste = prev.find((u) => u.id === user.id)
+                          if (jaExiste) return prev
+                          return [...prev, user]
+                        })
+                      }}
                     />
                   </div>
                 )}
               <MentionInput
                 value={textoResposta}
+                usuariosSelecionados={usuariosSelecionados}
                 onChange={(e) => {
                   setTextoResposta(e.target.value)
                   comentarios.handleChange(e)

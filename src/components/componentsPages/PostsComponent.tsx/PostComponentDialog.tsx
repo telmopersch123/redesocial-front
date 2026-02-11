@@ -65,6 +65,9 @@ const PostComponentDialog = ({
   const [openReplies, setOpenReplies] = useState<{
     [commentId: string]: boolean
   }>({})
+  const [usuariosSelecionados, setUsuariosSelecionados] = useState<
+    { id: number; name_at: string }[]
+  >([])
   const { openActionPosts, setOpenActionPosts } = useCriarPostDialog()
   const [clickedMention, setClickedMention] = useState(false)
   const idInput = 'comment-' + postAtualizado.id
@@ -81,7 +84,7 @@ const PostComponentDialog = ({
   const adicionarComentario = async (postId: number) => {
     if (!novoComentario.trim()) return
 
-    const mentionedUserIds = sugestoes
+    const mentionedUserIds = usuariosSelecionados
       .filter((u) => novoComentario.includes(`@${u.name_at}`))
       .map((u) => u.id)
 
@@ -106,6 +109,7 @@ const PostComponentDialog = ({
         }) as ExtendedPost[]
       )
       setSelectedPost(postAtualizado)
+      setUsuariosSelecionados([])
       setClickedMention(false)
       setNovoComentario('')
     } catch (err) {
@@ -119,7 +123,7 @@ const PostComponentDialog = ({
   ) => {
     if (!textoResposta.trim()) return
 
-    const mentionedUserIds = sugestoes
+    const mentionedUserIds = usuariosSelecionados
       .filter((u) => novoComentario.includes(`@${u.name_at}`))
       .map((u) => u.id)
 
@@ -149,6 +153,7 @@ const PostComponentDialog = ({
         }) as ExtendedPost[]
       )
       setSelectedPost(postAtualizado)
+      setUsuariosSelecionados([])
       setTextoResposta('')
     } catch (err) {
       console.log(err)
@@ -421,7 +426,18 @@ const PostComponentDialog = ({
                           <ListMarcation
                             setClickedMention={setClickedMention}
                             sugestoes={sugestoes}
-                            setNovoComentario={setNovoComentario}
+                            setNovoComentario={(valor) => {
+                              setNovoComentario(valor)
+                            }}
+                            onUserClick={(user) => {
+                              setUsuariosSelecionados((prev) => {
+                                const jaExiste = prev.find(
+                                  (u) => u.id === user.id
+                                )
+                                if (jaExiste) return prev
+                                return [...prev, user]
+                              })
+                            }}
                           />
                         </div>
                       )}
@@ -439,6 +455,7 @@ const PostComponentDialog = ({
                         adicionarComentario(postAtualizado.id)
                       }}
                       error={comentarios.error}
+                      usuariosSelecionados={usuariosSelecionados}
                     />
 
                     <Button

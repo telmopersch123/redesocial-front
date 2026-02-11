@@ -35,11 +35,20 @@ export function OpenMentionsProvider({ children }: { children: ReactNode }) {
     inputId: string,
     setClickedMention: React.Dispatch<React.SetStateAction<boolean>>
   ) => {
-    // Identifica o termo após o último '@'
-    const match = text.match(/@([\w._-]+)$/)
+    // 1. Pegamos o valor do elemento ativo para saber onde o cursor está
+    const selectionStart =
+      (document.activeElement as HTMLInputElement | HTMLTextAreaElement)
+        ?.selectionStart || 0
+
+    // 2. Pegamos o texto até a posição do cursor
+    const textBeforeCursor = text.substring(0, selectionStart)
+
+    // 3. Procuramos o último '@' antes do cursor que não tenha espaço logo após ele
+    const match = textBeforeCursor.match(/@([\w._-]+)$/)
 
     if (!match) {
       setSugestoes([])
+      setClickedMention(false)
       return
     }
 

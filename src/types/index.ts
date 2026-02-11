@@ -54,6 +54,25 @@ interface Save {
 }
 
 ////
+
+interface MencaoSimples {
+  id: number | string
+  name_at: string
+}
+
+// O formato que vem do Prisma (Banco)
+interface MencaoBanco {
+  id: number
+  commentId: number
+  userId: number
+  user: {
+    id: number
+    name_at: string
+  }
+}
+
+export type ListaMencoes = (MencaoSimples | MencaoBanco)[]
+
 export type ComentarioPost = {
   id: number
   user: {
@@ -66,6 +85,7 @@ export type ComentarioPost = {
   parentId?: number | null
   respondendoPara?: string | null
   replies?: ComentarioPost[]
+  mentions?: { id: number; name_at: string }[]
 }
 
 export type UserType = {

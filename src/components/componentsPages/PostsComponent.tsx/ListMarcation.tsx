@@ -4,12 +4,14 @@ interface ListMarcationProps {
   setClickedMention: React.Dispatch<React.SetStateAction<boolean>>
   setNovoComentario: React.Dispatch<React.SetStateAction<string>>
   sugestoes: { id: number; name_at: string; avatar: string }[]
+  onUserClick: (user: { id: number; name_at: string; avatar: string }) => void
 }
 
 const ListMarcation = ({
   setClickedMention,
   setNovoComentario,
   sugestoes,
+  onUserClick,
 }: ListMarcationProps) => {
   return (
     <Popover open={true}>
@@ -32,6 +34,7 @@ const ListMarcation = ({
               key={user.id}
               onClick={() => {
                 setClickedMention(false)
+                onUserClick(user)
                 setNovoComentario((prev) => {
                   // const partes = prev.split(/\s+/)
                   // partes[partes.length - 1] = `@${user.name_at}`

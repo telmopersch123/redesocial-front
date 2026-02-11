@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { debounce } from 'lodash'
 import Lottie from 'lottie-react'
-import { Edit2 } from 'lucide-react'
+import { Edit2, Loader2, UserPlus } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import toast from 'react-hot-toast'
 import { NavLink, useParams } from 'react-router-dom'
 import notfounduser from '../assets/animations/notfounduser.json'
 import BlockedConfirmDialog from '../components/componentsPages/componentsPerfil/BlockedConfirmDialog'
@@ -13,13 +14,18 @@ import {
   ProfileHeaderSkeleton,
 } from '../components/componentsPages/componentsPerfil/Skeleton'
 import CardsPostComponent from '../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
+import { TooltipComponent } from '../components/globalcomponents/tooltipComponent'
 import { Button } from '../components/ui/button'
 import { Separator } from '../components/ui/separator'
 import { useAuth } from '../context/getMe'
 import { usePosts } from '../context/PostsContext'
 import { useProfile } from '../context/ProfileContext'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
-import { getPostsByPerfilUser, getPostsByUser } from '../services/authService'
+import {
+  getPostsByPerfilUser,
+  getPostsByUser,
+  requestFriendship,
+} from '../services/authService'
 import type { Post } from '../types'
 import { UserAvatar } from '../utils/components/UserAvatar'
 
@@ -38,6 +44,7 @@ const PerfilUsuario = () => {
   const loadingRef = useRef(false)
   const [loadedCount, setLoadedCount] = useState(100)
   const [isLoadingSkeleton, setIsLoadingSkeleton] = useState(true)
+  const [isLoadingFollow, setIsLoadingFollow] = useState(false)
   const [hasMore, setHasMore] = useState(true)
   const { posts, setPosts } = usePosts()
   const debouncedOnLoadMore = debounce(() => {
@@ -65,7 +72,6 @@ const PerfilUsuario = () => {
         authUser?.id !== undefined &&
         Number(profileUser.user.id) === Number(authUser.id))
   )
-
   const fetchPosts = async (
     pageNumber: number,
     isFirstLoad: boolean = false
@@ -108,6 +114,21 @@ const PerfilUsuario = () => {
     }
   }
 
+  const RequestFollower = async (userBId: number) => {
+    setIsLoadingFollow(true)
+    try {
+      const res = await requestFriendship(userBId)
+      if (res) {
+        toast.success('Solicitação enviada com sucesso!')
+      }
+    } catch (err) {
+      setIsLoadingFollow(false)
+      console.log(err)
+    } finally {
+      setIsLoadingFollow(false)
+    }
+  }
+
   useEffect(() => {
     if (profileUser && nomeUser && profileUser.user.name_at !== nomeUser) {
       setProfileUser((prev) => {
@@ -122,7 +143,6 @@ const PerfilUsuario = () => {
       })
     }
   }, [nomeUser])
-
   useEffect(() => {
     setPosts([])
     setPage(1)
@@ -215,9 +235,38 @@ const PerfilUsuario = () => {
             {!euUsuario && (
               <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
                 <ReportDialog />
-                <Button className="bg-linear-purple rounded-full px-8 font-semibold shadow-md hover:shadow-lg">
-                  Seguir
-                </Button>
+                {isLoadingFollow ? (
+                  <TooltipComponent
+                    description="Enviando solicitação de amizade"
+                    Tag={
+                      <span>
+                        <Button
+                          disabled
+                          className="group relative overflow-hidden rounded-full bg-purple-600 px-6 py-2 font-bold text-white opacity-90 transition-all duration-300 active:scale-95"
+                        >
+                          <div className="flex items-center gap-2">
+                            <UserPlus className="h-4 w-4" />
+                            <span>Enviando</span>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          </div>
+                        </Button>
+                      </span>
+                    }
+                  />
+                ) : (
+                  <span>
+                    <Button
+                      onClick={() => RequestFollower(profileUser.user.id)}
+                      className="group relative overflow-hidden rounded-full bg-purple-600 px-6 py-2 font-bold text-white transition-all duration-300 hover:bg-purple-700 hover:shadow-[0_0_20px_rgba(147,51,234,0.4)] active:scale-95"
+                    >
+                      <div className="flex items-center gap-2">
+                        <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" />
+                        <span>Seguir</span>
+                      </div>
+                    </Button>
+                  </span>
+                )}
+
                 <NavLink
                   state={{ chatId: false }}
                   to={`/mensagens/${profileUser.user.id}`}

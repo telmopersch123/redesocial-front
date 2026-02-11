@@ -7,18 +7,17 @@ interface MentionInputProps {
   onFocus?: () => void
   onEnter?: () => void
   error?: string | undefined
+  usuariosSelecionados: { id: number; name_at: string }[]
 }
 
 export const MentionInput = forwardRef<HTMLInputElement, MentionInputProps>(
-  ({ value, onChange, onFocus, onEnter, error }, ref) => {
-    const userId = 12
-
+  ({ value, onChange, onFocus, onEnter, error, usuariosSelecionados }, ref) => {
     return (
       <div className="relative w-full">
         <div
           className="pointer-events-none absolute inset-0 whitespace-pre-wrap break-words p-2 text-sm"
           dangerouslySetInnerHTML={{
-            __html: formatMentions(value, userId),
+            __html: formatMentions(value, usuariosSelecionados),
           }}
         />
 
