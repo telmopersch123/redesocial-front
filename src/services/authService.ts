@@ -367,7 +367,7 @@ export async function getContatos() {
 
   return data
 }
-
+//// ???????????????? olha no profileContext, chama a msm rota?
 export async function getUser(id: string | undefined) {
   const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/users/${id}`, {
     method: 'GET',
@@ -812,4 +812,35 @@ export const DeclineFriendship = async (notificationId: number) => {
   } catch (error) {
     throw new Error('Erro ao aceitar')
   }
+}
+
+export const unFriendShip = async (userBId: number) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/friendship/unfriend`,
+    {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userBId }),
+    }
+  )
+  if (!response.ok) throw new Error('Erro ao aceitar')
+  return response.json()
+}
+
+export const getFriends = async (targetUserId: number, pageNumber: number) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/friendship/getAllFriendship/${targetUserId}/${pageNumber}`,
+    {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+  if (!response.ok) throw new Error('Erro ao aceitar')
+  return response.json()
 }

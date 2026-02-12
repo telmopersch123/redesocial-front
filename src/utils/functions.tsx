@@ -1,18 +1,18 @@
-import type { Persons } from '../types'
+import type { TypeFriend } from '../types'
 
 export const filter = (
   search: string,
-  usuarios: Persons[],
-  setValues: React.Dispatch<React.SetStateAction<typeof usuarios>>,
+  myFriends: TypeFriend[],
+  setValues: React.Dispatch<React.SetStateAction<typeof myFriends>>,
   setEmpty: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   if (search.trim() === '') {
-    setValues(usuarios)
+    setValues(myFriends)
     setEmpty(false)
     return
   }
-  const results = usuarios.filter((seguidor) =>
-    seguidor.nome.toLowerCase().includes(search.toLowerCase())
+  const results = myFriends.filter((amigo) =>
+    amigo.name_at.toLowerCase().includes(search.toLowerCase())
   )
   if (results.length === 0) {
     setEmpty(true)

@@ -1,4 +1,4 @@
-import { Trash2, Users } from 'lucide-react'
+import { Loader2, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
   Avatar,
@@ -14,217 +14,107 @@ import {
   DialogTrigger,
 } from '../../../components/ui/dialog'
 import { useInfiniteScrollDialog } from '../../../hooks/effectsSkeletons'
-import type { Persons } from '../../../types'
+
+import { NavLink } from 'react-router-dom'
+import { getFriends } from '../../../services/authService'
+import type { AuthMeResponse, TypeFriend } from '../../../types'
 import { filter } from '../../../utils/functions'
 import { Input } from '../../ui/input'
 import { FollowerSkeleton } from './Skeleton'
 
-// Dados fictícios — depois você troca pela lista real
-const amigos: Persons[] = [
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 1, nome: 'Ana Clara', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-  { id: 2, nome: 'Pedro Henrique', avatar: '' },
-  { id: 3, nome: 'Mariana Silva', avatar: '' },
-  { id: 4, nome: 'Lucas Oliveira', avatar: '' },
-  { id: 5, nome: 'Beatatriz Costa', avatar: '' },
-  { id: 6, nome: 'Gabriel Santos', avatar: '' },
-  { id: 7, nome: 'Laura Mendes', avatar: '' },
-  { id: 8, nome: 'Rafael Lima', avatar: '' },
-]
 interface PropsFriends {
-  euUsuario: boolean
+  username: string
+
+  profileUser: AuthMeResponse
 }
-export function FriendsDialog({ euUsuario }: PropsFriends) {
+export function FriendsDialog({
+  username,
+
+  profileUser,
+}: PropsFriends) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState<string>('')
-  const [amigosFiltrados, setAmigosFiltrados] = useState(amigos)
+  const [amigosFiltrados, setAmigosFiltrados] = useState<TypeFriend[]>([])
   const [empty, setEmpty] = useState(false)
-  const [visibleCount, setVisibleCount] = useState(20)
-  const [loadedCount, setLoadedCount] = useState(20)
-
-  const hasMore = visibleCount < amigosFiltrados.length
+  const [page, setPage] = useState(1)
+  const [myFriends, setMyFriends] = useState<TypeFriend[]>([])
+  const [hasMoreFriend, setHasMoreFriend] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
+  const [loadedCount, setLoadedCount] = useState(8)
+  const [totalFriends, setTotalFriends] = useState(0)
 
   const { scrollContainerRef, loadMoreRef } = useInfiniteScrollDialog({
-    enabled: open,
-    hasMore,
+    enabled: hasMoreFriend && open && !isLoading,
+    hasMore: hasMoreFriend,
     openDelayMs: 0,
     rootMargin: '50px',
     onLoadMore: () => {
-      const next = Math.min(visibleCount + 20, amigosFiltrados.length)
-      setVisibleCount(next)
-      setTimeout(() => {
-        setLoadedCount(next)
-      }, 500)
+      if (isLoading) return
+      const next = page + 1
+      setPage(next)
+      getMyFriends(next)
+      // setTimeout(() => {
+      //   setLoadedCount(next)
+      // }, 500)
     },
   })
+
+  async function getMyFriends(pageNumber = 1) {
+    if (!profileUser) return
+    setIsLoading(true)
+    try {
+      const friends = await getFriends(profileUser.user.id, pageNumber)
+      if (friends.formattedFriends.length < 8) setHasMoreFriend(false)
+      setTotalFriends(friends.totalFriends)
+      setMyFriends((prev) => {
+        const updated =
+          pageNumber === 1
+            ? friends.formattedFriends
+            : [...prev, ...friends.formattedFriends]
+
+        setLoadedCount(updated.length)
+
+        return updated
+      })
+    } catch (error) {
+      setHasMoreFriend(false)
+      console.log(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    getMyFriends(1)
+  }, [profileUser])
 
   useEffect(() => {
     if (open) {
       setSearch('')
       setSearch('')
-      setVisibleCount(20)
-      setLoadedCount(20)
-      filter(search, amigos, setAmigosFiltrados, setEmpty)
+      setPage(1)
+      setHasMoreFriend(true)
+      getMyFriends(1)
+      filter(search, myFriends, setAmigosFiltrados, setEmpty)
     }
   }, [open])
   useEffect(() => {
     if (open) {
-      filter(search, amigos, setAmigosFiltrados, setEmpty)
-      setLoadedCount(20)
+      filter(search, myFriends, setAmigosFiltrados, setEmpty)
     }
-  }, [search])
+  }, [search, myFriends])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {/* Use onde quiser (ex: no lugar do "150 amigos") */}
         <button className="flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-2 transition-colors hover:bg-muted">
-          <span className="text-xl font-bold text-foreground">150</span>
+          <span className="text-xl font-bold text-foreground">
+            {totalFriends ? totalFriends : <Loader2 className="animate-spin" />}
+          </span>
           <span className="flex items-center gap-1 text-sm text-muted-foreground">
             <Users className="h-4 w-4 text-blue-500" />
-            amigos
+            {totalFriends === 1 ? 'amigo' : 'amigos'}
           </span>
         </button>
       </DialogTrigger>
@@ -232,10 +122,10 @@ export function FriendsDialog({ euUsuario }: PropsFriends) {
       <DialogContent className="w-[98%] max-w-md rounded-2xl border bg-background/95 p-6 shadow-xl backdrop-blur-sm sm:w-full">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-semibold text-foreground">
-            Amigos de Carlos Almeida
+            Amigos de {username}
           </DialogTitle>
           <p className="mt-2 text-center text-muted-foreground">
-            {amigos.length} amigos
+            {myFriends.length} {myFriends.length === 1 ? 'amigo' : 'amigos'}
           </p>
           <div>
             <Input
@@ -251,17 +141,18 @@ export function FriendsDialog({ euUsuario }: PropsFriends) {
           ref={scrollContainerRef}
           className="scrollbar mt-6 h-[500px] space-y-3 overflow-y-auto"
         >
-          {amigosFiltrados.slice(0, visibleCount).map((amigo, index) => {
+          {amigosFiltrados.map((amigo: TypeFriend, index: number) => {
             const isLoaded = index < loadedCount
-
+            console.log(amigo)
+            if (!amigo) return
             return (
               <div key={amigo.id + '-' + index}>
                 {isLoaded ? (
                   <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50">
                     <Avatar className="h-12 w-12">
-                      <AvatarImage src={amigo.avatar} alt={amigo.nome} />
+                      <AvatarImage src={amigo.avatar} alt={amigo.name_at} />
                       <AvatarFallback className="bg-linear-purple font-medium text-white">
-                        {amigo.nome
+                        {amigo.name_at
                           .split(' ')
                           .map((n) => n[0])
                           .join('')
@@ -271,23 +162,18 @@ export function FriendsDialog({ euUsuario }: PropsFriends) {
 
                     <div className="flex-1">
                       <p className="font-medium text-foreground">
-                        {amigo.nome}
+                        {amigo.name_at}
                       </p>
                     </div>
 
-                    <Button size="sm" className="bg-linear-purple rounded-full">
-                      Ver perfil
-                    </Button>
-                    {euUsuario && (
+                    <NavLink to={`/usuarios/perfil/${amigo.id}`}>
                       <Button
-                        className="ml-auto w-full im:w-[50px]"
-                        size="icon"
-                        variant="destructive"
-                        title="Remover"
+                        size="sm"
+                        className="bg-linear-purple rounded-full"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        Ver perfil
                       </Button>
-                    )}
+                    </NavLink>
                   </div>
                 ) : (
                   <FollowerSkeleton />
@@ -301,9 +187,7 @@ export function FriendsDialog({ euUsuario }: PropsFriends) {
               Nenhum usuário encontrado
             </p>
           )}
-          {visibleCount < amigosFiltrados.length && (
-            <div ref={loadMoreRef} className="h-12" />
-          )}
+          {hasMoreFriend && <div ref={loadMoreRef} className="h-12" />}
         </div>
       </DialogContent>
     </Dialog>

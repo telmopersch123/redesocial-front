@@ -102,6 +102,11 @@ export type UserType = {
   }
   communities: Record<number, string>
 }
+export type TypeFriend = {
+  id: number
+  name_at: string
+  avatar: string
+}
 
 export interface InformationUser {
   id: number
@@ -126,6 +131,10 @@ export interface User {
 }
 
 export interface AuthMeResponse {
+  friendship: {
+    IsSender: boolean
+    status: string
+  }
   user: User
 }
 

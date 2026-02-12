@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { debounce } from 'lodash'
 import Lottie from 'lottie-react'
-import { Edit2, Loader2, UserPlus } from 'lucide-react'
+import { CircleCheck, Edit2, Loader2, UserPlus } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { NavLink, useParams } from 'react-router-dom'
@@ -13,6 +13,7 @@ import {
   PostCardSkeleton,
   ProfileHeaderSkeleton,
 } from '../components/componentsPages/componentsPerfil/Skeleton'
+import { UnFriendShipDialog } from '../components/componentsPages/componentsPerfil/unFriendShipDialog'
 import CardsPostComponent from '../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
 import { TooltipComponent } from '../components/globalcomponents/tooltipComponent'
 import { Button } from '../components/ui/button'
@@ -42,10 +43,13 @@ const PerfilUsuario = () => {
   } = useProfile()
   const [page, setPage] = useState(1)
   const loadingRef = useRef(false)
+  const [openDialogunFriend, setOpenDialogunFriend] = useState(false)
+
   const [loadedCount, setLoadedCount] = useState(100)
   const [isLoadingSkeleton, setIsLoadingSkeleton] = useState(true)
   const [isLoadingFollow, setIsLoadingFollow] = useState(false)
   const [hasMore, setHasMore] = useState(true)
+
   const { posts, setPosts } = usePosts()
   const debouncedOnLoadMore = debounce(() => {
     if (isLoadingSkeleton || !hasMore || posts.length < 5 || loadingRef.current)
@@ -56,6 +60,7 @@ const PerfilUsuario = () => {
       return next
     })
   }, 300)
+
   const { loadMoreRef } = useInfiniteScroll({
     enabled: hasMore && !isLoadingSkeleton,
     rootMargin: '200px 0px 0px 0px',
@@ -113,13 +118,13 @@ const PerfilUsuario = () => {
       setIsLoadingSkeleton(false)
     }
   }
-
   const RequestFollower = async (userBId: number) => {
     setIsLoadingFollow(true)
     try {
       const res = await requestFriendship(userBId)
       if (res) {
         toast.success('Solicitação enviada com sucesso!')
+        refreshProfile(Number(id) || undefined)
       }
     } catch (err) {
       setIsLoadingFollow(false)
@@ -228,7 +233,10 @@ const PerfilUsuario = () => {
 
               {/* Stats */}
               <div className="mt-5 flex gap-8 text-sm">
-                <FriendsDialog euUsuario={euUsuario || false} />
+                <FriendsDialog
+                  username={profileUser.user.name_at}
+                  profileUser={profileUser}
+                />
               </div>
             </div>
 
@@ -255,15 +263,42 @@ const PerfilUsuario = () => {
                   />
                 ) : (
                   <span>
-                    <Button
-                      onClick={() => RequestFollower(profileUser.user.id)}
-                      className="group relative overflow-hidden rounded-full bg-purple-600 px-6 py-2 font-bold text-white transition-all duration-300 hover:bg-purple-700 hover:shadow-[0_0_20px_rgba(147,51,234,0.4)] active:scale-95"
-                    >
-                      <div className="flex items-center gap-2">
-                        <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" />
-                        <span>Seguir</span>
-                      </div>
-                    </Button>
+                    <>
+                      {profileUser.friendship &&
+                        profileUser.friendship.IsSender &&
+                        profileUser.friendship.status === 'pending' && (
+                          <Button className="group relative overflow-hidden rounded-full border bg-transparent px-6 py-2 font-bold text-white transition-all duration-300 hover:bg-purple-600/10 active:scale-95">
+                            <div className="flex items-center gap-2">
+                              <CircleCheck className="h-4 w-4 transition-transform group-hover:rotate-12" />
+                              <span>Solicitação Enviada</span>
+                            </div>
+                          </Button>
+                        )}
+
+                      {profileUser.friendship &&
+                        profileUser.friendship.IsSender &&
+                        profileUser.friendship.status === 'accepted' && (
+                          <UnFriendShipDialog
+                            open={openDialogunFriend}
+                            setOpen={setOpenDialogunFriend}
+                            username={profileUser.user.name_at}
+                            idUser={profileUser.user.id}
+                            refreshProfile={refreshProfile}
+                          />
+                        )}
+
+                      {!profileUser.friendship && (
+                        <Button
+                          onClick={() => RequestFollower(profileUser.user.id)}
+                          className="group relative overflow-hidden rounded-full bg-purple-600 px-6 py-2 font-bold text-white transition-all duration-300 hover:bg-purple-700 hover:shadow-[0_0_20px_rgba(147,51,234,0.4)] active:scale-95"
+                        >
+                          <div className="flex items-center gap-2">
+                            <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" />
+                            <span>Seguir</span>
+                          </div>
+                        </Button>
+                      )}
+                    </>
                   </span>
                 )}
 
