@@ -1,4 +1,6 @@
 import { UserX } from 'lucide-react'
+import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { Button } from '../../../components/ui/button'
 import {
   Dialog,
@@ -9,10 +11,28 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../../components/ui/dialog'
+import { blockUser } from '../../../services/authService'
 
-const BlockedConfirmDialog = () => {
+const BlockedConfirmDialog = ({
+  idUser,
+  username,
+}: {
+  idUser: number
+  username: string
+}) => {
+  const [openDialogBlock, setOpenDialogBlock] = useState(false)
+  const handleBlockUser = async () => {
+    try {
+      await blockUser(idUser)
+      toast.success(`Usuário ${username} bloqueado com sucesso!`)
+      setOpenDialogBlock(false)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
-    <Dialog>
+    <Dialog open={openDialogBlock} onOpenChange={setOpenDialogBlock}>
       {/* TRIGGER */}
       <DialogTrigger asChild>
         <Button className="mt-2 flex items-center gap-1.5 rounded-md border border-red-500 bg-transparent px-2.5 py-1.5 text-xs font-medium text-red-600 transition-all hover:bg-red-600 hover:text-white dark:border-red-500 dark:text-red-500 dark:hover:bg-red-600">
@@ -41,7 +61,10 @@ const BlockedConfirmDialog = () => {
             Cancelar
           </Button>
 
-          <Button className="flex items-center gap-1.5 bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500">
+          <Button
+            onClick={handleBlockUser}
+            className="flex items-center gap-1.5 bg-red-600 text-white hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-500"
+          >
             <UserX className="h-4 w-4" />
             Bloquear
           </Button>

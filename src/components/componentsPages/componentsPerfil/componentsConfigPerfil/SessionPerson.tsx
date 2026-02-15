@@ -39,7 +39,6 @@ const SessionPerson = ({
   const { theme, setTheme } = useTheme()
   const user = useAuth()
 
-  console.log(user.user?.notificationsEnabled)
   useEffect(() => {
     if (user.user) {
       setShowStatus(user.user.showOnlineStatus ?? false)
@@ -49,8 +48,6 @@ const SessionPerson = ({
       setMentions(user.user.mentionPermissed ?? false)
     }
   }, [user.user, open])
-
-  console.log(mentions)
 
   return (
     <>

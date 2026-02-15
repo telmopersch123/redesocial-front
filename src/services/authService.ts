@@ -814,7 +814,6 @@ export const DeclineFriendship = async (notificationId: number) => {
     throw new Error('Erro ao aceitar')
   }
 }
-
 export const unFriendShip = async (userBId: number) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/friendship/unfriend`,
@@ -830,7 +829,6 @@ export const unFriendShip = async (userBId: number) => {
   if (!response.ok) throw new Error('Erro ao aceitar')
   return response.json()
 }
-
 export const getFriends = async (targetUserId: number, pageNumber: number) => {
   const response = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/friendship/getAllFriendship/${targetUserId}/${pageNumber}`,
@@ -843,5 +841,51 @@ export const getFriends = async (targetUserId: number, pageNumber: number) => {
     }
   )
   if (!response.ok) throw new Error('Erro ao aceitar')
+  return response.json()
+}
+
+export const blockUser = async (userBId: number) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/blockedUser`,
+    {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userBId }),
+    }
+  )
+  if (!response.ok) throw new Error('Erro ao bloquear')
+  return response.json()
+}
+
+export const DesblockedUser = async (blockedUserId: number) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/unblockUser/${blockedUserId}`,
+    {
+      method: 'DELETE',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+  if (!response.ok) throw new Error('Erro ao desbloquear')
+  return response.json()
+}
+
+export const getUsersBlocked = async () => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/getBlockedUsers`,
+    {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+  if (!response.ok) throw new Error('Erro ao buscar usuários bloqueados')
   return response.json()
 }

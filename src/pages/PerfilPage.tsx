@@ -215,7 +215,10 @@ const PerfilUsuario = () => {
                   </NavLink>
                 </div>
               ) : (
-                <BlockedConfirmDialog />
+                <BlockedConfirmDialog
+                  idUser={profileUser.user.id}
+                  username={profileUser.user.name_at}
+                />
               )}
             </div>
 
