@@ -46,8 +46,11 @@ const SessionPerson = ({
       setShowViewStatus(user.user.showViewStatus ?? false)
       setNotifications(user.user.notificationsEnabled ?? false)
       setAnonMode(user.user.anonMode ?? false)
+      setMentions(user.user.mentionPermissed ?? false)
     }
   }, [user.user, open])
+
+  console.log(mentions)
 
   return (
     <>
@@ -337,7 +340,29 @@ const SessionPerson = ({
                 Permitir que outras pessoas te mencionem em postagens.
               </p>
             </div>
-            <Switch checked={mentions} onCheckedChange={setMentions} />
+            <Switch
+              checked={mentions}
+              onCheckedChange={async (checked) => {
+                setMentions(checked)
+                const res = await fetch(
+                  `${import.meta.env.VITE_API_URL}/auth/me/statusUser`,
+                  {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mentionPermissed: checked }),
+                  }
+                )
+                if (res.ok) {
+                  if (user.user && user.setUser) {
+                    user.setUser({
+                      ...user.user,
+                      mentionPermissed: checked,
+                    })
+                  }
+                }
+              }}
+            />
           </div>
         </div>
 
