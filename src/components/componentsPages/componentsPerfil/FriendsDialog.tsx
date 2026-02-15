@@ -53,9 +53,6 @@ export function FriendsDialog({
       const next = page + 1
       setPage(next)
       getMyFriends(next)
-      // setTimeout(() => {
-      //   setLoadedCount(next)
-      // }, 500)
     },
   })
 

@@ -875,9 +875,9 @@ export const DesblockedUser = async (blockedUserId: number) => {
   return response.json()
 }
 
-export const getUsersBlocked = async () => {
+export const getUsersBlocked = async (pageNumber: number) => {
   const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/getBlockedUsers`,
+    `${import.meta.env.VITE_API_URL}/auth/getBlockedUsers?pageNumber=${pageNumber}`,
     {
       method: 'GET',
       credentials: 'include',

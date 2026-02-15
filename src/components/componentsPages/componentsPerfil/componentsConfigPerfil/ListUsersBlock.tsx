@@ -15,12 +15,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../../../components/ui/dialog'
+import { useInfiniteScrollDialog } from '../../../../hooks/effectsSkeletons'
 import {
   DesblockedUser,
   getUsersBlocked,
 } from '../../../../services/authService'
 import type { TypeFriend } from '../../../../types'
 import { Label } from '../../../ui/label'
+import { FollowerSkeleton } from '../Skeleton'
 import { openOnly } from './ConfigDialog'
 
 interface ListUsersBlockProps {
@@ -30,18 +32,44 @@ interface ListUsersBlockProps {
 
 const ListUsersBlock = ({ open, setOpen }: ListUsersBlockProps) => {
   const [usersBlock, setUsersBlock] = useState<TypeFriend[]>([])
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const getListUsersBlocked = async () => {
+  const [page, setPage] = useState(1)
+  const [hasMoreFriend, setHasMoreFriend] = useState(true)
+  const [loadedCount, setLoadedCount] = useState(8)
+  const { scrollContainerRef, loadMoreRef } = useInfiniteScrollDialog({
+    enabled: hasMoreFriend && open && !isLoading,
+    hasMore: hasMoreFriend,
+    openDelayMs: 0,
+    rootMargin: '50px',
+    onLoadMore: () => {
+      if (isLoading) return
+      const next = page + 1
+      setPage(next)
+      getListUsersBlocked(next)
+    },
+  })
+
+  const getListUsersBlocked = async (pageNumber = 1) => {
+    setIsLoading(true)
     try {
-      setLoading(true)
-      const res = await getUsersBlocked()
-      setUsersBlock(res)
+      const resUsersBlock = await getUsersBlocked(pageNumber)
+      console.log(resUsersBlock)
+      if (resUsersBlock.length < 8) {
+        setHasMoreFriend(false)
+      }
+      setUsersBlock((prev) => {
+        const updated =
+          pageNumber === 1 ? resUsersBlock : [...prev, ...resUsersBlock]
+        setLoadedCount(updated.length)
+        return updated
+      })
     } catch (error) {
       console.error(error)
+      setHasMoreFriend(false)
       toast.error('Erro ao carregar lista de bloqueados.')
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
@@ -49,6 +77,7 @@ const ListUsersBlock = ({ open, setOpen }: ListUsersBlockProps) => {
     try {
       await DesblockedUser(userId)
       setUsersBlock((prev) => prev.filter((u) => u.id !== userId))
+
       toast.success(`@${username} desbloqueado!`)
     } catch (error) {
       toast.error('Erro ao desbloquear usuário.')
@@ -57,7 +86,9 @@ const ListUsersBlock = ({ open, setOpen }: ListUsersBlockProps) => {
 
   useEffect(() => {
     if (open) {
-      getListUsersBlocked()
+      setPage(1)
+      setHasMoreFriend(true)
+      getListUsersBlocked(1)
     }
   }, [open])
 
@@ -99,12 +130,50 @@ const ListUsersBlock = ({ open, setOpen }: ListUsersBlockProps) => {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="custom-scrollbar max-h-[400px] min-h-[200px] overflow-y-auto px-6 py-4">
-          {loading ? (
-            <div className="flex h-32 items-center justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : usersBlock.length === 0 ? (
+        <div
+          ref={scrollContainerRef}
+          className="custom-scrollbar max-h-[400px] min-h-[200px] overflow-y-auto px-6 py-4"
+        >
+          {usersBlock.map((user: TypeFriend, index: number) => {
+            // A trava baseada no contador de itens carregados
+            const isLoaded = index < loadedCount
+
+            return (
+              <div className="mb-4" key={`${user.id}-${index}`}>
+                {isLoaded ? (
+                  <div className="flex items-center justify-between rounded-xl border bg-card p-3 transition-colors hover:bg-muted/50">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10 border">
+                        <AvatarImage
+                          src={user.avatar}
+                          alt={user.name_at}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className="bg-purple-100 text-xs font-bold text-purple-700">
+                          {user.name_at?.substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <p className="text-sm font-medium text-foreground">
+                        @{user.name_at}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleUnblock(user.id, user.name_at)}
+                      className="text-[11px] font-bold text-destructive hover:bg-destructive/10"
+                    >
+                      Desbloquear
+                    </Button>
+                  </div>
+                ) : (
+                  <FollowerSkeleton />
+                )}
+              </div>
+            )
+          })}
+
+          {usersBlock.length === 0 && !isLoading && (
             <div className="flex flex-col items-center justify-center py-10 text-center">
               <div className="rounded-full bg-muted p-3">
                 <UserX className="h-6 w-6 text-muted-foreground" />
@@ -113,41 +182,16 @@ const ListUsersBlock = ({ open, setOpen }: ListUsersBlockProps) => {
                 Sua lista está limpa.
               </p>
             </div>
-          ) : (
-            <div className="space-y-3">
-              {usersBlock.map((userB) => (
-                <div
-                  key={userB.id}
-                  className="flex items-center justify-between rounded-xl border border-border/40 bg-card p-3 transition-colors hover:bg-accent/20"
-                >
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10 border border-border/50">
-                      <AvatarImage
-                        src={userB.avatar || ''}
-                        alt={userB.name_at}
-                        className="object-cover"
-                      />
-                      <AvatarFallback className="bg-purple-100 text-xs font-bold text-purple-700">
-                        {userB.name_at?.substring(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <p className="text-[11px] text-muted-foreground">
-                        @{userB.name_at}
-                      </p>
-                    </div>
-                  </div>
+          )}
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleUnblock(userB.id, userB.name_at)}
-                    className="h-8 border-destructive/20 px-3 text-[11px] font-bold text-destructive hover:bg-destructive hover:text-white"
-                  >
-                    Desbloquear
-                  </Button>
-                </div>
-              ))}
+          {hasMoreFriend && !isLoading && (
+            <div
+              ref={loadMoreRef}
+              className="flex h-10 w-full justify-center py-2"
+            >
+              {isLoading && (
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+              )}
             </div>
           )}
         </div>
