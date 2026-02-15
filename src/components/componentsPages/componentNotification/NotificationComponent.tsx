@@ -6,10 +6,11 @@ import {
   ChevronUp,
   Heart,
   MessageCircle,
+  ThumbsUp,
   Users,
 } from 'lucide-react'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button } from '../../../components/ui/button'
 import {
   Popover,
@@ -17,12 +18,14 @@ import {
   PopoverTrigger,
 } from '../../../components/ui/popover'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
+import { useAuth } from '../../../context/getMe'
 import type { Notification } from '../../../context/NotificationProvider'
 import { useNotification } from '../../../context/NotificationProvider'
 import {
   AcceptFriendship,
   DeclineFriendship,
 } from '../../../services/authService'
+import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs'
 
 const iconForType = {
@@ -37,10 +40,22 @@ const iconForType = {
 
 const NotificationComponent = () => {
   const { notifications, unreadCount, markAsRead } = useNotification()
-
+  const { user } = useAuth()
   const { setOpenDialogPostNotification, setOpenActionPosts } =
     useCriarPostDialog()
-  const activeNotifications = notifications.filter((n) => !n.read)
+  const activeNotifications = useMemo(() => {
+    if (!user || user.notificationsEnabled === false) return []
+    return notifications.filter((n) => !n.read)
+  }, [notifications, user])
+  const [expandedGroups, setExpandedGroups] = useState<
+    Record<string, string[]>
+  >({
+    chats: [],
+    social: [],
+    com: [],
+    user: [],
+  })
+
   const msgNotifications = activeNotifications.filter(
     (n) => n.type === 'MESSAGE'
   )
@@ -56,10 +71,25 @@ const NotificationComponent = () => {
     ['FOLLOW_REQUEST', 'FRIEND_ACCEPT'].includes(n.type)
   )
 
-  const countedChats = msgNotifications.length
-  const countedSocial = interactionNotifications.length
-  const countedCom = communitNotifications.length
-  const countedUsers = abaNotifUsers.length
+  const countedChats = useMemo(() => {
+    if (!user || user.notificationsEnabled === false) return 0
+    return msgNotifications.length
+  }, [msgNotifications, user])
+
+  const countedSocial = useMemo(() => {
+    if (!user || user.notificationsEnabled === false) return 0
+    return interactionNotifications.length
+  }, [interactionNotifications, user])
+
+  const countedCom = useMemo(() => {
+    if (!user || user.notificationsEnabled === false) return 0
+    return communitNotifications.length
+  }, [communitNotifications, user])
+
+  const countedUsers = useMemo(() => {
+    if (!user || user.notificationsEnabled === false) return 0
+    return abaNotifUsers.length
+  }, [abaNotifUsers, user])
 
   const handleNotificationClick = async (n: Notification) => {
     await markAsRead(n.id)
@@ -87,7 +117,19 @@ const NotificationComponent = () => {
     }
   }
 
-  const NotificationList = ({ items }: { items: Notification[] }) => {
+  const NotificationList = ({
+    items,
+    tabKey,
+    expandedGroups,
+    setExpandedGroups,
+  }: {
+    items: Notification[]
+    tabKey: string
+    expandedGroups: Record<string, string[]>
+    setExpandedGroups: React.Dispatch<
+      React.SetStateAction<Record<string, string[]>>
+    >
+  }) => {
     const grouped = items.reduce(
       (acc, n) => {
         let groupKey = n.type
@@ -105,12 +147,17 @@ const NotificationComponent = () => {
       {} as Record<string, Notification[]>
     )
 
-    const [expandedGroups, setExpandedGroups] = useState<string[]>([])
-
     const toggleGroup = (type: string) => {
-      setExpandedGroups((prev) =>
-        prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-      )
+      setExpandedGroups((prev) => {
+        const current = prev[tabKey] || []
+
+        return {
+          ...prev,
+          [tabKey]: current.includes(type)
+            ? current.filter((t) => t !== type)
+            : [...current, type],
+        }
+      })
     }
 
     if (items.length === 0) {
@@ -181,7 +228,7 @@ const NotificationComponent = () => {
             )
           }
 
-          const isExpanded = expandedGroups.includes(type)
+          const isExpanded = expandedGroups[tabKey]?.includes(type)
           const isChat = type.startsWith('CHAT_')
           const labelRaw = isChat
             ? `${groupItems[0].message.split(':')[0]}`
@@ -200,7 +247,7 @@ const NotificationComponent = () => {
               {/* Cabeçalho do Grupo */}
               <button
                 onClick={() => toggleGroup(type)}
-                className="flex w-full items-center justify-between bg-muted/10 px-4 py-3 transition-colors hover:bg-muted/30"
+                className="flex w-full items-center justify-between bg-muted/10 px-4 py-3"
               >
                 <div className="flex items-center gap-2">
                   <div className="opacity-70">
@@ -223,8 +270,7 @@ const NotificationComponent = () => {
                   {groupItems.map((n) => (
                     <div
                       key={n.id}
-                      onClick={() => handleNotificationClick(n)}
-                      className="group relative flex cursor-pointer items-start gap-3 border-l-2 border-transparent px-6 py-3 transition-all hover:border-purple-500 hover:bg-accent/40"
+                      className="group relative flex cursor-pointer items-start justify-between gap-3 border-l-2 border-transparent px-6 py-3 transition-all hover:border-purple-500 hover:bg-accent/40"
                     >
                       <div className="flex flex-col space-y-0.5">
                         <span className="text-sm leading-snug text-foreground group-hover:text-purple-600 dark:group-hover:text-purple-400">
@@ -236,6 +282,23 @@ const NotificationComponent = () => {
                             minute: '2-digit',
                           })}
                         </span>
+                      </div>
+                      <div>
+                        <TooltipComponent
+                          Tag={
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleNotificationClick(n)
+                              }}
+                              variant="outline"
+                              className="h-6 w-14 border-purple-600/30 px-4 text-xs font-bold text-white hover:border-purple-600/50 hover:bg-purple-600/40"
+                            >
+                              <ThumbsUp />
+                            </Button>
+                          }
+                          description="Marcar como lida"
+                        />
                       </div>
                     </div>
                   ))}
@@ -332,19 +395,39 @@ const NotificationComponent = () => {
           </TabsList>
 
           <TabsContent value="chats" className="m-0">
-            <NotificationList items={msgNotifications} />
+            <NotificationList
+              tabKey="chats"
+              items={msgNotifications}
+              expandedGroups={expandedGroups}
+              setExpandedGroups={setExpandedGroups}
+            />
           </TabsContent>
 
           <TabsContent value="social" className="m-0">
-            <NotificationList items={interactionNotifications} />
+            <NotificationList
+              tabKey="social"
+              items={interactionNotifications}
+              expandedGroups={expandedGroups}
+              setExpandedGroups={setExpandedGroups}
+            />
           </TabsContent>
 
           <TabsContent value="com" className="m-0">
-            <NotificationList items={communitNotifications} />
+            <NotificationList
+              tabKey="com"
+              items={communitNotifications}
+              expandedGroups={expandedGroups}
+              setExpandedGroups={setExpandedGroups}
+            />
           </TabsContent>
 
           <TabsContent value="user" className="m-0">
-            <NotificationList items={abaNotifUsers} />
+            <NotificationList
+              tabKey="user"
+              items={abaNotifUsers}
+              expandedGroups={expandedGroups}
+              setExpandedGroups={setExpandedGroups}
+            />
           </TabsContent>
         </Tabs>
       </PopoverContent>

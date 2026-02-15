@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
 import toast from 'react-hot-toast'
 import { socket } from '../services/socket'
@@ -46,10 +46,12 @@ export const NotificationProvider = ({
           (n.type === 'PROMOTION' || n.type === 'DEMOTION') && !n.read
       )
 
-      unreadAlerts.forEach((n: Notification) => {
-        showRoleToast(n)
-        markAsRead(n.id)
-      })
+      if (user?.notificationsEnabled) {
+        unreadAlerts.forEach((n: Notification) => {
+          showRoleToast(n)
+          markAsRead(n.id)
+        })
+      }
     } catch (err) {
       console.error(err)
     }
@@ -106,9 +108,12 @@ export const NotificationProvider = ({
 
         return [...prev, data]
       })
-      if (data.type === 'PROMOTION' || data.type === 'DEMOTION') {
-        showRoleToast(data)
-        markAsRead(data.id)
+
+      if (user?.notificationsEnabled) {
+        if (data.type === 'PROMOTION' || data.type === 'DEMOTION') {
+          showRoleToast(data)
+          markAsRead(data.id)
+        }
       }
     }
 
@@ -128,7 +133,7 @@ export const NotificationProvider = ({
       socket.off('notification:new')
       socket.off('notifications:sync')
     }
-  }, [socket])
+  }, [socket, user?.notificationsEnabled])
 
   useEffect(() => {
     if (!user) {
@@ -137,7 +142,11 @@ export const NotificationProvider = ({
     }
   }, [user])
 
-  const unreadCount = notifications.filter((n) => !n.read).length
+  const unreadCount = useMemo(() => {
+    if (!user || user.notificationsEnabled === false) return 0
+
+    return notifications.filter((n) => !n.read).length
+  }, [notifications, user])
 
   return (
     <NotificationContext.Provider

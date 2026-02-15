@@ -46,11 +46,9 @@ export function ConfigDialog({
   const { posts, setPosts, selectedPost } = usePosts()
   const [openDialogPost, setOpenDialogPost] = useState(false)
   const [novoComentario, setNovoComentario] = useState('')
-  const [notifications, setNotifications] = useState(true)
 
   const [twoFactor, setTwoFactor] = useState(false)
-  const [anonMode, setAnonMode] = useState(false)
-  const [showStatus, setShowStatus] = useState(true)
+
   const [tab, setTab] = useState(1)
   const [openDialog, setOpenDialog] = useState([false, false, false, false])
   const { user } = useAuth()
@@ -139,12 +137,6 @@ export function ConfigDialog({
           {tab === 1 ? (
             <SessionPerson
               nomeUser={nomeUser || ''}
-              notifications={notifications}
-              setNotifications={setNotifications}
-              anonMode={anonMode}
-              setAnonMode={setAnonMode}
-              showStatus={showStatus}
-              setShowStatus={setShowStatus}
               twoFactor={twoFactor}
               handleTwoFactorChange={handleTwoFactorChange}
               confirmDisableTwoFactor={confirmDisableTwoFactor}

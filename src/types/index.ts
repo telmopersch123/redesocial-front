@@ -97,6 +97,7 @@ export type UserType = {
   showOnlineStatus: boolean
   showViewStatus: boolean
   anonMode: boolean
+  notificationsEnabled: boolean
   confirmTwoSteps: {
     two_factor_enabled: boolean
   }

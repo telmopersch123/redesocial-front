@@ -404,8 +404,9 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   const totalUnread = useMemo(() => {
+    if (!user || user.notificationsEnabled === false) return 0
     return Object.values(unreadByChat).reduce((sum, v) => sum + v, 0)
-  }, [unreadByChat])
+  }, [unreadByChat, user])
 
   function markChatAsRead(chatId: string) {
     socket.emit('chat:read', { chatId })

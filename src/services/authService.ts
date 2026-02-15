@@ -380,6 +380,7 @@ export async function getUser(id: string | undefined) {
 
   return data
 }
+////
 export async function getCheckUserChat(id: string | undefined) {
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/checkUserChat/${id}`,

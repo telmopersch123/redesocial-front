@@ -13,15 +13,9 @@ import DialogEditNome from './EditNomeDialog'
 import ListUsersBlock from './ListUsersBlock'
 interface SessionPersonProps {
   nomeUser?: string
-  notifications: boolean
-  setNotifications: (value: boolean) => void
   twoFactor: boolean
   handleTwoFactorChange: (value: boolean) => void
   confirmDisableTwoFactor: () => void
-  anonMode: boolean
-  setAnonMode: (value: boolean) => void
-  showStatus: boolean
-  setShowStatus: (value: boolean) => void
   open: boolean[]
   setOpen: React.Dispatch<React.SetStateAction<boolean[]>>
   setLocalNome?: (nomeUser: string) => void
@@ -29,44 +23,31 @@ interface SessionPersonProps {
 
 const SessionPerson = ({
   nomeUser,
-  notifications,
-  setNotifications,
   twoFactor,
   handleTwoFactorChange,
   confirmDisableTwoFactor,
-  anonMode,
-  setAnonMode,
-  showStatus: showOnlineStatus,
-  setShowStatus,
   open,
   setOpen,
   setLocalNome,
 }: SessionPersonProps) => {
   const [showViewStatus, setShowViewStatus] = useState(true)
+  const [anonMode, setAnonMode] = useState(false)
+  const [showStatus, setShowStatus] = useState(true)
+  const [notifications, setNotifications] = useState(true)
   const [mentions, setMentions] = useState(true)
+
   const { theme, setTheme } = useTheme()
   const user = useAuth()
 
+  console.log(user.user?.notificationsEnabled)
   useEffect(() => {
-    if (user.user?.showOnlineStatus) {
-      setShowStatus(user.user.showOnlineStatus)
-    } else {
-      setShowStatus(false)
+    if (user.user) {
+      setShowStatus(user.user.showOnlineStatus ?? false)
+      setShowViewStatus(user.user.showViewStatus ?? false)
+      setNotifications(user.user.notificationsEnabled ?? false)
+      setAnonMode(user.user.anonMode ?? false)
     }
-    if (user.user?.showViewStatus) {
-      setShowViewStatus(user.user.showViewStatus)
-    } else {
-      setShowViewStatus(false)
-    }
-  }, [open])
-
-  useEffect(() => {
-    if (user.user?.anonMode) {
-      setAnonMode(user.user.anonMode)
-    } else {
-      setAnonMode(false)
-    }
-  }, [user, open])
+  }, [user.user, open])
 
   return (
     <>
@@ -141,7 +122,30 @@ const SessionPerson = ({
             </div>
             <Switch
               checked={notifications}
-              onCheckedChange={setNotifications}
+              onCheckedChange={async (checked) => {
+                setNotifications(checked)
+                const res = await fetch(
+                  `${import.meta.env.VITE_API_URL}/auth/me/statusUser`,
+                  {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ notifications: checked }),
+                  }
+                )
+                if (res.ok) {
+                  setNotifications(checked)
+                  if (user.user && user.setUser) {
+                    user.setUser({
+                      ...user.user,
+                      notificationsEnabled: checked,
+                    })
+                  }
+                } else {
+                  toast.error('Erro ao atualizar notificações.')
+                  setNotifications(!checked)
+                }
+              }}
             />
           </div>
         </div>
@@ -249,7 +253,7 @@ const SessionPerson = ({
               </p>
             </div>
             <Switch
-              checked={showOnlineStatus}
+              checked={showStatus}
               onCheckedChange={async (checked) => {
                 const newStatus = checked
                 setShowStatus(newStatus)
