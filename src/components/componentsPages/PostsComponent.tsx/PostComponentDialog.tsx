@@ -20,6 +20,7 @@ import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import { VideoContext, type VideoState } from '../../../context/VideoContext'
 import { createComment } from '../../../services/authService'
 
+import toast from 'react-hot-toast'
 import { usePosts } from '../../../context/PostsContext'
 import type { ExtendedPost } from '../../../pages/community/PostsArchived'
 import ListMarcation from './ListMarcation'
@@ -96,24 +97,38 @@ const PostComponentDialog = ({
         undefined,
         mentionedUserIds
       )
-      const newComment = await response.json()
+      const data = await response.json()
+
+      if (!response.ok) {
+        return toast.error(data.error || 'Você não pode comentar nesse post', {
+          icon: '🚫',
+        })
+      }
+      const newComment = data.comment
       setPosts(
         posts.map((p: Post) => {
-          if (p.id === postId) {
+          if (p?.id === postId) {
             return {
               ...p,
-              comments: [...(p.comments ?? []), newComment.comment],
+              comments: [...(p.comments ?? []), newComment],
             }
           }
           return p
         }) as ExtendedPost[]
       )
-      setSelectedPost(postAtualizado)
+      setSelectedPost((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          comments: { ...(prev.comments ?? []), newComment },
+        }
+      })
       setUsuariosSelecionados([])
       setClickedMention(false)
       setNovoComentario('')
     } catch (err) {
       console.log(err)
+      toast.error('Erro de conexão.')
     }
   }
 
@@ -135,8 +150,15 @@ const PostComponentDialog = ({
         respondendoPara,
         mentionedUserIds
       )
-      const { comment: novaResposta } = await response.json()
+      const data = await response.json()
 
+      if (!response.ok) {
+        return toast.error(
+          data.error || 'Você não pode responder esse comentário',
+          { icon: '🚫' }
+        )
+      }
+      const novaResposta = data.comment
       setPosts(
         posts.map((p: Post) => {
           if (p.id === postAtualizado.id) {
@@ -155,8 +177,9 @@ const PostComponentDialog = ({
       setSelectedPost(postAtualizado)
       setUsuariosSelecionados([])
       setTextoResposta('')
-    } catch (err) {
-      console.log(err)
+    } catch (err: any) {
+      console.error(err)
+      toast.error(err.message, { icon: '🚫' })
     }
   }
 

@@ -97,8 +97,24 @@ const ActionsPost = ({
     )
     try {
       const updated = await updateLikedPost(id)
+      if (!updated.ok) {
+        setLiked(wasLiked)
+        setPosts((prev) =>
+          prev.map((post) =>
+            post.id === id
+              ? {
+                  ...post,
+                  likedByMe: wasLiked,
+                  _count: { ...post._count, likes: currentLikes },
+                }
+              : post
+          )
+        )
+        return toast.error(updated.error || 'Ação não permitida', {
+          icon: '🚫',
+        })
+      }
       setLiked(updated.liked)
-
       setPosts((prev) =>
         prev.map((post) =>
           post.id === id
@@ -127,7 +143,19 @@ const ActionsPost = ({
       )
     } catch (error) {
       setLiked(wasLiked)
-      console.log(error)
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === id
+            ? {
+                ...post,
+                likedByMe: wasLiked,
+                _count: { ...post._count, likes: currentLikes },
+              }
+            : post
+        )
+      )
+      const errorMsg = 'Erro ao curtir o post'
+      toast.error(errorMsg, { icon: '🚫' })
     }
   }
 
@@ -140,6 +168,17 @@ const ActionsPost = ({
     )
     try {
       const response = await savedPost(id.toString())
+
+      if (!response.ok) {
+        setPosts((prev) =>
+          prev.map((post) =>
+            post.id === id ? { ...post, saved: wasSaved } : post
+          )
+        )
+        return toast.error(response.error || 'Você não pode salvar esse post', {
+          icon: '🚫',
+        })
+      }
       setPosts((prev) =>
         prev.map((post: ExtendedPost) =>
           post.id === id ? { ...post, saved: response.saved } : post
@@ -224,7 +263,7 @@ const ActionsPost = ({
               : 'flex w-full items-center justify-end gap-4'
           }`}
         >
-          {valuePost.user.id !== authUser?.id && <DialogReportPost />}
+          {valuePost.user.id !== Number(authUser?.id) && <DialogReportPost />}
 
           <TooltipComponent
             description={valuePost.saved ? 'Desmarcar Post' : 'Salvar Post'}

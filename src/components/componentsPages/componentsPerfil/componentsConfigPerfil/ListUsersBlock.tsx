@@ -184,15 +184,19 @@ const ListUsersBlock = ({ open, setOpen }: ListUsersBlockProps) => {
             </div>
           )}
 
+          {usersBlock.length === 0 && isLoading && (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <div className="rounded-full bg-muted p-3">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            </div>
+          )}
+
           {hasMoreFriend && !isLoading && (
             <div
               ref={loadMoreRef}
               className="flex h-10 w-full justify-center py-2"
-            >
-              {isLoading && (
-                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-              )}
-            </div>
+            />
           )}
         </div>
       </DialogContent>

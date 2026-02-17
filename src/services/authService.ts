@@ -259,9 +259,7 @@ export async function createComment(
       }),
     }
   )
-  if (!res.ok) {
-    throw new Error('Erro ao criar o comentário')
-  }
+
   return res
 }
 export async function deleteComment(commentId: number) {
@@ -285,13 +283,10 @@ export async function updateLikedPost(postId: number) {
       credentials: 'include',
     }
   )
-  if (!res.ok) {
-    throw new Error('Erro ao atualizar o post')
-  }
-  return res.json() as Promise<{
-    liked: boolean
-    likesCount: number
-  }>
+
+  const data = await res.json()
+
+  return { ...data, ok: res.ok }
 }
 export async function savedPost(postId: string) {
   const res = await fetch(
@@ -301,12 +296,8 @@ export async function savedPost(postId: string) {
       credentials: 'include',
     }
   )
-  if (!res.ok) {
-    throw new Error('Erro ao salvar o post')
-  }
-  return res.json() as Promise<{
-    saved: boolean
-  }>
+  const data = await res.json()
+  return { ...data, ok: res.ok }
 }
 export async function getSavedPosts() {
   const res = await fetch(

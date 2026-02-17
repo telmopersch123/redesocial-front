@@ -368,13 +368,24 @@ const MessagePage = () => {
     markChatAsRead(ChatIdOrUserId)
   }, [ChatIdOrUserId])
   useEffect(() => {
-    socket.on('message:error', () => {
-      alertMessage(
-        'Ops! algo deu errado',
-        'Por favor, tente novamente mais tarde',
-        'error'
-      )
-    })
+    socket.on(
+      'message:error',
+      ({ reason, message }: { reason: string; message: string }) => {
+        if (reason === 'blocked') {
+          alertMessage(
+            'Ação Bloqueada',
+            message || 'Você não pode enviar mensagens para este usuário.',
+            'error'
+          )
+        } else {
+          alertMessage(
+            'Ops! algo deu errado',
+            'Por favor, tente novamente mais tarde',
+            'error'
+          )
+        }
+      }
+    )
 
     return () => {
       socket.off('message:error')

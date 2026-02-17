@@ -28,6 +28,8 @@ interface ProfileContextData {
   setProfileUser: React.Dispatch<React.SetStateAction<AuthMeResponse | null>>
   hasUnsavedChanges: boolean
   setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>
+  isBlocked: boolean
+  setIsBlocked: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ProfileContext = createContext<ProfileContextData>(
@@ -42,7 +44,7 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
   const [file, setFile] = useState<string | null>(null)
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null)
   const [profileUser, setProfileUser] = useState<AuthMeResponse | null>(null)
-
+  const [isBlocked, setIsBlocked] = useState(false)
   const [loading, setLoading] = useState(true)
   const [sentimentoAtual, setSentimentoAtual] = useState(['esperancoso', '🌱'])
   const [metodosAutocuidado, setMetodosAutocuidado] = useState<string[]>([])
@@ -51,7 +53,7 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
   const refreshProfile = useCallback(async (idUser?: number) => {
     try {
       setLoading(true)
-
+      setIsBlocked(false)
       setProfileUser(null)
 
       const endpoint = idUser ? `/auth/users/${idUser}` : `/auth/me`
@@ -68,46 +70,52 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
 
       if (res.ok) {
         const data = await res.json()
-
-        const infoOriginal = data.user.informationUser[0]
-        const feelingSlug = infoOriginal?.feeling
-        const feelingSearch = sentimentos.find((s) => s.value === feelingSlug)
-        const emojiValue = feelingSearch?.emoji || '🌱'
-        const labelValue = feelingSearch?.value || 'esperancoso'
-
-        if (data.user.informationUser.length > 0) {
-          data.user.informationUser = [
-            {
-              ...infoOriginal,
-              feeling: labelValue,
-              emoji: emojiValue,
-            },
-          ]
-        }
-
-        setProfileUser(data)
-        setNomeUser(data.user.name_at)
-        if (data.user.avatar?.startsWith('SYMBOLIC_')) {
-          const symbolId = parseInt(data.user.avatar.replace('SYMBOLIC_', ''))
-          setSelectedAvatar(symbolId)
-          setFile(null)
-        } else if (data.user.avatar) {
-          setFile(data.user.avatar)
-          setSelectedAvatar(null)
+        if (data.isBlocked) {
+          setIsBlocked(true)
         } else {
-          setFile(null)
-          setSelectedAvatar(null)
-        }
+          const infoOriginal = data.user.informationUser[0]
+          const feelingSlug = infoOriginal?.feeling
+          const feelingSearch = sentimentos.find((s) => s.value === feelingSlug)
+          const emojiValue = feelingSearch?.emoji || '🌱'
+          const labelValue = feelingSearch?.value || 'esperancoso'
 
-        if (data.user.informationUser && data.user.informationUser.length > 0) {
-          const info = data.user.informationUser[0]
-          setBio(info.bio || '')
-          setMetodosAutocuidado(info.selfCareMethods || [])
+          if (data.user.informationUser.length > 0) {
+            data.user.informationUser = [
+              {
+                ...infoOriginal,
+                feeling: labelValue,
+                emoji: emojiValue,
+              },
+            ]
+          }
 
-          const feelingObj = sentimentos.find((s) => s.value === info.feeling)
+          setProfileUser(data)
+          setNomeUser(data.user.name_at)
+          if (data.user.avatar?.startsWith('SYMBOLIC_')) {
+            const symbolId = parseInt(data.user.avatar.replace('SYMBOLIC_', ''))
+            setSelectedAvatar(symbolId)
+            setFile(null)
+          } else if (data.user.avatar) {
+            setFile(data.user.avatar)
+            setSelectedAvatar(null)
+          } else {
+            setFile(null)
+            setSelectedAvatar(null)
+          }
 
-          if (feelingObj) {
-            setSentimentoAtual([feelingObj.value, feelingObj.emoji])
+          if (
+            data.user.informationUser &&
+            data.user.informationUser.length > 0
+          ) {
+            const info = data.user.informationUser[0]
+            setBio(info.bio || '')
+            setMetodosAutocuidado(info.selfCareMethods || [])
+
+            const feelingObj = sentimentos.find((s) => s.value === info.feeling)
+
+            if (feelingObj) {
+              setSentimentoAtual([feelingObj.value, feelingObj.emoji])
+            }
           }
         }
       }
@@ -143,6 +151,8 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({
         setProfileUser,
         hasUnsavedChanges,
         setHasUnsavedChanges,
+        isBlocked,
+        setIsBlocked,
       }}
     >
       {children}

@@ -26,6 +26,7 @@ const BlockedConfirmDialog = ({
       await blockUser(idUser)
       toast.success(`Usuário ${username} bloqueado com sucesso!`)
       setOpenDialogBlock(false)
+      window.location.reload()
     } catch (error) {
       console.log(error)
     }
