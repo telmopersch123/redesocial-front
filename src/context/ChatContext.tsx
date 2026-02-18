@@ -74,6 +74,7 @@ interface ChatContextType {
   unreadByChat: Record<string, number>
   markChatAsRead: (chatId: string) => void
   totalUnread: number
+  validatedExistingUser: boolean
 }
 
 const ChatContext = createContext<ChatContextType | null>(null)
@@ -97,6 +98,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     Record<string, boolean>
   >({})
   const [loadingInitial, setLoadingInitial] = useState<boolean>(false)
+  const [validatedExistingUser, setValidatedExistingUser] = useState(false)
   const [unreadByChat, setUnreadByChat] = useState<Record<string, number>>({})
   const [contatos, setContatos] = useState<Contato[]>([])
   const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set())
@@ -152,16 +154,24 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     const handleHistory = ({
       chatId,
       messages,
+      isOrphan,
       nextCursor,
       loading,
       loadingInitial,
     }: {
       chatId: string
       messages: MSG[]
+      isOrphan: boolean
       nextCursor?: string
       loading: boolean
       loadingInitial: boolean
     }) => {
+      if (isOrphan) {
+        setValidatedExistingUser(true)
+      } else {
+        setValidatedExistingUser(false)
+      }
+
       setLoadingHistoryByChat((prev) => ({
         ...prev,
         [chatId]: loading,
@@ -436,6 +446,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         unreadByChat,
         markChatAsRead,
         totalUnread,
+        validatedExistingUser,
       }}
     >
       {children}

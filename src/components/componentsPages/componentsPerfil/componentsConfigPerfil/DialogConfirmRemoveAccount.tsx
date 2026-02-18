@@ -1,4 +1,7 @@
-import { HeartCrack } from 'lucide-react'
+import { HeartCrack, Loader2 } from 'lucide-react'
+import { useState } from 'react'
+import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../../../ui/button'
 import {
   Dialog,
@@ -21,6 +24,34 @@ const DialogConfirmRemoveAccount = ({
   open,
   setOpen,
 }: DialogConfirmRemoveAccountProps) => {
+  const [isDeleting, setIsDeleting] = useState(false)
+  const navigate = useNavigate()
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true)
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/me/delete`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      )
+
+      const data = await res.json()
+
+      if (res.ok) {
+        toast.success('Conta excluída com sucesso.')
+
+        navigate('/auth', { replace: true })
+      } else {
+        toast.error(data.error || 'Erro ao excluir conta.')
+      }
+    } catch (err) {
+      toast.error('Erro de conexão com o servidor.')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
   return (
     <Dialog
       open={open}
@@ -41,7 +72,7 @@ const DialogConfirmRemoveAccount = ({
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="z-[70] w-[90%] rounded-2xl im:max-w-sm">
+      <DialogContent className="z-[70] w-[90%] rounded-2xl border-none im:max-w-sm">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">
             Confirmar remoção da conta
@@ -60,10 +91,20 @@ const DialogConfirmRemoveAccount = ({
             <Button variant="outline">NÃO!!!</Button>
           </DialogClose>
 
-          <Button variant="destructive">
+          <Button onClick={handleConfirmDelete} variant="destructive">
             Sim! <HeartCrack />{' '}
           </Button>
         </DialogFooter>
+        {isDeleting && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center rounded-md bg-black/60">
+            <div className="flex h-16 items-center justify-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-2xl dark:border-zinc-700 dark:bg-zinc-800">
+              <Loader2 className="h-6 w-6 animate-spin text-red-500" />
+              <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                Excluindo sua conta...
+              </span>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )

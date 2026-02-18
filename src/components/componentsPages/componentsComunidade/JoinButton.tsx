@@ -25,12 +25,15 @@ export const JoinButton = ({
   const handleAction = async () => {
     setIsLoading(true)
     try {
-      await joinCommunity(communityId)
-      toast.success(`Bem-vindo à comunidade! ${nameComunity}`)
-      onRefresh()
+      const res = await joinCommunity(communityId)
+      if (res.ok) {
+        toast.success(`Bem-vindo à comunidade! ${nameComunity}`)
+        onRefresh()
+      } else {
+        toast.error(res.error)
+      }
     } catch (error: any) {
-      const message = 'Ocorreu um erro ao entrar na comunidade'
-      toast.error(message)
+      toast.error(error)
     } finally {
       setIsLoading(false)
     }

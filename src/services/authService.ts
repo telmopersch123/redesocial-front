@@ -510,10 +510,7 @@ export const joinCommunity = async (communityId: number) => {
       credentials: 'include',
     }
   )
-  const data = await res.json().catch(() => null)
-  if (!res.ok) {
-    throw new Error(data?.error || 'Erro ao entrar na comunidade')
-  }
+
   return await res.json()
 }
 export const getUsersCommunitys = async (

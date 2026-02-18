@@ -52,6 +52,7 @@ const MessagePage = () => {
     setLoadingInitial,
     unreadByChat,
     markChatAsRead,
+    validatedExistingUser,
   } = useChat()
   const { user } = useAuth()
   const location = useLocation()
@@ -668,9 +669,29 @@ const MessagePage = () => {
                     </div>
                   )}
 
-                  {((loadingChatMessageInitial && chatMessages.length === 0) ||
+                  {((loadingChatMessageInitial &&
+                    chatMessages.length === 0 &&
+                    !validatedExistingUser) ||
                     loadingInitial) && <LoadingComponent />}
 
+                  {validatedExistingUser && (
+                    <div className="mx-auto my-4 w-[90%] duration-300 animate-in fade-in zoom-in">
+                      <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50/50 p-4 shadow-sm backdrop-blur-md dark:border-amber-900/30 dark:bg-amber-950/20">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40">
+                          <X className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                        </div>
+                        <div className="flex flex-col">
+                          <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                            Esta conversa não está mais ativa
+                          </p>
+                          <p className="text-xs text-amber-700/80 dark:text-amber-400/70">
+                            O usuário não faz mais parte da plataforma ou o
+                            vínculo foi encerrado.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   {!loadingChatMessageInitial &&
                   chatMessages.length === 0 &&
                   loadingInitial === false ? (
@@ -753,6 +774,12 @@ const MessagePage = () => {
                     ref={inputRef}
                     type="text"
                     value={inputText}
+                    disabled={
+                      loadingInitial ||
+                      loadingChatMessageInitial ||
+                      loadingChatMessage ||
+                      validatedExistingUser
+                    }
                     onChange={(e) => {
                       messageInput.handleChange(e)
                       handleTyping(e.target.value)
