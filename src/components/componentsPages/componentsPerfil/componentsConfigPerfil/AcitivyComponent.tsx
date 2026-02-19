@@ -10,6 +10,7 @@ import {
 import type { Post } from '../../../../types'
 import { LoadingComponent } from '../../../../utils/components/Loading'
 import { Button } from '../../../ui/button'
+import PaginationComponent from '../../componentsComunidade/PaginationComponent'
 
 interface TypeSaved {
   id: string
@@ -36,26 +37,20 @@ export const ActivityComponent = ({
   const [loadingSaved, setLoadingSaved] = useState(true)
   const [loadingLiked, setLoadingLiked] = useState(true)
   const [loadingCommented, setLoadingCommented] = useState(true)
-
   const [showError, setShowError] = useState(false)
+
+  // Estados de Paginação
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalItems, setTotalItems] = useState(0)
+  const itemsPerPage = 10
 
   const handleTabChange = (newTab: 'saved' | 'liked' | 'comment') => {
     setTab(newTab)
+    setCurrentPage(1)
 
-    if (newTab === 'saved') {
-      setLoadingSaved(true)
-      setSavedPosts([])
-    }
-
-    if (newTab === 'liked') {
-      setLoadingLiked(true)
-      setLikedPosts([])
-    }
-
-    if (newTab === 'comment') {
-      setLoadingCommented(true)
-      setCommentedPosts([])
-    }
+    if (newTab === 'saved') setLoadingSaved(true)
+    if (newTab === 'liked') setLoadingLiked(true)
+    if (newTab === 'comment') setLoadingCommented(true)
   }
 
   useEffect(() => {
@@ -63,26 +58,36 @@ export const ActivityComponent = ({
       try {
         setShowError(false)
 
+        if (tab === 'saved') setLoadingSaved(true)
+        if (tab === 'liked') setLoadingLiked(true)
+        if (tab === 'comment') setLoadingCommented(true)
+
         if (tab === 'saved') {
-          const response = await getSavedPosts()
-          setSavedPosts(response)
+          const response = await getSavedPosts(currentPage, itemsPerPage)
+          setSavedPosts(response.data)
+          setTotalItems(response.total)
+          console.log(response.data)
           setLoadingSaved(false)
         }
 
         if (tab === 'liked') {
-          const response = await getLikedPosts()
-          setLikedPosts(response)
+          const response = await getLikedPosts(currentPage, itemsPerPage)
+          setLikedPosts(response.data)
+          console.log(response.data)
+          setTotalItems(response.total)
           setLoadingLiked(false)
         }
 
         if (tab === 'comment') {
-          const response = await getMessagePosts()
-          setCommentedPosts(response)
+          const response = await getMessagePosts(currentPage, itemsPerPage)
+          setCommentedPosts(response.data)
+          console.log(response.data)
+          setTotalItems(response.total)
           setLoadingCommented(false)
         }
-      } catch {
+      } catch (err) {
+        console.error(err)
         setShowError(true)
-
         setLoadingSaved(false)
         setLoadingLiked(false)
         setLoadingCommented(false)
@@ -90,7 +95,7 @@ export const ActivityComponent = ({
     }
 
     fetchByTab()
-  }, [tab, openDialogPost])
+  }, [tab, openDialogPost, currentPage])
   return (
     <div className="flex w-full flex-col gap-6">
       <div className="flex w-full items-center justify-center gap-3 border-b border-zinc-200 pb-4 dark:border-zinc-800">
@@ -139,32 +144,44 @@ export const ActivityComponent = ({
           <span className="hidden sm:block">Comentários</span>
         </Button>
       </div>
+      <div className="min-h-[400px]">
+        {tab === 'saved' && (
+          <SavedPostList
+            setOpenDialogPost={setOpenDialogPost}
+            savedPosts={savedPosts}
+            showError={showError}
+            loading={loadingSaved}
+          />
+        )}
 
-      {tab === 'saved' && (
-        <SavedPostList
-          setOpenDialogPost={setOpenDialogPost}
-          savedPosts={savedPosts}
-          showError={showError}
-          loading={loadingSaved}
-        />
-      )}
+        {tab === 'liked' && (
+          <LikedPostList
+            setOpenDialogPost={setOpenDialogPost}
+            likedPosts={likedPosts}
+            showError={showError}
+            loading={loadingLiked}
+          />
+        )}
 
-      {tab === 'liked' && (
-        <LikedPostList
-          setOpenDialogPost={setOpenDialogPost}
-          likedPosts={likedPosts}
-          showError={showError}
-          loading={loadingLiked}
-        />
-      )}
+        {tab === 'comment' && (
+          <CommentedPostList
+            setOpenDialogPost={setOpenDialogPost}
+            commentedPosts={commentedPosts}
+            showError={showError}
+            loading={loadingCommented}
+          />
+        )}
+      </div>
 
-      {tab === 'comment' && (
-        <CommentedPostList
-          setOpenDialogPost={setOpenDialogPost}
-          commentedPosts={commentedPosts}
-          showError={showError}
-          loading={loadingCommented}
-        />
+      {totalItems > itemsPerPage && (
+        <div className="mt-8 border-t border-zinc-100 pt-6 dark:border-zinc-800">
+          <PaginationComponent
+            currentPage={currentPage}
+            itemsPerPage={itemsPerPage}
+            itemsSimulator={totalItems}
+            setCurrentPage={setCurrentPage}
+          />
+        </div>
       )}
     </div>
   )

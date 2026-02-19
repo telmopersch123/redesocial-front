@@ -30,14 +30,16 @@ const PaginationComponent = ({
   return (
     <Pagination>
       <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            onClick={() => handlePageChange(currentPage - 1)}
-            className="flex cursor-pointer items-center justify-center"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </PaginationPrevious>
-        </PaginationItem>
+        {currentPage > 1 && (
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => handlePageChange(currentPage - 1)}
+              className="flex cursor-pointer items-center justify-center"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </PaginationPrevious>
+          </PaginationItem>
+        )}
 
         {/* links de páginas */}
         {Array.from({ length: totalPages }).map((_, i) => {
@@ -66,15 +68,16 @@ const PaginationComponent = ({
             </PaginationItem>
           )
         })}
-
-        <PaginationItem>
-          <PaginationNext
-            onClick={() => handlePageChange(currentPage + 1)}
-            className="flex cursor-pointer items-center justify-center"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </PaginationNext>
-        </PaginationItem>
+        {currentPage < totalPages && (
+          <PaginationItem>
+            <PaginationNext
+              onClick={() => handlePageChange(currentPage + 1)}
+              className="flex cursor-pointer items-center justify-center"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </PaginationNext>
+          </PaginationItem>
+        )}
       </PaginationContent>
     </Pagination>
   )

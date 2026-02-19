@@ -299,9 +299,9 @@ export async function savedPost(postId: string) {
   const data = await res.json()
   return { ...data, ok: res.ok }
 }
-export async function getSavedPosts() {
+export async function getSavedPosts(currentPage: number, itemsPerPage: number) {
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/getSavedPosts`,
+    `${import.meta.env.VITE_API_URL}/auth/getSavedPosts/${currentPage}/${itemsPerPage}`,
     {
       method: 'GET',
       credentials: 'include',
@@ -314,9 +314,9 @@ export async function getSavedPosts() {
 
   return data
 }
-export async function getLikedPosts() {
+export async function getLikedPosts(currentPage: number, itemsPerPage: number) {
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/getLikedPosts`,
+    `${import.meta.env.VITE_API_URL}/auth/getLikedPosts/${currentPage}/${itemsPerPage}`,
     {
       method: 'GET',
       credentials: 'include',
@@ -329,9 +329,12 @@ export async function getLikedPosts() {
 
   return data
 }
-export async function getMessagePosts() {
+export async function getMessagePosts(
+  currentPage: number,
+  itemsPerPage: number
+) {
   const res = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/getMessagePosts`,
+    `${import.meta.env.VITE_API_URL}/auth/getMessagePosts/${currentPage}/${itemsPerPage}`,
     {
       method: 'GET',
       credentials: 'include',
