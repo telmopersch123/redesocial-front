@@ -447,19 +447,21 @@ const PerfilUsuario = () => {
           </div>
 
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-            <Button
-              onClick={() => window.history.back()}
-              variant="outline"
-              className="rounded-full border-zinc-300 px-8 font-bold hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
-            >
-              Voltar
-            </Button>
-
             <NavLink to="/">
-              <Button className="rounded-full bg-purple-600 px-8 font-bold text-white shadow-lg shadow-purple-500/20 hover:bg-purple-700">
-                Ir para o Início
+              <Button
+                variant="outline"
+                className="rounded-full border-zinc-300 px-8 font-bold hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800"
+              >
+                Voltar
               </Button>
             </NavLink>
+            {!id && (
+              <NavLink to="/auth">
+                <Button className="rounded-full bg-purple-600 px-8 font-bold text-white shadow-lg shadow-purple-500/20 hover:bg-purple-700">
+                  Fazer Login
+                </Button>
+              </NavLink>
+            )}
           </div>
         </motion.div>
       </motion.div>

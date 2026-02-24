@@ -398,6 +398,7 @@ const MessagePage = () => {
     async function fetchMessages() {
       // Se veio do sidebar com chatId
       if (location.state?.contact) {
+        console.log('ola 1')
         const contato = location.state.contact
         setClickContact(contato.chatId)
         setSelectedChat(contato.chatId)
@@ -415,9 +416,10 @@ const MessagePage = () => {
       }
 
       if (location.state?.chatId === false) {
+        console.log('ola 2')
         // Se não veio do sidebar, verificar chat existente
         const userData = await getUser(ChatIdOrUserId)
-        setUsersDate(userData)
+        setUsersDate(userData.user)
 
         const data = await getCheckUserChat(ChatIdOrUserId)
 
