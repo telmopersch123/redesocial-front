@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { AppLayout } from '../AppLayout'
 import RouterPost from '../components/componentsPages/PostsComponent.tsx/RouterPost'
@@ -12,7 +12,8 @@ import ConfigPerfilPage from '../pages/ConfigPerfilPage'
 import DiaryPage from '../pages/DiaryPage'
 import FeedPage from '../pages/FeedPage'
 import MessagePage from '../pages/MessagePage'
-import PerfilPage from '../pages/PerfilPage'
+import { default as MyPerfilPage } from '../pages/MyPerfilPage'
+import OtherUserPerfilPage from '../pages/OtherUserPerfilPage'
 import SelfCarePage from '../pages/SelfCarePage'
 import Users from '../pages/Users'
 
@@ -38,8 +39,10 @@ export default function AppRoutes() {
           </Route>
         </Route>
         <Route path="/perfil">
-          <Route index element={<PerfilPage />} />
+          <Route index element={<MyPerfilPage />} />
+          <Route path=":id" element={<OtherUserPerfilPage />} />
           <Route path="config" element={<ConfigPerfilPage />} />
+          <Route path="*" element={<Navigate to="/perfil" replace />} />
         </Route>
         ////
         <Route path="/post/:id" element={<RouterPost />} />
@@ -50,8 +53,7 @@ export default function AppRoutes() {
         <Route path="/usuarios">
           <Route index element={<Users />} />
           <Route path="perfil/:id">
-            <Route index element={<PerfilPage />} />
-            <Route path="config" element={<ConfigPerfilPage />} />
+            <Route index element={<OtherUserPerfilPage />} />
           </Route>
         </Route>
       </Route>

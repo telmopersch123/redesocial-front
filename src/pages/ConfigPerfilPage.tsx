@@ -8,7 +8,8 @@ import { ConfigDialog } from '../components/componentsPages/componentsPerfil/com
 import UserPerfilComponent from '../components/componentsPages/componentsPerfil/componentsConfigPerfil/UserPerfilComponent'
 import { ConfigPerfilSkeleton } from '../components/componentsPages/componentsPerfil/Skeleton'
 import { Button } from '../components/ui/button'
-import { useProfile } from '../context/ProfileContext'
+
+import { useMyProfile } from '../context/MyProfileContext'
 import type { AuthMeResponse } from '../types'
 import { avataresSimbolicos, coresFundos } from '../utils/components/UserAvatar'
 
@@ -28,11 +29,11 @@ const ConfigPerfilPage = () => {
     nomeUser,
     setFile: setGlobalFile,
     setSelectedAvatar: setGlobalAvatar,
-    loading,
-    profileUser,
-    setProfileUser,
+    isMyLoading: loading,
+    myProfile: profileUser,
+    setMyProfile: setProfileUser,
     setHasUnsavedChanges,
-  } = useProfile()
+  } = useMyProfile()
 
   // --- ESTADOS LOCAIS PARA EDIÇÃO ---
   const [localNome, setLocalNome] = useState('')

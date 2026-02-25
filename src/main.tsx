@@ -12,12 +12,14 @@ import { AuthProvider } from './context/getMe.tsx'
 import { OpenMentionsProvider } from './context/openMentions.tsx'
 
 import { ChatProvider } from './context/ChatContext.tsx'
+
+import { MyProfileProvider } from './context/MyProfileContext.tsx'
 import { NotificationProvider } from './context/NotificationProvider.tsx'
 import { PostsProvider } from './context/PostsContext.tsx'
-import { ProfileProvider } from './context/ProfileContext.tsx'
 import { RefreshPermissionProvider } from './context/RefreshPermissionContext.tsx'
 import { ResetPasswordProvider } from './context/ResetPasswordContext.tsx'
 import { VideoProvider } from './context/VideoContext.tsx'
+import { ViewedProfileProvider } from './context/ViewedProfileContext.tsx'
 import './index.css'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -26,27 +28,29 @@ createRoot(document.getElementById('root')!).render(
         <AuthProvider>
           <ChatProvider>
             <NotificationProvider>
-              <ProfileProvider>
-                <RefreshPermissionProvider>
-                  <PostsProvider>
-                    <VideoProvider>
-                      <ThemeProvider>
-                        <OpenMentionsProvider>
-                          <BreathingProvider>
-                            <ComunidadesProvider>
-                              <SidebarProvider>
-                                <CriarPostDialogProvider>
-                                  <App />
-                                </CriarPostDialogProvider>
-                              </SidebarProvider>
-                            </ComunidadesProvider>
-                          </BreathingProvider>
-                        </OpenMentionsProvider>
-                      </ThemeProvider>
-                    </VideoProvider>
-                  </PostsProvider>
-                </RefreshPermissionProvider>
-              </ProfileProvider>
+              <MyProfileProvider>
+                <ViewedProfileProvider>
+                  <RefreshPermissionProvider>
+                    <PostsProvider>
+                      <VideoProvider>
+                        <ThemeProvider>
+                          <OpenMentionsProvider>
+                            <BreathingProvider>
+                              <ComunidadesProvider>
+                                <SidebarProvider>
+                                  <CriarPostDialogProvider>
+                                    <App />
+                                  </CriarPostDialogProvider>
+                                </SidebarProvider>
+                              </ComunidadesProvider>
+                            </BreathingProvider>
+                          </OpenMentionsProvider>
+                        </ThemeProvider>
+                      </VideoProvider>
+                    </PostsProvider>
+                  </RefreshPermissionProvider>
+                </ViewedProfileProvider>
+              </MyProfileProvider>
             </NotificationProvider>
           </ChatProvider>
         </AuthProvider>

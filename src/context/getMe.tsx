@@ -19,13 +19,14 @@ interface AuthContextType {
   isAdmin: (communityId: number) => boolean
   canManage: (communityId: number) => boolean
   refreshUser: () => Promise<void>
+  isAuthLoading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate()
-
+  const [isAuthLoading, setIsAuthLoading] = useState(true)
   const isMember = (communityId: number) => {
     return !!user?.communities?.[communityId]
   }
@@ -53,6 +54,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   async function fetchUser() {
+    setIsAuthLoading(true)
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
         credentials: 'include',
@@ -65,6 +67,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(data.user)
     } catch {
       setUser(null)
+    } finally {
+      setIsAuthLoading(false)
     }
   }
   useEffect(() => {
@@ -82,6 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isModerator,
         canManage,
         refreshUser: fetchUser,
+        isAuthLoading,
       }}
     >
       {children}

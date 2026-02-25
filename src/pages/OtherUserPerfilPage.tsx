@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { debounce } from 'lodash'
 import Lottie from 'lottie-react'
-import { CircleCheck, Edit2, Loader2, UserPlus, UserX } from 'lucide-react'
+import { CircleCheck, Loader2, UserPlus, UserX } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { NavLink, useParams } from 'react-router-dom'
@@ -20,34 +20,30 @@ import { Button } from '../components/ui/button'
 import { Separator } from '../components/ui/separator'
 import { useAuth } from '../context/getMe'
 import { usePosts } from '../context/PostsContext'
-import { useProfile } from '../context/ProfileContext'
+import { useViewedProfile } from '../context/ViewedProfileContext'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
-import {
-  getPostsByPerfilUser,
-  getPostsByUser,
-  requestFriendship,
-} from '../services/authService'
+import { getPostsByUser, requestFriendship } from '../services/authService'
 import type { Post } from '../types'
 import { UserAvatar } from '../utils/components/UserAvatar'
 
-const PerfilUsuario = () => {
+const OtherUserPerfilPage = () => {
   const { user: authUser } = useAuth()
-  const { id } = useParams<{ id?: string }>()
+  const { id } = useParams<{ id: string }>()
   const {
-    bio,
-    profileUser,
-    loading,
-    setProfileUser,
-    nomeUser,
+    viewedBio: bio,
+    viewedProfile: profileUser,
+    isViewedLoading: loading,
+    setViewedProfile: setProfileUser,
+    viewedName: nomeUser,
     refreshProfile,
     isBlocked,
     setIsBlocked,
-  } = useProfile()
+  } = useViewedProfile()
+
   const [page, setPage] = useState(1)
   const loadingRef = useRef(false)
   const [openDialogunFriend, setOpenDialogunFriend] = useState(false)
-
-  const [loadedCount, setLoadedCount] = useState(100)
+  const [loadedCount, setLoadedCount] = useState(10)
   const [isLoadingSkeleton, setIsLoadingSkeleton] = useState(true)
   const [isLoadingFollow, setIsLoadingFollow] = useState(false)
   const [hasMore, setHasMore] = useState(true)
@@ -70,15 +66,11 @@ const PerfilUsuario = () => {
     isLoading: isLoadingSkeleton,
     onLoadMore: debouncedOnLoadMore,
   })
+
   useEffect(() => {
-    refreshProfile(Number(id) || undefined)
+    refreshProfile(Number(id))
   }, [id, refreshProfile])
-  const euUsuario = Boolean(
-    !id ||
-      (profileUser?.user.id !== undefined &&
-        authUser?.id !== undefined &&
-        Number(profileUser.user.id) === Number(authUser.id))
-  )
+
   const fetchPosts = async (
     pageNumber: number,
     isFirstLoad: boolean = false
@@ -91,15 +83,11 @@ const PerfilUsuario = () => {
     setIsLoadingSkeleton(true)
     try {
       let postsData: Post[] = []
-      if (euUsuario) {
-        postsData = await getPostsByPerfilUser(authUser?.id, pageNumber)
-      } else {
-        if (!profileUser || !profileUser.user.id) return
-        postsData = await getPostsByUser(
-          profileUser.user.id.toString(),
-          pageNumber
-        )
-      }
+      if (!profileUser || !profileUser.user.id) return
+      postsData = await getPostsByUser(
+        profileUser.user.id.toString(),
+        pageNumber
+      )
 
       if (postsData.length < 10) {
         setHasMore(false)
@@ -121,13 +109,14 @@ const PerfilUsuario = () => {
       setIsLoadingSkeleton(false)
     }
   }
+
   const RequestFollower = async (userBId: number) => {
     setIsLoadingFollow(true)
     try {
       const res = await requestFriendship(userBId)
       if (res) {
         toast.success('Solicitação enviada com sucesso!')
-        refreshProfile(Number(id) || undefined)
+        refreshProfile(Number(id))
       }
     } catch (err) {
       setIsLoadingFollow(false)
@@ -151,6 +140,7 @@ const PerfilUsuario = () => {
       })
     }
   }, [nomeUser])
+
   useEffect(() => {
     if (isBlocked) return
     setPosts([])
@@ -159,18 +149,18 @@ const PerfilUsuario = () => {
     setLoadedCount(10)
     setIsLoadingSkeleton(true)
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    if (!profileUser?.user?.id || isBlocked) return
+    if (page === 1 && posts.length > 0) return
     fetchPosts(page, true)
-  }, [authUser, euUsuario, profileUser, isBlocked])
+  }, [profileUser?.user?.id, isBlocked, loading])
+
   useEffect(() => {
     setPosts([])
     setHasMore(true)
     setPage(1)
     refreshProfile(Number(id))
-
+    setIsBlocked(false)
     window.scrollTo(0, 0)
-    return () => {
-      setIsBlocked(false)
-    }
   }, [id])
 
   if (loading) {
@@ -210,7 +200,7 @@ const PerfilUsuario = () => {
         >
           <div>
             <div className="flex flex-col gap-6 xl:flex-row xl:items-end">
-              {/* Avatar com hover de edição */}
+              {/* Avatar sem edição */}
               <div className="flex flex-col items-center">
                 <div className="group relative">
                   <UserAvatar
@@ -218,30 +208,12 @@ const PerfilUsuario = () => {
                     name={profileUser.user.name}
                     className="h-28 w-28 shadow-2xl ring-4 ring-white dark:ring-zinc-900 sm:h-32 sm:w-32"
                   />
-                  {euUsuario && (
-                    <NavLink to="config">
-                      <div className="absolute inset-0 flex cursor-pointer flex-col items-center justify-center rounded-full bg-black/50 opacity-0 backdrop-blur-sm transition-all group-hover:opacity-100">
-                        <Edit2 className="h-8 w-8 text-white" />
-                        <p className="text-white">Editar</p>
-                      </div>
-                    </NavLink>
-                  )}
                 </div>
 
-                {euUsuario ? (
-                  <div className="mt-2">
-                    <NavLink to="config">
-                      <Button className="cursor-pointer select-none rounded-lg bg-white text-sm font-medium text-zinc-700 shadow-md backdrop-blur-sm transition-all duration-700 hover:scale-[105%] hover:bg-white/80 hover:text-purple-600 hover:shadow-lg dark:bg-zinc-800 dark:text-zinc-200 dark:hover:text-purple-400">
-                        Configurações
-                      </Button>
-                    </NavLink>
-                  </div>
-                ) : (
-                  <BlockedConfirmDialog
-                    idUser={profileUser.user.id}
-                    username={profileUser.user.name_at}
-                  />
-                )}
+                <BlockedConfirmDialog
+                  idUser={profileUser.user.id}
+                  username={profileUser.user.name_at}
+                />
               </div>
 
               {/* Info do usuário */}
@@ -265,84 +237,82 @@ const PerfilUsuario = () => {
                 </div>
               </div>
 
-              {!euUsuario && (
-                <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
-                  <ReportDialog />
-                  {isLoadingFollow ? (
-                    <TooltipComponent
-                      description="Enviando solicitação de amizade"
-                      Tag={
-                        <span>
-                          <Button
-                            disabled
-                            className="group relative overflow-hidden rounded-full bg-purple-600 px-6 py-2 font-bold text-white opacity-90 transition-all duration-300 active:scale-95"
-                          >
+              <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
+                <ReportDialog />
+                {isLoadingFollow ? (
+                  <TooltipComponent
+                    description="Enviando solicitação de amizade"
+                    Tag={
+                      <span>
+                        <Button
+                          disabled
+                          className="group relative overflow-hidden rounded-full bg-purple-600 px-6 py-2 font-bold text-white opacity-90 transition-all duration-300 active:scale-95"
+                        >
+                          <div className="flex items-center gap-2">
+                            <UserPlus className="h-4 w-4" />
+                            <span>Enviando</span>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          </div>
+                        </Button>
+                      </span>
+                    }
+                  />
+                ) : (
+                  <span>
+                    <>
+                      {profileUser.friendship &&
+                        profileUser.friendship.IsSender &&
+                        profileUser.friendship.status === 'pending' && (
+                          <Button className="group relative overflow-hidden rounded-full border bg-transparent px-6 py-2 font-bold text-white transition-all duration-300 hover:bg-purple-600/10 active:scale-95">
                             <div className="flex items-center gap-2">
-                              <UserPlus className="h-4 w-4" />
-                              <span>Enviando</span>
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            </div>
-                          </Button>
-                        </span>
-                      }
-                    />
-                  ) : (
-                    <span>
-                      <>
-                        {profileUser.friendship &&
-                          profileUser.friendship.IsSender &&
-                          profileUser.friendship.status === 'pending' && (
-                            <Button className="group relative overflow-hidden rounded-full border bg-transparent px-6 py-2 font-bold text-white transition-all duration-300 hover:bg-purple-600/10 active:scale-95">
-                              <div className="flex items-center gap-2">
-                                <CircleCheck className="h-4 w-4 transition-transform group-hover:rotate-12" />
-                                <span>Solicitação Enviada</span>
-                              </div>
-                            </Button>
-                          )}
-
-                        {profileUser.friendship &&
-                          profileUser.friendship.IsSender &&
-                          profileUser.friendship.status === 'accepted' && (
-                            <UnFriendShipDialog
-                              open={openDialogunFriend}
-                              setOpen={setOpenDialogunFriend}
-                              username={profileUser.user.name_at}
-                              idUser={profileUser.user.id}
-                              refreshProfile={refreshProfile}
-                            />
-                          )}
-
-                        {!profileUser.friendship && (
-                          <Button
-                            onClick={() => RequestFollower(profileUser.user.id)}
-                            className="group relative overflow-hidden rounded-full bg-purple-600 px-6 py-2 font-bold text-white transition-all duration-300 hover:bg-purple-700 hover:shadow-[0_0_20px_rgba(147,51,234,0.4)] active:scale-95"
-                          >
-                            <div className="flex items-center gap-2">
-                              <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" />
-                              <span>Seguir</span>
+                              <CircleCheck className="h-4 w-4 transition-transform group-hover:rotate-12" />
+                              <span>Solicitação Enviada</span>
                             </div>
                           </Button>
                         )}
-                      </>
-                    </span>
-                  )}
 
-                  <NavLink
-                    state={{ chatId: false }}
-                    to={`/mensagens/${profileUser.user.id}`}
-                    onClick={() => {
-                      sessionStorage.setItem('__internal_nav', '1')
-                    }}
+                      {profileUser.friendship &&
+                        profileUser.friendship.IsSender &&
+                        profileUser.friendship.status === 'accepted' && (
+                          <UnFriendShipDialog
+                            open={openDialogunFriend}
+                            setOpen={setOpenDialogunFriend}
+                            username={profileUser.user.name_at}
+                            idUser={profileUser.user.id}
+                            refreshProfile={refreshProfile}
+                          />
+                        )}
+
+                      {!profileUser.friendship && (
+                        <Button
+                          onClick={() => RequestFollower(profileUser.user.id)}
+                          className="group relative overflow-hidden rounded-full bg-purple-600 px-6 py-2 font-bold text-white transition-all duration-300 hover:bg-purple-700 hover:shadow-[0_0_20px_rgba(147,51,234,0.4)] active:scale-95"
+                        >
+                          <div className="flex items-center gap-2">
+                            <UserPlus className="h-4 w-4 transition-transform group-hover:rotate-12" />
+                            <span>Seguir</span>
+                          </div>
+                        </Button>
+                      )}
+                    </>
+                  </span>
+                )}
+
+                <NavLink
+                  state={{ chatId: false }}
+                  to={`/mensagens/${profileUser.user.id}`}
+                  onClick={() => {
+                    sessionStorage.setItem('__internal_nav', '1')
+                  }}
+                >
+                  <Button
+                    variant="outline"
+                    className="rounded-full border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30"
                   >
-                    <Button
-                      variant="outline"
-                      className="rounded-full border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-700 dark:text-purple-400 dark:hover:bg-purple-900/30"
-                    >
-                      Mensagem
-                    </Button>
-                  </NavLink>
-                </div>
-              )}
+                    Mensagem
+                  </Button>
+                </NavLink>
+              </div>
             </div>
           </div>
         </motion.header>
@@ -455,13 +425,6 @@ const PerfilUsuario = () => {
                 Voltar
               </Button>
             </NavLink>
-            {!id && (
-              <NavLink to="/auth">
-                <Button className="rounded-full bg-purple-600 px-8 font-bold text-white shadow-lg shadow-purple-500/20 hover:bg-purple-700">
-                  Fazer Login
-                </Button>
-              </NavLink>
-            )}
           </div>
         </motion.div>
       </motion.div>
@@ -469,4 +432,4 @@ const PerfilUsuario = () => {
   )
 }
 
-export default PerfilUsuario
+export default OtherUserPerfilPage

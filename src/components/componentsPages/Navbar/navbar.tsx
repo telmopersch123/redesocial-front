@@ -30,7 +30,8 @@ import DialogHelp from './DialogHelp'
 import { useComunidades } from '../../../context/CommunityContext'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import { useAuth } from '../../../context/getMe'
-import { useProfile } from '../../../context/ProfileContext'
+
+import { useMyProfile } from '../../../context/MyProfileContext'
 import { normalizeURL } from '../../../pages/community/AreaCommunitiesUserPage'
 import { getMyCommunities } from '../../../services/authService'
 import type { CommunityInterface } from '../../../types'
@@ -56,7 +57,7 @@ export function AppSidebar() {
   const navigate = useNavigate()
   const { open, setPostCommunity, myCommunities, setMyCommunities } =
     useCriarPostDialog()
-  const { hasUnsavedChanges } = useProfile()
+  const { hasUnsavedChanges } = useMyProfile()
   const [active, setActive] = useState('Feed')
   const { setOpenMobile } = useSidebar()
   const { filtro, setFiltro } = useComunidades()

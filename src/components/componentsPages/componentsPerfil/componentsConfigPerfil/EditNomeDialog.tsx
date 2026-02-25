@@ -2,7 +2,8 @@ import { AlertCircle, Edit2, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../../../../context/getMe'
-import { useProfile } from '../../../../context/ProfileContext'
+
+import { useMyProfile } from '../../../../context/MyProfileContext'
 import { useLimitForms } from '../../../../hooks/useLimitForms'
 import { MessageForms } from '../../../formCustomer/MessageForms'
 import { Button } from '../../../ui/button'
@@ -17,7 +18,6 @@ import {
   DialogTrigger,
 } from '../../../ui/dialog'
 import { Input } from '../../../ui/input'
-// import { useProfile } from '../../../../context/ProfileContext'
 
 interface DialogEditNomeProps {
   open: boolean
@@ -38,7 +38,7 @@ const EditNomeDialog = ({
   const [tempNome, setTempNome] = useState(nomeUser || '')
   const [originalName, setOriginalName] = useState<string | null>(null)
 
-  const { setNomeUser } = useProfile()
+  const { setNomeUser } = useMyProfile()
   const { setUser, user } = useAuth()
 
   useEffect(() => {

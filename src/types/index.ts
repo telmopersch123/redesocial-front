@@ -92,18 +92,22 @@ export type UserType = {
   id: string
   name: string
   name_at: string
+  avatar: string
   email: string
   image?: string | null
   showOnlineStatus: boolean
   showViewStatus: boolean
   anonMode: boolean
   mentionPermissed: boolean
+  lastNameUpdate: string
+  informationUser: InformationUser[]
   notificationsEnabled: boolean
   confirmTwoSteps: {
     two_factor_enabled: boolean
   }
   communities: Record<number, string>
 }
+
 export type TypeFriend = {
   id: number
   name_at: string
