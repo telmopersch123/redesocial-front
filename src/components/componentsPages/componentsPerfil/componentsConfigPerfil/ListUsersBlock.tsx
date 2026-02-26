@@ -54,7 +54,7 @@ const ListUsersBlock = ({ open, setOpen }: ListUsersBlockProps) => {
     setIsLoading(true)
     try {
       const resUsersBlock = await getUsersBlocked(pageNumber)
-      console.log(resUsersBlock)
+
       if (resUsersBlock.length < 8) {
         setHasMoreFriend(false)
       }

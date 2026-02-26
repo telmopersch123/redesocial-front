@@ -67,7 +67,6 @@ const CommentItem = ({
     useMentionLogic()
   const estaRespondendo = respondendoA === comentario.id
   const idInput = 'comment-' + comentario.id
-  console.log(comentario)
 
   // responsavel por exibir todas as respostas
   const toggleReplies = (commentId: number) => {

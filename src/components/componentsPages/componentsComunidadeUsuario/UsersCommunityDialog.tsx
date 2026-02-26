@@ -595,12 +595,6 @@ const UsersCommunityDialog = ({
                 >
                   Fechar
                 </Button>
-                <Button
-                  className="bg-linear-purple text-white"
-                  onClick={() => alert('Salvar alterações (implementar)')}
-                >
-                  Salvar
-                </Button>
               </div>
             </div>
           </DialogFooter>

@@ -65,8 +65,6 @@ const CardsCommunityComponent = ({
       navigate(`/comunidades/comunidades-do-usuario/${urlName}`, {
         state: { communityId: valuesComunity.id },
       })
-    } else {
-      alert('clicando em participar da comunidade')
     }
   }
   return (

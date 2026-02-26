@@ -41,7 +41,7 @@ export const MyProfileProvider: React.FC<{ children: React.ReactNode }> = ({
   const { user: authUser, refreshUser: refreshAuth, isAuthLoading } = useAuth()
   const [myProfile, setMyProfile] = useState<UserType | null>(null)
   const [isMyLoading, setIsMyLoading] = useState(true)
-  console.log(authUser)
+
   // Estados de edição
   const [nomeUser, setNomeUser] = useState('')
   const [file, setFile] = useState<string | null>(null)
@@ -65,8 +65,6 @@ export const MyProfileProvider: React.FC<{ children: React.ReactNode }> = ({
       setIsMyLoading(false)
       return
     }
-
-    console.log('Sincronizando myProfile com authUser atualizado')
 
     let processed = { ...authUser }
     if (authUser.informationUser?.length > 0) {
@@ -101,7 +99,6 @@ export const MyProfileProvider: React.FC<{ children: React.ReactNode }> = ({
   }, [authUser, isAuthLoading])
 
   const refreshMyProfile = useCallback(async () => {
-    console.log('refreshMyProfile chamado - atualizando auth global')
     setIsMyLoading(true)
     try {
       await refreshAuth()

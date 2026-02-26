@@ -1,9 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CircleX, Fullscreen, ImageIcon, VideoIcon } from 'lucide-react'
+import {
+  CircleX,
+  Fullscreen,
+  ImageIcon,
+  Loader2,
+  VideoIcon,
+} from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 
+import toast from 'react-hot-toast'
 import { useAuth } from '../../../context/getMe'
 import { useRefreshPermission } from '../../../context/RefreshPermissionContext'
 import { useLimitForms } from '../../../hooks/useLimitForms'
@@ -40,6 +47,7 @@ import FullscreenDialog from './FullscreenDialog'
 export function PostDialog() {
   const { isOpen, close, postCommunity, myCommunities } = useCriarPostDialog()
   const { triggerRefresh } = useRefreshPermission()
+  const [isLoadingPost, setIsLoadingPost] = useState(false)
   const [uploadType, setUploadType] = useState<'image' | 'video' | null>(null)
   const [file, setFile] = useState<string | null>(null)
   const [isFullscreen, setIsFullscreen] = useState(false)
@@ -49,29 +57,41 @@ export function PostDialog() {
   const { user } = useAuth()
   const isGlobalAnon = user?.anonMode === true
 
-  const { value, error, handleChange, maxLength } = useLimitForms(5000)
+  const {
+    value: limitValue,
+    setValue: setLimitValue,
+    error,
+    handleChange,
+    maxLength,
+  } = useLimitForms(5000)
 
   const {
     control,
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors, isValid },
   } = useForm<PostDialogSchema>({
     resolver: zodResolver(postDialogSchema),
     mode: 'onChange',
     defaultValues: {
-      anonymous: isGlobalAnon,
+      feeling: '',
+      description: '',
       destination: {
         type: 'geral',
         communityId: null,
       },
+      media: null,
+      tags: [],
+      anonymous: isGlobalAnon,
     },
   })
   const fileInputRef = useRef<HTMLInputElement>(null)
   const destinationType = watch('destination.type')
 
   useEffect(() => {
+    console.log(postCommunity)
     if (postCommunity) {
       setValue('destination.type', 'comunidade', {
         shouldDirty: true,
@@ -157,6 +177,8 @@ export function PostDialog() {
     if (file) URL.revokeObjectURL(file)
     setFile(null)
     setUploadType(null)
+    setTypeError('')
+    setTagInput('')
     setIsFullscreen(false)
 
     setValue('tags', undefined, {
@@ -165,7 +187,45 @@ export function PostDialog() {
     })
 
     if (fileInputRef.current) fileInputRef.current.value = ''
+    close()
   }
+
+  useEffect(() => {
+    if (isOpen) {
+      const defaultDestinationType = postCommunity ? 'comunidade' : 'geral'
+      reset(
+        {
+          feeling: '',
+          description: '',
+          destination: {
+            type: defaultDestinationType,
+            communityId: null,
+          },
+          media: null,
+          tags: [],
+          anonymous: isGlobalAnon,
+        },
+        {
+          keepDefaultValues: false,
+          keepErrors: false,
+          keepDirty: false,
+          keepIsSubmitted: false,
+          keepTouched: false,
+          keepIsValid: false,
+          keepSubmitCount: false,
+        }
+      )
+      setLimitValue('')
+
+      setTags([])
+      setFile(null)
+      setUploadType(null)
+      setTypeError('')
+      setTagInput('')
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      setIsFullscreen(false)
+    }
+  }, [isOpen, reset, isGlobalAnon, setValue])
 
   useEffect(() => {
     if (destinationType === 'geral') {
@@ -177,6 +237,7 @@ export function PostDialog() {
   }, [destinationType, setValue])
 
   const onSubmit = async (data: PostDialogSchema) => {
+    setIsLoadingPost(true)
     try {
       let mediaUrl = null
       let mediaType: 'image' | 'video' | null = null
@@ -205,13 +266,14 @@ export function PostDialog() {
         anonymous: isGlobalAnon ? true : data.anonymous,
         media: mediaUrl ? { url: mediaUrl, type: mediaType! } : null,
       })
-
-      triggerRefresh()
       handleCloseDialog()
       setTags([])
-      close()
+      triggerRefresh()
+      toast.success('Post criado com sucesso')
     } catch (err) {
       console.log(err)
+    } finally {
+      setIsLoadingPost(false)
     }
   }
   return (
@@ -260,6 +322,7 @@ export function PostDialog() {
                       <Select
                         value={field.value}
                         onValueChange={(v) => field.onChange(v)}
+                        disabled={isLoadingPost}
                       >
                         <SelectTrigger
                           id="sentimento"
@@ -304,13 +367,14 @@ export function PostDialog() {
                     render={({ field }) => (
                       <Textarea
                         {...field}
-                        value={value}
+                        value={field.value}
                         onChange={(e) => {
                           handleChange(e)
                           setValue('description', e.target.value, {
                             shouldValidate: true,
                           })
                         }}
+                        disabled={isLoadingPost}
                         placeholder="Escreva seus pensamentos, sentimentos ou o que quiser compartilhar..."
                         className="min-h-[120px] resize-none rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-900 shadow-sm transition-all hover:border-[#a5c9ff]/40 focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#242424] dark:text-zinc-100"
                       />
@@ -324,7 +388,7 @@ export function PostDialog() {
                   )}
                   <MessageForms
                     error={error}
-                    valueLength={value.length}
+                    valueLength={limitValue.length}
                     maxLength={maxLength}
                   />
                 </div>
@@ -341,6 +405,7 @@ export function PostDialog() {
                         {...field}
                         value={field.value}
                         onValueChange={field.onChange}
+                        disabled={isLoadingPost}
                       >
                         <SelectTrigger className="rounded-lg border border-gray-300 bg-white shadow-sm focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-zinc-100">
                           <SelectValue placeholder="Escolha o destino do post" />
@@ -369,6 +434,7 @@ export function PostDialog() {
                           <Select
                             value={field.value?.toString()}
                             onValueChange={(v) => field.onChange(Number(v))}
+                            disabled={isLoadingPost}
                           >
                             <SelectTrigger className="rounded-lg border border-gray-300 bg-white shadow-sm focus:border-[#a5c9ff] focus:ring-1 focus:ring-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-zinc-100">
                               <SelectValue placeholder="Selecione uma comunidade" />
@@ -400,6 +466,7 @@ export function PostDialog() {
                       <Button
                         type="button"
                         onClick={() => handleSelectType('image')}
+                        disabled={isLoadingPost}
                         variant="outline"
                         className={`flex items-center gap-2 rounded-lg border-gray-300 px-4 py-2 text-sm font-medium shadow-sm transition-all hover:border-[#a5c9ff] hover:text-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-zinc-100 ${
                           uploadType === 'image'
@@ -414,6 +481,7 @@ export function PostDialog() {
                       <Button
                         type="button"
                         onClick={() => handleSelectType('video')}
+                        disabled={isLoadingPost}
                         variant="outline"
                         className={`flex items-center gap-2 rounded-lg border-gray-300 px-4 py-2 text-sm font-medium shadow-sm transition-all hover:border-[#a5c9ff] hover:text-[#a5c9ff] dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-zinc-100 ${
                           uploadType === 'video'
@@ -437,6 +505,7 @@ export function PostDialog() {
                           <Button
                             type="button"
                             onClick={() => setIsFullscreen(true)}
+                            disabled={isLoadingPost}
                             variant="ghost"
                             size="icon"
                             className="bg-linear-purple absolute left-2 top-2 rounded-full p-2 shadow-md backdrop-blur-sm hover:scale-105"
@@ -457,6 +526,7 @@ export function PostDialog() {
                       <Button
                         type="button"
                         onClick={removeFile}
+                        disabled={isLoadingPost}
                         variant="ghost"
                         size="icon"
                         className="bg-linear-purple absolute right-2 top-2 rounded-full p-2 shadow-md backdrop-blur-sm hover:scale-105"
@@ -492,6 +562,7 @@ export function PostDialog() {
                     id="tags"
                     type="text"
                     value={tagInput}
+                    disabled={isLoadingPost}
                     onChange={(e) => {
                       const value = e.target.value
                       if (value === '') {
@@ -513,6 +584,7 @@ export function PostDialog() {
                         #{tag}
                         <button
                           type="button"
+                          disabled={isLoadingPost}
                           onClick={() => handleRemoveTag(tag)}
                           className="ml-1 text-white hover:text-gray-200"
                         >
@@ -542,7 +614,7 @@ export function PostDialog() {
                       <Switch
                         id="anonimo"
                         checked={isGlobalAnon ? true : field.value}
-                        disabled={isGlobalAnon}
+                        disabled={isGlobalAnon || isLoadingPost}
                         onCheckedChange={(checked) => {
                           if (!isGlobalAnon) field.onChange(checked)
                         }}
@@ -556,6 +628,7 @@ export function PostDialog() {
               <DialogFooter className="mt-6 flex gap-3 sm:justify-end">
                 <DialogClose asChild>
                   <Button
+                    disabled={isLoadingPost}
                     variant="outline"
                     className="rounded-lg border-gray-300 bg-white px-5 py-2 font-medium text-gray-700 shadow-sm transition-all hover:bg-gray-100 dark:border-[#3a3a3a] dark:bg-[#2a2a2a] dark:text-zinc-100 dark:hover:bg-[#3a3a3a]"
                   >
@@ -564,10 +637,13 @@ export function PostDialog() {
                 </DialogClose>
                 <Button
                   type="submit"
-                  disabled={!isValid || !!error}
+                  disabled={!isValid || !!error || isLoadingPost}
                   className="bg-linear-purple rounded-lg px-5 py-2 font-semibold text-white shadow-md transition-all hover:opacity-90"
                 >
                   Publicar
+                  {isLoadingPost && (
+                    <Loader2 className="ml-2 h-4 w-4 animate-spin text-white" />
+                  )}
                 </Button>
               </DialogFooter>
             </div>

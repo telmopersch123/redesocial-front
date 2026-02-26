@@ -140,7 +140,7 @@ export function FriendsDialog({
         >
           {amigosFiltrados.map((amigo: TypeFriend, index: number) => {
             const isLoaded = index < loadedCount
-            console.log(amigo)
+
             if (!amigo) return
             return (
               <div key={amigo.id + '-' + index}>

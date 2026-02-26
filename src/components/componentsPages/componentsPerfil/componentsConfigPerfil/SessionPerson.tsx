@@ -298,7 +298,6 @@ const SessionPerson = ({
             <Switch
               checked={showViewStatus}
               onCheckedChange={async (checked) => {
-                console.log(checked)
                 setShowViewStatus(checked)
                 const res = await fetch(
                   `${import.meta.env.VITE_API_URL}/auth/me/statusUser`,

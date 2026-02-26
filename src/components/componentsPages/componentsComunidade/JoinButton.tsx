@@ -25,13 +25,9 @@ export const JoinButton = ({
   const handleAction = async () => {
     setIsLoading(true)
     try {
-      const res = await joinCommunity(communityId)
-      if (res.ok) {
-        toast.success(`Bem-vindo à comunidade! ${nameComunity}`)
-        onRefresh()
-      } else {
-        toast.error(res.error)
-      }
+      await joinCommunity(communityId)
+      toast.success(`Bem-vindo à comunidade! ${nameComunity}`)
+      onRefresh()
     } catch (error: any) {
       toast.error(error)
     } finally {

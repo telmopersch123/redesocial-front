@@ -66,14 +66,14 @@ export const ActivityComponent = ({
           const response = await getSavedPosts(currentPage, itemsPerPage)
           setSavedPosts(response.data)
           setTotalItems(response.total)
-          console.log(response.data)
+
           setLoadingSaved(false)
         }
 
         if (tab === 'liked') {
           const response = await getLikedPosts(currentPage, itemsPerPage)
           setLikedPosts(response.data)
-          console.log(response.data)
+
           setTotalItems(response.total)
           setLoadingLiked(false)
         }
@@ -81,7 +81,7 @@ export const ActivityComponent = ({
         if (tab === 'comment') {
           const response = await getMessagePosts(currentPage, itemsPerPage)
           setCommentedPosts(response.data)
-          console.log(response.data)
+
           setTotalItems(response.total)
           setLoadingCommented(false)
         }
