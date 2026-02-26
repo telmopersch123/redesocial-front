@@ -5,6 +5,7 @@ interface ListMarcationProps {
   setNovoComentario: React.Dispatch<React.SetStateAction<string>>
   sugestoes: { id: number; name_at: string; avatar: string }[]
   onUserClick: (user: { id: number; name_at: string; avatar: string }) => void
+  inputRef: React.RefObject<HTMLInputElement | null>
 }
 
 const ListMarcation = ({
@@ -12,6 +13,7 @@ const ListMarcation = ({
   setNovoComentario,
   sugestoes,
   onUserClick,
+  inputRef,
 }: ListMarcationProps) => {
   return (
     <Popover open={true}>
@@ -22,6 +24,7 @@ const ListMarcation = ({
         />
       </PopoverTrigger>
       <PopoverContent
+        onOpenAutoFocus={(e) => e.preventDefault()}
         forceMount
         side="top"
         align="start"
@@ -32,15 +35,32 @@ const ListMarcation = ({
           {sugestoes.map((user) => (
             <button
               key={user.id}
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
-                setClickedMention(false)
+                if (!inputRef.current) return
+                const input = inputRef.current
+                const cursorPosition = input.selectionStart ?? 0
+                const text = input.value
+                const textBeforeCursor = text.slice(0, cursorPosition)
+                const textAfterCursor = text.slice(cursorPosition)
+                const newTextBefore = textBeforeCursor.replace(
+                  /@[\w._-]*$/,
+                  `@${user.name_at} `
+                )
+                const novo = newTextBefore + textAfterCursor
                 onUserClick(user)
-                setNovoComentario((prev) => {
-                  // const partes = prev.split(/\s+/)
-                  // partes[partes.length - 1] = `@${user.name_at}`
-                  // return partes.join(' ') + ' '
-                  return prev.replace(/@[\w._-]*$/, `@${user.name_at} `)
-                })
+                setNovoComentario(novo)
+                setClickedMention(false)
+                setTimeout(() => {
+                  if (inputRef.current) {
+                    inputRef.current.focus()
+                    const newCursorPosition = newTextBefore.length
+                    inputRef.current.setSelectionRange(
+                      newCursorPosition,
+                      newCursorPosition
+                    )
+                  }
+                }, 0)
               }}
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all hover:bg-zinc-100 focus:bg-zinc-100 focus:outline-none dark:hover:bg-zinc-800 dark:focus:bg-zinc-800"
             >

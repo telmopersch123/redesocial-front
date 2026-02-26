@@ -57,7 +57,7 @@ const CommentItem = ({
 }: ComentarioItemProps) => {
   const [clickedMention, setClickedMention] = useState(false)
   const { user: authUser } = useAuth()
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
   const comentarios = useLimitForms(5000)
   const [usuariosSelecionados, setUsuariosSelecionados] = useState<
     { id: number; name_at: string }[]
@@ -288,6 +288,7 @@ const CommentItem = ({
                           return [...prev, user]
                         })
                       }}
+                      inputRef={inputRef}
                     />
                   </div>
                 )}

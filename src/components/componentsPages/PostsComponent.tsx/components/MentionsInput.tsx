@@ -22,7 +22,7 @@ export const MentionInput = forwardRef<HTMLInputElement, MentionInputProps>(
       <div className="relative w-full">
         <div
           ref={maskRef}
-          className="pointer-events-none absolute inset-0 overflow-hidden whitespace-pre-wrap rounded-full bg-transparent p-2 text-sm"
+          className="pointer-events-none absolute inset-0 overflow-hidden whitespace-nowrap rounded-full bg-transparent p-2 text-sm"
           dangerouslySetInnerHTML={{
             __html: formatMentions(value, usuariosSelecionados),
           }}
@@ -32,15 +32,7 @@ export const MentionInput = forwardRef<HTMLInputElement, MentionInputProps>(
           ref={ref}
           value={value}
           onScroll={handleScroll}
-          onChange={(e) => {
-            onChange(e)
-            setTimeout(() => {
-              if (maskRef.current) {
-                maskRef.current.scrollLeft = e.target.scrollWidth
-              }
-              e.target.scrollLeft = e.target.scrollWidth
-            })
-          }}
+          onChange={onChange}
           onFocus={onFocus}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {

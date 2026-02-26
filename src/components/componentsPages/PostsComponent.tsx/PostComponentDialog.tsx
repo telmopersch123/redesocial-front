@@ -81,7 +81,7 @@ const PostComponentDialog = ({
   const { videoState, setVideoState } = useContext(VideoContext)
   const { id } = useParams()
   const { setSelectedPost } = usePosts()
-
+  const inputRef = useRef<HTMLInputElement | null>(null)
   const adicionarComentario = async (postId: number) => {
     if (!novoComentario.trim()) return
 
@@ -461,6 +461,7 @@ const PostComponentDialog = ({
                                 return [...prev, user]
                               })
                             }}
+                            inputRef={inputRef}
                           />
                         </div>
                       )}
@@ -479,6 +480,7 @@ const PostComponentDialog = ({
                       }}
                       error={comentarios.error}
                       usuariosSelecionados={usuariosSelecionados}
+                      ref={inputRef}
                     />
 
                     <Button
