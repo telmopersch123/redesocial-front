@@ -10,7 +10,7 @@ import { ConfigPerfilSkeleton } from '../components/componentsPages/componentsPe
 import { Button } from '../components/ui/button'
 
 import { useMyProfile } from '../context/MyProfileContext'
-import type { AuthMeResponse } from '../types'
+import type { UserType } from '../types'
 import { avataresSimbolicos, coresFundos } from '../utils/components/UserAvatar'
 
 interface UserTypeValid {
@@ -62,7 +62,7 @@ const ConfigPerfilPage = () => {
     setIsSaving(true)
 
     try {
-      let finalAvatarValue = profileUser?.user.avatar
+      let finalAvatarValue = profileUser?.avatar
       if (rawFile) {
         const formData = new FormData()
         formData.append('file', rawFile)
@@ -110,22 +110,19 @@ const ConfigPerfilPage = () => {
         setGlobalFile(novoAvatarUrl)
         setGlobalAvatar(localSelectedAvatar)
 
-        const updatedUser: AuthMeResponse = {
+        const updatedUser: UserType = {
           ...profileUser!,
-          user: {
-            ...profileUser!.user,
-            name_at: localNome,
-            avatar: novoAvatarUrl ?? profileUser!.user.avatar,
-            informationUser: [
-              {
-                ...profileUser!.user.informationUser[0],
-                bio: localBio,
-                feeling: localSentimento,
-                emoji: '🌱',
-                selfCareMethods: localMetodos,
-              },
-            ],
-          },
+          name_at: localNome,
+          avatar: novoAvatarUrl ?? profileUser!.avatar,
+          informationUser: [
+            {
+              ...profileUser!.informationUser[0],
+              bio: localBio,
+              feeling: localSentimento,
+              emoji: '🌱',
+              selfCareMethods: localMetodos,
+            },
+          ],
         }
         setProfileUser(updatedUser)
 
@@ -229,17 +226,16 @@ const ConfigPerfilPage = () => {
   useEffect(() => {
     if (!loading && initialData === null && profileUser) {
       const data = {
-        nomeUser: profileUser.user.name_at || '',
-        selectedAvatar: profileUser.user.avatar?.startsWith('SYMBOLIC_')
-          ? parseInt(profileUser.user.avatar.split('_')[1])
+        nomeUser: profileUser.name_at || '',
+        selectedAvatar: profileUser.avatar?.startsWith('SYMBOLIC_')
+          ? parseInt(profileUser.avatar.split('_')[1])
           : null,
-        file: profileUser.user.avatar || null,
-        sentimento:
-          profileUser.user.informationUser[0]?.feeling || 'esperancoso',
+        file: profileUser.avatar || null,
+        sentimento: profileUser.informationUser[0]?.feeling || 'esperancoso',
         metodos: JSON.stringify(
-          profileUser.user.informationUser[0]?.selfCareMethods || []
+          profileUser.informationUser[0]?.selfCareMethods || []
         ),
-        bio: profileUser.user.informationUser[0]?.bio || '',
+        bio: profileUser.informationUser[0]?.bio || '',
       }
 
       setInitialData(data)

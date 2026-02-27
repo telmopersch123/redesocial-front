@@ -8,10 +8,22 @@ interface MentionInputProps {
   onEnter?: () => void
   error?: string | undefined
   usuariosSelecionados: { id: number; name_at: string }[]
+  disabled?: boolean
 }
 
 export const MentionInput = forwardRef<HTMLInputElement, MentionInputProps>(
-  ({ value, onChange, onFocus, onEnter, error, usuariosSelecionados }, ref) => {
+  (
+    {
+      value,
+      onChange,
+      disabled,
+      onFocus,
+      onEnter,
+      error,
+      usuariosSelecionados,
+    },
+    ref
+  ) => {
     const maskRef = useRef<HTMLDivElement>(null)
     const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
       if (maskRef.current) {
@@ -34,6 +46,7 @@ export const MentionInput = forwardRef<HTMLInputElement, MentionInputProps>(
           onScroll={handleScroll}
           onChange={onChange}
           onFocus={onFocus}
+          disabled={disabled}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()

@@ -163,6 +163,8 @@ const OtherUserPerfilPage = () => {
     window.scrollTo(0, 0)
   }, [id])
 
+  console.log(isLoadingSkeleton, posts.length)
+
   if (loading) {
     return (
       <div className="mt-10">
@@ -322,7 +324,7 @@ const OtherUserPerfilPage = () => {
         {/* Feed de Posts */}
         <main>
           <div className="flex w-auto flex-col space-y-24 tm:w-[1000px] max:w-[1500px]">
-            {posts.length > 0 ? (
+            {posts.length > 0 && !loading ? (
               <>
                 {posts.map((post, index) => {
                   const isLoaded = index < loadedCount
@@ -361,11 +363,13 @@ const OtherUserPerfilPage = () => {
                 )}
               </>
             ) : (
-              <>
-                <PostCardSkeleton />
-                <PostCardSkeleton />
-                <PostCardSkeleton />
-              </>
+              isLoadingSkeleton && (
+                <>
+                  <PostCardSkeleton />
+                  <PostCardSkeleton />
+                  <PostCardSkeleton />
+                </>
+              )
             )}
 
             {posts.length === 0 && !isLoadingSkeleton && (

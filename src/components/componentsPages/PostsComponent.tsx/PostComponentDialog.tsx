@@ -1,4 +1,4 @@
-import { MessageCircle, Play, Send, X } from 'lucide-react'
+import { Loader2, MessageCircle, Play, Send, X } from 'lucide-react'
 import { useContext, useRef, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 
@@ -71,6 +71,9 @@ const PostComponentDialog = ({
   >([])
   const { openActionPosts, setOpenActionPosts } = useCriarPostDialog()
   const [clickedMention, setClickedMention] = useState(false)
+  const [isLoadingComment, setIsLoadingComment] = useState(false)
+  const [sendingLoadingCommentId, setSendingLoadingCommentId] =
+    useState<number>(0)
   const idInput = 'comment-' + postAtualizado.id
   const openMarcation = useState(false)
   const comentarios = useLimitForms(5000)
@@ -84,7 +87,7 @@ const PostComponentDialog = ({
   const inputRef = useRef<HTMLInputElement | null>(null)
   const adicionarComentario = async (postId: number) => {
     if (!novoComentario.trim()) return
-
+    setIsLoadingComment(true)
     const mentionedUserIds = usuariosSelecionados
       .filter((u) => novoComentario.includes(`@${u.name_at}`))
       .map((u) => u.id)
@@ -129,6 +132,8 @@ const PostComponentDialog = ({
     } catch (err) {
       console.log(err)
       toast.error('Erro de conexão.')
+    } finally {
+      setIsLoadingComment(false)
     }
   }
 
@@ -137,12 +142,13 @@ const PostComponentDialog = ({
     respondendoPara?: string
   ) => {
     if (!textoResposta.trim()) return
-
+    setIsLoadingComment(true)
     const mentionedUserIds = usuariosSelecionados
       .filter((u) => novoComentario.includes(`@${u.name_at}`))
       .map((u) => u.id)
 
     try {
+      setSendingLoadingCommentId(comentarioId)
       const response = await createComment(
         postAtualizado.id,
         textoResposta,
@@ -180,6 +186,9 @@ const PostComponentDialog = ({
     } catch (err: any) {
       console.error(err)
       toast.error(err.message, { icon: '🚫' })
+    } finally {
+      setIsLoadingComment(false)
+      setSendingLoadingCommentId(0)
     }
   }
 
@@ -412,6 +421,7 @@ const PostComponentDialog = ({
                         openReplies={openReplies}
                         scrollRef={scrollRef}
                         setPosts={setPosts}
+                        disabled={sendingLoadingCommentId}
                       />
                     ))
                   ) : (
@@ -478,6 +488,7 @@ const PostComponentDialog = ({
                         setActiveInputId(null)
                         adicionarComentario(postAtualizado.id)
                       }}
+                      disabled={isLoadingComment}
                       error={comentarios.error}
                       usuariosSelecionados={usuariosSelecionados}
                       ref={inputRef}
@@ -490,10 +501,18 @@ const PostComponentDialog = ({
                         adicionarComentario(postAtualizado.id)
                         setClickedMention(false)
                       }}
-                      disabled={!novoComentario.trim() || !!comentarios.error}
+                      disabled={
+                        !novoComentario.trim() ||
+                        !!comentarios.error ||
+                        isLoadingComment
+                      }
                       className="rounded-full bg-gradient-to-br from-purple-500 to-indigo-500 text-white hover:shadow-md disabled:opacity-50"
                     >
-                      <Send className="h-4 w-4" />
+                      {isLoadingComment ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
                     </Button>
                   </form>
 

@@ -58,7 +58,7 @@ export const ViewedProfileProvider: React.FC<{ children: React.ReactNode }> = ({
       let processed = { ...data }
       if (data.user?.informationUser?.length > 0) {
         const info = data.user.informationUser[0]
-        setViewedName(info.user.name_at)
+        setViewedName(data.user.name_at)
         const feelingSearch = sentimentos.find((s) => s.value === info.feeling)
         processed = {
           ...data,

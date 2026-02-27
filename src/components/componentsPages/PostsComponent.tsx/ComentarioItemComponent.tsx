@@ -2,6 +2,7 @@ import {
   CornerDownRight,
   Eye,
   EyeOff,
+  Loader2,
   MessageCircleX,
   Send,
 } from 'lucide-react'
@@ -23,6 +24,7 @@ import { Button } from '../../ui/button'
 import { useAuth } from '../../../context/getMe'
 import type { ExtendedPost } from '../../../pages/community/PostsArchived'
 import { deleteComment } from '../../../services/authService'
+import { LoadingComponent } from '../../../utils/components/Loading'
 import ListMarcation from './ListMarcation'
 import { MentionInput } from './components/MentionsInput'
 
@@ -40,6 +42,7 @@ interface ComentarioItemProps {
   >
   scrollRef: RefObject<HTMLDivElement | null>
   setPosts: React.Dispatch<React.SetStateAction<ExtendedPost[]>>
+  disabled: number
 }
 
 const CommentItem = ({
@@ -54,7 +57,9 @@ const CommentItem = ({
   setOpenReplies,
   scrollRef,
   setPosts,
+  disabled,
 }: ComentarioItemProps) => {
+  const isLoadingComment = disabled === comentario.id
   const [clickedMention, setClickedMention] = useState(false)
   const { user: authUser } = useAuth()
   const inputRef = useRef<HTMLInputElement | null>(null)
@@ -164,7 +169,7 @@ const CommentItem = ({
 
   return (
     <div
-      className={` ${
+      className={` ${isLoadingComment && 'pointer-events-none animate-pulse opacity-50'} ${
         nivel === 1
           ? `border-l-4 border-purple-200 pl-4 dark:border-purple-900/50 sm:pl-6`
           : ''
@@ -174,6 +179,13 @@ const CommentItem = ({
         <div className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
           <div className="flex w-full items-start justify-between gap-2">
             <div className="flex items-center gap-3">
+              {isLoadingComment && (
+                <div className="absolute left-0 top-0 z-10 h-full w-full">
+                  <div className="flex h-full w-full items-center justify-center">
+                    <LoadingComponent />
+                  </div>
+                </div>
+              )}
               <div
                 className="h-9 w-9 flex-shrink-0 rounded-full bg-gradient-to-br from-purple-500 to-violet-700 shadow-md"
                 aria-hidden
@@ -311,6 +323,7 @@ const CommentItem = ({
                     [comentario.id]: true,
                   }))
                 }}
+                disabled={isLoadingComment}
                 error={comentarios.error}
                 aria-label={`Resposta para ${comentario.user.name_at}`}
               />
@@ -328,10 +341,18 @@ const CommentItem = ({
                     [comentario.id]: true,
                   }))
                 }}
-                disabled={!textoResposta.trim() || !!comentarios.error}
+                disabled={
+                  !textoResposta.trim() ||
+                  !!comentarios.error ||
+                  isLoadingComment
+                }
                 aria-label="Enviar resposta"
               >
-                <Send className="h-4 w-4" />
+                {disabled ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
               </Button>
 
               <Button
@@ -364,6 +385,7 @@ const CommentItem = ({
                 openReplies={openReplies}
                 scrollRef={scrollRef}
                 setPosts={setPosts}
+                disabled={disabled}
               />
             ))}
           </div>

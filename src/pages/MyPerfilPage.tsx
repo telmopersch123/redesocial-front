@@ -199,7 +199,7 @@ const MyPerfilPage = () => {
         {/* Feed de Posts */}
         <main>
           <div className="flex w-auto flex-col space-y-24 tm:w-[1000px] max:w-[1500px]">
-            {posts.length > 0 ? (
+            {posts.length > 0 && !loading ? (
               <>
                 {posts.map((post, index) => {
                   const isLoaded = index < loadedCount
@@ -238,11 +238,13 @@ const MyPerfilPage = () => {
                 )}
               </>
             ) : (
-              <>
-                <PostCardSkeleton />
-                <PostCardSkeleton />
-                <PostCardSkeleton />
-              </>
+              isLoadingSkeleton && (
+                <>
+                  <PostCardSkeleton />
+                  <PostCardSkeleton />
+                  <PostCardSkeleton />
+                </>
+              )
             )}
 
             {posts.length === 0 && !isLoadingSkeleton && (
