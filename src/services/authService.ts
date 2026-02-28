@@ -98,8 +98,6 @@ export async function loginUser(
       }),
     })
 
-    if (!res.ok) throw new Error('Credenciais inválidas')
-
     const data = await res.json()
     return data
   } catch (err) {

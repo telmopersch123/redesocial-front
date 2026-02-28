@@ -42,7 +42,7 @@ const LoginComponent = ({
     rememberMe: boolean
     email: string
   } | null>(null)
-  const [otpCode, setOtpCode] = useState('')
+
   const [showPassword, setShowPassword] = useState(false)
 
   const {
@@ -79,7 +79,7 @@ const LoginComponent = ({
           setUser(response.user)
           window.location.href = '/'
         } else {
-          toast.error('Email ou senha incorretos')
+          toast.error(response.message)
         }
       } catch (error) {
         console.log(error)

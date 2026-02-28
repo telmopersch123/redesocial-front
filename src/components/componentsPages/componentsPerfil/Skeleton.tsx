@@ -1,5 +1,6 @@
 import { Card } from '../../ui/card'
 import { Separator } from '../../ui/separator'
+import { SidebarFooter } from '../../ui/sidebar'
 import { Skeleton } from '../../ui/skeleton'
 
 export const PostCardSkeleton = ({ value }: { value?: number }) => {
@@ -187,5 +188,21 @@ export const ConfigPerfilSkeleton = () => {
         <Skeleton className="mt-6 h-[80px] w-full rounded-xl shadow-xl" />
       </div>
     </div>
+  )
+}
+
+export function ProfileSkeleton() {
+  return (
+    <SidebarFooter className="border-t border-zinc-200 p-4 dark:border-zinc-800">
+      <div className="flex animate-pulse items-center gap-3 rounded-xl p-3">
+        <div className="h-10 w-10 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+
+        <div className="flex flex-col gap-2">
+          <div className="h-4 w-20 rounded bg-zinc-200 dark:bg-zinc-800" />
+
+          <div className="h-3 w-28 rounded bg-zinc-200 dark:bg-zinc-800" />
+        </div>
+      </div>
+    </SidebarFooter>
   )
 }

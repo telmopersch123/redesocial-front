@@ -37,6 +37,7 @@ import { getMyCommunities } from '../../../services/authService'
 import type { CommunityInterface } from '../../../types'
 import { ToggleThemeButton } from '../../../utils/components/toggleTheme'
 import { Button } from '../../ui/button'
+import { ProfileSkeleton } from '../componentsPerfil/Skeleton'
 
 // Menu items
 const items = [
@@ -64,7 +65,7 @@ export function AppSidebar() {
   const location = useLocation()
   const pathname = location.pathname
   const { communityName, id } = useParams()
-  const { user } = useAuth()
+  const { user, isAuthLoading } = useAuth()
 
   const currentPath = decodeURIComponent(location.pathname)
 
@@ -323,35 +324,65 @@ export function AppSidebar() {
           </SidebarGroup>
         </SidebarContent>
 
-        <SidebarFooter className="border-t border-zinc-200 p-4 dark:border-zinc-800">
-          <NavLink
-            onClick={() => {
-              handleSafeNavigate(user ? `/perfil` : '/auth', 'Perfil')
-            }}
-            to={user ? `/perfil` : '/auth'}
-          >
-            <div
-              className={`${
-                active === 'Perfil'
-                  ? 'bg-purple-100 text-purple-800 shadow-sm dark:bg-purple-900/50 dark:text-purple-300'
-                  : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
-              } flex cursor-pointer items-center gap-3 rounded-xl p-3 transition-all duration-200`}
+        {user ? (
+          <SidebarFooter className="border-t border-zinc-200 p-4 dark:border-zinc-800">
+            <NavLink
+              onClick={() => {
+                handleSafeNavigate(user ? `/perfil` : '/auth', 'Perfil')
+              }}
+              to={user ? `/perfil` : '/auth'}
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-200 dark:bg-purple-900/70">
-                <UserRound className="h-5 w-5 text-purple-800 dark:text-purple-300" />
-              </div>
+              <div
+                className={`${
+                  active === 'Perfil'
+                    ? 'bg-purple-100 text-purple-800 shadow-sm dark:bg-purple-900/50 dark:text-purple-300'
+                    : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
+                } flex cursor-pointer items-center gap-3 rounded-xl p-3 transition-all duration-200`}
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-200 dark:bg-purple-900/70">
+                  <UserRound className="h-5 w-5 text-purple-800 dark:text-purple-300" />
+                </div>
 
-              <div className="flex flex-col">
-                <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                  Meu perfil
-                </span>
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                  {user ? user.name_at : 'Não logado'}
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                    Meu perfil
+                  </span>
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {user && user.name_at}
+                  </span>
+                </div>
               </div>
-            </div>
-          </NavLink>
-        </SidebarFooter>
+            </NavLink>
+          </SidebarFooter>
+        ) : isAuthLoading ? (
+          <ProfileSkeleton />
+        ) : (
+          <SidebarFooter className="border-t border-zinc-200 p-4 dark:border-zinc-800">
+            <NavLink
+              onClick={() => {
+                handleSafeNavigate(user ? `/perfil` : '/auth', 'Perfil')
+              }}
+              to={user ? `/perfil` : '/auth'}
+            >
+              <div
+                className={`${'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'} flex cursor-pointer items-center gap-3 rounded-xl p-3 transition-all duration-200`}
+              >
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-700">
+                  <UserRound className="h-5 w-5 text-white" />
+                </div>
+
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                    Faça login
+                  </span>
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                    ou cadastra-se
+                  </span>
+                </div>
+              </div>
+            </NavLink>
+          </SidebarFooter>
+        )}
       </Sidebar>
     </div>
   )
