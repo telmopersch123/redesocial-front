@@ -19,6 +19,7 @@ interface ActionsPostProps {
   posts: Post[]
   validated?: boolean
   pauseVideo: () => void
+  open: boolean
 }
 
 const ActionsPost = ({
@@ -27,7 +28,8 @@ const ActionsPost = ({
   setNovoComentario,
   setPosts,
   posts,
-  validated,
+  open,
+  // validated,
   pauseVideo,
 }: ActionsPostProps) => {
   const { setSelectedPost } = usePosts()
@@ -64,6 +66,7 @@ const ActionsPost = ({
     }
   }
 
+  console.log(open)
   const handleLiked = async (id: number) => {
     const wasLiked = liked
     const currentLikes = likesCount
@@ -199,38 +202,24 @@ const ActionsPost = ({
   }
 
   return (
-    <div className="relative">
-      {!validated && (
-        <div className="pointer-events-auto absolute -right-0.5 z-20 h-full w-12 bg-gradient-to-r from-transparent via-white/20 to-white dark:bg-gradient-to-r dark:from-transparent dark:via-[#1a1a1a]/20 dark:to-[#1a1a1a] dm:hidden" />
-      )}
-
-      <div
-        className={`${
-          validated
-            ? 'my-3 grid grid-cols-2 gap-1 border-t border-gray-200 px-2 py-2 dark:border-gray-700 om:flex om:flex-wrap om:items-center om:justify-between'
-            : 'my-3 flex items-center justify-between overflow-x-auto border-t border-gray-200 px-2 py-2 pr-10 dark:border-gray-700 dm:pr-0'
-        }`}
-      >
-        {/* LEFT BLOCK */}
-        <div
-          className={`${
-            validated
-              ? 'flex flex-col items-center gap-4 rounded-lg bg-white/40 py-2 shadow-sm backdrop-blur-md dark:bg-white/10 dark:shadow-black/30 om:flex-row om:bg-transparent om:py-0 om:shadow-none'
-              : 'flex items-center gap-2 om:gap-4'
-          }`}
-        >
+    <div className="w-full">
+      <div className="flex items-center justify-between px-2 py-3">
+        <div className="flex items-center gap-1 sm:gap-4">
           <Button
+            variant="ghost"
+            size="sm"
             onClick={() => handleLiked(valuePost.id)}
-            className={`flex items-center gap-1.5 !bg-transparent text-sm font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-2 text-sm font-medium transition-colors hover:bg-red-50 dark:hover:bg-red-950/20 ${
               liked
-                ? 'text-red-500'
-                : 'text-gray-600 hover:text-red-500 dark:text-gray-300 dark:hover:text-red-400'
+                ? 'text-red-500 hover:text-red-600'
+                : 'text-gray-600 dark:text-gray-400'
             }`}
           >
-            <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />{' '}
-            {likesCount}
+            <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
+            <span>{likesCount}</span>
           </Button>
-          {!validatedRouter && (
+
+          {!validatedRouter && !open && (
             <PostComponentDialog
               valuePosts={valuePost}
               novoComentario={novoComentario}
@@ -247,36 +236,34 @@ const ActionsPost = ({
 
           <Button
             variant="ghost"
+            size="sm"
             onClick={handleShare}
-            className="flex items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
+            className="flex items-center gap-1.5 px-2 text-sm font-medium text-gray-600 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
           >
             <Share2 className="h-5 w-5" />
-            Compartilhar
+            <span className="xs:inline hidden">Compartilhar</span>
           </Button>
         </div>
 
-        {/* RIGHT BLOCK */}
-        <div
-          className={`${
-            validated
-              ? 'flex flex-col items-center justify-center gap-4 rounded-lg bg-white/40 py-2 shadow-sm backdrop-blur-md dark:bg-white/10 dark:shadow-black/20 om:flex-row om:bg-transparent om:py-0 om:shadow-none'
-              : 'flex w-full items-center justify-end gap-4'
-          }`}
-        >
-          {valuePost.user.id !== Number(authUser?.id) && <DialogReportPost />}
+        <div className="flex items-center gap-2">
+          {Number(valuePost.user.id) !== Number(authUser?.id) && (
+            <DialogReportPost />
+          )}
 
           <TooltipComponent
             description={valuePost.saved ? 'Desmarcar Post' : 'Salvar Post'}
           >
             <button
               onClick={() => handleSalvar(valuePost.id)}
-              className={`rounded-md p-2 transition-all duration-300 ${
+              className={`flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300 ${
                 valuePost.saved
-                  ? 'bg-purple-500 text-white dark:bg-purple-600'
-                  : 'bg-transparent text-purple-600 dark:text-purple-400'
+                  ? 'bg-purple-500 text-white shadow-md shadow-purple-200 dark:bg-purple-600 dark:shadow-none'
+                  : 'text-purple-600 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-950/30'
               }`}
             >
-              <Bookmark className="h-4 w-4" />
+              <Bookmark
+                className={`h-5 w-5 ${valuePost.saved ? 'fill-current' : ''}`}
+              />
             </button>
           </TooltipComponent>
         </div>

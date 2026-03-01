@@ -104,12 +104,12 @@ const CardsPostComponent = ({
                   )}
 
                 <span className="font-bold">@{valuePost.user.name_at}</span>
-                {valuePost.user.id === Number(user?.id) && (
+                {Number(valuePost.user.id) === Number(user?.id) && (
                   <p className="text-xs text-muted-foreground">(eu)</p>
                 )}
               </div>
               {valuePost.anonymous &&
-                valuePost.user.id === Number(user?.id) && (
+                Number(valuePost.user.id) === Number(user?.id) && (
                   <span className="inline-flex items-center rounded-full border border-zinc-200 bg-zinc-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-400">
                     Anônimo
                   </span>
