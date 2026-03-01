@@ -4,7 +4,7 @@ import Lottie from 'lottie-react'
 import { CircleCheck, Loader2, UserPlus, UserX } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
-import { NavLink, useParams } from 'react-router-dom'
+import { Navigate, NavLink, useParams } from 'react-router-dom'
 import notfounduser from '../assets/animations/notfounduser.json'
 import BlockedConfirmDialog from '../components/componentsPages/componentsPerfil/BlockedConfirmDialog'
 import { FriendsDialog } from '../components/componentsPages/componentsPerfil/FriendsDialog'
@@ -29,6 +29,10 @@ import { UserAvatar } from '../utils/components/UserAvatar'
 const OtherUserPerfilPage = () => {
   const { user: authUser } = useAuth()
   const { id } = useParams<{ id: string }>()
+  console.log(id, authUser?.id)
+  if (Number(authUser?.id) === Number(id)) {
+    return <Navigate to="/perfil" />
+  }
   const {
     viewedBio: bio,
     viewedProfile: profileUser,
@@ -47,7 +51,6 @@ const OtherUserPerfilPage = () => {
   const [isLoadingSkeleton, setIsLoadingSkeleton] = useState(true)
   const [isLoadingFollow, setIsLoadingFollow] = useState(false)
   const [hasMore, setHasMore] = useState(true)
-
   const { posts, setPosts } = usePosts()
   const debouncedOnLoadMore = debounce(() => {
     if (isLoadingSkeleton || !hasMore || posts.length < 5 || loadingRef.current)
@@ -163,8 +166,6 @@ const OtherUserPerfilPage = () => {
     window.scrollTo(0, 0)
   }, [id])
 
-  console.log(isLoadingSkeleton, posts.length)
-
   if (loading) {
     return (
       <div className="mt-10">
@@ -213,7 +214,7 @@ const OtherUserPerfilPage = () => {
                 </div>
 
                 <BlockedConfirmDialog
-                  idUser={profileUser.user.id}
+                  idUser={Number(profileUser.user.id)}
                   username={profileUser.user.name_at}
                 />
               </div>
@@ -234,7 +235,7 @@ const OtherUserPerfilPage = () => {
                 <div className="mt-5 flex gap-8 text-sm">
                   <FriendsDialog
                     username={profileUser.user.name_at}
-                    profileUser={profileUser}
+                    profileId={Number(profileUser.user.id)}
                   />
                 </div>
               </div>
@@ -280,14 +281,16 @@ const OtherUserPerfilPage = () => {
                             open={openDialogunFriend}
                             setOpen={setOpenDialogunFriend}
                             username={profileUser.user.name_at}
-                            idUser={profileUser.user.id}
+                            idUser={Number(profileUser.user.id)}
                             refreshProfile={refreshProfile}
                           />
                         )}
 
                       {!profileUser.friendship && (
                         <Button
-                          onClick={() => RequestFollower(profileUser.user.id)}
+                          onClick={() =>
+                            RequestFollower(Number(profileUser.user.id))
+                          }
                           className="group relative overflow-hidden rounded-full bg-purple-600 px-6 py-2 font-bold text-white transition-all duration-300 hover:bg-purple-700 hover:shadow-[0_0_20px_rgba(147,51,234,0.4)] active:scale-95"
                         >
                           <div className="flex items-center gap-2">

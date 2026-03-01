@@ -16,6 +16,7 @@ import { Button } from '../components/ui/button'
 import { Separator } from '../components/ui/separator'
 import { useAuth } from '../context/getMe'
 
+import { FriendsDialog } from '../components/componentsPages/componentsPerfil/FriendsDialog'
 import { useMyProfile } from '../context/MyProfileContext'
 import { usePosts } from '../context/PostsContext'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
@@ -137,6 +138,7 @@ const MyPerfilPage = () => {
     )
   }
 
+  console.log(profileUser)
   if (profileUser) {
     return (
       <div className="my-6 min-h-screen w-[99vw] overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] xl:px-5 2xl:w-full">
@@ -187,7 +189,10 @@ const MyPerfilPage = () => {
 
                 {/* Stats */}
                 <div className="mt-5 flex gap-8 text-sm">
-                  {/* FriendsDialog can be kept if relevant for self, or remove if not needed */}
+                  <FriendsDialog
+                    username={profileUser.name_at}
+                    profileId={Number(profileUser.id)}
+                  />
                 </div>
               </div>
             </div>

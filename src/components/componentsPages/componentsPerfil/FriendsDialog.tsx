@@ -17,21 +17,16 @@ import { useInfiniteScrollDialog } from '../../../hooks/effectsSkeletons'
 
 import { NavLink } from 'react-router-dom'
 import { getFriends } from '../../../services/authService'
-import type { AuthMeResponse, TypeFriend } from '../../../types'
+import type { TypeFriend } from '../../../types'
 import { filter } from '../../../utils/functions'
 import { Input } from '../../ui/input'
 import { FollowerSkeleton } from './Skeleton'
 
 interface PropsFriends {
   username: string
-
-  profileUser: AuthMeResponse
+  profileId: number
 }
-export function FriendsDialog({
-  username,
-
-  profileUser,
-}: PropsFriends) {
+export function FriendsDialog({ username, profileId }: PropsFriends) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState<string>('')
   const [amigosFiltrados, setAmigosFiltrados] = useState<TypeFriend[]>([])
@@ -42,6 +37,7 @@ export function FriendsDialog({
   const [isLoading, setIsLoading] = useState(false)
   const [loadedCount, setLoadedCount] = useState(8)
   const [totalFriends, setTotalFriends] = useState(0)
+  const [initialLoading, setInitialLoading] = useState(true)
 
   const { scrollContainerRef, loadMoreRef } = useInfiniteScrollDialog({
     enabled: hasMoreFriend && open && !isLoading,
@@ -57,10 +53,11 @@ export function FriendsDialog({
   })
 
   async function getMyFriends(pageNumber = 1) {
-    if (!profileUser) return
+    if (!profileId) return
     setIsLoading(true)
     try {
-      const friends = await getFriends(profileUser.user.id, pageNumber)
+      const friends = await getFriends(profileId, pageNumber)
+
       if (friends.formattedFriends.length < 8) setHasMoreFriend(false)
       setTotalFriends(friends.totalFriends)
       setMyFriends((prev) => {
@@ -77,13 +74,14 @@ export function FriendsDialog({
       setHasMoreFriend(false)
       console.log(error)
     } finally {
+      setInitialLoading(false)
       setIsLoading(false)
     }
   }
 
   useEffect(() => {
     getMyFriends(1)
-  }, [profileUser])
+  }, [profileId])
 
   useEffect(() => {
     if (open) {
@@ -107,7 +105,10 @@ export function FriendsDialog({
         {/* Use onde quiser (ex: no lugar do "150 amigos") */}
         <button className="flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-2 transition-colors hover:bg-muted">
           <span className="text-xl font-bold text-foreground">
-            {totalFriends ? totalFriends : <Loader2 className="animate-spin" />}
+            {totalFriends && !initialLoading
+              ? totalFriends
+              : !initialLoading && 0}
+            {initialLoading && <Loader2 className="h-4 w-4 animate-spin" />}
           </span>
           <span className="flex items-center gap-1 text-sm text-muted-foreground">
             <Users className="h-4 w-4 text-blue-500" />
@@ -134,58 +135,66 @@ export function FriendsDialog({
           </div>
         </DialogHeader>
 
-        <div
-          ref={scrollContainerRef}
-          className="scrollbar mt-6 h-[500px] space-y-3 overflow-y-auto"
-        >
-          {amigosFiltrados.map((amigo: TypeFriend, index: number) => {
-            const isLoaded = index < loadedCount
+        {totalFriends ? (
+          <div
+            ref={scrollContainerRef}
+            className="scrollbar mt-6 h-[500px] space-y-3 overflow-y-auto"
+          >
+            {amigosFiltrados.map((amigo: TypeFriend, index: number) => {
+              const isLoaded = index < loadedCount
 
-            if (!amigo) return
-            return (
-              <div key={amigo.id + '-' + index}>
-                {isLoaded ? (
-                  <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={amigo.avatar} alt={amigo.name_at} />
-                      <AvatarFallback className="bg-linear-purple font-medium text-white">
-                        {amigo.name_at
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')
-                          .toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
+              if (!amigo) return
+              return (
+                <div key={amigo.id + '-' + index}>
+                  {isLoaded ? (
+                    <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={amigo.avatar} alt={amigo.name_at} />
+                        <AvatarFallback className="bg-linear-purple font-medium text-white">
+                          {amigo.name_at
+                            .split(' ')
+                            .map((n) => n[0])
+                            .join('')
+                            .toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
 
-                    <div className="flex-1">
-                      <p className="font-medium text-foreground">
-                        {amigo.name_at}
-                      </p>
+                      <div className="flex-1">
+                        <p className="font-medium text-foreground">
+                          {amigo.name_at}
+                        </p>
+                      </div>
+
+                      <NavLink to={`/usuarios/perfil/${amigo.id}`}>
+                        <Button
+                          size="sm"
+                          className="bg-linear-purple rounded-full"
+                        >
+                          Ver perfil
+                        </Button>
+                      </NavLink>
                     </div>
+                  ) : (
+                    <FollowerSkeleton />
+                  )}
+                </div>
+              )
+            })}
 
-                    <NavLink to={`/usuarios/perfil/${amigo.id}`}>
-                      <Button
-                        size="sm"
-                        className="bg-linear-purple rounded-full"
-                      >
-                        Ver perfil
-                      </Button>
-                    </NavLink>
-                  </div>
-                ) : (
-                  <FollowerSkeleton />
-                )}
-              </div>
-            )
-          })}
-
-          {empty && (
+            {empty && (
+              <p className="mb-4 flex items-center justify-center text-muted-foreground">
+                Nenhum usuário encontrado
+              </p>
+            )}
+            {hasMoreFriend && <div ref={loadMoreRef} className="h-12" />}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center">
             <p className="mb-4 flex items-center justify-center text-muted-foreground">
               Nenhum usuário encontrado
             </p>
-          )}
-          {hasMoreFriend && <div ref={loadMoreRef} className="h-12" />}
-        </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )

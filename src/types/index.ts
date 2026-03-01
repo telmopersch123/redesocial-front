@@ -95,6 +95,9 @@ export type UserType = {
   avatar: string
   email: string
   image?: string | null
+  sexo: string | null
+  createdAt: string | Date
+  termsAcceptedAt: string | Date
   showOnlineStatus: boolean
   showViewStatus: boolean
   anonMode: boolean
@@ -124,7 +127,7 @@ export interface InformationUser {
 }
 
 export interface User {
-  id: number
+  id: string
   name: string
   name_at: string
   email: string
