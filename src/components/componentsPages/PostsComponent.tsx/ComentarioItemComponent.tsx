@@ -167,6 +167,8 @@ const CommentItem = ({
       .filter((c) => c.id !== idParaRemover)
   }
 
+  console.log(comentario)
+
   return (
     <div
       className={` ${isLoadingComment && 'pointer-events-none animate-pulse opacity-50'} ${

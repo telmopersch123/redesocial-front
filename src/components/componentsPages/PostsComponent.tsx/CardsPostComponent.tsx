@@ -165,6 +165,18 @@ const CardsPostComponent = ({
         <p className="mb-4 text-gray-700 dark:text-gray-300">
           {valuePost.description}
         </p>
+        <div>
+          {valuePost.postTags?.map(
+            (tag: { tag: { name: string; id: number } }, index) => (
+              <span
+                key={index}
+                className="mr-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+              >
+                @{tag.tag.name}
+              </span>
+            )
+          )}
+        </div>
 
         {valuePost.mediaUrl && (
           <div className="relative -mx-6 mt-3 h-[500px] overflow-hidden rounded-b-xl bg-gray-100 dark:bg-[#2a2a2a]">

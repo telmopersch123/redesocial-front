@@ -91,7 +91,6 @@ export function PostDialog() {
   const destinationType = watch('destination.type')
 
   useEffect(() => {
-    console.log(postCommunity)
     if (postCommunity) {
       setValue('destination.type', 'comunidade', {
         shouldDirty: true,

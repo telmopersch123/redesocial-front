@@ -337,6 +337,19 @@ const PostComponentDialog = ({
                   {postAtualizado.description}
                 </DialogTitle>
               </div>
+              <div>
+                {' '}
+                {postAtualizado.postTags?.map(
+                  (tag: { tag: { name: string; id: number } }, index) => (
+                    <span
+                      key={index}
+                      className="mr-2 inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                    >
+                      @{tag.tag.name}
+                    </span>
+                  )
+                )}
+              </div>
             </DialogHeader>
 
             {/* Ações (Like/Save/Share) */}

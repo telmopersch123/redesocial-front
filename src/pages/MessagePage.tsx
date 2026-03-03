@@ -104,7 +104,7 @@ const MessagePage = () => {
   const resetScrollState = () => {
     const el = messagesContainerRef.current
     if (el) {
-      el.scrollTop = 0
+      el.scrollTop = el.scrollHeight
     }
 
     prevHeightRef.current = 0

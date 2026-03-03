@@ -192,6 +192,7 @@ const OtherUserPerfilPage = () => {
     )
   }
 
+  console.log(profileUser)
   if (profileUser) {
     return (
       <div className="my-6 min-h-screen w-[99vw] overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] xl:px-5 2xl:w-full">
@@ -275,7 +276,6 @@ const OtherUserPerfilPage = () => {
                         )}
 
                       {profileUser.friendship &&
-                        profileUser.friendship.IsSender &&
                         profileUser.friendship.status === 'accepted' && (
                           <UnFriendShipDialog
                             open={openDialogunFriend}

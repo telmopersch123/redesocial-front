@@ -19,7 +19,7 @@ interface ActionsPostProps {
   posts: Post[]
   validated?: boolean
   pauseVideo: () => void
-  open: boolean
+  open?: boolean
 }
 
 const ActionsPost = ({
@@ -66,7 +66,6 @@ const ActionsPost = ({
     }
   }
 
-  console.log(open)
   const handleLiked = async (id: number) => {
     const wasLiked = liked
     const currentLikes = likesCount

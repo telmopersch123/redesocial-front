@@ -34,11 +34,14 @@ export interface Post {
   likedByMe: boolean
   user: User
   comments?: ComentarioPost[]
-  postTags?: { tag: { id: number; name: string } }[]
+  postTags?: {
+    postId: number
+    tag: { id: number; name: string }
+    tagId: number
+  }[]
   likes: Like[]
   saves: Save[]
   saved: boolean
-  tags: string[]
   _count?: { likes: number }
   anonymous?: boolean
 }
