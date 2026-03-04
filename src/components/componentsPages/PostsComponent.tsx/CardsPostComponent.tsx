@@ -11,6 +11,7 @@ import { useAuth } from '../../../context/getMe'
 import type { ExtendedPost } from '../../../pages/community/PostsArchived'
 import { UserAvatar } from '../../../utils/components/UserAvatar'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
+import { Badge } from '../../ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
 import ActionsPost from './components/ActionsPostComponent'
 import { ModalConfirmArchivePost } from './components/ModalConfirmArqPost'
@@ -66,13 +67,15 @@ const CardsPostComponent = ({
     }
   }, [videoState, valuePost.id])
 
+  console.log(valuePost)
+
   return (
     <Card
       key={valuePost.id}
       className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-[#1b1b1b]"
     >
       <CardHeader className="flex flex-row items-center justify-between gap-4 px-4 pb-3 pt-4">
-        <div className="flex items-center gap-3">
+        <div className="flex w-full items-center gap-3">
           {valuePost.user.avatar ? (
             <UserAvatar
               url={valuePost.user.avatar || undefined}
@@ -85,27 +88,35 @@ const CardsPostComponent = ({
             </div>
           )}
 
-          <div>
+          <div className="w-full">
             <CardTitle className="flex gap-2 text-base text-gray-800 dark:text-gray-200">
-              <div className="flex items-center gap-2">
-                {valuePost.communityId &&
-                  params.pathname.split('/').pop()?.replaceAll('-', ' ') !==
-                    valuePost.communityName &&
-                  params.pathname.split('/').pop()?.replaceAll('-', ' ') !==
-                    'archived' && (
-                    <TooltipComponent
-                      Tag={
-                        <span className="font-semibold text-purple-600 hover:underline dark:text-purple-400">
-                          {valuePost.communityName} •
-                        </span>
-                      }
-                      description="Comunidade do Tess"
-                    />
-                  )}
+              <div className="flex w-full items-center justify-between gap-2">
+                <div>
+                  {valuePost.communityId &&
+                    params.pathname.split('/').pop()?.replaceAll('-', ' ') !==
+                      valuePost.communityName &&
+                    params.pathname.split('/').pop()?.replaceAll('-', ' ') !==
+                      'archived' && (
+                      <TooltipComponent
+                        Tag={
+                          <span className="font-semibold text-purple-600 hover:underline dark:text-purple-400">
+                            {valuePost.communityName}{' '}
+                            <span className="mr-[2px]">•</span>
+                          </span>
+                        }
+                        description="Comunidade do Tess"
+                      />
+                    )}
 
-                <span className="font-bold">@{valuePost.user.name_at}</span>
-                {Number(valuePost.user.id) === Number(user?.id) && (
-                  <p className="text-xs text-muted-foreground">(eu)</p>
+                  <span className="font-bold">@{valuePost.user.name_at}</span>
+                </div>
+                {valuePost.user.isFriend && (
+                  <Badge
+                    variant="secondary"
+                    className="bg-green-500/50 text-white/80"
+                  >
+                    Amigo
+                  </Badge>
                 )}
               </div>
               {valuePost.anonymous &&
@@ -124,15 +135,6 @@ const CardsPostComponent = ({
                     addSuffix: true,
                     locale: ptBR,
                   })}
-
-              {/* {valuePost.friend && (
-                <Badge
-                  variant="secondary"
-                  className="bg-green-500 text-white hover:bg-green-600"
-                >
-                  Amigo
-                </Badge>
-              )} */}
             </div>
           </div>
         </div>

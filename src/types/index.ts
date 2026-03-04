@@ -136,6 +136,7 @@ export interface User {
   email: string
   avatar: string | null
   sexo: string | null
+  isFriend: boolean
   createdAt: string | Date
   termsAcceptedAt: string | Date
   communities: Record<number, string>
