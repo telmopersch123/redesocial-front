@@ -12,6 +12,7 @@ import { LoadingOverlay } from '../utils/components/Loading'
 const AuthenticadorPage = () => {
   const [permissionCode, setPermissionCode] = useState<boolean>(false)
   const [showConfirmPass, setShowConfirmPass] = useState(false)
+  const [sexo, setSexo] = useState('feminino')
   const [isLogin, setIsLogin] = useState(true)
   const [forgotPassword, setForgotPassword] = useState(false)
   const [firstStepData, setFirstStepData] = useState({})
@@ -147,6 +148,7 @@ const AuthenticadorPage = () => {
                       transition={{ duration: 0.45, ease: 'easeOut' }}
                     >
                       <RegisterComponent
+                        setSexo={setSexo}
                         setFirstStepData={setFirstStepData}
                         setShowConfirmPass={setShowConfirmPass}
                         onSwitchToLogin={() => setIsLogin(true)}
@@ -154,6 +156,7 @@ const AuthenticadorPage = () => {
                     </motion.div>
                   ) : (
                     <AnalysisRegister
+                      sexo={sexo}
                       firstStepData={firstStepData}
                       setShowConfirmPass={setShowConfirmPass}
                     />

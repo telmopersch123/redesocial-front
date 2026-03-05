@@ -22,6 +22,7 @@ import {
 
 interface RegisterFormData {
   firstStepData: FirstStepData
+  sexo: string
 }
 
 export type FirstStepData = {
@@ -29,7 +30,7 @@ export type FirstStepData = {
   name: string
 }
 
-const RegisterFinally = ({ firstStepData }: RegisterFormData) => {
+const RegisterFinally = ({ firstStepData, sexo }: RegisterFormData) => {
   const { setIsLoading, isLoading } = useResetPassword()
   const {
     register,
@@ -67,6 +68,7 @@ const RegisterFinally = ({ firstStepData }: RegisterFormData) => {
         name: firstStepData.name,
         password: firstStepData.password,
         name_at: data.name_at,
+        sexo,
       }
 
       const resRegister = await fetch(

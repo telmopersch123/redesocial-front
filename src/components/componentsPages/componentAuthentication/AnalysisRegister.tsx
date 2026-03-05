@@ -6,11 +6,13 @@ import ValidatedCodeRegister from './ValidedCodeRegister'
 interface PermissionCodeProps {
   setShowConfirmPass: React.Dispatch<React.SetStateAction<boolean>>
   firstStepData: {}
+  sexo: string
 }
 
 export const AnalysisRegister = ({
   firstStepData,
   setShowConfirmPass,
+  sexo,
 }: PermissionCodeProps) => {
   const [analysisSituation, setAnalysisSituation] = useState(false)
 
@@ -22,7 +24,10 @@ export const AnalysisRegister = ({
       exit={{ opacity: 0, y: -40 }}
       transition={{ duration: 0.45, ease: 'easeOut' }}
     >
-      <RegisterFinally firstStepData={firstStepData as FirstStepData} />
+      <RegisterFinally
+        sexo={sexo}
+        firstStepData={firstStepData as FirstStepData}
+      />
     </motion.div>
   ) : (
     <motion.div

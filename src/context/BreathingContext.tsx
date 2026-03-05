@@ -5,7 +5,7 @@ const BreathingContext = createContext<{
   Open: boolean
   typeBreathing: string
   setTypeBreathing: React.Dispatch<React.SetStateAction<string>>
-}>(null as any)
+}>(null!)
 
 const BreathingProvider = ({ children }: { children: ReactNode }) => {
   const [Open, setOpen] = useState(false)

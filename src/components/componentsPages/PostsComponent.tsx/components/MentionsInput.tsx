@@ -13,15 +13,7 @@ interface MentionInputProps {
 
 export const MentionInput = forwardRef<HTMLInputElement, MentionInputProps>(
   (
-    {
-      value,
-      onChange,
-      disabled,
-      onFocus,
-      onEnter,
-      error,
-      usuariosSelecionados,
-    },
+    { value, onChange, disabled, onFocus, error, usuariosSelecionados },
     ref
   ) => {
     const maskRef = useRef<HTMLDivElement>(null)
@@ -47,12 +39,6 @@ export const MentionInput = forwardRef<HTMLInputElement, MentionInputProps>(
           onChange={onChange}
           onFocus={onFocus}
           disabled={disabled}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              onEnter?.()
-            }
-          }}
           style={{
             WebkitTextFillColor: value === '' ? 'initial' : 'transparent',
             color: 'transparent',

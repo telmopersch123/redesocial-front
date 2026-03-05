@@ -74,12 +74,18 @@ export const createCommunitySchema = z.object({
   whoCanPost: z.enum(['members', 'admins']),
   whoCanComment: z.enum(['members', 'admins']),
   isPrivate: z.boolean(),
-  image: z.union([z.string(), z.any()]).nullable().optional(),
+  image: z
+    .union([z.string(), z.instanceof(File)])
+    .nullable()
+    .optional(),
   rules: z.string().max(256).nullable().optional(),
 })
 
 export const configCommunitySchema = z.object({
-  image: z.union([z.string(), z.any()]).nullable().optional(),
+  image: z
+    .union([z.string(), z.instanceof(File)])
+    .nullable()
+    .optional(),
   nameComunity: z
     .string()
     .min(10, 'Nome muito curto, escreva pelo menos 10 caracteres')

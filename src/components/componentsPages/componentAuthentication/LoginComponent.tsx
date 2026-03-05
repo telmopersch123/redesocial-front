@@ -68,6 +68,7 @@ const LoginComponent = ({
           data.password,
           data.rememberMe
         )
+        console.log(response)
         if (response.twoFactorRequired) {
           setTwoFactorData({
             userId: response.userId,
@@ -79,7 +80,7 @@ const LoginComponent = ({
           setUser(response.user)
           window.location.href = '/'
         } else {
-          toast.error(response.message)
+          toast.error(response.error)
         }
       } catch (error) {
         console.log(error)

@@ -1,4 +1,4 @@
-import { Edit2, X } from 'lucide-react'
+import { Edit2, X, type LucideIcon } from 'lucide-react'
 import { useEffect } from 'react'
 import { useLimitForms } from '../../../../hooks/useLimitForms'
 import { MessageForms } from '../../../formCustomer/MessageForms'
@@ -25,7 +25,7 @@ interface InformacaoBasicaProps {
 
   setSelectedAvatar: (selectedAvatar: number) => void
   setFile: (file: string | null) => void
-  avataresSimbolicos: { icon: any; nome: string; id: number }[]
+  avataresSimbolicos: { icon: LucideIcon; nome: string; id: number }[]
   abrirDialogConfig: () => void
   setRawFile: React.Dispatch<React.SetStateAction<File | null>>
   setNomeUser: React.Dispatch<React.SetStateAction<string>>

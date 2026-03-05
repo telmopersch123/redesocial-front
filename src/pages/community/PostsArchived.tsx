@@ -40,7 +40,7 @@ interface ArchivedPostData {
   }
   post: Post & {
     likes?: Array<{ userId: number }>
-    saves?: Array<any>
+    saves?: Array<{ userId: number }>
     _count?: { likes: number }
   }
 }

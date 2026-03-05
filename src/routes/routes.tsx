@@ -16,15 +16,12 @@ import { default as MyPerfilPage } from '../pages/MyPerfilPage'
 import OtherUserPerfilPage from '../pages/OtherUserPerfilPage'
 import SelfCarePage from '../pages/SelfCarePage'
 import Users from '../pages/Users'
-import { ValidateRoute } from './ValidateRoute'
 
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route element={<ValidateRoute />}>
-        <Route path="/auth" element={<AuthenticadorPage />} />*{' '}
-      </Route>
-
+      {/* <Route element={<ValidateRoute />}> */}
+      <Route path="/auth" element={<AuthenticadorPage />} />* {/* </Route> */}
       <Route element={<AppLayout />}>
         <Route path="/" element={<FeedPage />} />
         <Route path="/comunidades">

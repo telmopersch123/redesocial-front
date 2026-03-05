@@ -404,6 +404,9 @@ const PostComponentDialog = ({
             <div className="border-t bg-white p-4 dark:border-gray-800 dark:bg-[#1a1a1a]">
               <form
                 className="relative flex w-full items-center gap-2"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') e.preventDefault()
+                }}
                 onSubmit={(e) => e.preventDefault()}
               >
                 {activeInputId === idInput &&
@@ -435,7 +438,6 @@ const PostComponentDialog = ({
                       getMatches(e.target.value, idInput, setClickedMention)
                       setActiveInputId(idInput)
                     }}
-                    onEnter={() => adicionarComentario(postAtualizado.id)}
                     disabled={isLoadingComment}
                     error={comentarios.error}
                     usuariosSelecionados={usuariosSelecionados}

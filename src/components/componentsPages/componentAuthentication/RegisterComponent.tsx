@@ -22,12 +22,14 @@ import {
   type RegisterFormData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 
+import toast from 'react-hot-toast'
 import { sendVerificationEmail } from '../../../services/authService'
 import { RadioGroup, RadioGroupItem } from '../../ui/radio-group'
 interface RegisterComponentProps {
   onSwitchToLogin: () => void
   setShowConfirmPass: React.Dispatch<React.SetStateAction<boolean>>
   setFirstStepData: React.Dispatch<React.SetStateAction<RegisterFormData>>
+  setSexo: React.Dispatch<React.SetStateAction<string>>
 }
 export const hasNumber = (password: string) => /\d/.test(password)
 export const hasSpecialChar = (password: string) =>
@@ -38,6 +40,7 @@ const RegisterComponent = ({
   onSwitchToLogin,
   setShowConfirmPass,
   setFirstStepData,
+  setSexo,
 }: RegisterComponentProps) => {
   const {
     control,
@@ -71,6 +74,7 @@ const RegisterComponent = ({
         sexo: data.sexo,
         terms: data.terms,
       }
+      setSexo(data.sexo)
       setIsLoading(true)
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/register/validate`,
@@ -83,11 +87,15 @@ const RegisterComponent = ({
       )
 
       if (!res.ok) {
-        const error = await res.json()
-        setError('email', {
-          type: 'server',
-          message: error.message || 'E-mail inválido',
-        })
+        const msg = await res.json()
+        if (msg.error === 'E-mail já cadastrado') {
+          setError('email', {
+            type: 'server',
+            message: 'Ops! E-mail já cadastrado',
+          })
+        } else {
+          toast.error(msg.error)
+        }
 
         return
       }
