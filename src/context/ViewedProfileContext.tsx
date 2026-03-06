@@ -43,10 +43,10 @@ export const ViewedProfileProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       )
 
-      if (!res.ok) {
-        setViewedProfile(null)
-        return
-      }
+      // if (!res.ok) {
+      //   setViewedProfile(null)
+      //   return
+      // }
 
       const data = await res.json()
 
@@ -74,6 +74,8 @@ export const ViewedProfileProvider: React.FC<{ children: React.ReactNode }> = ({
           },
         }
       }
+
+      console.log('Perfil visualizado:', processed)
 
       setViewedProfile(processed)
       setViewedBio(processed.user?.informationUser?.[0]?.bio || '')

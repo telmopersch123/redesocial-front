@@ -2,6 +2,8 @@
 
 import { Flag } from 'lucide-react'
 import { useState } from 'react'
+import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom' // ou 'next/navigation'
 import { Button } from '../../../components/ui/button'
 import {
   Dialog,
@@ -14,21 +16,35 @@ import {
 } from '../../../components/ui/dialog'
 import { Input } from '../../../components/ui/input'
 import { Textarea } from '../../../components/ui/textarea'
+import { useAuth } from '../../../context/getMe' // ajuste o caminho conforme seu projeto
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 
 const DialogReportPost = () => {
+  const { user: authUser } = useAuth()
+  const navigate = useNavigate()
+
   const [motivo, setMotivo] = useState('')
   const [imagens, setImagens] = useState<File[]>([])
   const [open, onOpenChange] = useState(false)
 
   const handleAddImages = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
-
     const filesArray = Array.from(e.target.files)
     setImagens((prev) => [...prev, ...filesArray])
   }
 
+  // Intercepta a abertura do modal
+  const handleOpenAttempt = (e: React.MouseEvent) => {
+    if (!authUser?.id) {
+      e.preventDefault()
+      navigate('/auth')
+      return
+    }
+    onOpenChange(true)
+  }
+
   const handleEnviar = () => {
+    // Aqui você faria a chamada para sua API
     const data = {
       motivo,
       imagens,
@@ -37,6 +53,7 @@ const DialogReportPost = () => {
     onOpenChange(false)
     setMotivo('')
     setImagens([])
+    toast.success('Denúncia enviada para análise')
   }
 
   return (
@@ -46,7 +63,7 @@ const DialogReportPost = () => {
           <Button
             variant="ghost"
             className="flex items-center gap-1.5 text-sm font-medium transition-all hover:text-red-600"
-            onClick={() => onOpenChange(true)}
+            onClick={handleOpenAttempt}
           >
             <Flag className="h-5 w-5" />
             Denunciar
@@ -68,12 +85,15 @@ const DialogReportPost = () => {
               Motivo da denúncia
             </label>
             <Textarea
-              placeholder="Descreva o motivo da denúncia..."
+              placeholder="Descreva o motivo da denúncia (mínimo 80 caracteres)..."
               value={motivo}
               onChange={(e) => setMotivo(e.target.value)}
               className="min-h-[120px] resize-none"
               maxLength={1000}
             />
+            <span className="text-right text-xs text-gray-400">
+              {motivo.length}/1000
+            </span>
           </div>
 
           <div className="flex flex-col gap-2">

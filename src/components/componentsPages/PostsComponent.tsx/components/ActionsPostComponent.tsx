@@ -1,6 +1,7 @@
 import { Bookmark, Heart, Share2 } from 'lucide-react'
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../../context/getMe'
 import { usePosts } from '../../../../context/PostsContext'
 import type { ExtendedPost } from '../../../../pages/community/PostsArchived'
@@ -32,6 +33,7 @@ const ActionsPost = ({
   // validated,
   pauseVideo,
 }: ActionsPostProps) => {
+  const navigate = useNavigate()
   const { setSelectedPost } = usePosts()
   const pathname = window.location.pathname
   const [openDialog, setOpenDialog] = useState(false)
@@ -67,6 +69,9 @@ const ActionsPost = ({
   }
 
   const handleLiked = async (id: number) => {
+    if (!authUser) {
+      navigate('/auth')
+    }
     const wasLiked = liked
     const currentLikes = likesCount
     const optimisticLikes = wasLiked ? currentLikes - 1 : currentLikes + 1
@@ -162,6 +167,9 @@ const ActionsPost = ({
   }
 
   const handleSalvar = async (id: number) => {
+    if (!authUser) {
+      navigate('/auth')
+    }
     const wasSaved = valuePost.saved
     setPosts((prev) =>
       prev.map((post) =>

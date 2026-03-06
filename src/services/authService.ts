@@ -459,7 +459,7 @@ export async function updateCommunityDetails(
   formData.append('rules', payload.rules ?? '')
   formData.append('limit', String(payload.limit))
   formData.append('isPrivate', String(payload.isPrivate))
-  if (payload.image && payload.image[0]) {
+  if (payload.image instanceof FileList && payload.image[0]) {
     formData.append('image', payload.image[0])
   }
 

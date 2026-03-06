@@ -1,6 +1,8 @@
 'use client'
 
 import { Flag } from 'lucide-react'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom' // ou 'next/navigation' se for Next.js
 import { Button } from '../../../components/ui/button'
 import {
   Dialog,
@@ -12,6 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../../../components/ui/dialog'
+import { useAuth } from '../../../context/getMe' // ajuste o caminho do seu hook de auth
 
 import { Label } from '../../../components/ui/label'
 import {
@@ -24,10 +27,24 @@ import {
 import { Textarea } from '../../../components/ui/textarea'
 
 const ReportDialog = () => {
+  const { user: authUser } = useAuth()
+  const navigate = useNavigate()
+  const [open, setOpen] = useState(false)
+
+  const handleOpenAttempt = (e: React.MouseEvent) => {
+    if (!authUser?.id) {
+      e.preventDefault()
+      navigate('/auth')
+      return
+    }
+    setOpen(true)
+  }
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
+          onClick={handleOpenAttempt}
           variant="ghost"
           className="flex items-center gap-2 rounded-full border border-red-300 bg-red-50 px-4 py-2 text-sm font-medium text-red-600 transition-all hover:border-red-400 hover:bg-red-100"
         >
@@ -46,16 +63,13 @@ const ReportDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        {/* Seleção de motivo */}
         <div className="mt-4 space-y-4">
           <div className="flex flex-col gap-2">
             <Label className="text-sm font-medium">Motivo</Label>
-
             <Select>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Selecione um motivo" />
               </SelectTrigger>
-
               <SelectContent>
                 <SelectItem value="assedio">Assédio ou bullying</SelectItem>
                 <SelectItem value="odio">Discurso de ódio</SelectItem>
@@ -71,10 +85,8 @@ const ReportDialog = () => {
             </Select>
           </div>
 
-          {/* Descrição */}
           <div className="flex flex-col gap-2">
             <Label className="text-sm font-medium">Descrição (opcional)</Label>
-
             <Textarea
               placeholder="Descreva o ocorrido…"
               className="h-24 resize-none"
@@ -86,7 +98,6 @@ const ReportDialog = () => {
           <DialogClose asChild>
             <Button variant="outline">Cancelar</Button>
           </DialogClose>
-
           <Button variant="destructive" className="px-5 font-semibold">
             Enviar denúncia
           </Button>

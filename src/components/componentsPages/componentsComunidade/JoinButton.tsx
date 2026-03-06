@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { Lock, UserRoundPlus } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 import { joinCommunity } from '../../../services/authService'
 import { Button } from '../../ui/button'
 
@@ -22,12 +23,19 @@ export const JoinButton = ({
 }: JoinButtonProps) => {
   const [isLoading, setIsLoading] = useState(false)
 
+  const navigate = useNavigate()
+
   const handleAction = async () => {
     setIsLoading(true)
     try {
-      await joinCommunity(communityId)
-      toast.success(`Bem-vindo à comunidade! ${nameComunity}`)
-      onRefresh()
+      const response = await joinCommunity(communityId)
+      console.log(response)
+      if (!response.error) {
+        toast.success(`Bem-vindo à comunidade! ${nameComunity}`)
+        onRefresh()
+      } else {
+        navigate('/auth')
+      }
     } catch (error: any) {
       toast.error(error)
     } finally {

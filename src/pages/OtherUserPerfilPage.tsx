@@ -4,7 +4,7 @@ import Lottie from 'lottie-react'
 import { CircleCheck, Loader2, UserPlus, UserX } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
-import { Navigate, NavLink, useParams } from 'react-router-dom'
+import { Navigate, NavLink, useNavigate, useParams } from 'react-router-dom'
 import notfounduser from '../assets/animations/notfounduser.json'
 import BlockedConfirmDialog from '../components/componentsPages/componentsPerfil/BlockedConfirmDialog'
 import { FriendsDialog } from '../components/componentsPages/componentsPerfil/FriendsDialog'
@@ -29,7 +29,7 @@ import { UserAvatar } from '../utils/components/UserAvatar'
 const OtherUserPerfilPage = () => {
   const { user: authUser } = useAuth()
   const { id } = useParams<{ id: string }>()
-  console.log(id, authUser?.id)
+
   if (Number(authUser?.id) === Number(id)) {
     return <Navigate to="/perfil" />
   }
@@ -44,6 +44,7 @@ const OtherUserPerfilPage = () => {
     setIsBlocked,
   } = useViewedProfile()
 
+  const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const loadingRef = useRef(false)
   const [openDialogunFriend, setOpenDialogunFriend] = useState(false)
@@ -192,7 +193,6 @@ const OtherUserPerfilPage = () => {
     )
   }
 
-  console.log(profileUser)
   if (profileUser) {
     return (
       <div className="my-6 min-h-screen w-[99vw] overflow-hidden px-0.5 md:w-[calc(100vw-20rem)] xl:px-5 2xl:w-full">
@@ -288,9 +288,13 @@ const OtherUserPerfilPage = () => {
 
                       {!profileUser.friendship && (
                         <Button
-                          onClick={() =>
-                            RequestFollower(Number(profileUser.user.id))
-                          }
+                          onClick={() => {
+                            if (authUser?.id) {
+                              RequestFollower(Number(profileUser.user.id))
+                            } else {
+                              navigate('/auth')
+                            }
+                          }}
                           className="group relative overflow-hidden rounded-full bg-purple-600 px-6 py-2 font-bold text-white transition-all duration-300 hover:bg-purple-700 hover:shadow-[0_0_20px_rgba(147,51,234,0.4)] active:scale-95"
                         >
                           <div className="flex items-center gap-2">
@@ -305,9 +309,13 @@ const OtherUserPerfilPage = () => {
 
                 <NavLink
                   state={{ chatId: false }}
-                  to={`/mensagens/${profileUser.user.id}`}
+                  to={
+                    authUser?.id ? `/mensagens/${profileUser.user.id}` : '/auth'
+                  }
                   onClick={() => {
-                    sessionStorage.setItem('__internal_nav', '1')
+                    if (authUser?.id) {
+                      sessionStorage.setItem('__internal_nav', '1')
+                    }
                   }}
                 >
                   <Button

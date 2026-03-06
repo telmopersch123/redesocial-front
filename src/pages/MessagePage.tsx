@@ -33,6 +33,11 @@ interface HeaderUserView {
 }
 
 const MessagePage = () => {
+  const { user } = useAuth()
+  const navigation = useNavigate()
+  if (!user) {
+    navigation('/auth', { replace: true })
+  }
   const {
     resetChatState,
     messagesByChat,
@@ -54,7 +59,7 @@ const MessagePage = () => {
     markChatAsRead,
     validatedExistingUser,
   } = useChat()
-  const { user } = useAuth()
+
   const location = useLocation()
   const navigate = useNavigate()
   const isFetchingHistoryRef = useRef(false)

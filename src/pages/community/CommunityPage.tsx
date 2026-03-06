@@ -103,14 +103,14 @@ const CommunityPage = () => {
             </p>
           </div>
           <div className="flex flex-col items-center gap-2 md:flex-row">
-            <NavLink to="comunidades-do-usuario">
+            <NavLink to={user ? 'comunidades-do-usuario' : '/auth'}>
               <Button className="bg-linear-purple transition-shadow duration-300 ease-in-out hover:shadow-md">
                 <Users className="mr-2 h-4 w-4" />
                 Minhas comunidades
               </Button>
             </NavLink>
 
-            <NavLink to="criar">
+            <NavLink to={user ? 'criar' : '/auth'}>
               <Button className="bg-linear-purple transition-shadow duration-300 ease-in-out hover:shadow-md">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Criar comunidade

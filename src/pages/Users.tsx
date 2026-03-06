@@ -62,7 +62,7 @@ const Users = () => {
       {/* Lista de Usuários ou Estado Vazio */}
       <div className="h-[720px] overflow-y-auto rounded-2xl bg-white/60 p-4 shadow-inner dark:bg-zinc-900/70 md:p-6">
         <AnimatePresence mode="wait">
-          {usersSurveyed.length > 0 ? (
+          {usersSurveyed?.length > 0 ? (
             <motion.div
               key="users-list"
               initial={{ opacity: 0 }}
@@ -137,7 +137,7 @@ const Users = () => {
 
       {/* Rodapé */}
       <div className="text-center text-xs text-zinc-400 dark:text-zinc-500">
-        {usersSurveyed.length > 0
+        {usersSurveyed?.length > 0
           ? `${usersSurveyed.length} membro${usersSurveyed.length > 1 ? 's' : ''} encontrado${usersSurveyed.length > 1 ? 's' : ''}`
           : 'Digite um nome e pressione Enter para buscar'}
       </div>
