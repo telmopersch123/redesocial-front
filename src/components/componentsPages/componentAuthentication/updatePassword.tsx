@@ -11,7 +11,8 @@ import {
   type ResetFormData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 import { resetPasswordCod } from '../../../services/authService'
-import { alertMessage } from '../../../utils/components/alertMensage'
+
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 import { Button } from '../../ui/button'
 import {
   Card,
@@ -52,7 +53,7 @@ const ResetPasswordComponent = ({
       setIsLoading(true)
       const success = await resetPasswordCod(email, data.password)
       if (!success) {
-        alertMessage(
+        MessagePerson(
           'Ops! algo deu errado',
           'Por favor, tente novamente mais tarde',
           'error'

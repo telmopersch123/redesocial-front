@@ -9,7 +9,6 @@ import {
   Users,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
 import { NavLink, useLocation, useNavigate, useParams } from 'react-router-dom'
 import notfoundCommunityAnimate from '../../assets/animations/communitynotfound.json'
 import CardsPostCommunityComponent from '../../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
@@ -36,6 +35,7 @@ import {
   validateCommunityInvite,
 } from '../../services/authService'
 import type { Post } from '../../types'
+import { MessagePerson } from '../../utils/components/MessagePerson'
 export const normalizeURL = (s: string) =>
   s
     .normalize('NFD')
@@ -135,12 +135,14 @@ export default function AreaCommunitiesUserPage() {
   const handleAcceptInvite = async () => {
     const targetId = inviteData?.id
     if (!targetId) {
-      toast.error('Dados da comunidade não encontrados.')
+      MessagePerson('Erro ao entrar na comunidade', null, 'error')
+
       return
     }
     try {
       await joinCommunity(targetId)
-      toast.success(`Bem-vindo à comunidade ${inviteData?.name}!`)
+      MessagePerson('Sucesso', `Bem-vindo à comunidade! ${inviteData?.name}`, 'success')
+
       setIsInvitePending(false)
       setShowInviteModal(false)
       navigate(`/comunidades/comunidades-do-usuario/${urlCommunityName}`, {
@@ -157,7 +159,7 @@ export default function AreaCommunitiesUserPage() {
             replace: true,
           })
         } else {
-          toast.error(error.message || 'Erro ao entrar na comunidade.')
+          MessagePerson('Erro ao entrar na comunidade', null, 'error')
         }
         console.error(error)
       }
@@ -228,7 +230,8 @@ export default function AreaCommunitiesUserPage() {
           setInviteData({ id: data.communityId, name: data.communityName })
           setShowInviteModal(true)
         } catch (err) {
-          toast.error('Este link de convite não é mais válido.')
+          MessagePerson('Este link de convite não é mais válido.', null, 'error')
+
           navigate(`/comunidades/comunidades-do-usuario/${urlCommunityName}`, {
             replace: true,
           })

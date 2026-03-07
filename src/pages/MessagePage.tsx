@@ -23,8 +23,9 @@ import { useAuth } from '../context/getMe'
 import { useLimitForms } from '../hooks/useLimitForms'
 import { getCheckUserChat, getUser } from '../services/authService'
 import { socket } from '../services/socket'
-import { alertMessage } from '../utils/components/alertMensage'
+
 import { LoadingComponent } from '../utils/components/Loading'
+import { MessagePerson } from '../utils/components/MessagePerson'
 
 interface HeaderUserView {
   id: number
@@ -378,13 +379,13 @@ const MessagePage = () => {
       'message:error',
       ({ reason, message }: { reason: string; message: string }) => {
         if (reason === 'blocked') {
-          alertMessage(
+          MessagePerson(
             'Ação Bloqueada',
             message || 'Você não pode enviar mensagens para este usuário.',
             'error'
           )
         } else {
-          alertMessage(
+          MessagePerson(
             'Ops! algo deu errado',
             'Por favor, tente novamente mais tarde',
             'error'

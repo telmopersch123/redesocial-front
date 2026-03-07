@@ -1,9 +1,9 @@
 import { useTheme } from 'next-themes'
 import type React from 'react'
 import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
 import { useAuth } from '../../../../context/getMe'
 import { socket } from '../../../../services/socket'
+import { MessagePerson } from '../../../../utils/components/MessagePerson'
 import { Button } from '../../../ui/button'
 import { Label } from '../../../ui/label'
 import { Switch } from '../../../ui/switch'
@@ -142,7 +142,8 @@ const SessionPerson = ({
                     })
                   }
                 } else {
-                  toast.error('Erro ao atualizar notificações.')
+                  MessagePerson('Erro ao atualizar notificações', null, 'error')
+
                   setNotifications(!checked)
                 }
               }}
@@ -236,7 +237,8 @@ const SessionPerson = ({
                     })
                   }
                 } else {
-                  toast.error('Ops! Algo deu errado!!!')
+
+                  MessagePerson('Erro ao atualizar privacidade', null, 'error')
                   setAnonMode(!checked)
                 }
               }}
@@ -280,7 +282,8 @@ const SessionPerson = ({
                     })
                   }
                 } else {
-                  toast.error('Ops! Algo deu errado!!!')
+                  MessagePerson('Erro ao atualizar privacidade', null, 'error')
+
                   setShowStatus(!newStatus)
                 }
               }}
@@ -320,7 +323,8 @@ const SessionPerson = ({
                     })
                   }
                 } else {
-                  toast.error('Ops! Algo deu errado!!!')
+                  MessagePerson('Erro ao atualizar privacidade', null, 'error')
+
                   setShowViewStatus(!checked)
                 }
               }}

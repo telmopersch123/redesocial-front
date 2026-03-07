@@ -1,23 +1,58 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import Lottie from 'lottie-react'
 import { Search, User, Users as UsersIcon } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
+
+import { debounce } from 'lodash'
 import connectionAnimate from '../assets/animations/connectionAnimate.json'
+import { FollowerSkeleton } from '../components/componentsPages/componentsPerfil/Skeleton'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
+import { useInfiniteScroll } from '../hooks/effectsSkeletons'
 import { useUserSearch } from '../services/authService'
+import type { userTypeSearch } from '../types'
 
 const Users = () => {
-  const { setQuery, results: usersSurveyed } = useUserSearch()
+  const [isLoadingSkeleton, setIsLoadingSkeleton] = useState(false)
+  const [results, setResults] = useState<userTypeSearch[]>([])
   const [inputValue, setInputValue] = useState('')
+  const [hasMore, setHasMore] = useState(true)
+  const loadingRef = useRef(false)
+
+  const { setQuery, setPage } = useUserSearch({
+    loadingRef,
+    setHasMore,
+    setResults,
+    setIsLoadingSkeleton,
+  })
+
+  const debouncedOnLoadMore = useMemo(
+    () =>
+      debounce(() => {
+        if (loadingRef.current || !hasMore) return
+
+        setPage((prev: number) => prev + 1)
+      }, 300),
+    [hasMore]
+  )
+  const { loadMoreRef } = useInfiniteScroll({
+    enabled: hasMore && !isLoadingSkeleton,
+    rootMargin: '50px',
+    threshold: 0.5,
+    isLoading: isLoadingSkeleton,
+    onLoadMore: debouncedOnLoadMore,
+  })
+
+  console.log(isLoadingSkeleton)
 
   const searchUsers = (event?: React.KeyboardEvent<HTMLInputElement>) => {
     if (event && event.key !== 'Enter') return
     if (inputValue.trim().length <= 2) return
+    setPage(1)
     setQuery(inputValue)
   }
 
@@ -62,7 +97,7 @@ const Users = () => {
       {/* Lista de Usuários ou Estado Vazio */}
       <div className="h-[720px] overflow-y-auto rounded-2xl bg-white/60 p-4 shadow-inner dark:bg-zinc-900/70 md:p-6">
         <AnimatePresence mode="wait">
-          {usersSurveyed?.length > 0 ? (
+          {results?.length > 0 ? (
             <motion.div
               key="users-list"
               initial={{ opacity: 0 }}
@@ -70,47 +105,53 @@ const Users = () => {
               exit={{ opacity: 0 }}
               className="space-y-4"
             >
-              {usersSurveyed.map((user, index) => (
-                <motion.div
-                  key={user.id}
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.08, duration: 0.4 }}
-                >
-                  <Card className="group flex flex-col items-center gap-5 rounded-2xl border border-transparent bg-white/90 p-5 shadow-md transition-all duration-300 hover:border-purple-300 hover:bg-purple-50/50 hover:shadow-lg dark:bg-zinc-800/70 dark:hover:border-purple-700 dark:hover:bg-purple-900/30 om:flex-row">
-                    <div className="flex w-full items-center justify-between gap-3">
-                      <Avatar className="h-16 w-16 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800">
-                        {user.avatar ? (
-                          <AvatarImage src={user.avatar} alt={user.name_at} />
-                        ) : (
-                          <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md dark:from-purple-600 dark:to-pink-600">
-                            <User className="h-8 w-8" />
-                          </AvatarFallback>
-                        )}
-                      </Avatar>
+              {results.map((user: userTypeSearch, index: number) => {
+                const isInitialBatch = index < 10
+                return (
+                  <motion.div
+                    key={user.id}
+                    initial={{ opacity: 0, x: -30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{
+                      delay: isInitialBatch ? (index % 10) * 0.05 : 0,
+                      duration: 0.4,
+                    }}
+                  >
+                    <Card className="group flex flex-col items-center gap-5 rounded-2xl border border-transparent bg-white/90 p-5 shadow-md transition-all duration-300 hover:border-purple-300 hover:bg-purple-50/50 hover:shadow-lg dark:bg-zinc-800/70 dark:hover:border-purple-700 dark:hover:bg-purple-900/30 om:flex-row">
+                      <div className="flex w-full items-center justify-between gap-3">
+                        <Avatar className="h-16 w-16 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800">
+                          {user.avatar ? (
+                            <AvatarImage src={user.avatar} alt={user.name_at} />
+                          ) : (
+                            <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md dark:from-purple-600 dark:to-pink-600">
+                              <User className="h-8 w-8" />
+                            </AvatarFallback>
+                          )}
+                        </Avatar>
 
-                      <div className="flex-1">
-                        <h3 className="text-lg font-bold text-zinc-900 transition-colors group-hover:text-purple-700 dark:text-zinc-100 dark:group-hover:text-purple-400">
-                          {user.name_at}
-                        </h3>
-                        <div className="flex items-center gap-1 text-sm text-zinc-500 dark:text-zinc-400">
-                          <UsersIcon className="h-4 w-4" />
-                          <span>
-                            {/* {user.friendsCount} amigo
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-zinc-900 transition-colors group-hover:text-purple-700 dark:text-zinc-100 dark:group-hover:text-purple-400">
+                            {user.name_at}
+                          </h3>
+                          <div className="flex items-center gap-1 text-sm text-zinc-500 dark:text-zinc-400">
+                            <UsersIcon className="h-4 w-4" />
+                            <span>
+                              {/* {user.friendsCount} amigo
                             {user.friendsCount !== 1 ? 's' : ''} */}
-                          </span>
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <NavLink to={`perfil/${user.id}`}>
-                      <Button className="h-[50px] w-full rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-purple-700 hover:shadow-md active:scale-95 dark:bg-purple-600 dark:hover:bg-purple-500 om:w-fit">
-                        Perfil
-                      </Button>
-                    </NavLink>
-                  </Card>
-                </motion.div>
-              ))}
+                      <NavLink to={`perfil/${user.id}`}>
+                        <Button className="h-[50px] w-full rounded-lg bg-purple-600 px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 hover:bg-purple-700 hover:shadow-md active:scale-95 dark:bg-purple-600 dark:hover:bg-purple-500 om:w-fit">
+                          Perfil
+                        </Button>
+                      </NavLink>
+                    </Card>
+                  </motion.div>
+                )
+              })}
             </motion.div>
           ) : (
             <motion.div
@@ -133,12 +174,33 @@ const Users = () => {
             </motion.div>
           )}
         </AnimatePresence>
+        {hasMore && results?.length > 0 && (
+          <div
+            ref={loadMoreRef}
+            className="mt-6 flex min-h-[100px] w-full items-center justify-center"
+          >
+            <AnimatePresence>
+              {isLoadingSkeleton && (
+                <motion.div
+                  key="skeleton"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                  className="w-full"
+                >
+                  <FollowerSkeleton />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
       </div>
 
       {/* Rodapé */}
       <div className="text-center text-xs text-zinc-400 dark:text-zinc-500">
-        {usersSurveyed?.length > 0
-          ? `${usersSurveyed.length} membro${usersSurveyed.length > 1 ? 's' : ''} encontrado${usersSurveyed.length > 1 ? 's' : ''}`
+        {results?.length > 0
+          ? `${results.length} membro${results.length > 1 ? 's' : ''} encontrado${results.length > 1 ? 's' : ''}`
           : 'Digite um nome e pressione Enter para buscar'}
       </div>
     </div>

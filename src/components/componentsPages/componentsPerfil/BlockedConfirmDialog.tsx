@@ -1,10 +1,9 @@
 'use client'
 
-import { UserX } from 'lucide-react'
-import { useState } from 'react'
-import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom' // ou 'next/navigation'
-import { Button } from '../../../components/ui/button'
+import { UserX } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // ou 'next/navigation'
+import { Button } from '../../../components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -13,9 +12,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../../../components/ui/dialog'
-import { useAuth } from '../../../context/getMe' // ajuste o caminho conforme seu projeto
-import { blockUser } from '../../../services/authService'
+} from '../../../components/ui/dialog';
+import { useAuth } from '../../../context/getMe'; // ajuste o caminho conforme seu projeto
+import { blockUser } from '../../../services/authService';
+import { MessagePerson } from '../../../utils/components/MessagePerson';
 
 const BlockedConfirmDialog = ({
   idUser,
@@ -41,17 +41,17 @@ const BlockedConfirmDialog = ({
 
   const handleBlockUser = async () => {
     try {
-      const response = await blockUser(idUser)
+       await blockUser(idUser)
 
       // Assumindo que seu service retorna algo para validar o sucesso
-      toast.success(`Usuário ${username} bloqueado com sucesso!`)
+      MessagePerson('Sucesso', `Usuário ${username} bloqueado com sucesso!`, 'success')
       setOpenDialogBlock(false)
 
       // Recarregar a página para atualizar o estado de amizade/posts
       window.location.reload()
     } catch (error) {
       console.log(error)
-      toast.error('Erro ao bloquear usuário')
+      MessagePerson('Erro ao bloquear usuário', null, 'error')
     }
   }
 

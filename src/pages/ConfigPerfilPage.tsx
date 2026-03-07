@@ -1,7 +1,6 @@
 import { ArrowLeft, Loader2, UserRoundCheck } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
-import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import BasicInformationComponent from '../components/componentsPages/componentsPerfil/componentsConfigPerfil/BasicInformationComponent'
 import { ConfigDialog } from '../components/componentsPages/componentsPerfil/componentsConfigPerfil/ConfigDialog'
@@ -11,6 +10,7 @@ import { Button } from '../components/ui/button'
 
 import { useMyProfile } from '../context/MyProfileContext'
 import type { UserType } from '../types'
+import { MessagePerson } from '../utils/components/MessagePerson'
 import { avataresSimbolicos, coresFundos } from '../utils/components/UserAvatar'
 
 interface UserTypeValid {
@@ -102,7 +102,8 @@ const ConfigPerfilPage = () => {
       )
 
       if (res.ok) {
-        toast.success('Informações do perfil atualizadas com sucesso!')
+        MessagePerson('Informações do perfil atualizadas com sucesso', null, 'success')
+
         setGlobalNome(localNome)
         setRawFile(null)
         const novoAvatarUrl = finalAvatarValue || null
@@ -137,7 +138,8 @@ const ConfigPerfilPage = () => {
         setRawFile(null)
       }
     } catch (error) {
-      toast.error('Erro ao atualizar informações do perfil')
+      MessagePerson('Erro ao atualizar informações do perfil', null, 'error')
+
       console.log(error)
     } finally {
       setIsSaving(false)
@@ -168,6 +170,7 @@ const ConfigPerfilPage = () => {
 
   const handleBack = () => {
     if (hasChanges()) {
+
       const proceed = window.confirm(
         'Você tem alterações não salvas. Deseja realmente sair e perder as mudanças?'
       )

@@ -1,7 +1,7 @@
 import { HeartCrack, Loader2 } from 'lucide-react'
 import { useState } from 'react'
-import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
+import { MessagePerson } from '../../../../utils/components/MessagePerson'
 import { Button } from '../../../ui/button'
 import {
   Dialog,
@@ -40,14 +40,17 @@ const DialogConfirmRemoveAccount = ({
       const data = await res.json()
 
       if (res.ok) {
-        toast.success('Conta excluída com sucesso.')
+        MessagePerson('Sucesso', 'Conta excluida com sucesso', 'success')
+
 
         navigate('/auth', { replace: true })
       } else {
-        toast.error(data.error || 'Erro ao excluir conta.')
+        MessagePerson('Erro ao excluir conta', data.error, 'error')
+
       }
     } catch (err) {
-      toast.error('Erro de conexão com o servidor.')
+      MessagePerson('Erro ao excluir conta', 'Tente novamente mais tarde', 'error')
+
     } finally {
       setIsDeleting(false)
     }

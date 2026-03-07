@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Fullscreen, Globe, Lock, SquarePlus, Upload, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import FullscreenDialog from '../../components/componentsPages/componentsFeed/FullscreenDialog'
 import { MessageForms } from '../../components/formCustomer/MessageForms'
@@ -34,6 +33,7 @@ import {
   type CreateCommunityFormData,
 } from '../../lib/validatorSchemas/autoSchemaAutenticator'
 import { createCommunity } from '../../services/authService'
+import { MessagePerson } from '../../utils/components/MessagePerson'
 export type PayloadTypeCreate = {
   nameComunity: string
   description: string
@@ -147,7 +147,8 @@ const CreateCommunityPage = () => {
       }
 
       await createCommunity(payload)
-      toast.success('Comunidade criada com sucesso!')
+      MessagePerson('Comunidade criada com sucesso', null, 'success')
+
       navigate('/comunidades')
     } catch (error) {
       if (error instanceof Error) {
@@ -158,8 +159,7 @@ const CreateCommunityPage = () => {
           })
           return
         }
-
-        toast.error(error.message)
+          MessagePerson('Erro ao criar comunidade', error.message, 'error')
       }
     }
   }

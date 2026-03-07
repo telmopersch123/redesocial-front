@@ -22,8 +22,8 @@ import {
   type RegisterFormData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 
-import toast from 'react-hot-toast'
 import { sendVerificationEmail } from '../../../services/authService'
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 import { RadioGroup, RadioGroupItem } from '../../ui/radio-group'
 interface RegisterComponentProps {
   onSwitchToLogin: () => void
@@ -94,7 +94,8 @@ const RegisterComponent = ({
             message: 'Ops! E-mail já cadastrado',
           })
         } else {
-          toast.error(msg.error)
+
+          MessagePerson('Erro', msg.error, 'error')
         }
 
         return

@@ -2,10 +2,10 @@
 
 import { ArchiveRestore } from 'lucide-react'
 import { useState } from 'react'
-import toast from 'react-hot-toast'
 import { useRefreshPermission } from '../../../../context/RefreshPermissionContext'
 
 import { UnarchivePostCommunity } from '../../../../services/authService'
+import { MessagePerson } from '../../../../utils/components/MessagePerson'
 import { TooltipComponent } from '../../../globalcomponents/tooltipComponent'
 import {
   AlertDialog,
@@ -43,11 +43,13 @@ export const ModalConfirmUnarchivePost = ({
     setLoading(true)
     try {
       await UnarchivePostCommunity(postId, communityId)
-      toast.success('Post desarquivado com sucesso')
+      MessagePerson('Post desarquivado com sucesso', null, 'success')
+
       triggerRefresh()
       if (setOpen) setOpen(false)
     } catch {
-      toast.error('Erro ao desarquivar post')
+      MessagePerson('Erro ao desarquivar post', null, 'error')
+
     } finally {
       setLoading(false)
     }

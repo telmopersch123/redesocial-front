@@ -8,7 +8,8 @@ import {
   type ForgotPasswordData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 import { sendCodigoToEmail, valided_code } from '../../../services/authService'
-import { alertMessage } from '../../../utils/components/alertMensage'
+
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 import { Button } from '../../ui/button'
 import {
   Card,
@@ -109,7 +110,7 @@ const ForgotPassword = ({
       } else {
         setPermissionCode(false)
 
-        alertMessage(
+        MessagePerson(
           ' Código inválido',
           '  Verifique seu e-mail, enviamos um código para você.',
           'error'
@@ -117,7 +118,7 @@ const ForgotPassword = ({
       }
     } catch (error) {
       console.log(error)
-      alertMessage(
+      MessagePerson(
         'Algo deu errado. Por favor, tente novamente mais tarde',
         null,
         'error'

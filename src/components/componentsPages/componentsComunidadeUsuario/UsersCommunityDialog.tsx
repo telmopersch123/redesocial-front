@@ -13,7 +13,6 @@ import {
   Users,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
 import { NavLink, useLocation } from 'react-router-dom'
 import { useAuth } from '../../../context/getMe'
 import { showUserRoleToast } from '../../../Helpers/showUserRoleToast'
@@ -47,6 +46,7 @@ import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 
 import { useChat } from '../../../context/ChatContext'
 import { socket } from '../../../services/socket'
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 import { Checkbox } from '../../ui/checkbox'
 import { ConfirmationRemoveUserDialog } from './ConfirmationRemoveUserDialog'
 import InvitationDialog from './InvitationDialog'
@@ -114,7 +114,8 @@ const UsersCommunityDialog = ({
 
       fetchUsers()
     } catch {
-      toast.error('Erro ao remover o usuário')
+      MessagePerson('Ops!', "Erro ao remover o usuário", 'error')
+
     }
   }
   const removeSelectedUsers = async () => {
@@ -137,7 +138,8 @@ const UsersCommunityDialog = ({
       setSelectedRemove([])
       fetchUsers()
     } catch {
-      toast.error('Erro ao remover o usuário')
+      MessagePerson('Ops!', "Erro ao remover o usuário", 'error')
+
       setLoadingremoveSelected(false)
     } finally {
       setLoadingremoveSelected(false)
@@ -158,7 +160,8 @@ const UsersCommunityDialog = ({
         )
       )
     } catch {
-      toast.error('Esse usuário nao pode ser promovido')
+      MessagePerson('Ops!', "Esse usuário nao pode ser promovido", 'error')
+
     }
   }
   // responsavel por demover um usuário
@@ -174,7 +177,7 @@ const UsersCommunityDialog = ({
         prev.map((u) => (u.user.id === id ? { ...u, role: res.demoteUser } : u))
       )
     } catch {
-      toast.error('Esse usuário nao pode ser demovido')
+      MessagePerson('Ops!', "Esse usuário nao pode ser despromovido", 'error')
     }
   }
   const fetchUsers = async () => {

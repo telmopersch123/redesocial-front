@@ -1,10 +1,10 @@
 import { AlertCircle, Edit2, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
 import { useAuth } from '../../../../context/getMe'
 
 import { useMyProfile } from '../../../../context/MyProfileContext'
 import { useLimitForms } from '../../../../hooks/useLimitForms'
+import { MessagePerson } from '../../../../utils/components/MessagePerson'
 import { MessageForms } from '../../../formCustomer/MessageForms'
 import { Button } from '../../../ui/button'
 import {
@@ -67,7 +67,8 @@ const EditNomeDialog = ({
         return
       }
 
-      toast.success('Nome alterado com sucesso!')
+      MessagePerson('Sucesso', 'Nome alterado com sucesso', 'success')
+
       setOpen((prev) => prev.map(() => false))
       setBackendError(null)
       setNomeUser(data.newName)

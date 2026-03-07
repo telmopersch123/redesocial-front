@@ -3,7 +3,6 @@ import { debounce } from 'lodash'
 import Lottie from 'lottie-react'
 import { CircleCheck, Loader2, UserPlus, UserX } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import toast from 'react-hot-toast'
 import { Navigate, NavLink, useNavigate, useParams } from 'react-router-dom'
 import notfounduser from '../assets/animations/notfounduser.json'
 import BlockedConfirmDialog from '../components/componentsPages/componentsPerfil/BlockedConfirmDialog'
@@ -24,6 +23,7 @@ import { useViewedProfile } from '../context/ViewedProfileContext'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
 import { getPostsByUser, requestFriendship } from '../services/authService'
 import type { Post } from '../types'
+import { MessagePerson } from '../utils/components/MessagePerson'
 import { UserAvatar } from '../utils/components/UserAvatar'
 
 const OtherUserPerfilPage = () => {
@@ -119,7 +119,8 @@ const OtherUserPerfilPage = () => {
     try {
       const res = await requestFriendship(userBId)
       if (res) {
-        toast.success('Solicitação enviada com sucesso!')
+        MessagePerson('Solicitação enviada com sucesso', null, 'success')
+
         refreshProfile(Number(id))
       }
     } catch (err) {

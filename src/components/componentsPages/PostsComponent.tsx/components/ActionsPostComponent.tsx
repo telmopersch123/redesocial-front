@@ -1,12 +1,12 @@
 import { Bookmark, Heart, Share2 } from 'lucide-react'
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
-import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../../context/getMe'
 import { usePosts } from '../../../../context/PostsContext'
 import type { ExtendedPost } from '../../../../pages/community/PostsArchived'
 import { savedPost, updateLikedPost } from '../../../../services/authService'
 import type { Post } from '../../../../types'
+import { MessagePerson } from '../../../../utils/components/MessagePerson'
 import { TooltipComponent } from '../../../globalcomponents/tooltipComponent'
 import { Button } from '../../../ui/button'
 import DialogReportPost from '../DialogReportPost'
@@ -117,9 +117,8 @@ const ActionsPost = ({
               : post
           )
         )
-        return toast.error(updated.error || 'Ação não permitida', {
-          icon: '🚫',
-        })
+        MessagePerson('Erro ao curtir o post', updated.error, 'error')
+      
       }
       setLiked(updated.liked)
       setPosts((prev) =>
@@ -162,7 +161,8 @@ const ActionsPost = ({
         )
       )
       const errorMsg = 'Erro ao curtir o post'
-      toast.error(errorMsg, { icon: '🚫' })
+      MessagePerson(errorMsg, 'Tente novamente mais tarde', 'error')
+
     }
   }
 
@@ -185,9 +185,8 @@ const ActionsPost = ({
             post.id === id ? { ...post, saved: wasSaved } : post
           )
         )
-        return toast.error(response.error || 'Você não pode salvar esse post', {
-          icon: '🚫',
-        })
+        MessagePerson('Erro ao salvar o post', response.error, 'error')
+       
       }
       setPosts((prev) =>
         prev.map((post: ExtendedPost) =>
@@ -204,7 +203,8 @@ const ActionsPost = ({
           post.id === id ? { ...post, saved: wasSaved } : post
         )
       )
-      toast.error('Erro ao salvar o post')
+      MessagePerson('Erro ao salvar o post', 'Tente novamente mais tarde', 'error')
+
     }
   }
 

@@ -6,7 +6,9 @@ import {
   sendVerificationEmail,
   verifyEmailCode,
 } from '../../../services/authService'
-import { alertMessage } from '../../../utils/components/alertMensage'
+
+
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 import { Button } from '../../ui/button'
 import {
   Card,
@@ -96,7 +98,7 @@ const ValidatedCodeRegister = ({
       const result = await verifyEmailCode(email, codeStr)
 
       if (!result) {
-        alertMessage(
+        MessagePerson(
           'Código inválido',
           'Verifique o código enviado ao seu e-mail',
           'error'
@@ -108,7 +110,7 @@ const ValidatedCodeRegister = ({
 
       setAnalysisSituation(true)
     } catch (err) {
-      alertMessage(
+      MessagePerson(
         'Erro ao validar código',
         'Tente novamente mais tarde',
         'error'

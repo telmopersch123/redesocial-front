@@ -1,6 +1,6 @@
 import { Loader2, MessageCircle, Send, User, X } from 'lucide-react'
 import { useContext, useRef, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { useMentionLogic } from '../../../context/openMentions'
 import { useLimitForms } from '../../../hooks/useLimitForms'
@@ -20,9 +20,10 @@ import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import { VideoContext } from '../../../context/VideoContext'
 import { createComment } from '../../../services/authService'
 
-import toast from 'react-hot-toast'
 import { usePosts } from '../../../context/PostsContext'
+import { useAuth } from '../../../context/getMe'
 import type { ExtendedPost } from '../../../pages/community/PostsArchived'
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 import ListMarcation from './ListMarcation'
 import ActionsPost from './components/ActionsPostComponent'
 import { MentionInput } from './components/MentionsInput'
@@ -50,6 +51,8 @@ const PostComponentDialog = ({
   typePost,
   pauseVideo,
 }: PostProp) => {
+  const { user: authUser } = useAuth()
+  const navigate = useNavigate()
   if (valuePosts === undefined || valuePosts === null) return null
   const postFromContext = posts.find((p) => p.id === valuePosts.id)
 
@@ -87,6 +90,15 @@ const PostComponentDialog = ({
   const inputRef = useRef<HTMLInputElement | null>(null)
   const adicionarComentario = async (postId: number) => {
     if (!novoComentario.trim()) return
+    if (!authUser) {
+      MessagePerson(
+        'Erro ao comentar',
+        'Você precisa estar logado para comentar',
+        'error'
+      )
+      navigate('/auth')
+      return
+    }
     setIsLoadingComment(true)
     const mentionedUserIds = usuariosSelecionados
       .filter((u) => novoComentario.includes(`@${u.name_at}`))
@@ -103,9 +115,8 @@ const PostComponentDialog = ({
       const data = await response.json()
 
       if (!response.ok) {
-        return toast.error(data.error || 'Você não pode comentar nesse post', {
-          icon: '🚫',
-        })
+        MessagePerson('Erro ao comentar', data.error, 'error')
+        
       }
       const newComment = data.comment
       setPosts(
@@ -131,7 +142,8 @@ const PostComponentDialog = ({
       setNovoComentario('')
     } catch (err) {
       console.log(err)
-      toast.error('Erro de conexão.')
+      MessagePerson('Erro ao comentar', 'Tente novamente mais tarde', 'error')
+
     } finally {
       setIsLoadingComment(false)
     }
@@ -142,6 +154,15 @@ const PostComponentDialog = ({
     respondendoPara?: string
   ) => {
     if (!textoResposta.trim()) return
+        if (!authUser) {
+      MessagePerson(
+        'Erro ao comentar',
+        'Você precisa estar logado para comentar',
+        'error'
+      )
+      navigate('/auth')
+      return
+    }
     setIsLoadingComment(true)
     const mentionedUserIds = usuariosSelecionados
       .filter((u) => novoComentario.includes(`@${u.name_at}`))
@@ -159,10 +180,8 @@ const PostComponentDialog = ({
       const data = await response.json()
 
       if (!response.ok) {
-        return toast.error(
-          data.error || 'Você não pode responder esse comentário',
-          { icon: '🚫' }
-        )
+        MessagePerson('Erro ao comentar', data.error, 'error')
+       
       }
       const novaResposta = data.comment
       setPosts(
@@ -185,7 +204,7 @@ const PostComponentDialog = ({
       setTextoResposta('')
     } catch (err: any) {
       console.error(err)
-      toast.error(err.message, { icon: '🚫' })
+      MessagePerson('Erro ao comentar', err.message, 'error')
     } finally {
       setIsLoadingComment(false)
       setSendingLoadingCommentId(0)

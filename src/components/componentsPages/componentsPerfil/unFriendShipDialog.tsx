@@ -20,8 +20,8 @@ type PropsPerfilPageUnFriend = {
 }
 
 import { HeartHandshake, Loader2 } from 'lucide-react'
-import toast from 'react-hot-toast'
 import { unFriendShip } from '../../../services/authService'
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 
 export const UnFriendShipDialog = ({
   open,
@@ -36,9 +36,8 @@ export const UnFriendShipDialog = ({
     setLoading(true)
     try {
       await unFriendShip(idUser)
-      toast.success(
-        'Amizade desfeita com sucesso! Você não é mais amigo de ' + username
-      )
+      MessagePerson('Sucesso',   'Amizade desfeita com sucesso! Você não é mais amigo de ' + username, 'success')
+
       refreshProfile(Number(idUser) || undefined)
       setOpen(false)
     } catch {

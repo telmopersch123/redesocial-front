@@ -1,19 +1,20 @@
 // src/components/auth/ValidatedCodeLogin.tsx
-import { CornerUpLeft } from 'lucide-react'
-import { useRef, useState } from 'react'
-import { useAuth } from '../../../context/getMe'
-import { verify2FALogin } from '../../../services/authService' // Sua função de 2FA
-import { alertMessage } from '../../../utils/components/alertMensage'
-import { Button } from '../../ui/button'
+import { CornerUpLeft } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { useAuth } from '../../../context/getMe';
+import { verify2FALogin } from '../../../services/authService'; // Sua função de 2FA
+
+import { MessagePerson } from '../../../utils/components/MessagePerson';
+import { Button } from '../../ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../../ui/card'
-import { Input } from '../../ui/input'
-import { Label } from '../../ui/label'
+} from '../../ui/card';
+import { Input } from '../../ui/input';
+import { Label } from '../../ui/label';
 
 interface ValidatedCodeLoginProps {
   userId: number
@@ -73,7 +74,7 @@ const ValidatedCodeLogin = ({
         window.location.href = '/'
       }
     } catch (err: any) {
-      alertMessage('Erro', err.message || 'Código inválido', 'error')
+      MessagePerson('Erro', err.message || 'Código inválido', 'error')
     } finally {
       setIsLoading(false)
     }

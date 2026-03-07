@@ -1,8 +1,8 @@
 import { Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import toast from 'react-hot-toast'
 import { useRefreshPermission } from '../../../../context/RefreshPermissionContext'
 import { DeletePostCommunity } from '../../../../services/authService'
+import { MessagePerson } from '../../../../utils/components/MessagePerson'
 import { TooltipComponent } from '../../../globalcomponents/tooltipComponent'
 import {
   AlertDialog,
@@ -40,11 +40,13 @@ export const ModalConfirmDelPost = ({
     setLoading(true)
     try {
       await DeletePostCommunity(postId, communityId)
-      toast.success('Postagem excluída com sucesso')
+      MessagePerson('Postagem excluida com sucesso', null, 'success')
+
       if (setOpen) setOpen(false)
       triggerRefresh()
     } catch (error) {
-      toast.error('Erro ao excluir postagem')
+      MessagePerson('Erro ao excluir postagem', null, 'error')
+
       console.error('Erro ao excluir postagem:', error)
     } finally {
       setLoading(false)

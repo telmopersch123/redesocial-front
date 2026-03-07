@@ -1,10 +1,9 @@
 'use client'
 
-import { Flag } from 'lucide-react'
-import { useState } from 'react'
-import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom' // ou 'next/navigation'
-import { Button } from '../../../components/ui/button'
+import { Flag } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // ou 'next/navigation'
+import { Button } from '../../../components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -13,11 +12,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../../../components/ui/dialog'
-import { Input } from '../../../components/ui/input'
-import { Textarea } from '../../../components/ui/textarea'
-import { useAuth } from '../../../context/getMe' // ajuste o caminho conforme seu projeto
-import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
+} from '../../../components/ui/dialog';
+import { Input } from '../../../components/ui/input';
+import { Textarea } from '../../../components/ui/textarea';
+import { useAuth } from '../../../context/getMe'; // ajuste o caminho conforme seu projeto
+import { MessagePerson } from '../../../utils/components/MessagePerson';
+import { TooltipComponent } from '../../globalcomponents/tooltipComponent';
 
 const DialogReportPost = () => {
   const { user: authUser } = useAuth()
@@ -53,7 +53,8 @@ const DialogReportPost = () => {
     onOpenChange(false)
     setMotivo('')
     setImagens([])
-    toast.success('Denúncia enviada para análise')
+    MessagePerson('Sucesso', 'Denúncia enviada para análise', 'success')
+
   }
 
   return (

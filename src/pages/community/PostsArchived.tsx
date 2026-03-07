@@ -4,7 +4,6 @@ import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { ArchiveX, ExternalLink, MessageCircleHeart } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import { PostCardSkeleton } from '../../components/componentsPages/componentsPerfil/Skeleton'
@@ -16,7 +15,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '../../components/ui/dialog' // supondo que você tenha shadcn/ui Dialog
+} from '../../components/ui/dialog'; // supondo que você tenha shadcn/ui Dialog
 
 import { useAuth } from '../../context/getMe'
 import { useRefreshPermission } from '../../context/RefreshPermissionContext'
@@ -24,6 +23,7 @@ import { useRefreshPermission } from '../../context/RefreshPermissionContext'
 import { useInfiniteScroll } from '../../hooks/effectsSkeletons'
 import { getArchivedPostsCommunity } from '../../services/authService'
 import type { Post } from '../../types'
+import { MessagePerson } from '../../utils/components/MessagePerson'
 
 // Tipagem melhorada e mais segura
 interface ArchivedPostData {
@@ -95,7 +95,8 @@ export const PostsArchived = () => {
     isFirstLoad: boolean = false
   ) => {
     if (!communityId) {
-      toast.error('ID da comunidade não encontrado')
+      MessagePerson('Erro ao carregar comunidade', null, 'error')
+
       setIsLoading(false)
       setIsLoadingSkeleton(false)
       return
@@ -135,7 +136,8 @@ export const PostsArchived = () => {
       }
     } catch (error) {
       console.error(error)
-      toast.error('Erro ao carregar posts arquivados')
+      MessagePerson('Erro ao carregar posts arquivados', null, 'error')
+
       setPosts([])
       setIsLoadingSkeleton(false)
       setIsLoading(false)

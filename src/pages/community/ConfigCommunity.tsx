@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ArrowLeft, Globe, Lock, Upload, User } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import toast from 'react-hot-toast'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { MessageForms } from '../../components/formCustomer/MessageForms'
 import { Button } from '../../components/ui/button'
@@ -33,6 +32,7 @@ import {
   updateCommunityDetails,
 } from '../../services/authService'
 import { LoadingComponent } from '../../utils/components/Loading'
+import { MessagePerson } from '../../utils/components/MessagePerson'
 interface ConfigCommunityProps {
   showButtonReturn?: boolean
   methodW_fullscreen?: boolean
@@ -147,7 +147,8 @@ const ConfigCommunity = ({
       }
 
       await updateCommunityDetails(communityId, payload)
-      toast.success('Alterações salvas com sucesso!')
+      MessagePerson('Alterações salvas com sucesso', null, 'success')
+
       navigation('/comunidades')
     } catch (error) {
       if (error instanceof Error) {
@@ -158,8 +159,7 @@ const ConfigCommunity = ({
           })
           return
         }
-
-        toast.error(error.message)
+MessagePerson(error.message, null, 'error')
       }
     }
   }

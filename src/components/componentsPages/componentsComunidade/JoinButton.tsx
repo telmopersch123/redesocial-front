@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
 import { Lock, UserRoundPlus } from 'lucide-react'
-import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { joinCommunity } from '../../../services/authService'
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 import { Button } from '../../ui/button'
 
 interface JoinButtonProps {
@@ -31,13 +31,14 @@ export const JoinButton = ({
       const response = await joinCommunity(communityId)
       console.log(response)
       if (!response.error) {
-        toast.success(`Bem-vindo à comunidade! ${nameComunity}`)
+        MessagePerson('Sucesso', `Bem-vindo à comunidade! ${nameComunity}`, 'success')
+
         onRefresh()
       } else {
         navigate('/auth')
       }
     } catch (error: any) {
-      toast.error(error)
+     MessagePerson('Erro', error.message, 'error')
     } finally {
       setIsLoading(false)
     }

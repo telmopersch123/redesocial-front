@@ -6,8 +6,9 @@ import LoginComponent from '../components/componentsPages/componentAuthenticatio
 import RegisterComponent from '../components/componentsPages/componentAuthentication/RegisterComponent'
 import ResetPasswordComponent from '../components/componentsPages/componentAuthentication/updatePassword'
 import { useResetPassword } from '../context/ResetPasswordContext'
-import { alertMessage } from '../utils/components/alertMensage'
+
 import { LoadingOverlay } from '../utils/components/Loading'
+import { MessagePerson } from '../utils/components/MessagePerson'
 
 const AuthenticadorPage = () => {
   const [permissionCode, setPermissionCode] = useState<boolean>(false)
@@ -20,7 +21,7 @@ const AuthenticadorPage = () => {
 
   useEffect(() => {
     if (messageConfirm) {
-      alertMessage(
+      MessagePerson(
         'Concluido!',
         'Sua senha foi alterada com sucesso',
         'success'

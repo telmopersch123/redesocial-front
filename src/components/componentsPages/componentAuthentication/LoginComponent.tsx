@@ -3,7 +3,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import toast from 'react-hot-toast'
 import { Button } from '../../../components/ui/button'
 import {
   Card,
@@ -23,6 +22,7 @@ import {
   type LoginFormData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 import { loginUser } from '../../../services/authService'
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 import ValidatedCodeLogin from './ValidatedCodeLogin'
 
 interface LoginComponentProps {
@@ -80,7 +80,7 @@ const LoginComponent = ({
           setUser(response.user)
           window.location.href = '/'
         } else {
-          toast.error(response.error)
+          MessagePerson('Erro', response.error, 'error')
         }
       } catch (error) {
         console.log(error)

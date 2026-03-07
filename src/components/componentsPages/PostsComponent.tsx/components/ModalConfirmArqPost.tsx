@@ -4,13 +4,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Archive, Eye, Upload, X } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import toast from 'react-hot-toast'
 import { useRefreshPermission } from '../../../../context/RefreshPermissionContext'
 import {
   archivePostSchema,
   type ArchivePostFormData,
 } from '../../../../lib/validatorSchemas/autoSchemaAutenticator'
 import { ArchivedPostsCommunity } from '../../../../services/authService'
+import { MessagePerson } from '../../../../utils/components/MessagePerson'
 import { TooltipComponent } from '../../../globalcomponents/tooltipComponent'
 import {
   AlertDialog,
@@ -114,7 +114,8 @@ export const ModalConfirmArchivePost = ({
         data.motivo,
         communityId
       )
-      toast.success('Post arquivado com sucesso')
+      MessagePerson('Postagem arquivada com sucesso', null, 'success')
+
       reset({
         motivo: '',
         imagens: [],
@@ -126,7 +127,8 @@ export const ModalConfirmArchivePost = ({
       }
       triggerRefresh()
     } catch {
-      toast.error('Erro ao arquivar post')
+      MessagePerson('Erro ao arquivar post', null, 'error')
+
       if (setOpen !== undefined) {
         setOpen(true)
       }

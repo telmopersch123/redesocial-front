@@ -1,8 +1,8 @@
 import { Loader2, LogOut } from 'lucide-react'
 import { useState } from 'react'
 
-import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,12 +43,12 @@ export const LeaveButton = ({
       )
 
       if (!response.ok) throw new Error()
-
-      toast.success(`Você saiu de ${communityName}`)
+       MessagePerson('Ops!', `Você saiu de ${communityName}`, 'success')
       if (setOpen) setOpen(false)
       navigate('/comunidades', { replace: true })
     } catch (error) {
-      toast.error('Erro ao sair da comunidade')
+      MessagePerson('Ops!', 'Erro ao sair da comunidade', 'error')
+
     } finally {
       setIsLeaving(false)
     }

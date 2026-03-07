@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { PlusCircle, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { toast, Toaster } from 'sonner'
+import { Toaster } from 'sonner'
 import CardsCommunityComponent from '../../components/componentsPages/componentsComunidade/CardsCommunityComponent'
 import PaginationComponent from '../../components/componentsPages/componentsComunidade/PaginationComponent'
 import { CommunityCardSkeleton } from '../../components/componentsPages/componentsPerfil/Skeleton'
@@ -10,6 +10,7 @@ import { Button } from '../../components/ui/button'
 import { useComunidades } from '../../context/CommunityContext'
 import { useAuth } from '../../context/getMe'
 import type { CommunityInterface } from '../../types'
+import { MessagePerson } from '../../utils/components/MessagePerson'
 import { FilterCommunity } from './filterComponent'
 
 const CommunityPage = () => {
@@ -65,7 +66,8 @@ const CommunityPage = () => {
         setCommunities(data)
       }
     } catch (error) {
-      toast.error('Erro ao carregar comunidades')
+      MessagePerson('Erro ao carregar comunidades', null, 'error')
+
       setIsLoading(false)
     } finally {
       setIsLoading(false)
@@ -82,7 +84,8 @@ const CommunityPage = () => {
 
   useEffect(() => {
     if (location.state?.communityError === 'not-found') {
-      toast.error('Comunidade não encontrada, ou foi removida!')
+      MessagePerson('Comunidade não encontrada', null, 'error')
+
 
       window.history.replaceState({}, document.title)
     }

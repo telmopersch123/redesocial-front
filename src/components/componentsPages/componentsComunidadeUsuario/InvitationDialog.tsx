@@ -1,6 +1,5 @@
 import { Check, Copy, Loader2, UserPlus } from 'lucide-react'
 import { useState } from 'react'
-import toast from 'react-hot-toast'
 import { useParams } from 'react-router-dom'
 import { Button } from '../../../components/ui/button'
 import {
@@ -12,6 +11,7 @@ import {
   DialogTrigger,
 } from '../../../components/ui/dialog'
 import { generateCommunityInvite } from '../../../services/authService'
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 
 interface MyComponentGenerateProps {
   communityIdFromState: number
@@ -43,7 +43,8 @@ const InvitationDialog = ({
       setInvite(data)
       setCopied(false)
     } catch (error) {
-      toast.error('Não foi possível gerar o link de convite.')
+      MessagePerson('Erro ao gerar convite', 'Tente novamente mais tarde', 'error')
+
       setOpen(false) // Fecha o dialog em caso de erro
     } finally {
       setIsLoading(false)

@@ -3,40 +3,51 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react'
 type AlertToastProps = {
   title: string
   message?: string | null
-  type: 'error' | 'success'
+  type: 'error' | 'success' | 'warning' | 'info'
 }
 
+import { AlertTriangle, Crown, Info, RotateCcw, Trash2 } from 'lucide-react'
+
 export function AlertToast({ title, message, type }: AlertToastProps) {
-  const isError = type === 'error'
+
+  const configs = {
+    success: {
+      icon: <CheckCircle2 className="h-5 w-5 text-green-500" />,
+      titleColor: 'text-green-700 dark:text-green-400',
+    },
+    error: {
+      icon: <AlertCircle className="h-5 w-5 text-red-500" />,
+      titleColor: 'text-red-700 dark:text-red-400',
+    },
+    warning: {
+      icon: <AlertTriangle className="h-5 w-5 text-amber-500" />,
+      titleColor: 'text-amber-700 dark:text-amber-400',
+    },
+    info: {
+      icon: <Info className="h-5 w-5 text-blue-500" />,
+      titleColor: 'text-blue-700 dark:text-blue-400',
+    },
+  }
+
+  const { icon, titleColor } = configs[type] || configs.info
 
   return (
-    <div className="flex min-w-[250px] flex-col items-start gap-2">
+    <div className="flex min-w-[260px] flex-col gap-1.5">
       <div className="flex items-center gap-3">
-        {isError ? (
-          <AlertCircle className="h-6 w-6 text-red-500" />
-        ) : (
-          <CheckCircle2 className="h-6 w-6 text-green-500" />
-        )}
-
-        <h2
-          className={`text-sm font-semibold ${
-            isError ? 'text-red-600' : 'text-green-600'
-          }`}
-        >
+        {icon}
+        <h2 className={`text-sm font-bold leading-none tracking-tight ${titleColor}`}>
           {title}
         </h2>
       </div>
 
       {message && (
-        <p className="text-xs leading-snug text-gray-700 dark:text-gray-200">
+        <p className="pl-8 text-xs font-medium leading-relaxed text-gray-600 dark:text-gray-400">
           {message}
         </p>
       )}
     </div>
   )
 }
-
-import { Crown, RotateCcw, Trash2 } from 'lucide-react'
 
 export function UserRoleToast({ userName, action, message, visible }: Params) {
   const isPromote = action === 'promote'

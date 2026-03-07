@@ -78,7 +78,7 @@ export const ProfileHeaderSkeleton = () => {
 
 export const FollowerSkeleton = () => {
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-4 transition-colors dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="flex w-full items-center gap-4 rounded-xl border border-zinc-200 bg-white p-4 transition-colors dark:border-zinc-800 dark:bg-zinc-900">
       {/* Avatar */}
       <Skeleton className="h-12 w-12 rounded-full bg-zinc-200 dark:bg-zinc-700" />
 

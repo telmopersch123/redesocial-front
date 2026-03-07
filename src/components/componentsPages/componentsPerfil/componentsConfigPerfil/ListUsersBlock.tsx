@@ -1,6 +1,5 @@
 import { Loader2, UserX } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import toast from 'react-hot-toast'
 import {
   Avatar,
   AvatarFallback,
@@ -21,6 +20,7 @@ import {
   getUsersBlocked,
 } from '../../../../services/authService'
 import type { TypeFriend } from '../../../../types'
+import { MessagePerson } from '../../../../utils/components/MessagePerson'
 import { Label } from '../../../ui/label'
 import { FollowerSkeleton } from '../Skeleton'
 import { openOnly } from './ConfigDialog'
@@ -67,7 +67,7 @@ const ListUsersBlock = ({ open, setOpen }: ListUsersBlockProps) => {
     } catch (error) {
       console.error(error)
       setHasMoreFriend(false)
-      toast.error('Erro ao carregar lista de bloqueados.')
+      MessagePerson('Erro ao carregar lista de bloqueados', null, 'error')
     } finally {
       setIsLoading(false)
     }
@@ -78,9 +78,11 @@ const ListUsersBlock = ({ open, setOpen }: ListUsersBlockProps) => {
       await DesblockedUser(userId)
       setUsersBlock((prev) => prev.filter((u) => u.id !== userId))
 
-      toast.success(`@${username} desbloqueado!`)
+      MessagePerson(`@${username} desbloqueado!`, null, 'success')
+
     } catch (error) {
-      toast.error('Erro ao desbloquear usuário.')
+      MessagePerson('Erro ao desbloquear usuário', null, 'error')
+
     }
   }
 

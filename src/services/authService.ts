@@ -19,32 +19,64 @@ function useDebounce(value: string, delay: number) {
 
   return debounced
 }
-export function useUserSearch() {
+
+interface userSearchInterface {
+  loadingRef: React.RefObject<boolean>
+  setHasMore: React.Dispatch<React.SetStateAction<boolean>>
+  setResults: React.Dispatch<React.SetStateAction<userTypeSearch[]>>
+  setIsLoadingSkeleton: React.Dispatch<React.SetStateAction<boolean>>
+}
+export function useUserSearch({
+  loadingRef,
+  setHasMore,
+  setResults,
+  setIsLoadingSkeleton,
+}: userSearchInterface) {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<userTypeSearch[]>([])
+  const [page, setPage] = useState(1)
   const debouncedQuery = useDebounce(query, 300)
 
   useEffect(() => {
+    setPage(1)
+    setResults([])
+    setHasMore(true)
+  }, [debouncedQuery])
+
+  useEffect(() => {
+    console.log(page, debouncedQuery)
+    if (debouncedQuery.trim().length < 3) return
     if (!debouncedQuery) return
 
     async function fetchUsers() {
+      if (loadingRef.current) return
+      loadingRef.current = true
+      setIsLoadingSkeleton(true)
+
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/auth/users/search?q=${debouncedQuery}`,
+          `${import.meta.env.VITE_API_URL}/auth/users/search/${page}?q=${debouncedQuery}`,
           {
             credentials: 'include',
           }
         )
         const data = await res.json()
-        setResults(data.users)
+        if (data.users.length < 10) {
+          setHasMore(false)
+        }
+        setResults((prev) =>
+          page === 1 ? data.users : [...prev, ...data.users]
+        )
       } catch (err) {
         console.error(err)
+      } finally {
+        loadingRef.current = false
+        setIsLoadingSkeleton(false)
       }
     }
     fetchUsers()
-  }, [debouncedQuery])
+  }, [debouncedQuery, page])
 
-  return { setQuery, query, results }
+  return { setQuery, query, setPage }
 }
 export async function logoutUser(): Promise<boolean> {
   try {

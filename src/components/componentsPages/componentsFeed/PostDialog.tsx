@@ -10,7 +10,6 @@ import { useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 
-import toast from 'react-hot-toast'
 import { useAuth } from '../../../context/getMe'
 import { useRefreshPermission } from '../../../context/RefreshPermissionContext'
 import { useLimitForms } from '../../../hooks/useLimitForms'
@@ -19,6 +18,7 @@ import {
   type PostDialogSchema,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 import { createPosts } from '../../../services/authService'
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 import { MessageForms } from '../../formCustomer/MessageForms'
 import { Button } from '../../ui/button'
 import {
@@ -268,7 +268,8 @@ export function PostDialog() {
       handleCloseDialog()
       setTags([])
       triggerRefresh()
-      toast.success('Post criado com sucesso')
+      MessagePerson('Sucesso!', 'Post criado com sucesso', 'success')
+
     } catch (err) {
       console.log(err)
     } finally {

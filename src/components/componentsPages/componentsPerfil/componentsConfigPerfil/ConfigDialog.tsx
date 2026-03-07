@@ -13,9 +13,9 @@ import {
   DialogTrigger,
 } from '../../../ui/dialog'
 
-import toast from 'react-hot-toast'
 import { useAuth } from '../../../../context/getMe'
 import { usePosts } from '../../../../context/PostsContext'
+import { MessagePerson } from '../../../../utils/components/MessagePerson'
 import PostComponentDialog from '../../PostsComponent.tsx/PostComponentDialog'
 import { ActivityComponent } from './AcitivyComponent'
 import NavbarConfig from './NavbarConfigComponent'
@@ -79,9 +79,11 @@ export function ConfigDialog({
       }
       if (res.ok) {
         setTwoFactor(true)
-        toast.success('Autenticação em duas etapas ativada!')
+        MessagePerson('Sucesso', 'Autenticação em duas etapas ativada!', 'success')
+
       } else {
-        toast.error('Erro ao ativar 2FA. Tente novamente.')
+        MessagePerson('Erro ao ativar 2FA', null, 'error')
+
       }
     } catch (error) {
       console.log(error)
@@ -101,10 +103,12 @@ export function ConfigDialog({
       if (res.ok) {
         setTwoFactor(false)
         setOpenDialog((prev) => prev.map(() => false))
-        toast.success('Proteção 2FA desativada.')
+        MessagePerson('Sucesso', 'Autenticação em duas etapas desativada!', 'success')
+
       }
     } catch (error) {
-      toast.error('Erro ao desativar. Tente novamente.')
+      MessagePerson('Erro ao desativar 2FA', null, 'error')
+
     }
   }
 
@@ -158,11 +162,9 @@ export function ConfigDialog({
           {tab === 1 && (
             <DialogFooter className="mt-6 gap-2">
               <DialogClose asChild>
-                <Button variant="outline">Cancelar</Button>
+                <Button variant="outline">Fechar</Button>
               </DialogClose>
-              <Button className="bg-linear-purple transition-shadow hover:shadow-md">
-                Salvar alterações
-              </Button>
+          
             </DialogFooter>
           )}
         </DialogContent>
