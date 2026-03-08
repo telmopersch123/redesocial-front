@@ -52,42 +52,41 @@ const PostComponentDialog = ({
   pauseVideo,
 }: PostProp) => {
   const { user: authUser } = useAuth()
+  const comentarios = useLimitForms(5000)
+  const pathname = useLocation().pathname
+  const videoRef = useRef<HTMLVideoElement>(null)
   const navigate = useNavigate()
-  if (valuePosts === undefined || valuePosts === null) return null
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const { videoState, setVideoState } = useContext(VideoContext)
+  const { openActionPosts, setOpenActionPosts } = useCriarPostDialog()
+  const { getMatches, sugestoes, setActiveInputId, activeInputId } =
+    useMentionLogic()
+  const { id } = useParams()
+  const { setSelectedPost } = usePosts()
+  const inputRef = useRef<HTMLInputElement | null>(null)
+  const [openReplies, setOpenReplies] = useState<{
+    [commentId: string]: boolean
+  }>({})
   const postFromContext = posts.find((p) => p.id === valuePosts.id)
+  const [usuariosSelecionados, setUsuariosSelecionados] = useState<
+    { id: number; name_at: string }[]
+  >([])
 
+  const [clickedMention, setClickedMention] = useState(false)
+  const [isLoadingComment, setIsLoadingComment] = useState(false)
+  const [sendingLoadingCommentId, setSendingLoadingCommentId] =
+    useState<number>(0)
+  const [respondendoA, setRespondendoA] = useState<number | null>(null)
+  const [textoResposta, setTextoResposta] = useState('')
+  if (valuePosts === undefined || valuePosts === null) return null
   const postAtualizado: Post = {
     ...(postFromContext ?? valuePosts),
     likedByMe: valuePosts.likedByMe,
     saved: valuePosts.saved,
     likesCount: valuePosts.likesCount,
   }
-
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const { getMatches, sugestoes, setActiveInputId, activeInputId } =
-    useMentionLogic()
-  const [openReplies, setOpenReplies] = useState<{
-    [commentId: string]: boolean
-  }>({})
-  const [usuariosSelecionados, setUsuariosSelecionados] = useState<
-    { id: number; name_at: string }[]
-  >([])
-  const { openActionPosts, setOpenActionPosts } = useCriarPostDialog()
-  const [clickedMention, setClickedMention] = useState(false)
-  const [isLoadingComment, setIsLoadingComment] = useState(false)
-  const [sendingLoadingCommentId, setSendingLoadingCommentId] =
-    useState<number>(0)
   const idInput = 'comment-' + postAtualizado.id
 
-  const comentarios = useLimitForms(5000)
-  const pathname = useLocation().pathname
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const [respondendoA, setRespondendoA] = useState<number | null>(null)
-  const [textoResposta, setTextoResposta] = useState('')
-  const { videoState, setVideoState } = useContext(VideoContext)
-  const { id } = useParams()
-  const { setSelectedPost } = usePosts()
-  const inputRef = useRef<HTMLInputElement | null>(null)
   const adicionarComentario = async (postId: number) => {
     if (!novoComentario.trim()) return
     if (!authUser) {
@@ -116,7 +115,7 @@ const PostComponentDialog = ({
 
       if (!response.ok) {
         MessagePerson('Erro ao comentar', data.error, 'error')
-        
+        return
       }
       const newComment = data.comment
       setPosts(
@@ -125,16 +124,25 @@ const PostComponentDialog = ({
             return {
               ...p,
               comments: [...(p.comments ?? []), newComment],
+              _count: {
+                ...(p._count ?? {}),
+                comments: (p._count?.comments ?? 0) + 1,
+              },
             }
           }
           return p
         }) as ExtendedPost[]
       )
-      setSelectedPost((prev) => {
+      setSelectedPost((prev: Post | null) => {
         if (!prev) return prev
         return {
           ...prev,
           comments: { ...(prev.comments ?? []), newComment },
+          _count: {
+            ...(prev._count ?? {}),
+            comments: (prev._count?.comments ?? 0) + 1,
+            likes: prev._count?.likes ?? 0,
+          },
         }
       })
       setUsuariosSelecionados([])
@@ -143,7 +151,6 @@ const PostComponentDialog = ({
     } catch (err) {
       console.log(err)
       MessagePerson('Erro ao comentar', 'Tente novamente mais tarde', 'error')
-
     } finally {
       setIsLoadingComment(false)
     }
@@ -154,7 +161,7 @@ const PostComponentDialog = ({
     respondendoPara?: string
   ) => {
     if (!textoResposta.trim()) return
-        if (!authUser) {
+    if (!authUser) {
       MessagePerson(
         'Erro ao comentar',
         'Você precisa estar logado para comentar',
@@ -181,7 +188,7 @@ const PostComponentDialog = ({
 
       if (!response.ok) {
         MessagePerson('Erro ao comentar', data.error, 'error')
-       
+        return
       }
       const novaResposta = data.comment
       setPosts(
@@ -194,6 +201,10 @@ const PostComponentDialog = ({
                 comentarioId,
                 novaResposta
               ),
+              _count: {
+                ...(p._count ?? {}),
+                comments: (p._count?.comments ?? 0) + 1,
+              },
             }
           }
           return p
@@ -275,7 +286,7 @@ const PostComponentDialog = ({
             } items-center gap-1.5 text-sm font-medium text-gray-600 transition-all hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400`}
           >
             <MessageCircle className="h-4 w-4" />
-            {(postAtualizado.comments ?? []).length}
+            {postAtualizado._count?.comments ?? 0}
           </Button>
         </DialogTrigger>
 
@@ -395,7 +406,7 @@ const PostComponentDialog = ({
               {(postAtualizado.comments?.length ?? 0) > 0 ? (
                 postAtualizado.comments?.map((c: ComentarioPost) => (
                   <CommentItem
-                    key={c.id}
+                    key={c.id ?? 0}
                     comentario={c}
                     nivel={0}
                     respondendoA={respondendoA}

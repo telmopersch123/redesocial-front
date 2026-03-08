@@ -38,6 +38,7 @@ const ActionsPost = ({
   const pathname = window.location.pathname
   const [openDialog, setOpenDialog] = useState(false)
   const [liked, setLiked] = useState(valuePost.likedByMe ?? false)
+
   const likesCount = valuePost._count?.likes ?? 0
   const { user: authUser } = useAuth()
   const validatedRouter = pathname.includes(`perfil/config`) ? true : false
@@ -76,19 +77,20 @@ const ActionsPost = ({
     const currentLikes = likesCount
     const optimisticLikes = wasLiked ? currentLikes - 1 : currentLikes + 1
     setLiked(!wasLiked)
-    setPosts((prev) =>
-      prev.map((post) =>
-        post.id === id
-          ? {
-              ...post,
-              likedByMe: !wasLiked,
-              _count: {
-                ...post._count,
-                likes: optimisticLikes,
-              },
-            }
-          : post
-      )
+    setPosts(
+      (prev) =>
+        prev.map((post) =>
+          post.id === id
+            ? {
+                ...post,
+                likedByMe: !wasLiked,
+                _count: {
+                  ...post._count,
+                  likes: optimisticLikes,
+                },
+              }
+            : post
+        ) as ExtendedPost[]
     )
     setSelectedPost((prev) =>
       prev?.id === id
@@ -106,19 +108,20 @@ const ActionsPost = ({
       const updated = await updateLikedPost(id)
       if (!updated.ok) {
         setLiked(wasLiked)
-        setPosts((prev) =>
-          prev.map((post) =>
-            post.id === id
-              ? {
-                  ...post,
-                  likedByMe: wasLiked,
-                  _count: { ...post._count, likes: currentLikes },
-                }
-              : post
-          )
+        setPosts(
+          (prev) =>
+            prev.map((post) =>
+              post.id === id
+                ? {
+                    ...post,
+                    likedByMe: wasLiked,
+                    _count: { ...post._count, likes: currentLikes },
+                  }
+                : post
+            ) as ExtendedPost[]
         )
         MessagePerson('Erro ao curtir o post', updated.error, 'error')
-      
+        return
       }
       setLiked(updated.liked)
       setPosts((prev) =>
@@ -162,7 +165,6 @@ const ActionsPost = ({
       )
       const errorMsg = 'Erro ao curtir o post'
       MessagePerson(errorMsg, 'Tente novamente mais tarde', 'error')
-
     }
   }
 
@@ -186,7 +188,6 @@ const ActionsPost = ({
           )
         )
         MessagePerson('Erro ao salvar o post', response.error, 'error')
-       
       }
       setPosts((prev) =>
         prev.map((post: ExtendedPost) =>
@@ -203,8 +204,11 @@ const ActionsPost = ({
           post.id === id ? { ...post, saved: wasSaved } : post
         )
       )
-      MessagePerson('Erro ao salvar o post', 'Tente novamente mais tarde', 'error')
-
+      MessagePerson(
+        'Erro ao salvar o post',
+        'Tente novamente mais tarde',
+        'error'
+      )
     }
   }
 

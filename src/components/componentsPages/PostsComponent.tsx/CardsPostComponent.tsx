@@ -67,8 +67,6 @@ const CardsPostComponent = ({
     }
   }, [videoState, valuePost.id])
 
-  console.log(valuePost)
-
   return (
     <Card
       key={valuePost.id}
