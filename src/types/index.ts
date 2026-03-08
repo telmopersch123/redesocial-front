@@ -42,7 +42,7 @@ export interface Post {
   likes: Like[]
   saves: Save[]
   saved: boolean
-  _count?: { likes: number; comments: number }
+  _count?: { likes: number; comments?: number }
   anonymous?: boolean
 }
 

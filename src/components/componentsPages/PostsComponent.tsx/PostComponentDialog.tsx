@@ -292,20 +292,20 @@ const PostComponentDialog = ({
 
         <DialogContent className="!z-[70] flex h-[95vh] w-[95vw] max-w-[95vw] flex-col overflow-hidden rounded-xl bg-white p-0 dark:bg-[#1a1a1a] lg:flex-row xl:max-w-[80vw] 2xl:max-w-[70vw] [&>button]:hidden">
           {/* LADO ESQUERDO: MÍDIA */}
+
           <div
             className={`h-1/3 flex-[1] justify-center lg:h-full lg:items-center ${postAtualizado.mediaUrl ? 'flex' : 'hidden'}`}
           >
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-4 z-50 h-8 w-8 rounded-full bg-black/10 text-gray-600 hover:bg-red-500 hover:text-white dark:text-gray-400 lg:hidden"
+              onClick={() => onOpenChange(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
             {postAtualizado.mediaUrl ? (
               <div className="relative flex max-h-[600px] min-h-[300px] items-center justify-center overflow-hidden border-r bg-black/5 dark:border-gray-800 dark:bg-[#1a1a1a]">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-4 top-4 z-50 h-8 w-8 rounded-full bg-black/10 text-gray-600 hover:bg-red-500 hover:text-white dark:text-gray-400 lg:hidden"
-                  onClick={() => onOpenChange(false)}
-                >
-                  <X className="h-5 w-5" />
-                </Button>
-
                 {postAtualizado.mediaType === 'video' ? (
                   <div className="flex h-full w-full items-center justify-center">
                     <video
