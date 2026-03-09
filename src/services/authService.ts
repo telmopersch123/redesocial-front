@@ -43,7 +43,6 @@ export function useUserSearch({
   }, [debouncedQuery])
 
   useEffect(() => {
-    console.log(page, debouncedQuery)
     if (debouncedQuery.trim().length < 3) return
     if (!debouncedQuery) return
 

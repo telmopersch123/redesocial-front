@@ -24,6 +24,7 @@ export interface Contato {
     id: number
     name_at: string
     avatar: string
+    isFriendship: boolean
   }
   lastMessage: {
     id: string

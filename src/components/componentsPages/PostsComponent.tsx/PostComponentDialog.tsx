@@ -20,8 +20,10 @@ import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import { VideoContext } from '../../../context/VideoContext'
 import { createComment } from '../../../services/authService'
 
+import { debounce } from 'lodash'
 import { usePosts } from '../../../context/PostsContext'
 import { useAuth } from '../../../context/getMe'
+import { useInfiniteScrollDialog } from '../../../hooks/effectsSkeletons'
 import type { ExtendedPost } from '../../../pages/community/PostsArchived'
 import { MessagePerson } from '../../../utils/components/MessagePerson'
 import ListMarcation from './ListMarcation'
@@ -56,7 +58,7 @@ const PostComponentDialog = ({
   const pathname = useLocation().pathname
   const videoRef = useRef<HTMLVideoElement>(null)
   const navigate = useNavigate()
-  const scrollRef = useRef<HTMLDivElement>(null)
+
   const { videoState, setVideoState } = useContext(VideoContext)
   const { openActionPosts, setOpenActionPosts } = useCriarPostDialog()
   const { getMatches, sugestoes, setActiveInputId, activeInputId } =
@@ -78,6 +80,25 @@ const PostComponentDialog = ({
     useState<number>(0)
   const [respondendoA, setRespondendoA] = useState<number | null>(null)
   const [textoResposta, setTextoResposta] = useState('')
+  const [limtedComments, setLimtedComments] = useState<boolean>(false)
+
+  const [isLoadingSkeleton, setIsLoadingSkeleton] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const [page, setPage] = useState(1)
+  const debouncedOnLoadMore = debounce(() => {
+    if (isLoadingSkeleton || !hasMore) return
+    const nextPage = page + 1
+    setPage(nextPage)
+    fetchMoreComments(nextPage)
+  }, 300)
+
+  const { scrollContainerRef, loadMoreRef } = useInfiniteScrollDialog({
+    enabled: !isLoadingSkeleton,
+    hasMore: hasMore,
+    rootMargin: '200px',
+    threshold: 0.1,
+    onLoadMore: debouncedOnLoadMore,
+  })
   if (valuePosts === undefined || valuePosts === null) return null
   const postAtualizado: Post = {
     ...(postFromContext ?? valuePosts),
@@ -86,6 +107,64 @@ const PostComponentDialog = ({
     likesCount: valuePosts.likesCount,
   }
   const idInput = 'comment-' + postAtualizado.id
+
+  const fetchMoreComments = async (pageNumber = 1) => {
+    if (!hasMore || isLoadingSkeleton) return
+
+    setIsLoadingSkeleton(true)
+    try {
+      const id = postAtualizado.id
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/getCommentsPosts/${id}/${pageNumber}`,
+        {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      const data = await response.json()
+
+      const newComments = data.comments || data
+      const backendHasMoreLimited = data.hasMoreLimited
+      setLimtedComments(backendHasMoreLimited)
+
+      if (
+        !newComments ||
+        newComments.length < 10 ||
+        backendHasMoreLimited === false
+      ) {
+        setHasMore(false)
+      } else {
+        setHasMore(true)
+      }
+
+      if (newComments && newComments.length > 0) {
+        setPosts((prevPosts) => {
+          return prevPosts.map((p) => {
+            if (p.id === postAtualizado.id) {
+              const existingIds = new Set(p.comments?.map((c) => c.id) || [])
+              const filteredNew = newComments.filter((nc: ComentarioPost) => {
+                return !existingIds.has(nc.id)
+              })
+
+              return {
+                ...p,
+                comments: [...(p.comments || []), ...filteredNew],
+              }
+            }
+            return p
+          })
+        })
+        setPage(pageNumber)
+      }
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsLoadingSkeleton(false)
+    }
+  }
 
   const adicionarComentario = async (postId: number) => {
     if (!novoComentario.trim()) return
@@ -400,7 +479,7 @@ const PostComponentDialog = ({
 
             {/* ÁREA DE SCROLL DOS COMENTÁRIOS */}
             <div
-              ref={scrollRef}
+              ref={scrollContainerRef}
               className="custom-scrollbar min-h-0 flex-1 space-y-4 overflow-y-auto p-4"
             >
               {(postAtualizado.comments?.length ?? 0) > 0 ? (
@@ -416,7 +495,7 @@ const PostComponentDialog = ({
                     adicionarResposta={adicionarResposta}
                     setOpenReplies={setOpenReplies}
                     openReplies={openReplies}
-                    scrollRef={scrollRef}
+                    scrollRef={scrollContainerRef}
                     setPosts={setPosts}
                     disabled={sendingLoadingCommentId}
                   />
@@ -427,6 +506,21 @@ const PostComponentDialog = ({
                     Ainda não há comentários — que tal começar? 😊
                   </p>
                 </div>
+              )}
+              {hasMore && !limtedComments && (
+                <div ref={loadMoreRef} className="min-h-[20px] w-full">
+                  {isLoadingSkeleton && (
+                    <div className="flex items-center justify-center gap-2 text-purple-500">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <span className="text-sm">Carregando mais...</span>
+                    </div>
+                  )}
+                </div>
+              )}
+              {limtedComments && (
+                <span className="text-xs italic text-muted-foreground duration-500 animate-in fade-in">
+                  — Você chegou ao fim dos comentários —
+                </span>
               )}
             </div>
 

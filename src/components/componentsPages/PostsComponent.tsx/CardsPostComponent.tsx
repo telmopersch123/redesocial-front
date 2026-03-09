@@ -1,6 +1,6 @@
 import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Clock, Play, Users } from 'lucide-react'
+import { Clock, Loader2, Play, Trash2, Users } from 'lucide-react'
 import React, { useContext, useEffect, useRef, useState } from 'react'
 
 import { VideoContext, type VideoState } from '../../../context/VideoContext'
@@ -9,9 +9,11 @@ import type { Post } from '../../../types'
 import { useLocation } from 'react-router-dom'
 import { useAuth } from '../../../context/getMe'
 import type { ExtendedPost } from '../../../pages/community/PostsArchived'
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 import { UserAvatar } from '../../../utils/components/UserAvatar'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 import { Badge } from '../../ui/badge'
+import { Button } from '../../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
 import ActionsPost from './components/ActionsPostComponent'
 import { ModalConfirmArchivePost } from './components/ModalConfirmArqPost'
@@ -39,8 +41,31 @@ const CardsPostComponent = ({
   const validatedModerator = isModerator(valuePost.communityId ?? 0)
   const validatedAdmin = isAdmin(valuePost.communityId ?? 0)
   const { videoState, setVideoState } = useContext(VideoContext)
+  const [isLoadingRemovePost, setIsLoadingRemovePost] = useState(false)
   const { user } = useAuth()
   const videoRef = useRef<HTMLVideoElement>(null)
+
+  const removePost = async (postId: number) => {
+    setIsLoadingRemovePost(true)
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/removePost/${postId}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      )
+
+      if (!response.ok) throw new Error()
+
+      setPosts((prev) => prev.filter((post) => post.id !== valuePost.id))
+      MessagePerson('Post excluido com sucesso', null, 'success')
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsLoadingRemovePost(false)
+    }
+  }
 
   const pauseVideo = () => {
     if (!videoRef.current) return
@@ -136,6 +161,37 @@ const CardsPostComponent = ({
             </div>
           </div>
         </div>
+        {user?.id === valuePost.user.id && !valuePost.communityId && (
+          <div className="flex items-center">
+            <TooltipComponent
+              description="Excluir Permanentemente"
+              Tag={
+                <Button
+                  variant="outline"
+                  className="group relative h-10 w-10 overflow-hidden border-red-200/50 bg-white transition-all duration-300 ease-out hover:w-32 hover:border-red-600 hover:bg-red-600 dark:border-red-900/30 dark:bg-zinc-900"
+                  onClick={() => {
+                    removePost(valuePost.id)
+                  }}
+                >
+                  <div className="absolute inset-0 z-0 translate-y-full bg-gradient-to-t from-red-800 to-red-800 transition-transform duration-300 ease-out group-hover:translate-y-0" />
+                  <div className="relative z-10 flex w-full items-center justify-center font-bold uppercase tracking-tighter">
+                    {isLoadingRemovePost ? (
+                      <Loader2 className="h-5 w-5 animate-spin text-white" />
+                    ) : (
+                      <div className="flex items-center group-hover:gap-2">
+                        <Trash2 className="h-4 w-4 text-red-600 transition-colors duration-300 group-hover:text-white" />
+                        <span className="max-w-0 overflow-hidden whitespace-nowrap text-[10px] text-white transition-all duration-300 group-hover:max-w-xs">
+                          Excluir Post
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="absolute inset-0 border-2 border-transparent transition-all duration-300 group-hover:border-white/10" />
+                </Button>
+              }
+            />
+          </div>
+        )}
         {communityShowButtonArchived && validatedModerator && !postsArchived ? (
           <ModalConfirmArchivePost
             postId={valuePost.id}

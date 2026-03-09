@@ -463,6 +463,7 @@ const MessagePage = () => {
       socket.emit('chat:read', { chatId: selectedChat })
     }
   }, [chatMessages, selectedChat])
+  console.log(contatos)
 
   return (
     <div className="flex h-screen w-full flex-col gap-0 p-2 md:w-[calc(100vw-16rem)] md:flex-row md:gap-4 md:p-4 dm:w-[calc(100vw-18rem)]">
@@ -510,7 +511,13 @@ const MessagePage = () => {
                             {contato.contact.name_at}
                           </span>
                         </div>
+                        {contato.contact.isFriendship && (
+                          <span className="ml-2 flex items-center justify-center whitespace-nowrap rounded-full border border-emerald-200 bg-emerald-100 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wide text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-400">
+                            AMIGO
+                          </span>
+                        )}
                       </div>
+
                       {typingUsers.has(contato.contact.id) ? (
                         <span className="text-xs italic text-zinc-500">
                           digitando...

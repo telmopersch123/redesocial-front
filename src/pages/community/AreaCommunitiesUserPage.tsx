@@ -141,7 +141,11 @@ export default function AreaCommunitiesUserPage() {
     }
     try {
       await joinCommunity(targetId)
-      MessagePerson('Sucesso', `Bem-vindo à comunidade! ${inviteData?.name}`, 'success')
+      MessagePerson(
+        'Sucesso',
+        `Bem-vindo à comunidade! ${inviteData?.name}`,
+        'success'
+      )
 
       setIsInvitePending(false)
       setShowInviteModal(false)
@@ -230,7 +234,11 @@ export default function AreaCommunitiesUserPage() {
           setInviteData({ id: data.communityId, name: data.communityName })
           setShowInviteModal(true)
         } catch (err) {
-          MessagePerson('Este link de convite não é mais válido.', null, 'error')
+          MessagePerson(
+            'Este link de convite não é mais válido.',
+            null,
+            'error'
+          )
 
           navigate(`/comunidades/comunidades-do-usuario/${urlCommunityName}`, {
             replace: true,

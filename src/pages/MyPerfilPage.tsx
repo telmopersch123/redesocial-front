@@ -32,7 +32,6 @@ const MyPerfilPage = () => {
     isMyLoading: loading,
     setMyProfile: setProfileUser,
     nomeUser,
-    // refreshMyProfile: refreshProfile,
   } = useMyProfile()
 
   const [page, setPage] = useState(1)

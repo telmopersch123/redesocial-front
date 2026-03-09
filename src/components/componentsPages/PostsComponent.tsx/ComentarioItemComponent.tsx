@@ -96,7 +96,6 @@ const CommentItem = ({
       return updated
     })
   }
-
   //useffect responsavel por controlar o focus no input de respostas
   useEffect(() => {
     if (respondendoA !== comentario.id) return
@@ -135,7 +134,6 @@ const CommentItem = ({
 
     return () => observer?.disconnect()
   }, [respondendoA, comentario.id])
-
   const deletarComentario = async (comentario: ComentarioPost) => {
     try {
       await deleteComment(comentario.id)
@@ -154,7 +152,6 @@ const CommentItem = ({
       console.error('Erro ao deletar comentário:', error)
     }
   }
-
   const removerRecursivo = (
     comentarios: ComentarioPost[],
     idParaRemover: number
