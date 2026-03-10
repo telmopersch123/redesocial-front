@@ -84,11 +84,16 @@ const MessagePage = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const responsive = 1000
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const { id: ChatIdOrUserId } = useParams<{ id: string }>()
+  let { id: ChatIdOrUserId } = useParams<{ id: string }>()
   const isOnline = onlineUsers.has(Number(usersDate?.id))
 
   const typingTimeout = useRef<number | null>(null)
   // effect de inicialização
+  useEffect(() => {
+    if (location.state?.otherUser) {
+      ChatIdOrUserId = location.state.otherUser
+    }
+  }, [location.state])
   useEffect(() => {
     const sessionValue = sessionStorage.getItem('__internal_nav')
     if (!sessionValue) {
@@ -403,6 +408,7 @@ const MessagePage = () => {
 
     async function fetchMessages() {
       // Se veio do sidebar com chatId
+
       if (location.state?.contact) {
         const contato = location.state.contact
         setClickContact(contato.chatId)
@@ -420,6 +426,11 @@ const MessagePage = () => {
         return
       }
 
+      console.log(
+        location.state?.chatId,
+        ChatIdOrUserId,
+        location.state?.otherUser
+      )
       if (location.state?.chatId === false) {
         // Se não veio do sidebar, verificar chat existente
         const userData = await getUser(ChatIdOrUserId)
@@ -430,13 +441,13 @@ const MessagePage = () => {
         if (data.exists && data.chatId) {
           setClickContact(data.chatId)
           setSelectedChat(data.chatId)
+
           inputRef.current?.focus()
           socket.emit('chat:history', {
             chatId: data.chatId,
             typeSearch: 'initial',
           })
         } else {
-          // Aqui você pode criar um novo chat ou deixar pronto para enviar primeira mensagem
           setSelectedChat('')
           setClickContact('')
         }
@@ -444,7 +455,7 @@ const MessagePage = () => {
     }
 
     fetchMessages()
-  }, [ChatIdOrUserId, user?.id])
+  }, [ChatIdOrUserId, user?.id, location.state?.chatId])
   useEffect(() => {
     if (!lastCreatedChatId) return
 
@@ -463,7 +474,6 @@ const MessagePage = () => {
       socket.emit('chat:read', { chatId: selectedChat })
     }
   }, [chatMessages, selectedChat])
-  console.log(contatos)
 
   return (
     <div className="flex h-screen w-full flex-col gap-0 p-2 md:w-[calc(100vw-16rem)] md:flex-row md:gap-4 md:p-4 dm:w-[calc(100vw-18rem)]">

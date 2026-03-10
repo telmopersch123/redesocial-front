@@ -69,7 +69,14 @@ const PostComponentDialog = ({
   const [openReplies, setOpenReplies] = useState<{
     [commentId: string]: boolean
   }>({})
-  const postFromContext = posts.find((p) => p.id === valuePosts.id)
+let postFromContext
+  if(posts.length){ 
+    postFromContext = posts.find((p) => p.id === valuePosts.id)
+  } else {
+     postFromContext = valuePosts
+  }
+  
+
   const [usuariosSelecionados, setUsuariosSelecionados] = useState<
     { id: number; name_at: string }[]
   >([])
@@ -118,7 +125,6 @@ const PostComponentDialog = ({
         `${import.meta.env.VITE_API_URL}/auth/getCommentsPosts/${id}/${pageNumber}`,
         {
           method: 'GET',
-          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },

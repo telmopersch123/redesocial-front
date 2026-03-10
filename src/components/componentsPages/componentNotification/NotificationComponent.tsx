@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../../../components/ui/button'
 import {
   Popover,
@@ -130,6 +131,8 @@ const NotificationComponent = () => {
       React.SetStateAction<Record<string, string[]>>
     >
   }) => {
+    const navigate = useNavigate()
+    console.log(items)
     const grouped = items.reduce(
       (acc, n) => {
         let groupKey = n.type
@@ -186,6 +189,13 @@ const NotificationComponent = () => {
                 onClick={() => {
                   if (!isFollowers) {
                     handleNotificationClick(n)
+                    sessionStorage.setItem('__internal_nav', '1')
+                    navigate(n.link!, {
+                      state: {
+                        chatId: false,
+                        otherUser: n.otherId,
+                      },
+                    })
                   }
                 }}
                 className="group relative flex cursor-pointer items-start gap-3 border-b border-border/40 px-4 py-4 transition-all hover:bg-accent/60"
@@ -230,6 +240,7 @@ const NotificationComponent = () => {
 
           const isExpanded = expandedGroups[tabKey]?.includes(type)
           const isChat = type.startsWith('CHAT_')
+
           const labelRaw = isChat
             ? `${groupItems[0].message.split(':')[0]}`
             : {
@@ -263,13 +274,25 @@ const NotificationComponent = () => {
                   <ChevronDown className="h-3 w-3" />
                 )}
               </button>
-
               {/* Itens do Grupo (Só aparecem se expandido) */}
+
               {isExpanded && (
                 <div className="bg-background/50">
                   {groupItems.map((n) => (
                     <div
                       key={n.id}
+                      onClick={() => {
+                        if (!isFollowers) {
+                          handleNotificationClick(n)
+                          sessionStorage.setItem('__internal_nav', '1')
+                          navigate(n.link!, {
+                            state: {
+                              chatId: false,
+                              otherUser: n.otherId,
+                            },
+                          })
+                        }
+                      }}
                       className="group relative flex cursor-pointer items-start justify-between gap-3 border-l-2 border-transparent px-6 py-3 transition-all hover:border-purple-500 hover:bg-accent/40"
                     >
                       <div className="flex flex-col space-y-0.5">

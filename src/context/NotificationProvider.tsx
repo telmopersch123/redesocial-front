@@ -7,6 +7,8 @@ import { useAuth } from './getMe'
 
 export interface Notification {
   id: number
+  userId: number
+  otherId?: number
   message: string
   type: string
   link?: string
@@ -39,6 +41,7 @@ export const NotificationProvider = ({
         }
       )
       const data = await res.json()
+      console.log(data)
       setNotifications(data)
 
       const unreadAlerts = data.filter(
