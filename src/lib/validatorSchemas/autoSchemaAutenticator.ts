@@ -21,11 +21,11 @@ export const resetSchema = z
   })
 
 export const forgotPasswordSchema = z.object({
-  email: z.email('Insira um email válido'),
+  email: z.string().email('Insira um email válido'),
 })
 
 export const loginSchema = z.object({
-  email: z.email('Insira um email valido'),
+  email: z.string().email('Insira um email valido'),
   password: z
     .string()
     .min(6, 'A senha precisa ter pelo menos 6 caracteres')
@@ -39,7 +39,7 @@ export const loginSchema = z.object({
 export const registerSchema = z
   .object({
     name: z.string().min(2, 'Nome muito curto'),
-    email: z.email('E-mail inválido'),
+    email: z.string().email('E-mail inválido'),
     password: z
       .string()
       .min(6, 'A senha precisa ter pelo menos 6 caracteres')
@@ -188,8 +188,23 @@ export const archivePostSchema = z.object({
     .optional(),
 })
 
+export const dailyLogSchema = z.object({
+  mood: z.number().min(1, 'Selecione o humor').max(5),
+  energyLevel: z.coerce.number().min(1).max(5),
+  anxietyLevel: z.coerce.number().min(1).max(5),
+  gratitude: z
+    .string()
+    .min(3, 'Conte um pouco mais sobre sua gratidão.')
+    .max(5000, 'O texto é muito longo (máximo 5000 caracteres).'),
+  futureMessage: z
+    .string()
+    .min(1, 'Conte algo para o seu eu do futuro 💌')
+    .max(5000, 'A mensagem para o futuro deve ter no máximo 5000 caracteres.'),
+})
+
 export type ArchivePostFormData = z.infer<typeof archivePostSchema>
 export type UsernameFormData = z.infer<typeof usernameSchema>
+export type DailyLogFormData = z.infer<typeof dailyLogSchema>
 export type PostDialogSchema = z.infer<typeof postDialogSchema>
 export type CreateCommunityFormData = z.infer<typeof createCommunitySchema>
 export type ConfigCommunityFormData = z.infer<typeof configCommunitySchema>

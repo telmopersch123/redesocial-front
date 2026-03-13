@@ -74,7 +74,7 @@ const RegisterComponent = ({
         sexo: data.sexo,
         terms: data.terms,
       }
-      setSexo(data.sexo)
+      setSexo(data.sexo as string)
       setIsLoading(true)
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/register/validate`,
@@ -94,7 +94,6 @@ const RegisterComponent = ({
             message: 'Ops! E-mail já cadastrado',
           })
         } else {
-
           MessagePerson('Erro', msg.error, 'error')
         }
 
@@ -102,8 +101,8 @@ const RegisterComponent = ({
       }
 
       if (res.ok) {
-        await sendVerificationEmail(data.email)
-        setEmail(data.email)
+        await sendVerificationEmail(data.email as string)
+        setEmail(data.email as string)
         setFirstStepData(data)
         setShowConfirmPass(true)
       }

@@ -7,6 +7,7 @@ import {
   DialogTrigger,
 } from '../../ui/dialog'
 import HumorMedioComponent from './AverageMoodComponent'
+import { ChartDailyInteractive } from './Graphics'
 export function GraphicsMidiaDialog() {
   return (
     <Dialog>
@@ -14,14 +15,14 @@ export function GraphicsMidiaDialog() {
         <DialogTrigger asChild>
           <HumorMedioComponent />
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="w-[98%]">
           <DialogHeader>
             <DialogTitle>Grafico</DialogTitle>
             <DialogDescription>
               aqui sera exibido um grafico de medias mensal/quinzenal
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4">AREA DO GRAFICO</div>
+          <ChartDailyInteractive />
         </DialogContent>
       </form>
     </Dialog>

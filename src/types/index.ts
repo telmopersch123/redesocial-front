@@ -20,6 +20,14 @@ export type Persons = {
   avatar: string
 }
 
+export type dailyBackType = {
+  content: string
+  emotionalDiary: number
+  lvlanxiety: number
+  lvlenergy: number
+  messageUser: string
+}
+
 export interface Post {
   id: number
   description: string
