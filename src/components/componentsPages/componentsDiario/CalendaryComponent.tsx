@@ -45,13 +45,17 @@ export function CalendaryComponent({
 
       if (res.ok) {
         const data = await res.json()
-
         if (data) {
           setValidedDaily(false)
           setDailyData(data)
         } else {
-          setDailyData(undefined)
-          setValidedDaily(true)
+          if (new Date().getDate() === selectedDate.getDate()) {
+            setValidedDaily(false)
+            setDailyData(data)
+          } else {
+            setDailyData(undefined)
+            setValidedDaily(true)
+          }
         }
       } else {
         setDailyData(undefined)

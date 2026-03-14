@@ -9,6 +9,7 @@ import {
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
 import { getVerifDaily } from '../../../pages/DiaryPage'
 import type { dailyBackType } from '../../../types'
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 import { MessageForms } from '../../formCustomer/MessageForms'
 import { Button } from '../../ui/button'
 import { Textarea } from '../../ui/textarea'
@@ -104,8 +105,17 @@ const FormDailyComponent = ({
       if (!res.ok) {
         throw new Error('Erro ao enviar os dados')
       }
-      const result = await res.json()
-      console.log('Dados enviados com sucesso:', result)
+
+      const dataRes = await res.json()
+      setValidedDaily(true)
+      reset({
+        mood: 0,
+        energyLevel: 3,
+        anxietyLevel: 3,
+        gratitude: '',
+        futureMessage: '',
+      })
+      MessagePerson('Pronto', 'Registro de hoje concluído!', 'success')
     } catch (error) {
       console.error('Erro ao enviar dados:', error)
     } finally {
@@ -321,6 +331,7 @@ const FormDailyComponent = ({
         {dailyData && (
           <Button
             type="button"
+            disabled={!dailyData}
             onClick={() => {
               setDailyData(undefined)
               getVerifDaily({ setLoadingDaily, setValidedDaily })

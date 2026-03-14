@@ -1,8 +1,10 @@
 'use client'
 
 import * as React from 'react'
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 
+import { useState } from 'react'
+import type { dateUserGrapchis } from '../../../types'
 import {
   Card,
   CardContent,
@@ -25,41 +27,86 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../../ui/select'
-
-// --- DATA FICTÍCIO (MOCK) ---
-const generatedData = Array.from({ length: 365 }, (_, i) => {
-  const date = new Date()
-  date.setDate(date.getDate() - (364 - i))
-  return {
-    date: date.toISOString().split('T')[0],
-    performance: Math.floor(Math.random() * 5) + 1,
-  }
-})
+import { ConfigGraphics } from './componentsGraphcis/ConfigGraphics'
+import { Metrics } from './componentsGraphcis/Metrics'
 
 const chartConfig = {
-  performance: {
-    label: 'Desempenho',
-    color: '#9333ea',
+  emotionalDiary: {
+    label: 'Desempenho Sentimental',
+    color: '#6366f1', // índigo - introspecção, emoção, profundidade
+  },
+  lvlenergy: {
+    label: 'Nível de Energia',
+    color: '#f59e0b', // âmbar - vitalidade, ativação, energia
+  },
+  lvlanxiety: {
+    label: 'Nível de Ansiedade',
+    color: '#ef4444', // vermelho - alerta, tensão, ansiedade
   },
 } satisfies ChartConfig
 
-export function ChartDailyInteractive() {
-  const [timeRange, setTimeRange] = React.useState('7d')
+interface ChartDataProps {
+  setTimeRange: React.Dispatch<React.SetStateAction<string>>
+  timeRange: string
+  setSelectedWidth: React.Dispatch<React.SetStateAction<number>>
+  datesUserGraphics: dateUserGrapchis[]
+}
+
+export function ChartDailyInteractive({
+  setSelectedWidth,
+  timeRange,
+  setTimeRange,
+  datesUserGraphics,
+}: ChartDataProps) {
+  const [chartStyle, setChartStyle] = useState<'purple' | 'colorful'>(
+    localStorage.getItem('chartStyle') as 'purple' | 'colorful'
+  )
+  const [activeLines, setActiveLines] = useState({
+    emotionalDiary: true,
+    lvlenergy: true,
+    lvlanxiety: true,
+  })
+
+  const activeChartConfig =
+    chartStyle === 'purple'
+      ? {
+          emotionalDiary: { ...chartConfig.emotionalDiary, color: '#a78bfa' },
+          lvlenergy: { ...chartConfig.lvlenergy, color: '#9333ea' },
+          lvlanxiety: { ...chartConfig.lvlanxiety, color: '#6b21a8' },
+        }
+      : chartConfig
 
   // Filtro de front-end puro
-  const filteredData = generatedData.filter((item) => {
-    const itemDate = new Date(item.date)
-    const now = new Date()
-    let daysToSubtract = 7
-    if (timeRange === '30d') daysToSubtract = 30
-    else if (timeRange === '90d') daysToSubtract = 90
-    else if (timeRange === '183d') daysToSubtract = 183
-    else if (timeRange === '1y') daysToSubtract = 365
-
-    const startDate = new Date()
-    startDate.setDate(now.getDate() - daysToSubtract)
-    return itemDate >= startDate
-  })
+  const filteredData = datesUserGraphics
+    .filter((item) => {
+      const itemDate = item.createdAt.split('T')[0]
+      const now = new Date()
+      let daysToSubtract = 7
+      setSelectedWidth(1000)
+      if (timeRange === '30d') {
+        setSelectedWidth(1000)
+        daysToSubtract = 30
+      } else if (timeRange === '90d') {
+        setSelectedWidth(1000)
+        daysToSubtract = 90
+      } else if (timeRange === '183d') {
+        setSelectedWidth(2500)
+        daysToSubtract = 183
+      } else if (timeRange === '1y') {
+        setSelectedWidth(98)
+        daysToSubtract = 365
+      }
+      const startDate = new Date()
+      startDate.setDate(now.getDate() - daysToSubtract)
+      const startDateStr = startDate.toISOString().split('T')[0]
+      return itemDate >= startDateStr
+    })
+    .map((item) => ({
+      date: item.createdAt.split('T')[0],
+      emotionalDiary: item.emotionalDiary,
+      lvlenergy: item.lvlenergy,
+      lvlanxiety: item.lvlanxiety,
+    }))
 
   return (
     <Card className="border-none bg-transparent shadow-none">
@@ -68,6 +115,12 @@ export function ChartDailyInteractive() {
           <CardTitle className="hidden"></CardTitle>
           <CardDescription className="hidden"></CardDescription>
         </div>
+        <ConfigGraphics chartStyle={chartStyle} setChartStyle={setChartStyle} />
+        <Metrics
+          activeLines={activeLines}
+          setActiveLines={setActiveLines}
+          chartConfig={activeChartConfig}
+        />
         <Select value={timeRange} onValueChange={setTimeRange}>
           <SelectTrigger className="w-[160px] rounded-lg sm:ml-auto">
             <SelectValue placeholder="Últimos 7 dias" />
@@ -82,21 +135,42 @@ export function ChartDailyInteractive() {
         </Select>
       </CardHeader>
       <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[300px] w-full"
-        >
+        <ChartContainer config={chartConfig} className="h-[600px] w-full">
           <AreaChart data={filteredData}>
             <defs>
-              <linearGradient id="fillPerformance" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillEmotional" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor={chartConfig.performance.color}
-                  stopOpacity={0.4}
+                  stopColor={activeChartConfig.emotionalDiary.color}
+                  stopOpacity={0.3}
                 />
                 <stop
                   offset="95%"
-                  stopColor={chartConfig.performance.color}
+                  stopColor={activeChartConfig.emotionalDiary.color}
+                  stopOpacity={0}
+                />
+              </linearGradient>
+              <linearGradient id="fillEnergy" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor={activeChartConfig.lvlenergy.color}
+                  stopOpacity={0.3}
+                />
+                <stop
+                  offset="95%"
+                  stopColor={activeChartConfig.lvlenergy.color}
+                  stopOpacity={0}
+                />
+              </linearGradient>
+              <linearGradient id="fillAnxiety" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor={activeChartConfig.lvlanxiety.color}
+                  stopOpacity={0.3}
+                />
+                <stop
+                  offset="95%"
+                  stopColor={activeChartConfig.lvlanxiety.color}
                   stopOpacity={0}
                 />
               </linearGradient>
@@ -109,19 +183,31 @@ export function ChartDailyInteractive() {
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => {
-                const date = new Date(value)
+                const [year, month, day] = value.split('-')
+                const date = new Date(
+                  Number(year),
+                  Number(month) - 1,
+                  Number(day)
+                )
                 return date.toLocaleDateString('pt-BR', {
                   month: 'short',
                   day: 'numeric',
                 })
               }}
             />
+            <YAxis domain={[0, 10]} hide />
             <ChartTooltip
               cursor={false}
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString('pt-BR', {
+                    const [year, month, day] = value.split('-')
+                    const date = new Date(
+                      Number(year),
+                      Number(month) - 1,
+                      Number(day)
+                    )
+                    return date.toLocaleDateString('pt-BR', {
                       weekday: 'long',
                       day: 'numeric',
                       month: 'long',
@@ -132,12 +218,31 @@ export function ChartDailyInteractive() {
               }
             />
             <Area
-              dataKey="performance"
+              dataKey="emotionalDiary"
               type="natural"
-              fill="url(#fillPerformance)"
-              stroke={chartConfig.performance.color}
+              fill="url(#fillEmotional)"
+              stroke={activeChartConfig.emotionalDiary.color}
               strokeWidth={2}
               stackId="a"
+              hide={!activeLines.emotionalDiary}
+            />
+            <Area
+              dataKey="lvlenergy"
+              type="natural"
+              fill="url(#fillEnergy)"
+              stroke={activeChartConfig.lvlenergy.color}
+              strokeWidth={2}
+              stackId="b"
+              hide={!activeLines.lvlenergy}
+            />
+            <Area
+              dataKey="lvlanxiety"
+              type="natural"
+              fill="url(#fillAnxiety)"
+              stroke={activeChartConfig.lvlanxiety.color}
+              strokeWidth={2}
+              stackId="c"
+              hide={!activeLines.lvlanxiety}
             />
 
             <ChartLegend content={<ChartLegendContent />} />

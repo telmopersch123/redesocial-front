@@ -27,6 +27,13 @@ export type dailyBackType = {
   lvlenergy: number
   messageUser: string
 }
+export type dateUserGrapchis = {
+  id: number
+  emotionalDiary: number
+  lvlanxiety: number
+  lvlenergy: number
+  createdAt: string
+}
 
 export interface Post {
   id: number
