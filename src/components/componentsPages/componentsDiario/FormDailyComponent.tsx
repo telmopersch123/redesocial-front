@@ -35,6 +35,8 @@ const FormDailyComponent = ({
   setDailyData,
   setValidedDaily,
   setLoadingDaily,
+  createdDailyToday,
+  setCreatedDailyToday,
   today,
 }: {
   validedDaily: boolean
@@ -42,14 +44,19 @@ const FormDailyComponent = ({
   setDailyData: React.Dispatch<React.SetStateAction<dailyBackType | undefined>>
   setValidedDaily: React.Dispatch<React.SetStateAction<boolean>>
   setLoadingDaily: React.Dispatch<React.SetStateAction<boolean>>
+  createdDailyToday: boolean
+  setCreatedDailyToday: React.Dispatch<React.SetStateAction<boolean>>
   today: boolean
 }) => {
   const { user: authUser } = useAuth()
   const [loadingDailyCreate, setLoadingDailyCreate] = useState(false)
+  let isBlocked = !!dailyData || validedDaily
+  if (!createdDailyToday && today) isBlocked = false
+  if (!createdDailyToday && today) validedDaily = false
   const formOpacity = validedDaily
     ? 'opacity-60 grayscale-[0.3] pointer-events-none'
     : ''
-  const isBlocked = !!dailyData || validedDaily
+
   const {
     register,
     handleSubmit,
@@ -67,7 +74,6 @@ const FormDailyComponent = ({
       futureMessage: '',
     },
   })
-
   useEffect(() => {
     if (dailyData) {
       reset({
@@ -87,13 +93,11 @@ const FormDailyComponent = ({
       })
     }
   }, [dailyData, reset])
-
   const activeMood = watch('mood')
   const energia = watch('energyLevel')
   const ansiedade = watch('anxietyLevel')
   const gratitude = watch('gratitude')
   const futureMessage = watch('futureMessage')
-
   async function onSubmit(data: DailyLogFormData) {
     setLoadingDailyCreate(true)
     try {
@@ -112,6 +116,7 @@ const FormDailyComponent = ({
 
       // const dataRes = await res.json()
       setValidedDaily(true)
+      setCreatedDailyToday(true)
       reset({
         mood: 0,
         energyLevel: 3,
@@ -126,7 +131,6 @@ const FormDailyComponent = ({
       setLoadingDailyCreate(false)
     }
   }
-  console.log(today)
 
   return (
     <>
@@ -188,11 +192,7 @@ const FormDailyComponent = ({
                 </Button>
               ))}
             </div>
-            {errors.mood && (
-              <p className="mt-2 text-center text-xs text-red-500">
-                {errors.mood.message}
-              </p>
-            )}
+
             <div className="flex items-start">
               <TooltipProvider>
                 <Tooltip>
@@ -257,6 +257,11 @@ const FormDailyComponent = ({
               </TooltipProvider>
             </div>
           </div>
+          {errors.mood && (
+            <p className="mt-2 text-center text-xs text-red-500">
+              {errors.mood.message}
+            </p>
+          )}
           {/* Sliders */}
           <div className="mt-10 flex w-full flex-col gap-8 sm:flex-row">
             {/* Energia */}
@@ -419,7 +424,11 @@ const FormDailyComponent = ({
             disabled={!dailyData}
             onClick={() => {
               setDailyData(undefined)
-              getVerifDaily({ setLoadingDaily, setValidedDaily })
+              getVerifDaily({
+                setLoadingDaily,
+                setValidedDaily,
+                setCreatedDailyToday,
+              })
             }}
             className={`m-auto mt-8 flex items-center justify-center gap-2 rounded-xl px-10 py-6 text-sm font-bold text-white transition-all duration-300 sm:w-max sm:self-end ${
               validedDaily

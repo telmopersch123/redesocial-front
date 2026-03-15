@@ -11,11 +11,13 @@ import type { dailyBackType } from '../types'
 interface PropsgetDaily {
   setValidedDaily: React.Dispatch<React.SetStateAction<boolean>>
   setLoadingDaily: React.Dispatch<React.SetStateAction<boolean>>
+  setCreatedDailyToday: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export async function getVerifDaily({
   setValidedDaily,
   setLoadingDaily,
+  setCreatedDailyToday,
 }: PropsgetDaily) {
   setLoadingDaily(true)
 
@@ -27,8 +29,10 @@ export async function getVerifDaily({
     const data = await res.json()
     if (data.hasRegisteredToday) {
       setValidedDaily(true)
+      setCreatedDailyToday(true)
     } else {
       setValidedDaily(false)
+      setCreatedDailyToday(false)
     }
   } catch (error) {
     console.log(error)
@@ -40,11 +44,12 @@ export async function getVerifDaily({
 const DiaryPage = () => {
   const [validedDaily, setValidedDaily] = useState(false)
   const [loadingDaily, setLoadingDaily] = useState(true)
+  const [createdDailyToday, setCreatedDailyToday] = useState(false)
   const [loadingDailyCalendar, setLoadingDailyCalendar] = useState(false)
   const [today, setToday] = useState<boolean>(false)
   const [dailyData, setDailyData] = useState<dailyBackType>()
   useEffect(() => {
-    getVerifDaily({ setLoadingDaily, setValidedDaily })
+    getVerifDaily({ setLoadingDaily, setValidedDaily, setCreatedDailyToday })
   }, [])
 
   return (
@@ -146,6 +151,8 @@ const DiaryPage = () => {
                   setDailyData={setDailyData}
                   setValidedDaily={setValidedDaily}
                   setLoadingDaily={setLoadingDaily}
+                  createdDailyToday={createdDailyToday}
+                  setCreatedDailyToday={setCreatedDailyToday}
                   today={today}
                 />
               </motion.div>
