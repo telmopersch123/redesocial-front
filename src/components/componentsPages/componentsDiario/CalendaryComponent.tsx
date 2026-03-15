@@ -1,7 +1,9 @@
 'use client'
 
 import * as React from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../../context/getMe'
 import type { dailyBackType } from '../../../types'
 import { Calendar } from '../../ui/calendar'
 
@@ -9,15 +11,18 @@ interface PropsCalendarDaily {
   setValidedDaily: React.Dispatch<React.SetStateAction<boolean>>
   setDailyData: React.Dispatch<React.SetStateAction<dailyBackType | undefined>>
   setLoadingDailyCalendar: React.Dispatch<React.SetStateAction<boolean>>
+  setToday: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export function CalendaryComponent({
   setDailyData,
   setValidedDaily,
   setLoadingDailyCalendar,
+  setToday,
 }: PropsCalendarDaily) {
   const today = new Date()
-
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const [date, setDate] = useState<Date | undefined>(today)
 
   const tenYearsAgo = new Date(
@@ -45,12 +50,13 @@ export function CalendaryComponent({
 
       if (res.ok) {
         const data = await res.json()
+
         if (data) {
           setValidedDaily(false)
           setDailyData(data)
         } else {
           if (new Date().getDate() === selectedDate.getDate()) {
-            setValidedDaily(false)
+            setValidedDaily(true)
             setDailyData(data)
           } else {
             setDailyData(undefined)
@@ -69,6 +75,9 @@ export function CalendaryComponent({
       setLoadingDailyCalendar(false)
     }
   }
+  useEffect(() => {
+    setToday(date?.toDateString() === today.toDateString())
+  }, [date])
 
   return (
     <>
@@ -76,6 +85,7 @@ export function CalendaryComponent({
         mode="single"
         selected={date}
         onSelect={(newDate) => {
+          if (!user) return navigate('/auth')
           setDate(newDate)
           fetchDailyEntry(newDate || new Date())
         }}

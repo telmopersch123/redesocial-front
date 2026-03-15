@@ -3,6 +3,7 @@ import { CheckCircle2, HelpCircle, HouseHeart, Loader2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
 import { useEffect, useState } from 'react'
+import { useAuth } from '../../../context/getMe'
 import {
   dailyLogSchema,
   type DailyLogFormData,
@@ -34,13 +35,16 @@ const FormDailyComponent = ({
   setDailyData,
   setValidedDaily,
   setLoadingDaily,
+  today,
 }: {
   validedDaily: boolean
   dailyData?: dailyBackType
   setDailyData: React.Dispatch<React.SetStateAction<dailyBackType | undefined>>
   setValidedDaily: React.Dispatch<React.SetStateAction<boolean>>
   setLoadingDaily: React.Dispatch<React.SetStateAction<boolean>>
+  today: boolean
 }) => {
+  const { user: authUser } = useAuth()
   const [loadingDailyCreate, setLoadingDailyCreate] = useState(false)
   const formOpacity = validedDaily
     ? 'opacity-60 grayscale-[0.3] pointer-events-none'
@@ -106,7 +110,7 @@ const FormDailyComponent = ({
         throw new Error('Erro ao enviar os dados')
       }
 
-      const dataRes = await res.json()
+      // const dataRes = await res.json()
       setValidedDaily(true)
       reset({
         mood: 0,
@@ -122,17 +126,34 @@ const FormDailyComponent = ({
       setLoadingDailyCreate(false)
     }
   }
+  console.log(today)
 
   return (
     <>
       <div className="flex w-full flex-col justify-center">
         {/* Aviso de Registro Concluído */}
         {validedDaily && (
-          <div className="mb-6 flex items-center justify-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-600 dark:text-emerald-400">
-            <CheckCircle2 className="h-5 w-5" />
-            <span className="text-sm font-semibold">
-              Registro de hoje concluído! Volte amanhã.
-            </span>
+          <div
+            className={`mb-6 flex items-center justify-center gap-2 rounded-2xl border p-4 ${
+              today
+                ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                : 'border-zinc-700/50 bg-zinc-800/30 text-zinc-500'
+            }`}
+          >
+            {today ? (
+              <CheckCircle2 className="h-5 w-5" />
+            ) : (
+              <span className="text-lg">📭</span>
+            )}
+            {today ? (
+              <span className="text-sm font-semibold">
+                Registro de hoje concluído! Volte amanhã.
+              </span>
+            ) : (
+              <span className="text-sm font-medium">
+                Nenhum registro para esse dia
+              </span>
+            )}
           </div>
         )}
 
@@ -140,38 +161,102 @@ const FormDailyComponent = ({
           onSubmit={handleSubmit(onSubmit)}
           className={`transition-all duration-500 ${formOpacity}`}
         >
-          {/* Humor */}
-          <div className="m-auto mt-3 grid w-full grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 2xl:max-w-2xl">
-            {feelings.map((item) => (
-              <Button
-                key={item.id}
-                variant="outline"
-                type="button"
-                disabled={isBlocked}
-                onClick={() =>
-                  setValue('mood', item.id, { shouldValidate: true })
-                }
-                className={`flex h-[100px] flex-col items-center rounded-2xl border bg-white p-5 shadow-md transition-all duration-300 dark:bg-zinc-900 ${
-                  !validedDaily && 'hover:scale-105'
-                } ${
-                  activeMood === item.id
-                    ? 'border-purple-500 ring-2 ring-purple-500/30 dark:ring-purple-500/50'
-                    : 'border-zinc-300 dark:border-zinc-700'
-                }`}
-              >
-                <span className="text-3xl">{item.emoji}</span>
-                <span className="mt-2 text-sm font-medium text-zinc-800 dark:text-zinc-200">
-                  {item.label}
-                </span>
-              </Button>
-            ))}
+          <div className="flex flex-row">
+            {/* Humor */}
+            <div className="m-auto mt-3 grid w-full grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 2xl:max-w-2xl">
+              {feelings.map((item) => (
+                <Button
+                  key={item.id}
+                  variant="outline"
+                  type="button"
+                  disabled={isBlocked}
+                  onClick={() =>
+                    setValue('mood', item.id, { shouldValidate: true })
+                  }
+                  className={`flex h-[100px] flex-col items-center rounded-2xl border bg-white p-5 shadow-md transition-all duration-300 dark:bg-zinc-900 ${
+                    !validedDaily && 'hover:scale-105'
+                  } ${
+                    activeMood === item.id
+                      ? 'border-purple-500 ring-2 ring-purple-500/30 dark:ring-purple-500/50'
+                      : 'border-zinc-300 dark:border-zinc-700'
+                  }`}
+                >
+                  <span className="text-3xl">{item.emoji}</span>
+                  <span className="mt-2 text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                    {item.label}
+                  </span>
+                </Button>
+              ))}
+            </div>
+            {errors.mood && (
+              <p className="mt-2 text-center text-xs text-red-500">
+                {errors.mood.message}
+              </p>
+            )}
+            <div className="flex items-start">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      className="text-zinc-400 hover:text-purple-500"
+                    >
+                      <HelpCircle className="h-5 w-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs bg-white p-3 text-xs text-purple-600 shadow-xl dark:bg-[#202020] dark:text-white">
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                      O que cada humor significa
+                    </p>
+                    <div className="flex flex-col gap-2">
+                      {[
+                        {
+                          emoji: '😢',
+                          label: 'Muito mal',
+                          desc: 'Sentimentos intensos de tristeza, exaustão ou dor emocional.',
+                        },
+                        {
+                          emoji: '😔',
+                          label: 'Mal',
+                          desc: 'Dia difícil, desânimo ou sensação de peso emocional.',
+                        },
+                        {
+                          emoji: '😐',
+                          label: 'Neutro',
+                          desc: 'Nem bem nem mal — um dia comum, sem grandes emoções.',
+                        },
+                        {
+                          emoji: '🙂',
+                          label: 'Bem',
+                          desc: 'Leveza, tranquilidade e sensação de equilíbrio.',
+                        },
+                        {
+                          emoji: '😊',
+                          label: 'Muito bem',
+                          desc: 'Alegria, energia e disposição elevada.',
+                        },
+                      ].map((item) => (
+                        <div
+                          key={item.label}
+                          className="flex items-start gap-2"
+                        >
+                          <span className="text-base">{item.emoji}</span>
+                          <div>
+                            <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">
+                              {item.label}
+                            </p>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                              {item.desc}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
           </div>
-          {errors.mood && (
-            <p className="mt-2 text-center text-xs text-red-500">
-              {errors.mood.message}
-            </p>
-          )}
-
           {/* Sliders */}
           <div className="mt-10 flex w-full flex-col gap-8 sm:flex-row">
             {/* Energia */}
@@ -275,7 +360,7 @@ const FormDailyComponent = ({
                         <HelpCircle className="h-5 w-5" />
                       </button>
                     </TooltipTrigger>
-                    <TooltipContent className="max-w-xs bg-white p-3 text-xs shadow-xl dark:bg-zinc-950">
+                    <TooltipContent className="max-w-xs bg-white p-3 text-xs text-purple-600 shadow-xl dark:bg-[#202020] dark:text-white">
                       <p>
                         Escreva algo para ler no futuro. Essa mensagem será
                         exibida daqui a algum tempo.
@@ -303,7 +388,7 @@ const FormDailyComponent = ({
           {!dailyData && (
             <Button
               type="submit"
-              disabled={loadingDailyCreate || isBlocked}
+              disabled={loadingDailyCreate || isBlocked || !authUser}
               className={`m-auto mt-8 flex items-center justify-center gap-2 rounded-xl px-10 py-6 text-sm font-bold text-white transition-all duration-300 sm:w-max sm:self-end ${
                 validedDaily
                   ? 'cursor-not-allowed bg-zinc-400 grayscale dark:bg-zinc-700'

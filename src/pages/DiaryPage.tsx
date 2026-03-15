@@ -41,6 +41,7 @@ const DiaryPage = () => {
   const [validedDaily, setValidedDaily] = useState(false)
   const [loadingDaily, setLoadingDaily] = useState(true)
   const [loadingDailyCalendar, setLoadingDailyCalendar] = useState(false)
+  const [today, setToday] = useState<boolean>(false)
   const [dailyData, setDailyData] = useState<dailyBackType>()
   useEffect(() => {
     getVerifDaily({ setLoadingDaily, setValidedDaily })
@@ -108,6 +109,7 @@ const DiaryPage = () => {
                     setValidedDaily={setValidedDaily}
                     setDailyData={setDailyData}
                     setLoadingDailyCalendar={setLoadingDailyCalendar}
+                    setToday={setToday}
                   />
                 </motion.div>
 
@@ -144,6 +146,7 @@ const DiaryPage = () => {
                   setDailyData={setDailyData}
                   setValidedDaily={setValidedDaily}
                   setLoadingDaily={setLoadingDaily}
+                  today={today}
                 />
               </motion.div>
             </motion.div>
