@@ -21,10 +21,10 @@ const AverageMoodComponent = forwardRef<HTMLDivElement, AverageMoodProps>(
     const valided = datesUserGraphics.map((item: dateUserGrapchis) => {
       const score = (item.lvlenergy + item.lvlanxiety) / 2
       if (score < 1) return '😢'
-      if (score < 2) return '😕'
+      if (score < 2) return '😔'
       if (score < 3) return '😐'
       if (score < 4) return '🙂'
-      if (score < 5) return '😊'
+      return '😊'
     })
 
     useEffect(() => {
@@ -44,6 +44,8 @@ const AverageMoodComponent = forwardRef<HTMLDivElement, AverageMoodProps>(
       console.log(datesUserGraphics)
       console.log(averageMod)
     }, [datesUserGraphics])
+
+    console.log(datesUserGraphics)
 
     return (
       <div

@@ -1,10 +1,13 @@
-import { useState } from 'react'
+import { debounce } from 'lodash'
+import { useEffect, useState } from 'react'
 import { PostCardSkeleton } from '../components/componentsPages/componentsPerfil/Skeleton'
 import CardsPostComponent from '../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
 import PostComponentDialog from '../components/componentsPages/PostsComponent.tsx/PostComponentDialog'
 import { Button } from '../components/ui/button'
 import { useCriarPostDialog } from '../context/ContextDialogPost'
+import { useAuth } from '../context/getMe'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
+import { getPostsFeed } from '../services/authService'
 import type { Post } from '../types'
 
 const feelings: Array<keyof typeof gradientMap> = [
@@ -41,9 +44,12 @@ const emojiMap: Record<string, string> = {
 }
 
 const FeedPage = () => {
+  const { user: authUser } = useAuth()
   const [novoComentario, setNovoComentario] = useState('')
-
   const [posts, setPosts] = useState<Post[]>([])
+  const [page, setPage] = useState(1)
+
+  const [hasMore, setHasMore] = useState(true)
   const {
     open,
     setPostCommunity,
@@ -52,25 +58,26 @@ const FeedPage = () => {
   } = useCriarPostDialog()
   const [selectedFeeling, setSelectedFeeling] =
     useState<keyof typeof gradientMap>('Todos')
-
-  const [visibleCount, setVisibleCount] = useState(10)
+  // const [visibleCount, setVisibleCount] = useState(10)
   const [loadedCount, setLoadedCount] = useState(10)
-  const hasMore = visibleCount < posts.length
-  const { loadMoreRef } = useInfiniteScroll({
-    // itemsPerPage: 10,
-    // delayInMs: 1000,
-    rootMargin: '600px',
-    isLoading: visibleCount < loadedCount,
-    enabled: hasMore,
-    onLoadMore: () => {
-      const nextDisplay = Math.min(visibleCount + 10, posts.length)
-      setVisibleCount(nextDisplay)
-      setTimeout(() => {
-        setLoadedCount(nextDisplay)
-      }, 1000)
-    },
-  })
+  const [loadingPostsFeed, setLoadingPostsFeed] = useState(false)
 
+  const debouncedOnLoadMore = debounce(() => {
+    if (loadingPostsFeed || !hasMore || posts.length < 5) return
+    setPage((prev) => {
+      const next = prev + 1
+      getPostsFeed(next)
+      return next
+    })
+  }, 300)
+
+  const { loadMoreRef } = useInfiniteScroll({
+    enabled: hasMore && !loadingPostsFeed,
+    rootMargin: '200px 0px 0px 0px',
+    threshold: 0.1,
+    isLoading: loadingPostsFeed,
+    onLoadMore: debouncedOnLoadMore,
+  })
   const filterPosts = (selectedFeling: keyof typeof gradientMap) => {
     if (selectedFeling === 'Todos') {
       // setPosts(postsFicticiosGlobal)
@@ -82,6 +89,27 @@ const FeedPage = () => {
     }
   }
 
+  const loadPosts = async (isFirstLoad: boolean = false) => {
+    setLoadingPostsFeed(true)
+    try {
+      const newPosts = await getPostsFeed(page)
+
+      if (isFirstLoad) {
+        setHasMore(false)
+      } else {
+        setPosts((prev) => [...prev, ...newPosts.posts])
+        setPage((prev) => prev + 1)
+      }
+      setLoadedCount((prev) => (isFirstLoad ? 10 : prev + 10))
+    } catch (err) {
+      console.error('Erro na UI do feed')
+    } finally {
+      setLoadingPostsFeed(false)
+    }
+  }
+  useEffect(() => {
+    loadPosts()
+  }, [])
   return (
     <>
       <div className="fixed">
@@ -146,23 +174,41 @@ const FeedPage = () => {
         </div>
 
         <div className="mt-12 space-y-24">
-          {posts.length > 0 ? (
-            posts.slice(0, visibleCount).map((post: Post, index: number) => {
-              const isLoaded = index < loadedCount
-              return (
-                <div key={post.id}>
-                  {isLoaded ? (
-                    <CardsPostComponent
-                      posts={posts}
-                      valuePost={post}
-                      setPosts={setPosts}
-                    />
-                  ) : (
-                    <PostCardSkeleton />
+          {posts.length > 0 && !loadingPostsFeed ? (
+            <>
+              {posts.map((post: Post, index: number) => {
+                const isLoaded = index < loadedCount
+                return (
+                  <div key={post.id}>
+                    {isLoaded ? (
+                      <CardsPostComponent
+                        posts={posts}
+                        valuePost={post}
+                        setPosts={setPosts}
+                      />
+                    ) : (
+                      <>
+                        <PostCardSkeleton />
+                        <PostCardSkeleton />
+                        <PostCardSkeleton />
+                      </>
+                    )}
+                  </div>
+                )
+              })}
+              {hasMore && authUser && (
+                <div
+                  ref={loadMoreRef}
+                  className="flex min-h-[300px] items-center justify-center"
+                >
+                  {loadingPostsFeed && (
+                    <div className="w-full animate-pulse">
+                      <PostCardSkeleton />
+                    </div>
                   )}
                 </div>
-              )
-            })
+              )}
+            </>
           ) : (
             <div className="flex flex-col items-center">
               <p className="m-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#eeeefa] p-3 text-4xl dark:bg-white/10">
@@ -172,10 +218,6 @@ const FeedPage = () => {
                 Nenhum post ainda. Seja o primeiro a compartilhar!
               </p>
             </div>
-          )}
-
-          {visibleCount < posts.length && (
-            <div ref={loadMoreRef} className="col-span-2 h-10" />
           )}
         </div>
       </div>

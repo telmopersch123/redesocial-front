@@ -65,7 +65,7 @@ const DiaryPage = () => {
       ) : (
         <>
           {loadingDailyCalendar && (
-            <div className="absolute inset-0 z-50 flex items-center justify-center rounded-2xl bg-white/50 backdrop-blur-[1px] transition-all dark:bg-zinc-950/50">
+            <div className="fixed inset-0 z-50 flex items-center justify-center rounded-2xl bg-white/50 backdrop-blur-[1px] transition-all dark:bg-zinc-950/50">
               <div className="flex flex-col items-center gap-4">
                 <Loader2 className="h-12 w-12 animate-spin text-purple-600 dark:text-purple-400" />
               </div>

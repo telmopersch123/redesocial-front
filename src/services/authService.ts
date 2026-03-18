@@ -909,3 +909,23 @@ export const getUsersBlocked = async (pageNumber: number) => {
   if (!response.ok) throw new Error('Erro ao buscar usuários bloqueados')
   return response.json()
 }
+
+export const getPostsFeed = async (pageNumber: number) => {
+  try {
+    const newPosts = await fetch(
+      `${import.meta.env.VITE_API_URL}/auth/getGlobalFeed/${pageNumber}`,
+      {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+
+    if (!newPosts.ok) throw new Error('Erro ao buscar usuários bloqueados')
+    return newPosts.json()
+  } catch (error) {
+    throw new Error('Erro ao buscar usuários bloqueados')
+  }
+}
