@@ -1,4 +1,4 @@
-import { Loader2, MessageCircle, Send, User, X } from 'lucide-react'
+import { Clock, Loader2, MessageCircle, Send, User, X } from 'lucide-react'
 import { useContext, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
@@ -20,12 +20,17 @@ import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import { VideoContext } from '../../../context/VideoContext'
 import { createComment } from '../../../services/authService'
 
+import { formatDistanceToNow } from 'date-fns'
+import { ptBR } from 'date-fns/locale/pt-BR'
 import { debounce } from 'lodash'
+import React from 'react'
 import { usePosts } from '../../../context/PostsContext'
 import { useAuth } from '../../../context/getMe'
 import { useInfiniteScrollDialog } from '../../../hooks/effectsSkeletons'
 import type { ExtendedPost } from '../../../pages/community/PostsArchived'
 import { MessagePerson } from '../../../utils/components/MessagePerson'
+
+import { feelingStatus } from '../../../utils/components/FeelingStatus'
 import ListMarcation from './ListMarcation'
 import ActionsPost from './components/ActionsPostComponent'
 import { MentionInput } from './components/MentionsInput'
@@ -69,13 +74,12 @@ const PostComponentDialog = ({
   const [openReplies, setOpenReplies] = useState<{
     [commentId: string]: boolean
   }>({})
-let postFromContext
-  if(posts.length){ 
+  let postFromContext
+  if (posts.length) {
     postFromContext = posts.find((p) => p.id === valuePosts.id)
   } else {
-     postFromContext = valuePosts
+    postFromContext = valuePosts
   }
-  
 
   const [usuariosSelecionados, setUsuariosSelecionados] = useState<
     { id: number; name_at: string }[]
@@ -116,7 +120,7 @@ let postFromContext
   const idInput = 'comment-' + postAtualizado.id
 
   const fetchMoreComments = async (pageNumber = 1) => {
-    if (!hasMore || isLoadingSkeleton) return
+    if (isLoadingSkeleton) return
 
     setIsLoadingSkeleton(true)
     try {
@@ -131,20 +135,11 @@ let postFromContext
         }
       )
       const data = await response.json()
-
       const newComments = data.comments || data
-      const backendHasMoreLimited = data.hasMoreLimited
-      setLimtedComments(backendHasMoreLimited)
+      const backendHasMore = data.hasMoreLimited
 
-      if (
-        !newComments ||
-        newComments.length < 10 ||
-        backendHasMoreLimited === false
-      ) {
-        setHasMore(false)
-      } else {
-        setHasMore(true)
-      }
+      setLimtedComments(!backendHasMore)
+      setHasMore(backendHasMore)
 
       if (newComments && newComments.length > 0) {
         setPosts((prevPosts) => {
@@ -420,7 +415,7 @@ let postFromContext
             {/* Header com Autor e Botão Fechar */}
             <DialogHeader className="flex flex-col border-b p-4 dark:border-gray-800">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {postAtualizado.user.avatar ? (
                     <img
                       src={postAtualizado.user.avatar || ''}
@@ -432,10 +427,46 @@ let postFromContext
                       <User className="h-6 w-6 text-white" />
                     </div>
                   )}
+                  <div>
+                    <p className="text-sm font-semibold dark:text-gray-100">
+                      {postAtualizado.user.name_at}
+                    </p>
 
-                  <p className="text-sm font-semibold dark:text-gray-100">
-                    {postAtualizado.user.name_at}
-                  </p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground dark:text-gray-400">
+                        <Clock className="h-3 w-3" />
+                        {isNaN(new Date(valuePosts.createdAt).getTime())
+                          ? 'data inválida'
+                          : formatDistanceToNow(
+                              new Date(valuePosts.createdAt),
+                              {
+                                addSuffix: true,
+                                locale: ptBR,
+                              }
+                            )}
+                      </div>
+                      {valuePosts.feelingPost &&
+                        feelingStatus[valuePosts.feelingPost] && (
+                          <div
+                            className={`hover:border-current/10 group inline-flex w-auto items-center gap-1.5 rounded-full border border-transparent px-1.5 transition-all duration-300 ${feelingStatus[valuePosts.feelingPost].bg}`}
+                          >
+                            {React.createElement(
+                              feelingStatus[valuePosts.feelingPost].Icon,
+                              {
+                                className: `h-3.5 w-3.5 transition-transform duration-500 group-hover:rotate-12 ${feelingStatus[valuePosts.feelingPost].color}`,
+                                strokeWidth: 2.5,
+                              }
+                            )}
+
+                            <span
+                              className={`text-sm font-semibold tracking-tight ${feelingStatus[valuePosts.feelingPost].color}`}
+                            >
+                              {feelingStatus[valuePosts.feelingPost].label}
+                            </span>
+                          </div>
+                        )}
+                    </div>
+                  </div>
                 </div>
                 <Button
                   variant="ghost"
@@ -447,9 +478,10 @@ let postFromContext
                 </Button>
               </div>
 
-              <div className="mt-4 max-h-[120px] overflow-y-auto pr-2">
+              <Separator />
+              <div className="!mt-5 max-h-[120px] overflow-y-auto pr-2">
                 <DialogTitle className="break-words text-sm font-normal leading-relaxed text-gray-700 dark:text-gray-300">
-                  {postAtualizado.description}
+                  {postAtualizado.description}{' '}
                 </DialogTitle>
               </div>
               <div>

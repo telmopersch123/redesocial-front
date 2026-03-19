@@ -58,17 +58,12 @@ const FeedPage = () => {
   } = useCriarPostDialog()
   const [selectedFeeling, setSelectedFeeling] =
     useState<keyof typeof gradientMap>('Todos')
-  // const [visibleCount, setVisibleCount] = useState(10)
-  const [loadedCount, setLoadedCount] = useState(10)
+
   const [loadingPostsFeed, setLoadingPostsFeed] = useState(false)
 
   const debouncedOnLoadMore = debounce(() => {
-    if (loadingPostsFeed || !hasMore || posts.length < 5) return
-    setPage((prev) => {
-      const next = prev + 1
-      getPostsFeed(next)
-      return next
-    })
+    if (loadingPostsFeed || !hasMore) return
+    loadPosts(page)
   }, 300)
 
   const { loadMoreRef } = useInfiniteScroll({
@@ -89,18 +84,26 @@ const FeedPage = () => {
     }
   }
 
-  const loadPosts = async (isFirstLoad: boolean = false) => {
+  const loadPosts = async (pageNumber: number = 1, isFirstLoad = false) => {
+    if (loadingPostsFeed) return
     setLoadingPostsFeed(true)
     try {
-      const newPosts = await getPostsFeed(page)
+      const response = await getPostsFeed(pageNumber)
+      const newPostsList = response.posts || []
 
-      if (isFirstLoad) {
+      if (newPostsList.length === 0) {
         setHasMore(false)
       } else {
-        setPosts((prev) => [...prev, ...newPosts.posts])
-        setPage((prev) => prev + 1)
+        setPosts((prev) => {
+          if (isFirstLoad) return newPostsList
+          const existingIds = new Set(prev.map((p) => p.id))
+          const filtered = newPostsList.filter(
+            (p: Post) => !existingIds.has(p.id)
+          )
+          return [...prev, ...filtered]
+        })
+        setPage(pageNumber + 1)
       }
-      setLoadedCount((prev) => (isFirstLoad ? 10 : prev + 10))
     } catch (err) {
       console.error('Erro na UI do feed')
     } finally {
@@ -108,8 +111,9 @@ const FeedPage = () => {
     }
   }
   useEffect(() => {
-    loadPosts()
+    loadPosts(1, true)
   }, [])
+
   return (
     <>
       <div className="fixed">
@@ -174,28 +178,17 @@ const FeedPage = () => {
         </div>
 
         <div className="mt-12 space-y-24">
-          {posts.length > 0 && !loadingPostsFeed ? (
+          {posts.length > 0 ? (
             <>
-              {posts.map((post: Post, index: number) => {
-                const isLoaded = index < loadedCount
-                return (
-                  <div key={post.id}>
-                    {isLoaded ? (
-                      <CardsPostComponent
-                        posts={posts}
-                        valuePost={post}
-                        setPosts={setPosts}
-                      />
-                    ) : (
-                      <>
-                        <PostCardSkeleton />
-                        <PostCardSkeleton />
-                        <PostCardSkeleton />
-                      </>
-                    )}
-                  </div>
-                )
-              })}
+              {posts.map((post: Post) => (
+                <div key={post.id}>
+                  <CardsPostComponent
+                    posts={posts}
+                    valuePost={post}
+                    setPosts={setPosts}
+                  />
+                </div>
+              ))}
               {hasMore && authUser && (
                 <div
                   ref={loadMoreRef}
@@ -209,6 +202,12 @@ const FeedPage = () => {
                 </div>
               )}
             </>
+          ) : loadingPostsFeed ? (
+            <div className="space-y-10">
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+              <PostCardSkeleton />
+            </div>
           ) : (
             <div className="flex flex-col items-center">
               <p className="m-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#eeeefa] p-3 text-4xl dark:bg-white/10">

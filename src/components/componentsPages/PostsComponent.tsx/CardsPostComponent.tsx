@@ -28,6 +28,9 @@ interface PostCardProps {
   postsArchived?: boolean
 }
 
+import { feelingStatus } from '../../../utils/components/FeelingStatus'
+import { Separator } from '../../ui/separator'
+
 const CardsPostComponent = ({
   posts,
   valuePost,
@@ -95,7 +98,7 @@ const CardsPostComponent = ({
   return (
     <Card
       key={valuePost.id}
-      className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-[#1b1b1b]"
+      className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:shadow-lg hover:shadow-gray-200/50 dark:border-zinc-800 dark:bg-[#232323] dark:hover:border-zinc-700 dark:hover:shadow-none"
     >
       <CardHeader className="flex flex-row items-center justify-between gap-4 px-4 pb-3 pt-4">
         <div className="flex w-full items-center gap-3">
@@ -133,6 +136,7 @@ const CardsPostComponent = ({
 
                   <span className="font-bold">@{valuePost.user.name_at}</span>
                 </div>
+
                 {valuePost.user.isFriend && (
                   <Badge
                     variant="secondary"
@@ -150,14 +154,36 @@ const CardsPostComponent = ({
                 )}
             </CardTitle>
 
-            <div className="flex items-center gap-1 text-xs text-muted-foreground dark:text-gray-400">
-              <Clock className="h-3 w-3" />
-              {isNaN(new Date(valuePost.createdAt).getTime())
-                ? 'data inválida'
-                : formatDistanceToNow(new Date(valuePost.createdAt), {
-                    addSuffix: true,
-                    locale: ptBR,
-                  })}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground dark:text-gray-400">
+                <Clock className="h-3 w-3" />
+                {isNaN(new Date(valuePost.createdAt).getTime())
+                  ? 'data inválida'
+                  : formatDistanceToNow(new Date(valuePost.createdAt), {
+                      addSuffix: true,
+                      locale: ptBR,
+                    })}
+              </div>
+              {valuePost.feelingPost &&
+                feelingStatus[valuePost.feelingPost] && (
+                  <div
+                    className={`hover:border-current/10 group inline-flex w-auto items-center gap-1.5 rounded-full border border-transparent px-1.5 transition-all duration-300 ${feelingStatus[valuePost.feelingPost].bg}`}
+                  >
+                    {React.createElement(
+                      feelingStatus[valuePost.feelingPost].Icon,
+                      {
+                        className: `h-3.5 w-3.5 transition-transform duration-500 group-hover:rotate-12 ${feelingStatus[valuePost.feelingPost].color}`,
+                        strokeWidth: 2.5,
+                      }
+                    )}
+
+                    <span
+                      className={`text-sm font-semibold tracking-tight ${feelingStatus[valuePost.feelingPost].color}`}
+                    >
+                      {feelingStatus[valuePost.feelingPost].label}
+                    </span>
+                  </div>
+                )}
             </div>
           </div>
         </div>
@@ -217,10 +243,13 @@ const CardsPostComponent = ({
         )}
       </CardHeader>
 
-      <CardContent className="pb-0 pt-0">
-        <p className="mb-4 text-gray-700 dark:text-gray-300">
-          {valuePost.description}
-        </p>
+      <Separator className="my-2" />
+      <CardContent className="mt-5 pb-0 pt-0">
+        <div className="scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-zinc-800 max-h-[100px] overflow-y-auto pr-2">
+          <p className="break-words text-sm font-normal leading-relaxed text-gray-700 dark:text-gray-300">
+            {valuePost.description}
+          </p>
+        </div>
         <div>
           {valuePost.postTags?.map(
             (tag: { tag: { name: string; id: number } }, index) => (
