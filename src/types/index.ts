@@ -1,3 +1,11 @@
+export type PostType =
+  | 'feliz'
+  | 'triste'
+  | 'esperancoso'
+  | 'agradecido'
+  | 'ansioso'
+  | 'todos'
+
 export type BibliotecaApoioItem = {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>
   cor: string

@@ -4,7 +4,11 @@ import type {
   PostDialogSchema,
 } from '../lib/validatorSchemas/autoSchemaAutenticator'
 import type { PayloadTypeCreate } from '../pages/community/CreateCommunityPage'
-import { type userTypeSearch, type ValidedCodeResponse } from '../types'
+import {
+  type PostType,
+  type userTypeSearch,
+  type ValidedCodeResponse,
+} from '../types'
 import { socket } from './socket'
 
 function useDebounce(value: string, delay: number) {
@@ -910,10 +914,13 @@ export const getUsersBlocked = async (pageNumber: number) => {
   return response.json()
 }
 
-export const getPostsFeed = async (pageNumber: number) => {
+export const getPostsFeed = async (
+  pageNumber: number,
+  selectedFeeling?: PostType
+) => {
   try {
     const newPosts = await fetch(
-      `${import.meta.env.VITE_API_URL}/auth/getGlobalFeed/${pageNumber}`,
+      `${import.meta.env.VITE_API_URL}/auth/getGlobalFeed/${pageNumber}/${selectedFeeling}`,
       {
         method: 'GET',
         credentials: 'include',
