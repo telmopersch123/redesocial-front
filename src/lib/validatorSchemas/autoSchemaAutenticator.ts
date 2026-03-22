@@ -202,6 +202,14 @@ export const dailyLogSchema = z.object({
     .max(5000, 'A mensagem para o futuro deve ter no máximo 5000 caracteres.'),
 })
 
+export const adminLoginSchema = z.object({
+  username: z
+    .string()
+    .min(7, 'O nome de usuário deve ter pelo menos 7 caracteres'),
+  password: z.string().min(10, 'A senha precisa ter pelo menos 10 caracteres'),
+})
+
+export type AdminLoginFormData = z.infer<typeof adminLoginSchema>
 export type ArchivePostFormData = z.infer<typeof archivePostSchema>
 export type UsernameFormData = z.infer<typeof usernameSchema>
 export type DailyLogFormData = z.infer<typeof dailyLogSchema>
