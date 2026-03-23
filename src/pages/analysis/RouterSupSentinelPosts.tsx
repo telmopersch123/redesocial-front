@@ -205,7 +205,7 @@ function getStatusLabel(status: string) {
 }
 
 // --- Componente Principal ---
-export const RouterSupSentinelTwo = () => {
+export const RouterSupSentinelPosts = () => {
   const [selectedPost, setSelectedPost] = useState<PostReport | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)

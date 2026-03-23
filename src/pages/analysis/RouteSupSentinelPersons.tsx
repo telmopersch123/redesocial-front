@@ -10,7 +10,7 @@ import {
   ShieldAlert,
   UserCheck,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, type Dispatch, type SetStateAction } from 'react'
 import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'
 import {
@@ -28,6 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from '../../components/ui/table'
+import { ActionDecisionDialog } from './components/actionDecisionDialog'
 import { TableFiltersPersons } from './components/tableFiltersPersons'
 
 // Mock de dados ampliado - Focado apenas em usuários
@@ -146,24 +147,45 @@ export interface UserReport {
   createdAt: string
 }
 
-export const RouterSupSentinel = () => {
+const handleConfirmAction = (
+  setIsActionModalOpen: Dispatch<SetStateAction<boolean>>
+) => {
+  setIsActionModalOpen(false)
+}
+const handleTriggerAction = (
+  setIsModalOpen: Dispatch<SetStateAction<boolean>>,
+  setIsActionModalOpen: Dispatch<SetStateAction<boolean>>
+) => {
+  setIsModalOpen(false)
+  setIsActionModalOpen(true)
+}
+const handleOpenReport = (
+  report: UserReport,
+  setIsModalOpen: Dispatch<SetStateAction<boolean>>,
+  setSelectedReport: Dispatch<SetStateAction<UserReport | null>>
+) => {
+  setSelectedReport(report)
+  setIsModalOpen(true)
+}
+const handleOpenStatusChange = (
+  report: UserReport,
+  setIsStatusModalOpen: Dispatch<SetStateAction<boolean>>,
+  setSelectedReport: Dispatch<SetStateAction<UserReport | null>>
+) => {
+  setSelectedReport(report)
+  setIsStatusModalOpen(true)
+}
+
+export const RouterSupSentinelPersons = () => {
+  const [isActionModalOpen, setIsActionModalOpen] = useState(false)
+  const [selectedReport, setSelectedReport] = useState<UserReport | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState<boolean>(false)
   const [filters, setFilters] = useState({
     search: '',
     status: 'all',
     reason: 'all',
   })
-  const [selectedReport, setSelectedReport] = useState<UserReport | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState<boolean>(false)
-  const handleOpenReport = (report: any) => {
-    setSelectedReport(report)
-    setIsModalOpen(true)
-  }
-
-  const handleOpenStatusChange = (report: UserReport) => {
-    setSelectedReport(report)
-    setIsStatusModalOpen(true)
-  }
 
   return (
     <div className="space-y-6 p-8">
@@ -226,7 +248,13 @@ export const RouterSupSentinel = () => {
                 </TableCell>
                 <TableCell
                   className="cursor-pointer"
-                  onClick={() => handleOpenStatusChange(report)}
+                  onClick={() =>
+                    handleOpenStatusChange(
+                      report,
+                      setIsStatusModalOpen,
+                      setSelectedReport
+                    )
+                  }
                 >
                   <Badge
                     className={`${cnStatus(report.status)} transition-all hover:scale-105`}
@@ -239,7 +267,13 @@ export const RouterSupSentinel = () => {
                     variant="ghost"
                     size="sm"
                     className="h-8 w-8 p-0"
-                    onClick={() => handleOpenReport(report)}
+                    onClick={() =>
+                      handleOpenReport(
+                        report,
+                        setIsModalOpen,
+                        setSelectedReport
+                      )
+                    }
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
@@ -296,6 +330,9 @@ export const RouterSupSentinel = () => {
             <div className="flex flex-col gap-2 pt-4">
               <Button
                 variant="destructive"
+                onClick={() =>
+                  handleTriggerAction(setIsModalOpen, setIsActionModalOpen)
+                }
                 className="w-full gap-2 shadow-lg shadow-red-500/20"
               >
                 <AlertTriangle className="h-4 w-4" />
@@ -358,6 +395,13 @@ export const RouterSupSentinel = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ActionDecisionDialog
+        isOpen={isActionModalOpen}
+        onOpenChange={setIsActionModalOpen}
+        userName={selectedReport?.targetName}
+        onConfirm={handleConfirmAction}
+      />
     </div>
   )
 }

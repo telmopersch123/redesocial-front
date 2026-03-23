@@ -3,13 +3,13 @@ import { Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import { AppLayout } from '../AppLayout'
 import RouterPost from '../components/componentsPages/PostsComponent.tsx/RouterPost'
 
-import AnalysisLogin from '../pages/analysis/init'
-import { RouteLoa } from '../pages/analysis/RouteLoa'
+import AnalysisLogin from '../pages/analysis/initLogin'
+import { RouteValided } from '../pages/analysis/RouteValided'
 
-import { AnalysisInitPage } from '../pages/analysis/RouterAnaly'
-import { RouterSupSentinelTwo } from '../pages/analysis/RouterSupSentinelTwo'
-import { RouteSup } from '../pages/analysis/RouteSup'
-import { RouterSupSentinel } from '../pages/analysis/RouteSupSentinel'
+import { AnalysisInitPage } from '../pages/analysis/RouterInitial'
+import { RouterSupSentinelPosts } from '../pages/analysis/RouterSupSentinelPosts'
+import { RouteSup } from '../pages/analysis/RouteSupAnalysis'
+import { RouterSupSentinelPersons } from '../pages/analysis/RouteSupSentinelPersons'
 import AuthenticadorPage from '../pages/AuthenticadorPage'
 import AreaCommunitiesUserPage from '../pages/community/AreaCommunitiesUserPage'
 import CommunityPage from '../pages/community/CommunityPage'
@@ -81,14 +81,14 @@ export default function AppRoutes() {
       <Route
         path="/analysis"
         element={
-          <RouteLoa allowedRoles={['SUPPORT']}>
+          <RouteValided allowedRoles={['SUPPORT']}>
             <AnalysisInitPage />
-          </RouteLoa>
+          </RouteValided>
         }
       >
         <Route index element={<RouteSup />} />
-        <Route path="denuncias-perfil" element={<RouterSupSentinel />} />
-        <Route path="denuncias-posts" element={<RouterSupSentinelTwo />} />
+        <Route path="denuncias-perfil" element={<RouterSupSentinelPersons />} />
+        <Route path="denuncias-posts" element={<RouterSupSentinelPosts />} />
       </Route>
     </Routes>
   )

@@ -936,3 +936,17 @@ export const getPostsFeed = async (
     throw new Error('Erro ao buscar usuários bloqueados')
   }
 }
+
+export const getEmotionalPersons = async (pageNumber: number) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/admin/getEmotionalUsersAdmin/${pageNumber}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+  if (!response.ok) throw new Error('Erro ao buscar usuários bloqueados')
+  return response.json()
+}

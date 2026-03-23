@@ -5,7 +5,10 @@ interface ProtectedRouteProps {
   allowedRoles: string[]
 }
 
-export const RouteLoa = ({ children, allowedRoles }: ProtectedRouteProps) => {
+export const RouteValided = ({
+  children,
+  allowedRoles,
+}: ProtectedRouteProps) => {
   const user = { role: 'SUPPORT' }
   const loading = false
   const location = useLocation()
