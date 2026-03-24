@@ -10,7 +10,14 @@ import {
   ShieldAlert,
   UserCheck,
 } from 'lucide-react'
-import { useState, type Dispatch, type SetStateAction } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from 'react'
 import { Badge } from '../../components/ui/badge'
 import { Button } from '../../components/ui/button'
 import {
@@ -28,104 +35,11 @@ import {
   TableHeader,
   TableRow,
 } from '../../components/ui/table'
-import { ActionDecisionDialog } from './components/actionDecisionDialog'
-import { TableFiltersPersons } from './components/tableFiltersPersons'
 
-// Mock de dados ampliado - Focado apenas em usuários
-const mockReports: UserReport[] = [
-  {
-    id: 'REP-1029',
-    targetName: 'Vitor K.',
-    reason: 'Falsidade Ideológica',
-    description: 'Usuário novo usando fotos de terceiros para aplicar golpes.',
-    status: 'INITIAL_REVIEW', // Novo!
-    createdAt: '21/03/2026',
-  },
-  {
-    id: 'REP-1024',
-    targetName: 'João Silva',
-    reason: 'Assédio',
-    description: 'Mensagens ofensivas repetidas após bloqueio.',
-    status: 'PENDING',
-    createdAt: '21/03/2026',
-  },
-  {
-    id: 'REP-1025',
-    targetName: 'Marcos Oliveira',
-    reason: 'Spam',
-    description: 'Links de apostas no feed.',
-    status: 'UNDER_REVIEW',
-    createdAt: '21/03/2026',
-  },
-  {
-    id: 'REP-1030',
-    targetName: 'Bruno Dias',
-    reason: 'Spam',
-    description: 'Divulgação de software malicioso.',
-    status: 'RESOLVED', // Finalizado - Inocente
-    createdAt: '20/03/2026',
-  },
-  {
-    id: 'REP-1031',
-    targetName: 'Lucas Lima',
-    reason: 'Discurso de Ódio',
-    description: 'Ataques diretos em comentários.',
-    status: 'REJECTED', // Finalizado - Banido
-    createdAt: '19/03/2026',
-  },
-  {
-    id: 'REP-1032',
-    targetName: 'Amanda S. (Verified)',
-    reason: 'Nudez/Conteúdo Sexual',
-    description: 'Venda de conteúdo adulto explícito no link da bio.',
-    status: 'INITIAL_REVIEW',
-    createdAt: '21/03/2026',
-  },
-  {
-    id: 'REP-1033',
-    targetName: 'Crypto_King_88',
-    reason: 'Spam',
-    description:
-      'Bot enviando convites para grupos de WhatsApp e Telegram sem parar.',
-    status: 'UNDER_REVIEW',
-    createdAt: '20/03/2026',
-  },
-  {
-    id: 'REP-1034',
-    targetName: 'Anti-Vax-Brasil',
-    reason: 'Desinformação',
-    description:
-      'Perfil criado unicamente para espalhar mentiras sobre saúde pública.',
-    status: 'PENDING',
-    createdAt: '20/03/2026',
-  },
-  {
-    id: 'REP-1035',
-    targetName: 'Henrique L.',
-    reason: 'Falsidade Ideológica',
-    description: 'Criou conta fingindo ser o suporte oficial da plataforma.',
-    status: 'INITIAL_REVIEW',
-    createdAt: '19/03/2026',
-  },
-  {
-    id: 'REP-1036',
-    targetName: 'Troll_Master',
-    reason: 'Assédio',
-    description:
-      'Perseguindo usuários antigos em todas as postagens com xingamentos.',
-    status: 'REJECTED',
-    createdAt: '18/03/2026',
-  },
-  {
-    id: 'REP-1037',
-    targetName: 'Vendas_Express_BR',
-    reason: 'Fraude/Golpe',
-    description:
-      'Perfil de loja falsa que recebe o pagamento e bloqueia o cliente.',
-    status: 'UNDER_REVIEW',
-    createdAt: '18/03/2026',
-  },
-]
+import { getUserReportsAdmin } from '../../services/authService'
+import { ActionDecisionDialog } from './components/actionDecisionDialog'
+import { useInfiniteScrollAdmin } from './components/infiniteScroll'
+import { TableFiltersPersons } from './components/tableFiltersPersons'
 
 export interface UserReport {
   id: string
@@ -177,6 +91,16 @@ const handleOpenStatusChange = (
 }
 
 export const RouterSupSentinelPersons = () => {
+  const isFetchingRef = useRef(false)
+  const pageRef = useRef(1)
+
+  const [reports, setReports] = useState<UserReport[]>([])
+  const [isLoadingFechReportUsers, setIsLoadingFechReportUsers] =
+    useState(false)
+
+  const [hasMore, setHasMore] = useState(true)
+  const [loading, setLoading] = useState(true)
+
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
   const [selectedReport, setSelectedReport] = useState<UserReport | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -187,9 +111,43 @@ export const RouterSupSentinelPersons = () => {
     reason: 'all',
   })
 
+  const onLoadMore = useCallback(() => {
+    if (isFetchingRef.current || !hasMore || loading) return
+    const nextPage = pageRef.current + 1
+    fetchReports(nextPage, true)
+  }, [hasMore, loading])
+
+  const { scrollContainerRef, sentinelRef } = useInfiniteScrollAdmin({
+    enabled: hasMore && !loading,
+    hasMore,
+    onLoadMore: onLoadMore,
+  })
+
+  const fetchReports = async (pageNumber: number, append = false) => {
+    append ? setIsLoadingFechReportUsers(true) : setLoading(true)
+    try {
+      const response = await getUserReportsAdmin(pageNumber)
+      setReports((prev) =>
+        append ? [...prev, ...response.data] : response.data
+      )
+      console.log(response)
+      setHasMore(response.hasMore)
+      pageRef.current = pageNumber
+    } catch (error) {
+      console.error(error)
+    } finally {
+      isFetchingRef.current = false
+      append ? setIsLoadingFechReportUsers(false) : setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    pageRef.current = 1
+    fetchReports(1)
+  }, [])
+
   return (
     <div className="space-y-6 p-8">
-      {/* Header da Página */}
       <div className="flex flex-col gap-2">
         <h1 className="flex items-center gap-2 text-3xl font-bold tracking-tight">
           <ShieldAlert className="h-8 w-8 text-red-500" />
@@ -201,7 +159,6 @@ export const RouterSupSentinelPersons = () => {
         </p>
       </div>
 
-      {/* Filtros e Busca */}
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <h1 className="text-2xl font-bold tracking-tight">
           Denúncias de Usuários
@@ -210,81 +167,111 @@ export const RouterSupSentinelPersons = () => {
           onFilterChange={(newFilters) => setFilters(newFilters)}
         />
       </div>
-      {/* Tabela de Denúncias */}
+
       <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-        <Table>
-          <TableHeader className="bg-zinc-50 dark:bg-zinc-900/50">
-            <TableRow>
-              <TableHead className="w-[150px]">ID do Caso</TableHead>
-              <TableHead>Usuário Denunciado</TableHead>
-              <TableHead>Motivo Principal</TableHead>
-              <TableHead>Data</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Análise</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {mockReports.map((report) => (
-              <TableRow
-                key={report.id}
-                className="hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20"
-              >
-                <TableCell className="font-mono text-xs text-zinc-500">
-                  {report.id}
-                </TableCell>
-                <TableCell className="font-semibold">
-                  {report.targetName}
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant="secondary"
-                    className={cnReasonColor(report.reason)}
-                  >
-                    {report.reason}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-sm text-zinc-500">
-                  {report.createdAt}
-                </TableCell>
-                <TableCell
-                  className="cursor-pointer"
-                  onClick={() =>
-                    handleOpenStatusChange(
-                      report,
-                      setIsStatusModalOpen,
-                      setSelectedReport
-                    )
-                  }
-                >
-                  <Badge
-                    className={`${cnStatus(report.status)} transition-all hover:scale-105`}
-                  >
-                    {getStatusLabel(report.status)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={() =>
-                      handleOpenReport(
-                        report,
-                        setIsModalOpen,
-                        setSelectedReport
-                      )
-                    }
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                </TableCell>
+        <div
+          ref={scrollContainerRef}
+          className="custom-scrollbar max-h-[900px] overflow-y-auto"
+        >
+          <Table>
+            <TableHeader className="sticky top-0 z-20 bg-zinc-50 shadow-sm dark:bg-zinc-900">
+              <TableRow>
+                <TableHead className="w-[150px] bg-inherit">
+                  ID do Caso
+                </TableHead>
+                <TableHead className="bg-inherit">Usuário Denunciado</TableHead>
+                <TableHead className="bg-inherit">Motivo Principal</TableHead>
+                <TableHead className="bg-inherit">Data</TableHead>
+                <TableHead className="bg-inherit">Status</TableHead>
+                <TableHead className="bg-inherit text-right">Análise</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
+                    Carregando denúncias...
+                  </TableCell>
+                </TableRow>
+              ) : reports.length > 0 ? (
+                reports.map((report) => (
+                  <TableRow
+                    key={report.id}
+                    className="hover:bg-zinc-50/50 dark:hover:bg-zinc-900/20"
+                  >
+                    <TableCell className="font-mono text-xs text-zinc-500">
+                      {report.id}
+                    </TableCell>
+                    <TableCell className="font-semibold">
+                      {report.targetName}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="secondary"
+                        className={cnReasonColor(report.reason)}
+                      >
+                        {report.reason}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm text-zinc-500">
+                      {report.createdAt}
+                    </TableCell>
+                    <TableCell
+                      className="cursor-pointer"
+                      onClick={() =>
+                        handleOpenStatusChange(
+                          report,
+                          setIsStatusModalOpen,
+                          setSelectedReport
+                        )
+                      }
+                    >
+                      <Badge
+                        className={`${cnStatus(report.status)} transition-all hover:scale-105`}
+                      >
+                        {getStatusLabel(report.status)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() =>
+                          handleOpenReport(
+                            report,
+                            setIsModalOpen,
+                            setSelectedReport
+                          )
+                        }
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="h-24 text-center">
+                    Nenhuma denúncia encontrada.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+          <div
+            ref={sentinelRef}
+            className="py-2 text-center text-xs text-zinc-400"
+          >
+            {isLoadingFechReportUsers && 'Carregando mais...'}
+            {!hasMore &&
+              reports.length > 0 &&
+              'Todos os registros já foram carregados'}
+          </div>
+        </div>
       </div>
 
-      {/* Modal de Detalhes da Justificativa */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-md border-zinc-200 dark:border-zinc-800">
           <DialogHeader>
@@ -326,7 +313,6 @@ export const RouterSupSentinelPersons = () => {
               </div>
             </div>
 
-            {/* Ações de Moderação */}
             <div className="flex flex-col gap-2 pt-4">
               <Button
                 variant="destructive"

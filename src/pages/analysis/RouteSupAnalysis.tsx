@@ -90,8 +90,6 @@ export const RouteSup = () => {
         tendencia: calcTendencia(u.media),
       }))
 
-      console.log(response)
-      console.log(response.isTotal)
       setRows((prev) => (append ? [...prev, ...mapped] : mapped))
       setHasMore(response.hasMore)
       pageRef.current = pageNumber
@@ -108,12 +106,6 @@ export const RouteSup = () => {
     fetchPage(1)
   }, [])
 
-  // const filtered = rows.filter((u) => {
-  //   const matchSearch = u.name.toLowerCase().includes(filters.search.toLowerCase())
-  //   const matchStatus = filters.status === 'all' || u.status === filters.status
-  //   const matchTendencia = filters.reason === 'all' || u.tendencia === filters.reason
-  //   return matchSearch && matchStatus && matchTendencia
-  // })
   const totalQueda = rows.filter((u) => u.status === 'queda').length
   const pctEstavel = rows.length
     ? Math.round(((rows.length - totalQueda) / rows.length) * 100)

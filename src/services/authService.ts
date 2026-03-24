@@ -947,6 +947,19 @@ export const getEmotionalPersons = async (pageNumber: number) => {
       },
     }
   )
-  if (!response.ok) throw new Error('Erro ao buscar usuários bloqueados')
+  if (!response.ok) throw new Error('Erro ao buscar dados de usuários')
+  return response.json()
+}
+export const getUserReportsAdmin = async (pageNumber: number) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/admin/getUserReportsAdmin/${pageNumber}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+  if (!response.ok) throw new Error('Erro ao buscar denuncias de usuarios')
   return response.json()
 }
