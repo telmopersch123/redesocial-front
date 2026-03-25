@@ -36,7 +36,13 @@ import {
   TableRow,
 } from '../../components/ui/table'
 
-import { getUserReportsAdmin } from '../../services/authService'
+import toast from 'react-hot-toast'
+import {
+  applyBanPerm,
+  applySevenDayBan,
+  getUserReportsAdmin,
+  updateStatusReportsUsers,
+} from '../../services/authService'
 import { ActionDecisionDialog } from './components/actionDecisionDialog'
 import { useInfiniteScrollAdmin } from './components/infiniteScroll'
 import { TableFiltersPersons } from './components/tableFiltersPersons'
@@ -44,6 +50,7 @@ import { TableFiltersPersons } from './components/tableFiltersPersons'
 export interface UserReport {
   id: string
   targetName: string
+  userIdReported: number
   reason:
     | 'Assédio'
     | 'Spam'
@@ -61,11 +68,6 @@ export interface UserReport {
   createdAt: string
 }
 
-const handleConfirmAction = (
-  setIsActionModalOpen: Dispatch<SetStateAction<boolean>>
-) => {
-  setIsActionModalOpen(false)
-}
 const handleTriggerAction = (
   setIsModalOpen: Dispatch<SetStateAction<boolean>>,
   setIsActionModalOpen: Dispatch<SetStateAction<boolean>>
@@ -93,6 +95,7 @@ const handleOpenStatusChange = (
 export const RouterSupSentinelPersons = () => {
   const isFetchingRef = useRef(false)
   const pageRef = useRef(1)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const [reports, setReports] = useState<UserReport[]>([])
   const [isLoadingFechReportUsers, setIsLoadingFechReportUsers] =
@@ -146,6 +149,75 @@ export const RouterSupSentinelPersons = () => {
     fetchReports(1)
   }, [])
 
+  const handleApplySevenDaysBan = async () => {
+    try {
+      await applySevenDayBan(
+        selectedReport!.id,
+        selectedReport!.userIdReported,
+        selectedReport!.reason
+      )
+      setReports((prev) =>
+        prev.map((r) =>
+          r.id === selectedReport?.id ? { ...r, status: 'REJECTED' } : r
+        )
+      )
+      setIsActionModalOpen(false)
+      toast.success('Usuário banido por 7 dias.')
+    } catch (error) {
+      toast.error('Falha ao banir usuário.')
+    }
+  }
+
+  const handleApplyPermBan = async () => {
+    try {
+      await applyBanPerm(
+        selectedReport!.id,
+        selectedReport!.userIdReported,
+        selectedReport!.reason
+      )
+      setReports((prev) =>
+        prev.map((r) =>
+          r.id === selectedReport?.id ? { ...r, status: 'REJECTED' } : r
+        )
+      )
+      setIsActionModalOpen(false)
+      toast.success('Usuário banido permanentemente.')
+    } catch (error) {
+      toast.error('Falha ao banir usuário.')
+    }
+  }
+
+  const handleUpdateStatus = async (newStatus: UserReport['status']) => {
+    if (!selectedReport) return
+    try {
+      await updateStatusReportsUsers(newStatus, selectedReport!.id)
+      setReports((prev) =>
+        prev.map((r) =>
+          r.id === selectedReport?.id
+            ? { ...r, status: selectedReport.status }
+            : r
+        )
+      )
+      setIsStatusModalOpen(false)
+      toast.success('Status atualizado com sucesso.')
+    } catch (error) {
+      toast.error('Falha ao atualizar status.')
+    }
+  }
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    pageRef.current = 1
+
+    try {
+      await fetchReports(1, false)
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
   return (
     <div className="space-y-6 p-8">
       <div className="flex flex-col gap-2">
@@ -160,9 +232,18 @@ export const RouterSupSentinelPersons = () => {
       </div>
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Denúncias de Usuários
-        </h1>
+        <div className="flex items-center justify-center p-4">
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="flex items-center gap-2.5 rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-900 shadow-sm transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-95 disabled:pointer-events-none disabled:opacity-60 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-zinc-900"
+          >
+            <RefreshCw
+              className={`h-4 w-4 text-blue-600 dark:text-blue-500 ${isRefreshing ? 'animate-spin' : ''}`}
+            />
+            {isRefreshing ? 'Atualizando...' : 'Atualizar Dados'}
+          </button>
+        </div>
         <TableFiltersPersons
           onFilterChange={(newFilters) => setFilters(newFilters)}
         />
@@ -348,35 +429,35 @@ export const RouterSupSentinelPersons = () => {
               icon={<AlertOctagon className="h-4 w-4 text-red-500" />}
               label="Novo Registro"
               desc="Acabou de chegar"
-              onClick={() => setIsStatusModalOpen(false)}
+              onClick={() => handleUpdateStatus('INITIAL_REVIEW')} // Chama a função com o valor correto
             />
             <StatusOption
               active={selectedReport?.status === 'PENDING'}
               icon={<Clock className="h-4 w-4 text-amber-500" />}
               label="Aguardando"
               desc="Na fila de espera"
-              onClick={() => setIsStatusModalOpen(false)}
+              onClick={() => handleUpdateStatus('PENDING')}
             />
             <StatusOption
               active={selectedReport?.status === 'UNDER_REVIEW'}
               icon={<SearchCode className="h-4 w-4 text-blue-500" />}
               label="Em Análise"
               desc="Agente trabalhando"
-              onClick={() => setIsStatusModalOpen(false)}
+              onClick={() => handleUpdateStatus('UNDER_REVIEW')}
             />
             <StatusOption
               active={selectedReport?.status === 'RESOLVED'}
               icon={<UserCheck className="h-4 w-4 text-green-500" />}
               label="Resolvido"
               desc="Nenhuma infração"
-              onClick={() => setIsStatusModalOpen(false)}
+              onClick={() => handleUpdateStatus('RESOLVED')}
             />
             <StatusOption
               active={selectedReport?.status === 'REJECTED'}
               icon={<Ban className="h-4 w-4 text-zinc-500" />}
               label="Rejeitado/Banido"
               desc="Punição aplicada"
-              onClick={() => setIsStatusModalOpen(false)}
+              onClick={() => handleUpdateStatus('REJECTED')}
             />
           </div>
         </DialogContent>
@@ -386,7 +467,8 @@ export const RouterSupSentinelPersons = () => {
         isOpen={isActionModalOpen}
         onOpenChange={setIsActionModalOpen}
         userName={selectedReport?.targetName}
-        onConfirm={handleConfirmAction}
+        handleApplySevenDaysBan={handleApplySevenDaysBan}
+        handleApplyPermBan={handleApplyPermBan}
       />
     </div>
   )

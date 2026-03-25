@@ -209,6 +209,25 @@ export const adminLoginSchema = z.object({
   password: z.string().min(10, 'A senha precisa ter pelo menos 10 caracteres'),
 })
 
+export const reportUser = z.object({
+  reason: z.enum(
+    [
+      'assedio_ou_bullying',
+      'discurso_de_odio',
+      'conteudo_improprio',
+      'spam_ou_comportamento_suspeito',
+      'falsa_identidade',
+      'outro',
+    ],
+    {
+      errorMap: () => ({
+        message: 'Por favor, selecione um motivo válido da lista.',
+      }),
+    }
+  ),
+})
+
+export type CreateReportUserFormData = z.infer<typeof reportUser>
 export type AdminLoginFormData = z.infer<typeof adminLoginSchema>
 export type ArchivePostFormData = z.infer<typeof archivePostSchema>
 export type UsernameFormData = z.infer<typeof usernameSchema>

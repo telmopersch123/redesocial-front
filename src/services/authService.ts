@@ -9,6 +9,7 @@ import {
   type userTypeSearch,
   type ValidedCodeResponse,
 } from '../types'
+import { MessagePerson } from '../utils/components/MessagePerson'
 import { socket } from './socket'
 
 function useDebounce(value: string, delay: number) {
@@ -795,7 +796,12 @@ export const requestFriendship = async (userBId: number) => {
       body: JSON.stringify({ userBId }),
     }
   )
-  if (!response.ok) throw new Error('Erro ao enviar solicitação de seguimento')
+
+  if (!response.ok) {
+    const data = await response.json()
+    MessagePerson('Erro', data.error, 'error')
+    throw new Error('Erro ao enviar solicitação de seguimento')
+  }
   return response.json()
 }
 export const AcceptFriendship = async (notificationId: number) => {
@@ -811,8 +817,12 @@ export const AcceptFriendship = async (notificationId: number) => {
         body: JSON.stringify({ notificationId }),
       }
     )
-    if (!response.ok) throw new Error('Erro ao aceitar')
 
+    if (!response.ok) {
+      const data = await response.json()
+      MessagePerson('Erro', data.error, 'error')
+      throw new Error('Erro ao aceitar')
+    }
     return response.json()
   } catch (error) {
     throw new Error('Erro ao aceitar')
@@ -962,4 +972,88 @@ export const getUserReportsAdmin = async (pageNumber: number) => {
   )
   if (!response.ok) throw new Error('Erro ao buscar denuncias de usuarios')
   return response.json()
+}
+
+export const applySevenDayBan = async (
+  reportId: string,
+  userIdReported: number,
+  reason: string
+) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/admin/apply-ban-seven`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reportId, userIdReported, reason }),
+    }
+  )
+  if (!response.ok) throw new Error('Erro ao banir usuário')
+  return response.json()
+}
+export const applyBanPerm = async (
+  reportId: string,
+  userIdReported: number,
+  reason: string
+) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/admin/apply-ban-permanent`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reportId, userIdReported, reason }),
+    }
+  )
+  if (!response.ok) throw new Error('Erro ao banir usuário')
+  return response.json()
+}
+
+export const createReportUser = async (
+  otherUserId: number,
+  description: string,
+  reason: string
+) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/admin/createUserReport`,
+    {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+
+      body: JSON.stringify({ otherUserId, reason, description }),
+    }
+  )
+  const data = await response.json()
+  if (!response.ok) {
+    MessagePerson('Ops!', data.error, 'error')
+    throw new Error('Erro ao denunciar usuário')
+  }
+  return data
+}
+
+export const updateStatusReportsUsers = async (
+  newStatus: string,
+  reportId: string
+) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/admin/updateStatusReportsUsers`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ newStatus, reportId }),
+    }
+  )
+  const data = await response.json()
+  if (!response.ok) {
+    MessagePerson('Ops!', data.error, 'error')
+    throw new Error('Erro ao atualizar status de denuncia')
+  }
+  return data
 }

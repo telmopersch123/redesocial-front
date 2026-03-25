@@ -14,7 +14,8 @@ interface ActionDecisionDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   userName: string | undefined
-  onConfirm: (handleConfirmAction: () => void) => void
+  handleApplySevenDaysBan: () => void
+  handleApplyPermBan: () => void
 }
 
 export type ActionType = 'TEMP_BAN' | 'PERM_BAN'
@@ -53,7 +54,8 @@ export function ActionDecisionDialog({
   isOpen,
   onOpenChange,
   userName,
-  onConfirm,
+  handleApplySevenDaysBan,
+  handleApplyPermBan,
 }: ActionDecisionDialogProps) {
   const [decision, setDecision] = useState<ActionType>('TEMP_BAN')
 
@@ -115,7 +117,15 @@ export function ActionDecisionDialog({
           </Button>
           <Button
             className="bg-red-600 text-white hover:bg-red-700"
-            onClick={() => onConfirm(() => onOpenChange(false))}
+            onClick={() => {
+              if (decision === 'TEMP_BAN') {
+                handleApplySevenDaysBan()
+              } else {
+                handleApplyPermBan()
+              }
+
+              onOpenChange(false)
+            }}
           >
             Confirmar
           </Button>

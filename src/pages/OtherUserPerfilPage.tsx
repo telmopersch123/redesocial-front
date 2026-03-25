@@ -118,9 +118,9 @@ const OtherUserPerfilPage = () => {
     setIsLoadingFollow(true)
     try {
       const res = await requestFriendship(userBId)
+
       if (res) {
         MessagePerson('Solicitação enviada com sucesso', null, 'success')
-
         refreshProfile(Number(id))
       }
     } catch (err) {
@@ -243,7 +243,7 @@ const OtherUserPerfilPage = () => {
               </div>
 
               <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
-                <ReportDialog />
+                <ReportDialog profileId={Number(profileUser.user.id)} />
                 {isLoadingFollow ? (
                   <TooltipComponent
                     description="Enviando solicitação de amizade"
