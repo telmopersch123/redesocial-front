@@ -166,7 +166,7 @@ export const RouteSup = () => {
             </CardHeader>
             <CardContent
               ref={scrollContainerRef}
-              className="max-h-[700px] overflow-y-auto"
+              className="max-h-[50vh] overflow-y-auto"
             >
               <Table>
                 <TableHeader>

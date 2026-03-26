@@ -258,7 +258,7 @@ const ActionsPost = ({
 
         <div className="flex items-center gap-2">
           {Number(valuePost.user.id) !== Number(authUser?.id) && (
-            <DialogReportPost />
+            <DialogReportPost postId={valuePost.id} />
           )}
 
           <TooltipComponent

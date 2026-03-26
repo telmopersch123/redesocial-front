@@ -102,7 +102,11 @@ const ConfigPerfilPage = () => {
       )
 
       if (res.ok) {
-        MessagePerson('Informações do perfil atualizadas com sucesso', null, 'success')
+        MessagePerson(
+          'Informações do perfil atualizadas com sucesso',
+          null,
+          'success'
+        )
 
         setGlobalNome(localNome)
         setRawFile(null)
@@ -170,7 +174,6 @@ const ConfigPerfilPage = () => {
 
   const handleBack = () => {
     if (hasChanges()) {
-
       const proceed = window.confirm(
         'Você tem alterações não salvas. Deseja realmente sair e perder as mudanças?'
       )

@@ -1,13 +1,12 @@
 import {
   AlertOctagon,
   AlertTriangle,
-  Ban,
   Clock,
   Eye,
+  Layout,
   MessageSquareX,
   RefreshCw,
   SearchCode,
-  ShieldAlert,
   UserCheck,
 } from 'lucide-react'
 import {
@@ -133,7 +132,7 @@ export const RouterSupSentinelPersons = () => {
       setReports((prev) =>
         append ? [...prev, ...response.data] : response.data
       )
-      console.log(response)
+
       setHasMore(response.hasMore)
       pageRef.current = pageNumber
     } catch (error) {
@@ -193,9 +192,7 @@ export const RouterSupSentinelPersons = () => {
       await updateStatusReportsUsers(newStatus, selectedReport!.id)
       setReports((prev) =>
         prev.map((r) =>
-          r.id === selectedReport?.id
-            ? { ...r, status: selectedReport.status }
-            : r
+          r.id === selectedReport?.id ? { ...r, status: newStatus } : r
         )
       )
       setIsStatusModalOpen(false)
@@ -208,7 +205,6 @@ export const RouterSupSentinelPersons = () => {
   const handleRefresh = async () => {
     setIsRefreshing(true)
     pageRef.current = 1
-
     try {
       await fetchReports(1, false)
     } catch (error) {
@@ -221,13 +217,12 @@ export const RouterSupSentinelPersons = () => {
   return (
     <div className="space-y-6 p-8">
       <div className="flex flex-col gap-2">
-        <h1 className="flex items-center gap-2 text-3xl font-bold tracking-tight">
-          <ShieldAlert className="h-8 w-8 text-red-500" />
-          Denúncias de Usuários
+        <h1 className="flex items-center gap-2 text-3xl font-bold tracking-tight text-red-500">
+          <Layout className="h-8 w-8" />
+          Moderação de Usuários
         </h1>
         <p className="text-zinc-500 dark:text-zinc-400">
-          Gerencie o comportamento da comunidade e aplique suspensões quando
-          necessário.
+          Analise denúncias de usuários.
         </p>
       </div>
 
@@ -252,7 +247,7 @@ export const RouterSupSentinelPersons = () => {
       <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
         <div
           ref={scrollContainerRef}
-          className="custom-scrollbar max-h-[900px] overflow-y-auto"
+          className="custom-scrollbar max-h-[70vh] overflow-y-auto"
         >
           <Table>
             <TableHeader className="sticky top-0 z-20 bg-zinc-50 shadow-sm dark:bg-zinc-900">
@@ -425,13 +420,6 @@ export const RouterSupSentinelPersons = () => {
 
           <div className="flex flex-col gap-2 py-4">
             <StatusOption
-              active={selectedReport?.status === 'INITIAL_REVIEW'}
-              icon={<AlertOctagon className="h-4 w-4 text-red-500" />}
-              label="Novo Registro"
-              desc="Acabou de chegar"
-              onClick={() => handleUpdateStatus('INITIAL_REVIEW')} // Chama a função com o valor correto
-            />
-            <StatusOption
               active={selectedReport?.status === 'PENDING'}
               icon={<Clock className="h-4 w-4 text-amber-500" />}
               label="Aguardando"
@@ -451,13 +439,6 @@ export const RouterSupSentinelPersons = () => {
               label="Resolvido"
               desc="Nenhuma infração"
               onClick={() => handleUpdateStatus('RESOLVED')}
-            />
-            <StatusOption
-              active={selectedReport?.status === 'REJECTED'}
-              icon={<Ban className="h-4 w-4 text-zinc-500" />}
-              label="Rejeitado/Banido"
-              desc="Punição aplicada"
-              onClick={() => handleUpdateStatus('REJECTED')}
             />
           </div>
         </DialogContent>

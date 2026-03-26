@@ -1057,3 +1057,114 @@ export const updateStatusReportsUsers = async (
   }
   return data
 }
+
+export const getPostsReports = async (pageNumber: number) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/admin/getPostsReports/${pageNumber}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  )
+  if (!response.ok) throw new Error('Erro ao buscar denuncias de posts')
+  return response.json()
+}
+
+export const banReportsPosts = async (
+  reportId: string | undefined,
+  PostIdReported: number,
+  reason: string
+) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/admin/banReportsPosts`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reportId, reason, PostIdReported }),
+    }
+  )
+  const data = await response.json()
+  if (!response.ok) {
+    MessagePerson('Ops!', data.error, 'error')
+    throw new Error('Erro ao banir post')
+  }
+  return data
+}
+export const updateStatusReportsPosts = async (
+  newStatus: string,
+  reportId: string
+) => {
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/admin/updateStatusReportsPosts`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ newStatus, reportId }),
+    }
+  )
+  const data = await response.json()
+  if (!response.ok) {
+    MessagePerson('Ops!', data.error, 'error')
+    throw new Error('Erro ao atualizar status de denuncia')
+  }
+  return data
+}
+
+export const createReportPost = async ({
+  postId,
+  reason,
+  description,
+  imagens,
+}: {
+  postId: number
+  reason: string
+  description: string
+  imagens: File[]
+}) => {
+  const imageUrls: string[] = []
+
+  for (const img of imagens) {
+    const formData = new FormData()
+    formData.append('file', img)
+    formData.append('upload_preset', 'posts_tess')
+    formData.append('folder', 'perfil')
+
+    const cloudinaryRes = await fetch(
+      `https://api.cloudinary.com/v1_1/di5dwqjq7/image/upload`,
+      { method: 'POST', body: formData }
+    )
+
+    const imgData = await cloudinaryRes.json()
+    if (imgData.secure_url) {
+      imageUrls.push(imgData.secure_url)
+    }
+  }
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/auth/admin/createPostReport`,
+    {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        postId,
+        reason,
+        description,
+        imageUrls,
+      }),
+    }
+  )
+  const data = await response.json()
+
+  if (!response.ok) {
+    MessagePerson('Ops!', data.error || 'Erro ao processar denúncia', 'error')
+    throw new Error(data.error || 'Erro ao denunciar post')
+  }
+
+  return data
+}

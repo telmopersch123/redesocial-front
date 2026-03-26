@@ -226,7 +226,28 @@ export const reportUser = z.object({
     }
   ),
 })
+export const reportPostSchema = z.object({
+  reason: z.enum(
+    [
+      'assedio_ou_bullying',
+      'discurso_de_odio',
+      'conteudo_improprio',
+      'spam_ou_comportamento_suspeito',
+      'falsa_identidade',
+      'outro',
+    ],
+    {
+      errorMap: () => ({
+        message: 'Por favor, selecione um motivo válido da lista.',
+      }),
+    }
+  ),
+  description: z
+    .string()
+    .min(80, 'A descrição deve ter no mínimo 80 caracteres.'),
+})
 
+export type ReportPostFormData = z.infer<typeof reportPostSchema>
 export type CreateReportUserFormData = z.infer<typeof reportUser>
 export type AdminLoginFormData = z.infer<typeof adminLoginSchema>
 export type ArchivePostFormData = z.infer<typeof archivePostSchema>
