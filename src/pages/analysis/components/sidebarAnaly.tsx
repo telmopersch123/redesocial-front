@@ -3,11 +3,15 @@ import {
   ChevronRight,
   FileWarning,
   LogOut,
+  Menu,
   ShieldCheck,
   UserX,
+  X,
 } from 'lucide-react'
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { Button } from '../../../components/ui/button'
+import { Sheet, SheetContent, SheetTrigger } from '../../../components/ui/sheet'
 import { cn } from '../../../lib/utils'
 
 const menuItems = [
@@ -31,22 +35,35 @@ const menuItems = [
   },
 ]
 
-export function SidebarAnalysis() {
+export function SidebarContent({ onClose }: { onClose?: () => void }) {
   return (
-    <aside className="sticky top-0 flex h-screen w-72 flex-col border-r bg-zinc-50/50 backdrop-blur-xl dark:bg-zinc-950/50">
+    <aside className="sticky top-0 flex min-h-screen w-72 flex-col border-r bg-zinc-50/50 backdrop-blur-xl dark:bg-zinc-950/50">
       {/* Header do Painel */}
-      <div className="flex items-center gap-3 px-6 py-8">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-lg shadow-blue-500/20">
-          <ShieldCheck className="h-6 w-6 text-white" />
+      <div className="flex items-center justify-between px-6 py-8">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-lg shadow-blue-500/20">
+            <ShieldCheck className="h-6 w-6 text-white" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-bold leading-none text-zinc-900 dark:text-zinc-100">
+              Painel Support
+            </span>
+            <span className="mt-1 text-[11px] font-medium uppercase tracking-wider text-blue-600">
+              Administrativo
+            </span>
+          </div>
         </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-bold leading-none text-zinc-900 dark:text-zinc-100">
-            Painel Support
-          </span>
-          <span className="mt-1 text-[11px] font-medium uppercase tracking-wider text-blue-600">
-            Administrativo
-          </span>
-        </div>
+
+        {onClose && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        )}
       </div>
 
       {/* Navegação Principal */}
@@ -56,6 +73,7 @@ export function SidebarAnalysis() {
             key={item.path}
             to={item.path}
             end={item.path === '/analysis'} // Evita que '/' ative todas as rotas
+            onClick={onClose}
           >
             {({ isActive }) => (
               <div
@@ -113,5 +131,34 @@ export function SidebarAnalysis() {
         </Button>
       </div>
     </aside>
+  )
+}
+
+export function SidebarAnalysis() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      <aside className="sticky top-0 hidden min-h-screen w-72 flex-col border-r min-[870px]:flex">
+        <SidebarContent />
+      </aside>
+
+      <div className="min-[870px]:hidden">
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="fixed left-4 top-4 z-50"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-72 p-0">
+            <SidebarContent onClose={() => setOpen(false)} />
+          </SheetContent>
+        </Sheet>
+      </div>
+    </>
   )
 }
