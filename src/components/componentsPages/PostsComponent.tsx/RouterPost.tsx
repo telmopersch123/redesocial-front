@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import type { ExtendedPost } from '../../../pages/community/PostsArchived'
 import type { Post } from '../../../types'
 import { LoadingComponent } from '../../../utils/components/Loading'
+import { MessagePerson } from '../../../utils/components/MessagePerson'
 import PostComponentDialog from './PostComponentDialog'
 
 const RouterPost = () => {
@@ -27,6 +28,15 @@ const RouterPost = () => {
             credentials: 'include',
           }
         )
+        if (!response.ok) {
+          navigate('/')
+          MessagePerson(
+            'Ocorreu um erro',
+            'Essa postagem não existe, ou foi removida.',
+            'error'
+          )
+          return
+        }
         const data = await response.json()
         setPosts([data])
         setOnePosts(data)
