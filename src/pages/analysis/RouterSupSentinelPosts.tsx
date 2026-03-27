@@ -68,25 +68,22 @@ const STATUS_STYLES: Record<string, string> = {
   REJECTED: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-500',
 }
 
-const validedType = {
-  assedio_ou_bullying: 'Assédio ou Bullying',
-  discurso_de_odio: 'Discurso de Ódio',
-  conteudo_improprio: 'Conteúdo Impróprio',
-  spam_ou_comportamento_suspeito: 'Spam ou Comportamento Suspeito',
-  falsa_identidade: 'Falsa Identidade',
-  outro: 'Outro',
-}
-
 function validateType(type: string) {
-  if (type === 'assedio_ou_bullying') return validedType.assedio_ou_bullying
-  if (type === 'discurso_de_odio') return validedType.discurso_de_odio
-  if (type === 'conteudo_improprio') return validedType.conteudo_improprio
-  if (type === 'spam_ou_comportamento_suspeito')
-    return validedType.spam_ou_comportamento_suspeito
-  if (type === 'falsa_identidade') return validedType.falsa_identidade
-  return validedType.outro
-}
+  const translations: Record<string, string> = {
+    assedio_ou_bullying: 'Assédio ou Bullying',
+    discurso_de_odio: 'Discurso de Ódio',
+    conteudo_improprio: 'Conteúdo Impróprio',
+    spam_ou_comportamento_suspeito: 'Spam ou Comportamento Suspeito',
+    falsa_identidade: 'Falsa Identidade',
+    outro: 'Outro',
+  }
+  if (translations[type]) {
+    return translations[type]
+  }
+  const formatted = type.replace(/_/g, ' ').toLowerCase()
 
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1)
+}
 function cnStatus(status: string) {
   return STATUS_STYLES[status] || 'bg-zinc-100 text-zinc-600'
 }
@@ -116,12 +113,8 @@ export const RouterSupSentinelPosts = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false)
   const [fullscreenImg, setFullscreenImg] = useState<string | null>(null)
-  const [filters, setFilters] = useState({
-    search: '',
-    status: 'all',
-    reason: 'all',
-  })
-
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [filterReason, setFilterReason] = useState('all')
   const onLoadMore = useCallback(() => {
     if (isFetchingRef.current || !hasMore || loading) return
     const nextPage = pageRef.current + 1
@@ -142,7 +135,11 @@ export const RouterSupSentinelPosts = () => {
   async function fetchReportsPosts(pageNumber: number, append = false) {
     append ? setIsLoadingFechReportPosts(true) : setLoading(true)
     try {
-      const response = await getPostsReports(pageNumber)
+      const response = await getPostsReports(
+        pageNumber,
+        filterStatus,
+        filterReason
+      )
       setReports((prev) =>
         append ? [...prev, ...response.data] : response.data
       )
@@ -208,7 +205,7 @@ export const RouterSupSentinelPosts = () => {
   useEffect(() => {
     pageRef.current = 1
     fetchReportsPosts(1)
-  }, [])
+  }, [filterStatus, filterReason])
 
   return (
     <div className="space-y-6 p-8">
@@ -236,7 +233,10 @@ export const RouterSupSentinelPosts = () => {
           </button>
         </div>
 
-        <TableFilters onFilterChange={(newFilters) => setFilters(newFilters)} />
+        <TableFilters
+          setFilterStatus={setFilterStatus}
+          setFilterReason={setFilterReason}
+        />
       </div>
       <div
         ref={scrollContainerRef}
@@ -328,6 +328,7 @@ export const RouterSupSentinelPosts = () => {
           {isLoadingFechReportPosts && 'Carregando mais...'}
           {!hasMore &&
             reports.length > 0 &&
+            !isLoadingFechReportPosts &&
             'Todos os registros já foram carregados'}
         </div>
       </div>

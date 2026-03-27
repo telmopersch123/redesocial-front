@@ -1,4 +1,4 @@
-import { Minus, TrendingDown, TrendingUp } from 'lucide-react'
+import { Minus, RefreshCw, TrendingDown, TrendingUp } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Badge } from '../../components/ui/badge'
 import {
@@ -19,7 +19,7 @@ import {
 import { getEmotionalPersons } from '../../services/authService'
 import { useInfiniteScrollAdmin } from './components/infiniteScroll'
 import { TableFiltersEmocional } from './components/tableFiltersAnaly'
-interface UserStatRow {
+export interface UserStatRow {
   entryId: number
   userId: number
   name: string
@@ -55,13 +55,10 @@ export const RouteSup = () => {
   const [loading, setLoading] = useState(true)
   const [hasMore, setHasMore] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
-
-  const [filters, setFilters] = useState({
-    search: '',
-    status: 'all',
-    reason: 'all',
-  })
-
+  const [filtertype, setFiltradotype] = useState<
+    'estavel' | 'bom' | 'queda' | 'all'
+  >('all')
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const onLoadMore = useCallback(() => {
     if (isFetchingRef.current || !hasMore || loading) return
     const nextPage = pageRef.current + 1
@@ -74,13 +71,63 @@ export const RouteSup = () => {
     onLoadMore: onLoadMore,
   })
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    pageRef.current = 1
+    try {
+      await fetchPage(1)
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
+  const handleFilterApply = (
+    newFilter: 'estavel' | 'bom' | 'queda' | 'all'
+  ) => {
+    setFiltradotype(newFilter)
+    if (newFilter === filtertype) {
+      pageRef.current = 1
+      fetchPage(1)
+    }
+  }
+
+  const handleSearch = async (name: string) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/admin/fetchNameEmotionalUser/${name}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+      if (!response.ok) throw new Error('Erro ao buscar dados de usuários')
+      const { data } = await response.json()
+      console.log(data)
+      const mapped: UserStatRow[] = data.map((u: EmotionalStat) => ({
+        entryId: u.entryId,
+        userId: u.userId,
+        name: u.name,
+        media: u.media,
+        status: calcStatus(u.media),
+        tendencia: calcTendencia(u.media),
+      }))
+
+      setRows(mapped)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   async function fetchPage(pageNumber: number, append = false) {
     if (isFetchingRef.current && append) return
     isFetchingRef.current = true
+    console.log(filtertype)
     try {
       append ? setLoadingMore(true) : setLoading(true)
-      console.log(pageNumber)
-      const response = await getEmotionalPersons(pageNumber)
+
+      const response = await getEmotionalPersons(pageNumber, filtertype)
       const mapped: UserStatRow[] = response.data.map((u: EmotionalStat) => ({
         entryId: u.entryId,
         userId: u.userId,
@@ -91,6 +138,7 @@ export const RouteSup = () => {
       }))
 
       setRows((prev) => (append ? [...prev, ...mapped] : mapped))
+
       setHasMore(response.hasMore)
       pageRef.current = pageNumber
     } catch (error) {
@@ -104,9 +152,10 @@ export const RouteSup = () => {
   useEffect(() => {
     pageRef.current = 1
     fetchPage(1)
-  }, [])
+  }, [filtertype])
 
-  const totalQueda = rows.filter((u) => u.status === 'queda').length
+  const totalQueda =
+    rows.length && rows.filter((u) => u.status === 'queda').length
   const pctEstavel = rows.length
     ? Math.round(((rows.length - totalQueda) / rows.length) * 100)
     : 0
@@ -153,9 +202,24 @@ export const RouteSup = () => {
             <h1 className="text-2xl font-bold tracking-tight">
               Denúncias de Usuários
             </h1>
-            <TableFiltersEmocional
-              onFilterChange={(newFilters) => setFilters(newFilters)}
-            />
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={handleRefresh}
+                  disabled={isRefreshing}
+                  className="flex items-center gap-2.5 rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-900 shadow-sm transition-all hover:border-zinc-300 hover:bg-zinc-50 active:scale-95 disabled:pointer-events-none disabled:opacity-60 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-zinc-900"
+                >
+                  <RefreshCw
+                    className={`h-4 w-4 text-blue-600 dark:text-blue-500 ${isRefreshing ? 'animate-spin' : ''}`}
+                  />
+                  {isRefreshing ? 'Atualizando...' : 'Atualizar Dados'}
+                </button>
+              </div>
+              <TableFiltersEmocional
+                handleSearch={handleSearch}
+                setFiltradotype={handleFilterApply}
+              />
+            </div>
           </div>
           <Card>
             <CardHeader>
@@ -234,16 +298,17 @@ export const RouteSup = () => {
                   )}
                 </TableBody>
               </Table>
-
-              <div
-                ref={sentinelRef}
-                className="py-2 text-center text-xs text-zinc-400"
-              >
-                {loadingMore && 'Carregando mais...'}
-                {!hasMore &&
-                  rows.length > 0 &&
-                  'Todos os registros dos ultimos 7 dias já foram carregados'}
-              </div>
+              {rows.length > 19 && (
+                <div
+                  ref={sentinelRef}
+                  className="py-2 text-center text-xs text-zinc-400"
+                >
+                  {loadingMore && 'Carregando mais...'}
+                  {!hasMore &&
+                    rows.length > 0 &&
+                    'Todos os registros dos ultimos 7 dias já foram carregados'}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

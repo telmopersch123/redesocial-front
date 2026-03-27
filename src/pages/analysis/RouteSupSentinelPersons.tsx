@@ -107,11 +107,8 @@ export const RouterSupSentinelPersons = () => {
   const [selectedReport, setSelectedReport] = useState<UserReport | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isStatusModalOpen, setIsStatusModalOpen] = useState<boolean>(false)
-  const [filters, setFilters] = useState({
-    search: '',
-    status: 'all',
-    reason: 'all',
-  })
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [filterReason, setFilterReason] = useState('all')
 
   const onLoadMore = useCallback(() => {
     if (isFetchingRef.current || !hasMore || loading) return
@@ -128,7 +125,11 @@ export const RouterSupSentinelPersons = () => {
   const fetchReports = async (pageNumber: number, append = false) => {
     append ? setIsLoadingFechReportUsers(true) : setLoading(true)
     try {
-      const response = await getUserReportsAdmin(pageNumber)
+      const response = await getUserReportsAdmin(
+        pageNumber,
+        filterStatus,
+        filterReason
+      )
       setReports((prev) =>
         append ? [...prev, ...response.data] : response.data
       )
@@ -145,8 +146,8 @@ export const RouterSupSentinelPersons = () => {
 
   useEffect(() => {
     pageRef.current = 1
-    fetchReports(1)
-  }, [])
+    fetchReports(1, false)
+  }, [filterStatus, filterReason])
 
   const handleApplySevenDaysBan = async () => {
     try {
@@ -240,7 +241,8 @@ export const RouterSupSentinelPersons = () => {
           </button>
         </div>
         <TableFiltersPersons
-          onFilterChange={(newFilters) => setFilters(newFilters)}
+          setFilterStatus={setFilterStatus}
+          setFilterReason={setFilterReason}
         />
       </div>
 
@@ -250,7 +252,7 @@ export const RouterSupSentinelPersons = () => {
           className="custom-scrollbar max-h-[70vh] overflow-y-auto"
         >
           <Table>
-            <TableHeader className="sticky top-0 z-20 bg-zinc-50 shadow-sm dark:bg-zinc-900">
+            <TableHeader className="sticky top-0 bg-zinc-50 shadow-sm dark:bg-zinc-900">
               <TableRow>
                 <TableHead className="w-[150px] bg-inherit">
                   ID do Caso
@@ -343,6 +345,7 @@ export const RouterSupSentinelPersons = () => {
             {isLoadingFechReportUsers && 'Carregando mais...'}
             {!hasMore &&
               reports.length > 0 &&
+              !isLoadingFechReportUsers &&
               'Todos os registros já foram carregados'}
           </div>
         </div>

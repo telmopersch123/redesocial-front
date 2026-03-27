@@ -1,7 +1,6 @@
-import { Search, SlidersHorizontal, XCircle } from 'lucide-react'
+import { SlidersHorizontal, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '../../../components/ui/button'
-import { Input } from '../../../components/ui/input'
 import { Label } from '../../../components/ui/label'
 import {
   Popover,
@@ -17,55 +16,46 @@ import {
 } from '../../../components/ui/select'
 
 interface TableFiltersProps {
-  onFilterChange: (filters: {
-    search: string
-    status: string
-    reason: string
-  }) => void
+  setFilterStatus: (status: string) => void
+  setFilterReason: (reason: string) => void
 }
 
-export function TableFilters({ onFilterChange }: TableFiltersProps) {
+const motives = [
+  'Violência',
+  'Direitos Autorais',
+  'Spam',
+  'Conteúdo Impróprio',
+  'Fake News',
+  'Discurso de Ódio',
+  'Bullying/Assédio',
+  'Fraude/Golpe',
+  'Conteúdo Sensível',
+  'Auto-mutilação',
+]
+
+export function TableFilters({
+  setFilterStatus,
+  setFilterReason,
+}: TableFiltersProps) {
   const [status, setStatus] = useState('all')
   const [reason, setReason] = useState('all')
-  const [search, setSearch] = useState('')
 
   const handleApply = () => {
-    onFilterChange({ search, status, reason })
+    setFilterStatus(status)
+    setFilterReason(reason)
   }
 
   const handleClear = () => {
-    setSearch('')
     setStatus('all')
     setReason('all')
-    onFilterChange({ search: '', status: 'all', reason: 'all' })
+    setFilterStatus('all')
+    setFilterReason('all')
   }
 
-  // Pegamos os motivos exatamente como estão no seu Mock
-  const motives = [
-    'Violência',
-    'Direitos Autorais',
-    'Spam',
-    'Conteúdo Impróprio',
-    'Fake News',
-    'Discurso de Ódio',
-    'Bullying/Assédio',
-    'Fraude/Golpe',
-    'Conteúdo Sensível',
-    'Auto-mutilação',
-  ]
+  const hasActiveFilters = status !== 'all' || reason !== 'all'
 
   return (
     <div className="flex items-center gap-3">
-      <div className="relative max-w-sm flex-1">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-        <Input
-          placeholder="ID ou nome do autor..."
-          className="bg-white pl-10 dark:bg-zinc-950"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -74,7 +64,7 @@ export function TableFilters({ onFilterChange }: TableFiltersProps) {
           >
             <SlidersHorizontal className="h-4 w-4 text-orange-500" />
             Filtros Avançados
-            {(status !== 'all' || reason !== 'all') && (
+            {hasActiveFilters && (
               <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-bold text-white">
                 !
               </span>
@@ -92,7 +82,6 @@ export function TableFilters({ onFilterChange }: TableFiltersProps) {
             </div>
 
             <div className="grid gap-4">
-              {/* Filtro por Status (Baseado na sua tipagem status) */}
               <div className="grid gap-2">
                 <Label className="text-xs font-bold uppercase text-zinc-500">
                   Estado do Processo
@@ -114,7 +103,6 @@ export function TableFilters({ onFilterChange }: TableFiltersProps) {
                 </Select>
               </div>
 
-              {/* Filtro por Motivo (Baseado no seu reason: string) */}
               <div className="grid gap-2">
                 <Label className="text-xs font-bold uppercase text-zinc-500">
                   Tipo de Violação

@@ -947,9 +947,12 @@ export const getPostsFeed = async (
   }
 }
 
-export const getEmotionalPersons = async (pageNumber: number) => {
+export const getEmotionalPersons = async (
+  pageNumber: number,
+  filtertype: string
+) => {
   const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/admin/getEmotionalUsersAdmin/${pageNumber}`,
+    `${import.meta.env.VITE_API_URL}/auth/admin/getEmotionalUsersAdmin/${pageNumber}/${filtertype}`,
     {
       method: 'GET',
       headers: {
@@ -960,9 +963,15 @@ export const getEmotionalPersons = async (pageNumber: number) => {
   if (!response.ok) throw new Error('Erro ao buscar dados de usuários')
   return response.json()
 }
-export const getUserReportsAdmin = async (pageNumber: number) => {
+export const getUserReportsAdmin = async (
+  pageNumber: number,
+  safeStatus: string,
+  safeReason: string
+) => {
+  const filterStatus = encodeURIComponent(safeStatus)
+  const filterReason = encodeURIComponent(safeReason)
   const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/admin/getUserReportsAdmin/${pageNumber}`,
+    `${import.meta.env.VITE_API_URL}/auth/admin/getUserReportsAdmin/${pageNumber}/${filterStatus}/${filterReason}`,
     {
       method: 'GET',
       headers: {
@@ -1058,16 +1067,19 @@ export const updateStatusReportsUsers = async (
   return data
 }
 
-export const getPostsReports = async (pageNumber: number) => {
-  const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/auth/admin/getPostsReports/${pageNumber}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
-  )
+export const getPostsReports = async (
+  pageNumber: number,
+  safeStatus: string,
+  safeReason: string
+) => {
+  const url = `${import.meta.env.VITE_API_URL}/auth/admin/getPostsReports/${pageNumber}?status=${encodeURIComponent(safeStatus)}&reason=${encodeURIComponent(safeReason)}`
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
   if (!response.ok) throw new Error('Erro ao buscar denuncias de posts')
   return response.json()
 }

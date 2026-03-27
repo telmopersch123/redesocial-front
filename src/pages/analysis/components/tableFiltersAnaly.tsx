@@ -17,32 +17,30 @@ import {
 } from '../../../components/ui/select'
 
 interface TableFiltersEmocionalProps {
-  onFilterChange: (filters: {
-    search: string
-    status: string
-    reason: string
-  }) => void
+  setFiltradotype: (newFilter: 'estavel' | 'bom' | 'queda' | 'all') => void
+  handleSearch: (search: string) => void
 }
 
 export function TableFiltersEmocional({
-  onFilterChange,
+  setFiltradotype,
+  handleSearch,
 }: TableFiltersEmocionalProps) {
-  const [status, setStatus] = useState('all')
-  const [reason, setReason] = useState('all')
+  const [status, setStatus] = useState<'estavel' | 'bom' | 'queda' | 'all'>(
+    'all'
+  )
   const [search, setSearch] = useState('')
 
   const handleApply = () => {
-    onFilterChange({ search, status, reason })
+    setFiltradotype(status)
   }
 
   const handleClear = () => {
     setSearch('')
+    setFiltradotype('all')
     setStatus('all')
-    setReason('all')
-    onFilterChange({ search: '', status: 'all', reason: 'all' })
   }
 
-  const hasActiveFilters = status !== 'all' || reason !== 'all'
+  const hasActiveFilters = status !== 'all'
 
   return (
     <div className="flex items-center gap-3">
@@ -52,9 +50,11 @@ export function TableFiltersEmocional({
           placeholder="Buscar por nome..."
           className="bg-white pl-10 dark:bg-zinc-950"
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value)
-            onFilterChange({ search: e.target.value, status, reason })
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSearch(search)
+            }
           }}
         />
       </div>
@@ -86,7 +86,12 @@ export function TableFiltersEmocional({
                 <Label className="text-xs font-bold uppercase text-zinc-500">
                   Status
                 </Label>
-                <Select value={status} onValueChange={setStatus}>
+                <Select
+                  value={status}
+                  onValueChange={(value) =>
+                    setStatus(value as 'bom' | 'estavel' | 'queda' | 'all')
+                  }
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione o status" />
                   </SelectTrigger>
@@ -95,23 +100,6 @@ export function TableFiltersEmocional({
                     <SelectItem value="bom">🟢 Bom</SelectItem>
                     <SelectItem value="estavel">🟡 Estável</SelectItem>
                     <SelectItem value="queda">🔴 Em Queda</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid gap-2">
-                <Label className="text-xs font-bold uppercase text-zinc-500">
-                  Tendência
-                </Label>
-                <Select value={reason} onValueChange={setReason}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a tendência" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Qualquer tendência</SelectItem>
-                    <SelectItem value="up">📈 Subindo</SelectItem>
-                    <SelectItem value="stable">➡️ Estável</SelectItem>
-                    <SelectItem value="down">📉 Caindo</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

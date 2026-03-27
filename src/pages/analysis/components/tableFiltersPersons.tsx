@@ -1,7 +1,6 @@
-import { Search, ShieldAlert, SlidersHorizontal, XCircle } from 'lucide-react'
+import { ShieldAlert, SlidersHorizontal, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '../../../components/ui/button'
-import { Input } from '../../../components/ui/input'
 import { Label } from '../../../components/ui/label'
 import {
   Popover,
@@ -17,30 +16,30 @@ import {
 } from '../../../components/ui/select'
 
 interface TableFiltersProps {
-  onFilterChange: (filters: {
-    search: string
-    status: string
-    reason: string
-  }) => void
+  // Passamos os dois estados para o pai
+  setFilterStatus: (status: string) => void
+  setFilterReason: (reason: string) => void
 }
 
-export function TableFiltersPersons({ onFilterChange }: TableFiltersProps) {
+export function TableFiltersPersons({
+  setFilterStatus,
+  setFilterReason,
+}: TableFiltersProps) {
   const [status, setStatus] = useState('all')
   const [reason, setReason] = useState('all')
-  const [search, setSearch] = useState('')
 
   const handleApply = () => {
-    onFilterChange({ search, status, reason })
+    setFilterStatus(status)
+    setFilterReason(reason)
   }
 
   const handleClear = () => {
-    setSearch('')
     setStatus('all')
     setReason('all')
-    onFilterChange({ search: '', status: 'all', reason: 'all' })
+    setFilterStatus('all')
+    setFilterReason('all')
   }
 
-  // Motivos exatos do seu Mock de Usuários
   const userReasons = [
     'Assédio',
     'Spam',
@@ -51,24 +50,16 @@ export function TableFiltersPersons({ onFilterChange }: TableFiltersProps) {
     'Fraude/Golpe',
   ]
 
+  const hasActiveFilters = status !== 'all' || reason !== 'all'
+
   return (
     <div className="flex items-center gap-3">
-      <div className="relative max-w-sm flex-1">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
-        <Input
-          placeholder="Nome ou ID do usuário..."
-          className="bg-white pl-10 dark:bg-zinc-950"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="outline" className="gap-2 border-dashed">
             <SlidersHorizontal className="h-4 w-4 text-red-500" />
             Filtros
-            {(status !== 'all' || reason !== 'all') && (
+            {hasActiveFilters && (
               <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
                 !
               </span>
