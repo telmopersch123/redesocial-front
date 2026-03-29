@@ -86,7 +86,6 @@ const CommunityPage = () => {
     if (location.state?.communityError === 'not-found') {
       MessagePerson('Comunidade não encontrada', null, 'error')
 
-
       window.history.replaceState({}, document.title)
     }
   }, [location.state])

@@ -161,10 +161,14 @@ export const RouterSupSentinelPosts = () => {
         selectedPost!.PostIdReported,
         selectedPost!.reason
       )
+      setReports((prev) =>
+        prev.map((r) =>
+          r.id === selectedPost!.id ? { ...r, status: 'REJECTED' } : r
+        )
+      )
       MessagePerson('Postagem banida com sucesso', null, 'success')
       setIsDetailOpen(false)
     } catch (error) {
-      MessagePerson('Erro ao excluir postagem', null, 'error')
       console.error('Erro ao excluir postagem:', error)
     }
   }
@@ -183,10 +187,8 @@ export const RouterSupSentinelPosts = () => {
 
       setIsStatusModalOpen(false)
       MessagePerson('Status atualizado com sucesso!', null, 'success')
-    } catch (error: any) {
-      const errorMsg =
-        error.response?.data?.error || 'Falha ao atualizar status.'
-      MessagePerson(errorMsg, null, 'error')
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error)
     }
   }
 

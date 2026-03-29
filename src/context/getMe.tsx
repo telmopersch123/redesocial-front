@@ -71,6 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsAuthLoading(false)
     }
   }
+
   useEffect(() => {
     fetchUser()
   }, [])

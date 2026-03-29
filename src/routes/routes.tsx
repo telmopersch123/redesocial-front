@@ -81,7 +81,7 @@ export default function AppRoutes() {
       <Route
         path="/analysis"
         element={
-          <RouteValided allowedRoles={['SUPPORT']}>
+          <RouteValided>
             <AnalysisInitPage />
           </RouteValided>
         }

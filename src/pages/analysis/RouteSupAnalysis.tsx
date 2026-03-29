@@ -97,6 +97,7 @@ export const RouteSup = () => {
         `${import.meta.env.VITE_API_URL}/auth/admin/fetchNameEmotionalUser/${name}`,
         {
           method: 'GET',
+          credentials: 'include',
           headers: {
             'Content-Type': 'application/json',
           },

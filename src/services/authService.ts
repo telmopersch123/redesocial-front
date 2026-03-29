@@ -955,6 +955,7 @@ export const getEmotionalPersons = async (
     `${import.meta.env.VITE_API_URL}/auth/admin/getEmotionalUsersAdmin/${pageNumber}/${filtertype}`,
     {
       method: 'GET',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -974,6 +975,7 @@ export const getUserReportsAdmin = async (
     `${import.meta.env.VITE_API_URL}/auth/admin/getUserReportsAdmin/${pageNumber}/${filterStatus}/${filterReason}`,
     {
       method: 'GET',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -992,14 +994,19 @@ export const applySevenDayBan = async (
     `${import.meta.env.VITE_API_URL}/auth/admin/apply-ban-seven`,
     {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ reportId, userIdReported, reason }),
     }
   )
-  if (!response.ok) throw new Error('Erro ao banir usuário')
-  return response.json()
+  const data = await response.json()
+  if (!response.ok) {
+    MessagePerson('Ops!', data.error, 'error')
+    throw new Error('Erro ao banir usuário')
+  }
+  return data
 }
 export const applyBanPerm = async (
   reportId: string,
@@ -1010,14 +1017,19 @@ export const applyBanPerm = async (
     `${import.meta.env.VITE_API_URL}/auth/admin/apply-ban-permanent`,
     {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ reportId, userIdReported, reason }),
     }
   )
-  if (!response.ok) throw new Error('Erro ao banir usuário')
-  return response.json()
+  const data = await response.json()
+  if (!response.ok) {
+    MessagePerson('Ops!', data.error, 'error')
+    throw new Error('Erro ao banir usuário')
+  }
+  return data
 }
 
 export const createReportUser = async (
@@ -1053,6 +1065,7 @@ export const updateStatusReportsUsers = async (
     `${import.meta.env.VITE_API_URL}/auth/admin/updateStatusReportsUsers`,
     {
       method: 'PUT',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -1076,6 +1089,7 @@ export const getPostsReports = async (
 
   const response = await fetch(url, {
     method: 'GET',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -1093,6 +1107,7 @@ export const banReportsPosts = async (
     `${import.meta.env.VITE_API_URL}/auth/admin/banReportsPosts`,
     {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -1114,6 +1129,7 @@ export const updateStatusReportsPosts = async (
     `${import.meta.env.VITE_API_URL}/auth/admin/updateStatusReportsPosts`,
     {
       method: 'PUT',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },

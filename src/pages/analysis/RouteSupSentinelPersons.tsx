@@ -164,7 +164,7 @@ export const RouterSupSentinelPersons = () => {
       setIsActionModalOpen(false)
       toast.success('Usuário banido por 7 dias.')
     } catch (error) {
-      toast.error('Falha ao banir usuário.')
+      console.log(error)
     }
   }
 
@@ -183,7 +183,7 @@ export const RouterSupSentinelPersons = () => {
       setIsActionModalOpen(false)
       toast.success('Usuário banido permanentemente.')
     } catch (error) {
-      toast.error('Falha ao banir usuário.')
+      console.log(error)
     }
   }
 
@@ -338,16 +338,18 @@ export const RouterSupSentinelPersons = () => {
               )}
             </TableBody>
           </Table>
-          <div
-            ref={sentinelRef}
-            className="py-2 text-center text-xs text-zinc-400"
-          >
-            {isLoadingFechReportUsers && 'Carregando mais...'}
-            {!hasMore &&
-              reports.length > 0 &&
-              !isLoadingFechReportUsers &&
-              'Todos os registros já foram carregados'}
-          </div>
+          {reports.length > 19 && (
+            <div
+              ref={sentinelRef}
+              className="py-2 text-center text-xs text-zinc-400"
+            >
+              {isLoadingFechReportUsers && 'Carregando mais...'}
+              {!hasMore &&
+                reports.length > 0 &&
+                !isLoadingFechReportUsers &&
+                'Todos os registros já foram carregados'}
+            </div>
+          )}
         </div>
       </div>
 

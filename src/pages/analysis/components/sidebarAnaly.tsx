@@ -9,9 +9,10 @@ import {
   X,
 } from 'lucide-react'
 import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { Button } from '../../../components/ui/button'
 import { Sheet, SheetContent, SheetTrigger } from '../../../components/ui/sheet'
+import { useAdminAuth } from '../../../context/getad'
 import { cn } from '../../../lib/utils'
 
 const menuItems = [
@@ -36,6 +37,29 @@ const menuItems = [
 ]
 
 export function SidebarContent({ onClose }: { onClose?: () => void }) {
+  const navigate = useNavigate()
+  const { setAdmin } = useAdminAuth()
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/admin/logout`,
+        {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      if (response.ok) {
+        if (setAdmin) setAdmin(null)
+        navigate('/analysisLo', { replace: true })
+      }
+    } catch (error) {
+      console.error('Erro ao sair:', error)
+    }
+  }
   return (
     <aside className="sticky top-0 flex min-h-screen w-72 flex-col border-r bg-zinc-50/50 backdrop-blur-xl dark:bg-zinc-950/50">
       {/* Header do Painel */}
@@ -123,6 +147,7 @@ export function SidebarContent({ onClose }: { onClose?: () => void }) {
       {/* Footer / Ações de Conta */}
       <div className="mt-auto border-t border-zinc-200 bg-zinc-100/50 p-4 dark:border-zinc-800 dark:bg-zinc-900/30">
         <Button
+          onClick={handleLogout}
           variant="ghost"
           className="w-full justify-start gap-3 text-zinc-500 transition-all hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/20"
         >
