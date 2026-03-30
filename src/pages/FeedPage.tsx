@@ -53,7 +53,7 @@ const TextMap: Record<string, string> = {
 
 const FeedPage = () => {
   const isInitialMount = useRef(true)
-  const { isChatOpenChatSideBar, clickedState } = useChat()
+  const { clickedState } = useChat()
   const [novoComentario, setNovoComentario] = useState('')
   const [posts, setPosts] = useState<Post[]>([])
   const [page, setPage] = useState(1)

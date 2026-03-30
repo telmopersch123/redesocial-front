@@ -46,7 +46,6 @@ const BasicInformationComponent = ({
   avataresSimbolicos,
   abrirDialogConfig,
   setRawFile,
-  setNomeUser,
   localBio: bio,
   setLocalBio: setBio,
   localSentimento: sentimentoAtual,
