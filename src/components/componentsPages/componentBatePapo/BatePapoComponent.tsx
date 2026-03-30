@@ -2,7 +2,6 @@
 import { ChevronRight, MessageCircle } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
-import { Sidebar } from '../../..//components/ui/sidebar'
 import { useChat, type Contato } from '../../../context/ChatContext'
 
 import { getContatos } from '../../../services/authService'
@@ -16,12 +15,17 @@ const BREAKPOINT = 1640
 export const BatePapoSidebar = () => {
   const { pathname } = useLocation()
   const { communityName, id } = useParams()
-  const { totalUnread } = useChat()
+  const {
+    totalUnread,
+    isChatOpenChatSideBar,
+    setIsOpenChatSideBar,
+    setClickedState,
+  } = useChat()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [search, setSearch] = useState('')
   const [allContatos, setAllContatos] = useState<Contato[]>([])
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= BREAKPOINT)
-  const [isOpen, setIsOpen] = useState(true)
+
   const [isActive, setIsActive] = useState(false)
 
   const { contatos: conversations, setContatos: setConversations } = useChat()
@@ -31,16 +35,18 @@ export const BatePapoSidebar = () => {
     `/comunidades/comunidades-do-usuario/${communityName}`,
     `/comunidades/comunidades-do-usuario/${communityName}/${id}`,
   ]
+
   useEffect(() => {
     const handleResize = () => {
       const desktop = window.innerWidth >= BREAKPOINT
       const rotaPermitida = ROTAS_COM_SIDEBAR.includes(pathname)
+
       if (rotaPermitida) {
         setIsDesktop(desktop)
-        setIsOpen(desktop)
+        setIsOpenChatSideBar(desktop)
       } else {
         setIsDesktop(false)
-        setIsOpen(false)
+        setIsOpenChatSideBar(false)
       }
     }
 
@@ -93,6 +99,7 @@ export const BatePapoSidebar = () => {
       <>
         <Button
           onClick={() => {
+            setClickedState((prev) => !prev)
             setIsCollapsed(!isCollapsed)
             activeThreeSeconds()
           }}
@@ -116,9 +123,8 @@ export const BatePapoSidebar = () => {
         >
           <NotificationComponent />
         </div>
-        <Sidebar
-          side="right"
-          className={`fixed z-[30] border-l transition-all duration-300 ${
+        <div
+          className={`fixed right-0 top-0 z-[30] h-full border-l border-zinc-200 bg-white transition-all duration-300 dark:border-zinc-800 dark:bg-zinc-950 ${
             isCollapsed ? 'w-0 overflow-hidden' : 'w-96'
           }`}
         >
@@ -132,18 +138,18 @@ export const BatePapoSidebar = () => {
             conversations={conversations}
             quantity={totalUnread}
           />
-        </Sidebar>
+        </div>
       </>
     )
   }
 
   return (
     <>
-      <div className="fixed right-5 top-3 z-40 transition-all duration-300">
+      <div className="fixed bottom-10 right-24 z-40 transition-all duration-300 md:right-5 md:top-3">
         <NotificationComponent />
       </div>
 
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <Sheet open={isChatOpenChatSideBar} onOpenChange={setIsOpenChatSideBar}>
         <SheetTrigger asChild>
           <Button
             size="icon"

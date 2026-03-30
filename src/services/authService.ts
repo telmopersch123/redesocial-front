@@ -648,7 +648,7 @@ export const removeUsersSelectedCommuntity = async (
       body: JSON.stringify({ userIds }),
     }
   )
-  console.log(res)
+
   if (!res.ok) throw new Error('Erro ao remover os usuários da comunidade')
   return await res.json()
 }

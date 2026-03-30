@@ -41,11 +41,7 @@ const AverageMoodComponent = forwardRef<HTMLDivElement, AverageMoodProps>(
         return (total / entries.length).toFixed(1).toString()
       }
       setAverageMod(parseFloat(avaregeMood(datesUserGraphics).toString()))
-      console.log(datesUserGraphics)
-      console.log(averageMod)
     }, [datesUserGraphics])
-
-    console.log(datesUserGraphics)
 
     return (
       <div

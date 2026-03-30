@@ -61,7 +61,6 @@ const ReportDialog = ({ profileId }: { profileId: number }) => {
   }
 
   const onSubmit = async (data: CreateReportUserFormData) => {
-    console.log('ola')
     setLoadingReportUser(true)
     try {
       const res = await createReportUser(profileId, descricao, data.reason)

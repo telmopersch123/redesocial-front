@@ -132,7 +132,7 @@ const NotificationComponent = () => {
     >
   }) => {
     const navigate = useNavigate()
-    console.log(items)
+
     const grouped = items.reduce(
       (acc, n) => {
         let groupKey = n.type

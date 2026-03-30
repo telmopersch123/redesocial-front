@@ -76,6 +76,10 @@ interface ChatContextType {
   markChatAsRead: (chatId: string) => void
   totalUnread: number
   validatedExistingUser: boolean
+  isChatOpenChatSideBar: boolean
+  setIsOpenChatSideBar: React.Dispatch<React.SetStateAction<boolean>>
+  setClickedState: React.Dispatch<React.SetStateAction<boolean>>
+  clickedState: boolean
 }
 
 const ChatContext = createContext<ChatContextType | null>(null)
@@ -104,7 +108,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [contatos, setContatos] = useState<Contato[]>([])
   const [onlineUsers, setOnlineUsers] = useState<Set<number>>(new Set())
   const [isChatOpen, setIsChatOpen] = useState(false)
-
+  const [isChatOpenChatSideBar, setIsOpenChatSideBar] = useState(false)
+  const [clickedState, setClickedState] = useState(false)
   const resetChatState = () => {
     setMessagesByChat({})
     setCursorByChat({})
@@ -348,32 +353,34 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
+  // useEffect(() => {
+  //   if (!user?.id) return
+
+  //   async function loadUnread() {
+  //     const res = await fetch(
+  //       `${import.meta.env.VITE_API_URL}/auth/chats/unread`,
+  //       {
+  //         credentials: 'include',
+  //       }
+  //     )
+
+  //     const data: Record<string, number> = await res.json()
+  //     setUnreadByChat(data)
+  //   }
+
+  //   loadUnread()
+  // }, [user?.id])
+
   useEffect(() => {
     if (!user?.id) return
-
-    async function loadUnread() {
-      const res = await fetch(
+    async function load() {
+      const response = await fetch(
         `${import.meta.env.VITE_API_URL}/auth/chats/unread`,
         {
           credentials: 'include',
         }
       )
 
-      const data: Record<string, number> = await res.json()
-      setUnreadByChat(data)
-    }
-
-    loadUnread()
-  }, [user?.id])
-  useEffect(() => {
-    if (!user?.id) return
-    async function load() {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/auth/chats`,
-        {
-          credentials: 'include',
-        }
-      )
       const chats = await response.json()
 
       const map: UnreadMap = {}
@@ -448,6 +455,10 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         markChatAsRead,
         totalUnread,
         validatedExistingUser,
+        isChatOpenChatSideBar,
+        setIsOpenChatSideBar,
+        setClickedState,
+        clickedState,
       }}
     >
       {children}

@@ -4,8 +4,8 @@ import { PostCardSkeleton } from '../components/componentsPages/componentsPerfil
 import CardsPostComponent from '../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
 import PostComponentDialog from '../components/componentsPages/PostsComponent.tsx/PostComponentDialog'
 import { Button } from '../components/ui/button'
+import { useChat } from '../context/ChatContext'
 import { useCriarPostDialog } from '../context/ContextDialogPost'
-import { useAuth } from '../context/getMe'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
 import { getPostsFeed } from '../services/authService'
 import type { Post, PostType } from '../types'
@@ -52,8 +52,8 @@ const TextMap: Record<string, string> = {
 }
 
 const FeedPage = () => {
-  const { user: authUser } = useAuth()
   const isInitialMount = useRef(true)
+  const { isChatOpenChatSideBar, clickedState } = useChat()
   const [novoComentario, setNovoComentario] = useState('')
   const [posts, setPosts] = useState<Post[]>([])
   const [page, setPage] = useState(1)
@@ -127,6 +127,8 @@ const FeedPage = () => {
     loadPosts(1, true, feeling)
   }
 
+  console.log(clickedState)
+
   return (
     <>
       <div className="fixed">
@@ -142,7 +144,9 @@ const FeedPage = () => {
         />
       </div>
 
-      <div className="mb-4 mt-5 w-[99vw] px-0.5 sm:px-5 md:w-[calc(100vw-20rem)] 2xl:w-[1000px]">
+      <div
+        className={`mb-4 mt-5 w-[99vw] px-0.5 sm:px-5 md:w-[calc(100vw-20rem)] 2xl:w-[1000px]`}
+      >
         <img
           src="/logo.png"
           alt="Logo da Rede Social"
@@ -199,7 +203,7 @@ const FeedPage = () => {
                   />
                 </div>
               ))}
-              {hasMore && authUser && (
+              {hasMore && (
                 <div
                   ref={loadMoreRef}
                   className="flex min-h-[300px] items-center justify-center"

@@ -68,7 +68,7 @@ const LoginComponent = ({
           data.password,
           data.rememberMe
         )
-        console.log(response)
+
         if (response.twoFactorRequired) {
           setTwoFactorData({
             userId: response.userId,

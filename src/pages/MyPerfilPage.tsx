@@ -76,7 +76,6 @@ const MyPerfilPage = () => {
         setHasMore(false)
       }
 
-      console.log('postsData', postsData)
       if (isFirstLoad) {
         setPosts(postsData)
       } else {

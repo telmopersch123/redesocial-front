@@ -7,19 +7,19 @@ const MessageDayComponent = () => {
   const [loading, setLoading] = useState(true)
 
   const translate = async (message: string) => {
-    const res = await fetch('/translate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message }),
-    })
+    const res = await fetch(
+      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(message)}&langpair=en|pt-BR&de=seuemail@gmail.com`
+    )
     const data = await res.json()
+
     setLoading(false)
-    return data.translated
+    return data.responseData.translatedText
   }
 
   const fetchMessage = async () => {
     const res = await fetch('https://api.adviceslip.com/advice')
     const data = await res.json()
+
     const translated = await translate(data.slip.advice)
 
     const now = new Date().getTime()

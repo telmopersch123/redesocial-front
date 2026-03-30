@@ -67,7 +67,6 @@ export const MessagesFuture = () => {
 
           setData(data)
           setIsOpen(true)
-          console.log(data)
         } else {
           setIgnore(true)
         }

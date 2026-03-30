@@ -159,7 +159,7 @@ const CreateCommunityPage = () => {
           })
           return
         }
-          MessagePerson('Erro ao criar comunidade', error.message, 'error')
+        MessagePerson('Erro ao criar comunidade', error.message, 'error')
       }
     }
   }

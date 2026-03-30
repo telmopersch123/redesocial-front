@@ -105,7 +105,7 @@ export const RouteSup = () => {
       )
       if (!response.ok) throw new Error('Erro ao buscar dados de usuários')
       const { data } = await response.json()
-      console.log(data)
+
       const mapped: UserStatRow[] = data.map((u: EmotionalStat) => ({
         entryId: u.entryId,
         userId: u.userId,
@@ -124,7 +124,7 @@ export const RouteSup = () => {
   async function fetchPage(pageNumber: number, append = false) {
     if (isFetchingRef.current && append) return
     isFetchingRef.current = true
-    console.log(filtertype)
+
     try {
       append ? setLoadingMore(true) : setLoading(true)
 

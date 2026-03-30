@@ -29,16 +29,20 @@ export const JoinButton = ({
     setIsLoading(true)
     try {
       const response = await joinCommunity(communityId)
-      console.log(response)
+
       if (!response.error) {
-        MessagePerson('Sucesso', `Bem-vindo à comunidade! ${nameComunity}`, 'success')
+        MessagePerson(
+          'Sucesso',
+          `Bem-vindo à comunidade! ${nameComunity}`,
+          'success'
+        )
 
         onRefresh()
       } else {
         navigate('/auth')
       }
     } catch (error: any) {
-     MessagePerson('Erro', error.message, 'error')
+      MessagePerson('Erro', error.message, 'error')
     } finally {
       setIsLoading(false)
     }

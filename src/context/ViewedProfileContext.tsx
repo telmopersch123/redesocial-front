@@ -75,8 +75,6 @@ export const ViewedProfileProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       }
 
-      console.log('Perfil visualizado:', processed)
-
       setViewedProfile(processed)
       setViewedBio(processed.user?.informationUser?.[0]?.bio || '')
     } catch (err) {

@@ -143,7 +143,7 @@ export const RouterSupSentinelPosts = () => {
       setReports((prev) =>
         append ? [...prev, ...response.data] : response.data
       )
-      console.log('response', response)
+
       setHasMore(response.hasMore)
       pageRef.current = pageNumber
     } catch (error) {

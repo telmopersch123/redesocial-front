@@ -114,8 +114,7 @@ const UsersCommunityDialog = ({
 
       fetchUsers()
     } catch {
-      MessagePerson('Ops!', "Erro ao remover o usuário", 'error')
-
+      MessagePerson('Ops!', 'Erro ao remover o usuário', 'error')
     }
   }
   const removeSelectedUsers = async () => {
@@ -138,7 +137,7 @@ const UsersCommunityDialog = ({
       setSelectedRemove([])
       fetchUsers()
     } catch {
-      MessagePerson('Ops!', "Erro ao remover o usuário", 'error')
+      MessagePerson('Ops!', 'Erro ao remover o usuário', 'error')
 
       setLoadingremoveSelected(false)
     } finally {
@@ -160,15 +159,14 @@ const UsersCommunityDialog = ({
         )
       )
     } catch {
-      MessagePerson('Ops!', "Esse usuário nao pode ser promovido", 'error')
-
+      MessagePerson('Ops!', 'Esse usuário nao pode ser promovido', 'error')
     }
   }
   // responsavel por demover um usuário
   const demote = async (id: number) => {
     try {
       const res = await demoteUser(communityIdFromState, id)
-      console.log(res)
+
       showUserRoleToast({
         userName: res.username,
         action: 'demote',
@@ -177,7 +175,7 @@ const UsersCommunityDialog = ({
         prev.map((u) => (u.user.id === id ? { ...u, role: res.demoteUser } : u))
       )
     } catch {
-      MessagePerson('Ops!', "Esse usuário nao pode ser despromovido", 'error')
+      MessagePerson('Ops!', 'Esse usuário nao pode ser despromovido', 'error')
     }
   }
   const fetchUsers = async () => {
