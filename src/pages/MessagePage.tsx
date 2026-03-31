@@ -426,11 +426,6 @@ const MessagePage = () => {
         return
       }
 
-      console.log(
-        location.state?.chatId,
-        ChatIdOrUserId,
-        location.state?.otherUser
-      )
       if (location.state?.chatId === false) {
         // Se não veio do sidebar, verificar chat existente
         const userData = await getUser(ChatIdOrUserId)
