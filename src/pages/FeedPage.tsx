@@ -4,7 +4,6 @@ import { PostCardSkeleton } from '../components/componentsPages/componentsPerfil
 import CardsPostComponent from '../components/componentsPages/PostsComponent.tsx/CardsPostComponent'
 import PostComponentDialog from '../components/componentsPages/PostsComponent.tsx/PostComponentDialog'
 import { Button } from '../components/ui/button'
-import { useChat } from '../context/ChatContext'
 import { useCriarPostDialog } from '../context/ContextDialogPost'
 import { useInfiniteScroll } from '../hooks/effectsSkeletons'
 import { getPostsFeed } from '../services/authService'
@@ -53,7 +52,7 @@ const TextMap: Record<string, string> = {
 
 const FeedPage = () => {
   const isInitialMount = useRef(true)
-  const { clickedState } = useChat()
+
   const [novoComentario, setNovoComentario] = useState('')
   const [posts, setPosts] = useState<Post[]>([])
   const [page, setPage] = useState(1)
