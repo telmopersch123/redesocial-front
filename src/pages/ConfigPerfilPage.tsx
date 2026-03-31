@@ -231,13 +231,15 @@ const ConfigPerfilPage = () => {
 
   useEffect(() => {
     if (!loading && initialData === null && profileUser) {
+      const info = profileUser.informationUser?.[0]
+
       const data = {
         nomeUser: profileUser.name_at || '',
         selectedAvatar: profileUser.avatar?.startsWith('SYMBOLIC_')
           ? parseInt(profileUser.avatar.split('_')[1])
           : null,
         file: profileUser.avatar || null,
-        sentimento: profileUser.informationUser[0]?.feeling || 'esperancoso',
+        sentimento: info?.feeling || 'esperancoso',
         metodos: JSON.stringify(
           profileUser.informationUser[0]?.selfCareMethods || []
         ),
