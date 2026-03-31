@@ -1,20 +1,21 @@
 // src/components/auth/ValidatedCodeLogin.tsx
-import { CornerUpLeft } from 'lucide-react';
-import { useRef, useState } from 'react';
-import { useAuth } from '../../../context/getMe';
-import { verify2FALogin } from '../../../services/authService'; // Sua função de 2FA
+import { CornerUpLeft } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { useAuth } from '../../../context/getMe'
+import { verify2FALogin } from '../../../services/authService' // Sua função de 2FA
 
-import { MessagePerson } from '../../../utils/components/MessagePerson';
-import { Button } from '../../ui/button';
+import { useNavigate } from 'react-router-dom'
+import { MessagePerson } from '../../../utils/components/MessagePerson'
+import { Button } from '../../ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '../../ui/card';
-import { Input } from '../../ui/input';
-import { Label } from '../../ui/label';
+} from '../../ui/card'
+import { Input } from '../../ui/input'
+import { Label } from '../../ui/label'
 
 interface ValidatedCodeLoginProps {
   userId: number
@@ -27,6 +28,7 @@ const ValidatedCodeLogin = ({
   rememberMe,
   onBack,
 }: ValidatedCodeLoginProps) => {
+  const navigate = useNavigate()
   const { setUser } = useAuth()
 
   const [isLoading, setIsLoading] = useState(false)
@@ -71,7 +73,7 @@ const ValidatedCodeLogin = ({
       const user = await verify2FALogin(userId, codeStr, rememberMe)
       if (user) {
         setUser(user)
-        window.location.href = '/'
+        navigate('/')
       }
     } catch (err: any) {
       MessagePerson('Erro', err.message || 'Código inválido', 'error')

@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react'
 import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../../../components/ui/button'
 import {
   Card,
@@ -43,6 +44,7 @@ const LoginComponent = ({
     email: string
   } | null>(null)
 
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
 
   const {
@@ -78,7 +80,8 @@ const LoginComponent = ({
           setStep('2fa')
         } else if (response.user) {
           setUser(response.user)
-          window.location.href = '/'
+
+          navigate('/')
         } else {
           MessagePerson('Erro', response.error, 'error')
         }

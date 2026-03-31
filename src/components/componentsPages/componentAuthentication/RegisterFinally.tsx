@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { AtSign, CheckCircle } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../../../components/ui/button'
 import {
   Card,
@@ -31,6 +32,7 @@ export type FirstStepData = {
 }
 
 const RegisterFinally = ({ firstStepData, sexo }: RegisterFormData) => {
+  const navigate = useNavigate()
   const { setIsLoading, isLoading } = useResetPassword()
   const {
     register,
@@ -95,7 +97,7 @@ const RegisterFinally = ({ firstStepData, sexo }: RegisterFormData) => {
         console.log('Cadastro criado com sucesso!')
       }
 
-      window.location.href = '/'
+      navigate('/')
     } catch (error) {
       setIsLoading(false)
       console.log(error)
