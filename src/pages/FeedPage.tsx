@@ -127,8 +127,6 @@ const FeedPage = () => {
     loadPosts(1, true, feeling)
   }
 
-  console.log(clickedState)
-
   return (
     <>
       <div className="fixed">
