@@ -4,7 +4,6 @@ import { useRef, useState } from 'react'
 import { useAuth } from '../../../context/getMe'
 import { verify2FALogin } from '../../../services/authService' // Sua função de 2FA
 
-import { useNavigate } from 'react-router-dom'
 import { MessagePerson } from '../../../utils/components/MessagePerson'
 import { Button } from '../../ui/button'
 import {
@@ -28,7 +27,6 @@ const ValidatedCodeLogin = ({
   rememberMe,
   onBack,
 }: ValidatedCodeLoginProps) => {
-  const navigate = useNavigate()
   const { setUser } = useAuth()
 
   const [isLoading, setIsLoading] = useState(false)
@@ -73,7 +71,7 @@ const ValidatedCodeLogin = ({
       const user = await verify2FALogin(userId, codeStr, rememberMe)
       if (user) {
         setUser(user)
-        navigate('/')
+        window.location.href = '/'
       }
     } catch (err: any) {
       MessagePerson('Erro', err.message || 'Código inválido', 'error')

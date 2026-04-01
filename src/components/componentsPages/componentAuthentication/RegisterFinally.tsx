@@ -97,7 +97,7 @@ const RegisterFinally = ({ firstStepData, sexo }: RegisterFormData) => {
 
       if (resRegister.ok) {
         await refreshUser()
-        navigate('/')
+        window.location.href = '/'
       }
     } catch (error) {
       setIsLoading(false)

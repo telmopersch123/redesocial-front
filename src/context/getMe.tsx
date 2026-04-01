@@ -1,4 +1,5 @@
 // src/contexts/AuthContext.tsx
+import { socket } from '@/services/socket'
 import {
   createContext,
   useContext,
@@ -49,7 +50,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await logoutUser()
 
     setUser(null)
-
+    socket.disconnect()
     navigate('/auth', { replace: true })
   }
 
@@ -61,10 +62,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       })
       if (!res.ok) {
         setUser(null)
+        socket.disconnect()
         return
       }
       const data = await res.json()
       setUser(data.user)
+      if (!socket.connected) {
+        socket.connect()
+      }
     } catch {
       setUser(null)
     } finally {

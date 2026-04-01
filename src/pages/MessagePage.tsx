@@ -219,10 +219,14 @@ const MessagePage = () => {
     if (!ChatIdOrUserId) return
 
     const tempId = crypto.randomUUID()
-    const targetId = selectedChat ? selectedChat : String(ChatIdOrUserId)
+    const targetId = selectedChat || clickContact || String(ChatIdOrUserId)
     if (!clickContact) {
       setLoadingInitial(true)
     }
+    console.log('targetId enviado:', targetId)
+    console.log('selectedChat:', selectedChat)
+    console.log('ChatIdOrUserId:', ChatIdOrUserId)
+    console.log('user.id:', user?.id)
     const message: MSG = {
       id: tempId,
       tempId,
@@ -242,6 +246,7 @@ const MessagePage = () => {
 
     setInputText('')
 
+    console.log(targetId, inputText, tempId)
     socket.emit('message:send', {
       targetId,
       content: inputText,
@@ -379,6 +384,7 @@ const MessagePage = () => {
     if (!ChatIdOrUserId) return
     markChatAsRead(ChatIdOrUserId)
   }, [ChatIdOrUserId])
+
   useEffect(() => {
     socket.on(
       'message:error',
@@ -403,6 +409,7 @@ const MessagePage = () => {
       socket.off('message:error')
     }
   }, [socket])
+
   useEffect(() => {
     if (!ChatIdOrUserId) return
 
