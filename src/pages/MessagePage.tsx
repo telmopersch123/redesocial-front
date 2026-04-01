@@ -477,6 +477,7 @@ const MessagePage = () => {
     }
   }, [chatMessages, selectedChat])
 
+  console.log(contatos)
   return (
     <div className="flex h-screen w-full flex-col gap-0 p-2 md:w-[calc(100vw-16rem)] md:flex-row md:gap-4 md:p-4 dm:w-[calc(100vw-18rem)]">
       {/* ===== LISTA DE CONVERSAS ===== */}
@@ -510,11 +511,17 @@ const MessagePage = () => {
                         : 'bg-transparent'
                     }`}
                   >
-                    <img
-                      src={`https://burst.shopifycdn.com/photos/perfect-yellow-flower.jpg?width=373&format=pjpg&exif=0&iptc=0`}
-                      alt={contato.contact.name_at}
-                      className="h-11 w-11 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
-                    />
+                    {contato.contact.avatar ? (
+                      <img
+                        src={contato.contact.avatar}
+                        alt={contato.contact.name_at}
+                        className="h-11 w-11 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
+                      />
+                    ) : (
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+                        {contato.contact.name_at.charAt(0).toUpperCase()}
+                      </div>
+                    )}
 
                     <div className="flex min-w-0 flex-1 flex-col">
                       <div className="flex items-center justify-between">
@@ -644,11 +651,17 @@ const MessagePage = () => {
                   <ArrowLeft className="h-5 w-5 text-zinc-700 dark:text-zinc-300" />
                 </button>
 
-                <img
-                  src={`https://i.pravatar.cc/56?img=${usersDate?.avatar}`}
-                  alt={usersDate?.name_at}
-                  className="h-12 w-12 rounded-full object-cover shadow-lg ring-2 ring-white/60"
-                />
+                {usersDate?.avatar ? (
+                  <img
+                    src={usersDate?.avatar}
+                    alt={usersDate?.name_at}
+                    className="h-11 w-11 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
+                  />
+                ) : (
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
+                    {usersDate?.name_at.charAt(0).toUpperCase()}
+                  </div>
+                )}
 
                 <div className="flex-1">
                   <h2 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
