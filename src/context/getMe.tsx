@@ -68,6 +68,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await res.json()
       setUser(data.user)
       if (!socket.connected) {
+        const tokenRes = await fetch(
+          `${import.meta.env.VITE_API_URL}/auth/token`,
+          {
+            credentials: 'include',
+          }
+        )
+        const { token } = await tokenRes.json()
+        socket.auth = { token }
         socket.connect()
       }
     } catch {
