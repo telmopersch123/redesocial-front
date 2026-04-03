@@ -1,77 +1,54 @@
-<<<<<<< HEAD
-# redesocial-front
-=======
-# React + TypeScript + Vite
+# <img src="https://cdn-icons-png.flaticon.com/512/2065/2065064.png" width="40" height="40" /> Rede Social Tess
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<p align="center">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
+</p>
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📖 Sobre o Projeto
 
-## React Compiler
+Este projeto é uma **Rede Social completa**, desenvolvida com foco em arquitetura escalável e segurança. O principal objetivo foi o aprendizado na construção de sistemas de **Autenticação** sem um serviço de IAM externo, manipulação avançada de **CRUDs**, integração de **Webhooks** e sincronização de dados em tempo real entre o Backend (Node/Prisma) e o Frontend (React).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+> **O Desafio:** Criar uma experiência de usuário fluida, lidando com persistência de sessão, moderação de conteúdo e alimentação dinâmica de dados vindos do banco de dados.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 Funcionalidades Principais
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+* 🔐 **Autenticação Avançada:** Login/Registro robusto, gerenciamento de Tokens (JWT) e proteção de rotas privadas.
+* 📊 **Dashboard Administrativo:** Gráficos interativos com `Recharts` para análise de métricas e engajamento.
+* 🛡️ **Moderação (Painel de Suporte):** Sistema completo para banimento de usuários e gestão de denúncias de posts/perfis.
+* 💬 **Interatividade:** Feed dinâmico com suporte a Markdown, emojis, sistema de curtidas e comentários.
+* 🌓 **Dark Mode:** Interface adaptável com suporte nativo a temas escuros e claros.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🛠️ Stack Tecnológica
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+| Camada | Tecnologia |
+| :--- | :--- |
+| **Frontend** | React 19, TypeScript, Tailwind CSS, Framer Motion |
+| **UI Components** | Radix UI, Shadcn/ui, Lucide Icons |
+| **Formulários** | React Hook Form + Zod |
+| **Backend** | Node.js, Express, Socket.io, Prisma ORM |
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
->>>>>>> d261c05 (iniciando projeto)
+## 🧠 Aprendizados e Desafios Técnicos
+
+1. **Segurança de Sessão:** Implementação de cookies `httpOnly` e `Secure`, configurando políticas de *SameSite* para compatibilidade mobile.
+2. **Arquitetura de Estado:** Uso de Context API para gerenciar estados globais e fluxos de permissão (Admin vs Usuário).
+3. **Otimização de Performance:** Renderização eficiente de grandes volumes de dados no feed.
+4. **Reverse Proxy:** Configuração de `rewrites` na Vercel para contornar problemas de cookies de terceiros.
+
+---
+
+## 💻 Como Acessar o Projeto
+
+O projeto está publicado e pode ser acessado diretamente pelo link abaixo:
+
+### 🔗 [Acessar Rede Social Tess](https://tess-redesocial.vercel.app/)
