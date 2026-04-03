@@ -143,11 +143,14 @@ const ConfigCommunity = ({
 
       const payload = {
         ...formData,
-        image: finalImageUrl,
+        image: finalImageUrl ?? undefined,
         limit: Number(formData.limit),
       }
 
-      await updateCommunityDetails(communityId, payload)
+      await updateCommunityDetails(
+        communityId,
+        payload as ConfigCommunityFormData
+      )
       MessagePerson('Alterações salvas com sucesso', null, 'success')
       setImageChanged(false)
       navigation('/comunidades')
