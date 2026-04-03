@@ -31,6 +31,7 @@ import { useComunidades } from '../../../context/CommunityContext'
 import { useCriarPostDialog } from '../../../context/ContextDialogPost'
 import { useAuth } from '../../../context/getMe'
 
+import { UserAvatar } from '@/utils/components/UserAvatar'
 import { useMyProfile } from '../../../context/MyProfileContext'
 import { normalizeURL } from '../../../pages/community/AreaCommunitiesUserPage'
 import { getMyCommunities } from '../../../services/authService'
@@ -339,9 +340,19 @@ export function AppSidebar() {
                     : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
                 } flex cursor-pointer items-center gap-3 rounded-xl p-3 transition-all duration-200`}
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-200 dark:bg-purple-900/70">
-                  <UserRound className="h-5 w-5 text-purple-800 dark:text-purple-300" />
-                </div>
+                {user && user.avatar ? (
+                  <div className="mt-0.5 shrink-0 rounded-full bg-muted/50 p-2 group-hover:bg-background">
+                    <UserAvatar
+                      url={user.avatar}
+                      name={user.name_at}
+                      className="h-10 w-10 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-200 dark:bg-purple-900/70">
+                    <UserRound className="h-5 w-5 text-purple-800 dark:text-purple-300" />
+                  </div>
+                )}
 
                 <div className="flex flex-col">
                   <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">

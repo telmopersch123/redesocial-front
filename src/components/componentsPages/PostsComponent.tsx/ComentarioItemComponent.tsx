@@ -21,6 +21,8 @@ import { formatMentions } from '../../../utils/formatMentions'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 import { Button } from '../../ui/button'
 
+import { UserAvatar } from '@/utils/components/UserAvatar'
+import { NavLink } from 'react-router-dom'
 import { useAuth } from '../../../context/getMe'
 import type { ExtendedPost } from '../../../pages/community/PostsArchived'
 import { deleteComment } from '../../../services/authService'
@@ -183,10 +185,22 @@ const CommentItem = ({
                   </div>
                 </div>
               )}
-              <div
-                className="h-9 w-9 flex-shrink-0 rounded-full bg-gradient-to-br from-purple-500 to-violet-700 shadow-md"
-                aria-hidden
-              />
+              <NavLink
+                to={
+                  Number(authUser?.id) === Number(comentario.user.id)
+                    ? '/perfil'
+                    : `/usuarios/perfil/${comentario.user.id}`
+                }
+                className="flex-shrink-0"
+              >
+                <div className="mt-0.5 shrink-0 rounded-full bg-muted/50 p-2 group-hover:bg-background">
+                  <UserAvatar
+                    url={comentario.user.avatar || undefined}
+                    name={comentario.user.name_at}
+                    className="h-10 w-10 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800"
+                  />
+                </div>
+              </NavLink>
 
               <div className="flex flex-col">
                 <p className="text-sm font-semibold text-gray-900 dark:text-zinc-100">

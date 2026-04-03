@@ -80,6 +80,9 @@ interface ChatContextType {
   setIsOpenChatSideBar: React.Dispatch<React.SetStateAction<boolean>>
   setClickedState: React.Dispatch<React.SetStateAction<boolean>>
   clickedState: boolean
+  setLoadingHistoryInitial: React.Dispatch<
+    React.SetStateAction<Record<string, boolean>>
+  >
 }
 
 const ChatContext = createContext<ChatContextType | null>(null)
@@ -102,7 +105,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [loadingHistoryInitial, setLoadingHistoryInitial] = useState<
     Record<string, boolean>
   >({})
-  const [loadingInitial, setLoadingInitial] = useState<boolean>(false)
+  const [loadingInitial, setLoadingInitial] = useState<boolean>(true)
   const [validatedExistingUser, setValidatedExistingUser] = useState(false)
   const [unreadByChat, setUnreadByChat] = useState<Record<string, number>>({})
   const [contatos, setContatos] = useState<Contato[]>([])
@@ -209,7 +212,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             [chatId]: [...normalized, ...existing],
           }
         })
-        setLoadingInitial(false)
       }
 
       if (nextCursor) {
@@ -218,6 +220,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
           [chatId]: nextCursor ?? null,
         }))
       }
+      setLoadingInitial(false)
     }
 
     socket.on('chat:history', handleHistory)
@@ -353,24 +356,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [])
 
-  // useEffect(() => {
-  //   if (!user?.id) return
-
-  //   async function loadUnread() {
-  //     const res = await fetch(
-  //       `${import.meta.env.VITE_API_URL}/auth/chats/unread`,
-  //       {
-  //         credentials: 'include',
-  //       }
-  //     )
-
-  //     const data: Record<string, number> = await res.json()
-  //     setUnreadByChat(data)
-  //   }
-
-  //   loadUnread()
-  // }, [user?.id])
-
   useEffect(() => {
     if (!user?.id) return
     async function load() {
@@ -459,6 +444,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         setIsOpenChatSideBar,
         setClickedState,
         clickedState,
+        setLoadingHistoryInitial,
       }}
     >
       {children}

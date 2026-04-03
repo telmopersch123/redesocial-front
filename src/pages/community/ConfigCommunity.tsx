@@ -49,13 +49,14 @@ const ConfigCommunity = ({
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
-
+  const [imageChanged, setImageChanged] = useState(false)
   const communityId = location.state?.communityIdState ?? communityIdMananger
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       const previewURL = URL.createObjectURL(file)
       setImagePreview(previewURL)
+      setImageChanged(true)
     }
   }
   const { register, handleSubmit, reset, setError, control, formState, watch } =
@@ -70,7 +71,6 @@ const ConfigCommunity = ({
         rules: '',
         limit: 500,
         isPrivate: false,
-        image: '',
       },
     })
   const nameValue = watch('nameComunity') || ''
@@ -85,6 +85,7 @@ const ConfigCommunity = ({
         const response = await getConfigCommunities(communityId)
 
         // O reset do useForm preenche todos os campos de uma vez
+
         const data = {
           image: response.image || '',
           nameComunity: response.nameComunity || '',
@@ -148,7 +149,7 @@ const ConfigCommunity = ({
 
       await updateCommunityDetails(communityId, payload)
       MessagePerson('Alterações salvas com sucesso', null, 'success')
-
+      setImageChanged(false)
       navigation('/comunidades')
     } catch (error) {
       if (error instanceof Error) {
@@ -159,7 +160,7 @@ const ConfigCommunity = ({
           })
           return
         }
-MessagePerson(error.message, null, 'error')
+        MessagePerson(error.message, null, 'error')
       }
     }
   }
@@ -244,13 +245,10 @@ MessagePerson(error.message, null, 'error')
                 type="file"
                 accept="image/*"
                 className="hidden"
-                {...register('image', {
-                  onChange: (e) => {
-                    handleImageChange(e)
-                  },
-                })}
+                onChange={(e) => {
+                  handleImageChange(e)
+                }}
                 ref={(el) => {
-                  register('image').ref(el)
                   inputRef.current = el
                 }}
               />
@@ -517,7 +515,7 @@ MessagePerson(error.message, null, 'error')
         {/* Botão fixo no mobile */}
         <div className="p-4 sm:p-0">
           <Button
-            disabled={!isDirty || isSubmitting}
+            disabled={(!isDirty && !imageChanged) || isSubmitting}
             className="bg-linear-purple mt-4 h-12 w-full text-lg font-semibold transition-shadow hover:shadow-md"
           >
             {isSubmitting ? (

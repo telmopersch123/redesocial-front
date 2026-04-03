@@ -15,6 +15,7 @@ import {
 } from '../../../components/ui/dialog'
 import { useInfiniteScrollDialog } from '../../../hooks/effectsSkeletons'
 
+import { UserAvatar } from '@/utils/components/UserAvatar'
 import { NavLink } from 'react-router-dom'
 import { getFriends } from '../../../services/authService'
 import type { TypeFriend } from '../../../types'
@@ -148,16 +149,26 @@ export function FriendsDialog({ username, profileId }: PropsFriends) {
                 <div key={amigo.id + '-' + index}>
                   {isLoaded ? (
                     <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={amigo.avatar} alt={amigo.name_at} />
-                        <AvatarFallback className="bg-linear-purple font-medium text-white">
-                          {amigo.name_at
-                            .split(' ')
-                            .map((n) => n[0])
-                            .join('')
-                            .toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+                      {amigo.avatar ? (
+                        <div className="mt-0.5 shrink-0 rounded-full bg-muted/50 p-2 group-hover:bg-background">
+                          <UserAvatar
+                            url={amigo.avatar}
+                            name={amigo.name_at}
+                            className="h-10 w-10 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800"
+                          />
+                        </div>
+                      ) : (
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={amigo.avatar} alt={amigo.name_at} />
+                          <AvatarFallback className="bg-linear-purple font-medium text-white">
+                            {amigo.name_at
+                              .split(' ')
+                              .map((n) => n[0])
+                              .join('')
+                              .toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
 
                       <div className="flex-1">
                         <p className="font-medium text-foreground">

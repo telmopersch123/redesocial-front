@@ -14,6 +14,8 @@ export interface Notification {
   link?: string
   read: boolean
   createdAt: string
+  avatar: string
+  username: string
 }
 
 interface NotificationContextType {
@@ -41,7 +43,7 @@ export const NotificationProvider = ({
         }
       )
       const data = await res.json()
-
+      console.log(data)
       setNotifications(data)
 
       const unreadAlerts = data.filter(

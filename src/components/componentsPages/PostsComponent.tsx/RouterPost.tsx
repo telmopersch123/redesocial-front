@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import type { ExtendedPost } from '../../../pages/community/PostsArchived'
 import type { Post } from '../../../types'
 import { LoadingComponent } from '../../../utils/components/Loading'
@@ -8,7 +8,6 @@ import PostComponentDialog from './PostComponentDialog'
 
 const RouterPost = () => {
   const { id } = useParams()
-  const navigate = useNavigate()
 
   const [openDialogPostNotification, setOpenDialogPostNotification] =
     useState(true)
@@ -29,7 +28,7 @@ const RouterPost = () => {
           }
         )
         if (!response.ok) {
-          navigate('/')
+          window.location.href = `/`
           MessagePerson(
             'Ocorreu um erro',
             'Essa postagem não existe, ou foi removida.',
@@ -51,7 +50,7 @@ const RouterPost = () => {
 
   useEffect(() => {
     if (!openDialogPostNotification) {
-      navigate('/', { replace: true })
+      window.location.href = `/`
     }
   }, [openDialogPostNotification])
 

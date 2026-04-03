@@ -24,6 +24,7 @@ import { useLimitForms } from '../hooks/useLimitForms'
 import { getCheckUserChat, getUser } from '../services/authService'
 import { socket } from '../services/socket'
 
+import { UserAvatar } from '@/utils/components/UserAvatar'
 import { LoadingComponent } from '../utils/components/Loading'
 import { MessagePerson } from '../utils/components/MessagePerson'
 
@@ -59,6 +60,7 @@ const MessagePage = () => {
     unreadByChat,
     markChatAsRead,
     validatedExistingUser,
+    setLoadingHistoryInitial,
   } = useChat()
 
   const location = useLocation()
@@ -84,11 +86,21 @@ const MessagePage = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const responsive = 1000
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [emptyMessages, setEmptyMessages] = useState(false)
   let { id: ChatIdOrUserId } = useParams<{ id: string }>()
   const isOnline = onlineUsers.has(Number(usersDate?.id))
 
   const typingTimeout = useRef<number | null>(null)
   // effect de inicialização
+
+  useEffect(() => {
+    console.log(chatMessages.length)
+    const timeout = setInterval(() => {
+      setEmptyMessages(chatMessages.length === 0 ? true : false)
+    }, 5000)
+
+    return () => clearTimeout(timeout)
+  }, [chatMessages])
   useEffect(() => {
     if (location.state?.otherUser) {
       ChatIdOrUserId = location.state.otherUser
@@ -121,6 +133,10 @@ const MessagePage = () => {
     prevHeightRef.current = 0
     didInitialScrollRef.current = false
   }
+
+  const startLoadingChat = (chatId: string) => {
+    setLoadingHistoryInitial((prev) => ({ ...prev, [chatId]: true }))
+  }
   // scroll handle para subir
   const handleScroll = () => {
     const el = messagesContainerRef.current
@@ -133,6 +149,7 @@ const MessagePage = () => {
       prevHeightRef.current = el.scrollHeight
       isFetchingHistoryRef.current = true
 
+      startLoadingChat(selectedChat)
       socket.emit('chat:history', {
         chatId: selectedChat,
         cursor,
@@ -223,10 +240,7 @@ const MessagePage = () => {
     if (!clickContact) {
       setLoadingInitial(true)
     }
-    console.log('targetId enviado:', targetId)
-    console.log('selectedChat:', selectedChat)
-    console.log('ChatIdOrUserId:', ChatIdOrUserId)
-    console.log('user.id:', user?.id)
+
     const message: MSG = {
       id: tempId,
       tempId,
@@ -246,7 +260,6 @@ const MessagePage = () => {
 
     setInputText('')
 
-    console.log(targetId, inputText, tempId)
     socket.emit('message:send', {
       targetId,
       content: inputText,
@@ -295,6 +308,7 @@ const MessagePage = () => {
       setLoadingInitial(true)
     }
 
+    startLoadingChat(contato.chatId)
     socket.emit('chat:history', { chatId: contato.chatId, typeSearch: 'open' })
     socket.emit('chat:read', { chatId: contato.chatId })
   }
@@ -426,6 +440,7 @@ const MessagePage = () => {
           avatar: contato.contact.avatar,
         })
         inputRef.current?.focus()
+        startLoadingChat(contato.chatId)
         socket.emit('chat:history', {
           chatId: contato.chatId,
           typeSearch: 'initial',
@@ -445,6 +460,7 @@ const MessagePage = () => {
           setSelectedChat(data.chatId)
 
           inputRef.current?.focus()
+          startLoadingChat(data.chatId)
           socket.emit('chat:history', {
             chatId: data.chatId,
             typeSearch: 'initial',
@@ -457,7 +473,8 @@ const MessagePage = () => {
     }
 
     fetchMessages()
-  }, [ChatIdOrUserId, user?.id, location.state?.chatId])
+    // }, [ChatIdOrUserId, user?.id, location.state?.chatId])
+  }, [ChatIdOrUserId])
   useEffect(() => {
     if (!lastCreatedChatId) return
 
@@ -477,7 +494,6 @@ const MessagePage = () => {
     }
   }, [chatMessages, selectedChat])
 
-  console.log(contatos)
   return (
     <div className="flex h-screen w-full flex-col gap-0 p-2 md:w-[calc(100vw-16rem)] md:flex-row md:gap-4 md:p-4 dm:w-[calc(100vw-18rem)]">
       {/* ===== LISTA DE CONVERSAS ===== */}
@@ -512,11 +528,13 @@ const MessagePage = () => {
                     }`}
                   >
                     {contato.contact.avatar ? (
-                      <img
-                        src={contato.contact.avatar}
-                        alt={contato.contact.name_at}
-                        className="h-11 w-11 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
-                      />
+                      <div className="mt-0.5 shrink-0 rounded-full bg-muted/50 p-2 group-hover:bg-background">
+                        <UserAvatar
+                          url={contato.contact.avatar}
+                          name={contato.contact.name_at}
+                          className="h-10 w-10 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800"
+                        />
+                      </div>
                     ) : (
                       <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
                         {contato.contact.name_at.charAt(0).toUpperCase()}
@@ -652,11 +670,13 @@ const MessagePage = () => {
                 </button>
 
                 {usersDate?.avatar ? (
-                  <img
-                    src={usersDate?.avatar}
-                    alt={usersDate?.name_at}
-                    className="h-11 w-11 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
-                  />
+                  <div className="mt-0.5 shrink-0 rounded-full bg-muted/50 p-2 group-hover:bg-background">
+                    <UserAvatar
+                      url={usersDate.avatar}
+                      name={usersDate.name_at}
+                      className="h-10 w-10 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800"
+                    />
+                  </div>
                 ) : (
                   <div className="flex h-11 w-11 items-center justify-center rounded-full bg-zinc-200 text-sm font-medium text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300">
                     {usersDate?.name_at.charAt(0).toUpperCase()}
@@ -707,10 +727,10 @@ const MessagePage = () => {
                     </div>
                   )}
 
-                  {((loadingChatMessageInitial &&
+                  {/* {((loadingChatMessageInitial &&
                     chatMessages.length === 0 &&
                     !validatedExistingUser) ||
-                    loadingInitial) && <LoadingComponent />}
+                    loadingInitial) &&  */}
 
                   {validatedExistingUser && (
                     <div className="mx-auto my-4 w-[90%] duration-300 animate-in fade-in zoom-in">
@@ -730,22 +750,25 @@ const MessagePage = () => {
                       </div>
                     </div>
                   )}
-                  {!loadingChatMessageInitial &&
-                  chatMessages.length === 0 &&
-                  loadingInitial === false ? (
-                    <div className="m-auto flex h-full flex-col items-center justify-center text-center">
-                      <div className="flex flex-col items-center justify-center rounded-md p-10 text-center backdrop-blur-md">
-                        <div className="mb-5 rounded-full bg-gradient-to-br from-zinc-100 to-zinc-50 p-6 shadow-inner dark:from-zinc-800 dark:to-zinc-900">
-                          <MessageCircle className="h-12 w-12 text-zinc-400 dark:text-zinc-600" />
+
+                  {chatMessages.length === 0 ? (
+                    !emptyMessages ? (
+                      <LoadingComponent />
+                    ) : (
+                      <div className="m-auto flex h-full flex-col items-center justify-center text-center">
+                        <div className="flex flex-col items-center justify-center rounded-md p-10 text-center backdrop-blur-md">
+                          <div className="mb-5 rounded-full bg-gradient-to-br from-zinc-100 to-zinc-50 p-6 shadow-inner dark:from-zinc-800 dark:to-zinc-900">
+                            <MessageCircle className="h-12 w-12 text-zinc-400 dark:text-zinc-600" />
+                          </div>
+                          <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+                            Nenhuma mensagem ainda
+                          </p>
+                          <p className="mt-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                            Comece a conversa!
+                          </p>
                         </div>
-                        <p className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                          Nenhuma mensagem ainda
-                        </p>
-                        <p className="mt-2 text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                          Comece a conversa!
-                        </p>
                       </div>
-                    </div>
+                    )
                   ) : (
                     <>
                       {chatMessages.map((msg: MSG) => {
@@ -854,17 +877,23 @@ const MessagePage = () => {
             </div>
           </>
         ) : (
-          <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
-            <div className="mb-6 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 p-8 dark:from-purple-900/50 dark:to-pink-900/50">
-              <MessageSquare className="h-16 w-16 text-purple-600 dark:text-purple-400" />
-            </div>
-            <h3 className="mb-2 text-2xl font-semibold text-zinc-800 dark:text-zinc-100">
-              Suas mensagens
-            </h3>
-            <p className="max-w-sm text-zinc-500 dark:text-zinc-400">
-              Selecione uma conversa ao lado para começar a trocar mensagens
-            </p>
-          </div>
+          <>
+            {location.state?.chatId === false ? (
+              <LoadingComponent />
+            ) : (
+              <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+                <div className="mb-6 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 p-8 dark:from-purple-900/50 dark:to-pink-900/50">
+                  <MessageSquare className="h-16 w-16 text-purple-600 dark:text-purple-400" />
+                </div>
+                <h3 className="mb-2 text-2xl font-semibold text-zinc-800 dark:text-zinc-100">
+                  Suas mensagens
+                </h3>
+                <p className="max-w-sm text-zinc-500 dark:text-zinc-400">
+                  Selecione uma conversa ao lado para começar a trocar mensagens
+                </p>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

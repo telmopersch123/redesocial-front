@@ -1,3 +1,4 @@
+import { UserAvatar } from '@/utils/components/UserAvatar'
 import { Loader2, UserX } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import {
@@ -79,10 +80,8 @@ const ListUsersBlock = ({ open, setOpen }: ListUsersBlockProps) => {
       setUsersBlock((prev) => prev.filter((u) => u.id !== userId))
 
       MessagePerson(`@${username} desbloqueado!`, null, 'success')
-
     } catch (error) {
       MessagePerson('Erro ao desbloquear usuário', null, 'error')
-
     }
   }
 
@@ -145,16 +144,26 @@ const ListUsersBlock = ({ open, setOpen }: ListUsersBlockProps) => {
                 {isLoaded ? (
                   <div className="flex items-center justify-between rounded-xl border bg-card p-3 transition-colors hover:bg-muted/50">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-10 w-10 border">
-                        <AvatarImage
-                          src={user.avatar}
-                          alt={user.name_at}
-                          className="object-cover"
-                        />
-                        <AvatarFallback className="bg-purple-100 text-xs font-bold text-purple-700">
-                          {user.name_at?.substring(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+                      {user.avatar ? (
+                        <div className="mt-0.5 shrink-0 rounded-full bg-muted/50 p-2 group-hover:bg-background">
+                          <UserAvatar
+                            url={user.avatar}
+                            name={user.name_at}
+                            className="h-10 w-10 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800"
+                          />
+                        </div>
+                      ) : (
+                        <Avatar className="h-12 w-12">
+                          <AvatarImage src={user.avatar} alt={user.name_at} />
+                          <AvatarFallback className="bg-linear-purple font-medium text-white">
+                            {user.name_at
+                              .split(' ')
+                              .map((n) => n[0])
+                              .join('')
+                              .toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      )}
                       <p className="text-sm font-medium text-foreground">
                         @{user.name_at}
                       </p>

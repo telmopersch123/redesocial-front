@@ -44,6 +44,7 @@ const OtherUserPerfilPage = () => {
     setIsBlocked,
   } = useViewedProfile()
 
+  console.log(profileUser)
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const loadingRef = useRef(false)
@@ -118,7 +119,7 @@ const OtherUserPerfilPage = () => {
     setIsLoadingFollow(true)
     try {
       const res = await requestFriendship(userBId)
-
+      console.log(res)
       if (res) {
         MessagePerson('Solicitação enviada com sucesso', null, 'success')
         refreshProfile(Number(id))

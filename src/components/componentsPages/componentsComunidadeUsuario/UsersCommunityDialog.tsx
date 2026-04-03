@@ -44,6 +44,8 @@ import {
 import { Separator } from '../..//ui/separator'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { UserAvatar } from '@/utils/components/UserAvatar'
 import { useChat } from '../../../context/ChatContext'
 import { socket } from '../../../services/socket'
 import { MessagePerson } from '../../../utils/components/MessagePerson'
@@ -373,13 +375,29 @@ const UsersCommunityDialog = ({
                             u.isOnline ? 'Usuário Online' : 'Usuário Offline'
                           }
                         />
-                        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-400 to-indigo-400 font-semibold text-white">
-                          {u.user.name_at
-                            .split(' ')
-                            .map((s) => s[0])
-                            .slice(0, 2)
-                            .join('')}
-                        </div>
+                        {u.user.avatar ? (
+                          <div className="mt-0.5 shrink-0 rounded-full bg-muted/50 p-2 group-hover:bg-background">
+                            <UserAvatar
+                              url={u.user.avatar}
+                              name={u.user.name_at}
+                              className="h-10 w-10 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800"
+                            />
+                          </div>
+                        ) : (
+                          <Avatar className="h-12 w-12">
+                            <AvatarImage
+                              src={u.user.avatar}
+                              alt={u.user.name_at}
+                            />
+                            <AvatarFallback className="bg-linear-purple font-medium text-white">
+                              {u.user.name_at
+                                .split(' ')
+                                .map((n) => n[0])
+                                .join('')
+                                .toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                        )}
 
                         <NavLink
                           onClick={() => setOpen(false)}

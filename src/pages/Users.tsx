@@ -1,13 +1,13 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import Lottie from 'lottie-react'
-import { Search, User, Users as UsersIcon } from 'lucide-react'
+import { Search, Users as UsersIcon } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
+import { UserAvatar } from '@/utils/components/UserAvatar'
 import { debounce } from 'lodash'
 import connectionAnimate from '../assets/animations/connectionAnimate.json'
 import { FollowerSkeleton } from '../components/componentsPages/componentsPerfil/Skeleton'
-import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -134,18 +134,11 @@ const Users = () => {
                     >
                       <Card className="group flex flex-col items-center gap-5 rounded-2xl border border-transparent bg-white/90 p-5 shadow-md transition-all duration-300 hover:border-purple-300 hover:bg-purple-50/50 hover:shadow-lg dark:bg-zinc-800/70 dark:hover:border-purple-700 dark:hover:bg-purple-900/30 om:flex-row">
                         <div className="flex w-full items-center justify-between gap-3">
-                          <Avatar className="h-16 w-16 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800">
-                            {user.avatar ? (
-                              <AvatarImage
-                                src={user.avatar}
-                                alt={user.name_at}
-                              />
-                            ) : (
-                              <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-md dark:from-purple-600 dark:to-pink-600">
-                                <User className="h-8 w-8" />
-                              </AvatarFallback>
-                            )}
-                          </Avatar>
+                          <UserAvatar
+                            url={user.avatar}
+                            name={user.name_at}
+                            className="h-16 w-16 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800"
+                          />
 
                           <div className="flex-1">
                             <h3 className="text-lg font-bold text-zinc-900 transition-colors group-hover:text-purple-700 dark:text-zinc-100 dark:group-hover:text-purple-400">

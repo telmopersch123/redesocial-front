@@ -10,6 +10,7 @@ import {
   Users,
 } from 'lucide-react'
 
+import { UserAvatar } from '@/utils/components/UserAvatar'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../../../components/ui/button'
@@ -30,13 +31,13 @@ import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../ui/tabs'
 
 const iconForType = {
-  MESSAGE: <MessageCircle className="h-4 w-4 text-blue-700" />, // FEITO
-  LIKE: <Heart className="h-4 w-4 text-purple-700" />, // FEITO
-  COMMENT: <MessageCircle className="h-4 w-4 text-green-700" />, // FEITO
+  MESSAGE: <MessageCircle className="h-4 w-4 text-blue-700" />,
+  LIKE: <Heart className="h-4 w-4 text-purple-700" />,
+  COMMENT: <MessageCircle className="h-4 w-4 text-green-700" />,
   FOLLOW_REQUEST: <Users className="h-4 w-4 text-gray-500" />,
-  COMMENT_REPLY: <MessageCircle className="h-4 w-4 text-gray-700" />, // FEITO
-  MENTION: <AtSign className="h-4 w-4 text-purple-500" />, // FEITO
-  COMMUNITY_REMOVE: <Users className="h-4 w-4 text-red-700" />, // FEITO
+  COMMENT_REPLY: <MessageCircle className="h-4 w-4 text-gray-700" />,
+  MENTION: <AtSign className="h-4 w-4 text-purple-500" />,
+  COMMUNITY_REMOVE: <Users className="h-4 w-4 text-red-700" />,
 }
 
 const NotificationComponent = () => {
@@ -171,7 +172,7 @@ const NotificationComponent = () => {
       )
     }
     return (
-      <div className="custom-scrollbar max-h-[350px] overflow-y-auto overflow-x-hidden">
+      <div className="custom-scrollbar z-[100] max-h-[350px] overflow-y-auto overflow-x-hidden">
         {Object.entries(grouped).map(([type, groupItems]) => {
           const isCommunityRemove = groupItems[0].type === 'COMMUNITY_REMOVE'
           const isFollowers = groupItems[0].type === 'FOLLOW_REQUEST'
@@ -183,6 +184,7 @@ const NotificationComponent = () => {
             isFriendAccept
           ) {
             const n = groupItems[0]
+
             return (
               <div
                 key={n.id}
@@ -201,8 +203,13 @@ const NotificationComponent = () => {
                 className="group relative flex cursor-pointer items-start gap-3 border-b border-border/40 px-4 py-4 transition-all hover:bg-accent/60"
               >
                 <div className="mt-0.5 shrink-0 rounded-full bg-muted/50 p-2 group-hover:bg-background">
-                  {iconForType[n.type as keyof typeof iconForType]}
+                  <UserAvatar
+                    url={n.avatar}
+                    name={n.username}
+                    className="h-10 w-10 ring-4 ring-white transition-transform duration-300 group-hover:ring-purple-200 dark:ring-zinc-900 dark:group-hover:ring-purple-800"
+                  />
                 </div>
+
                 <div className="flex flex-col space-y-1 pr-6">
                   <span className="text-sm font-medium leading-snug text-foreground group-hover:text-purple-600">
                     {n.message}
@@ -353,7 +360,7 @@ const NotificationComponent = () => {
 
       <PopoverContent
         align="end"
-        className="w-80 overflow-hidden rounded-xl border-border bg-background p-0 shadow-2xl"
+        className="z-[100] w-80 overflow-hidden rounded-xl border-border bg-background p-0 shadow-2xl"
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border bg-muted/20 px-4 py-3">
