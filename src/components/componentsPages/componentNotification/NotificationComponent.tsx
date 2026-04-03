@@ -41,7 +41,8 @@ const iconForType = {
 }
 
 const NotificationComponent = () => {
-  const { notifications, unreadCount, markAsRead } = useNotification()
+  const { notifications, unreadCount, markAsRead, removeNotification } =
+    useNotification()
   const { user } = useAuth()
   const { setOpenDialogPostNotification, setOpenActionPosts } =
     useCriarPostDialog()
@@ -105,7 +106,7 @@ const NotificationComponent = () => {
   const handleAcceptFriendship = async (n: Notification) => {
     try {
       await AcceptFriendship(n.id)
-      handleNotificationClick(n)
+      removeNotification(n.id)
     } catch {
       console.log('Erro ao aceitar amizade')
     }
@@ -113,7 +114,7 @@ const NotificationComponent = () => {
   const handleDeclineFriendship = async (n: Notification) => {
     try {
       await DeclineFriendship(n.id)
-      handleNotificationClick(n)
+      removeNotification(n.id)
     } catch {
       console.log('Erro ao aceitar amizade')
     }

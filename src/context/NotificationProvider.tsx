@@ -22,6 +22,7 @@ interface NotificationContextType {
   notifications: Notification[]
   unreadCount: number
   markAsRead: (id: number | 'all') => Promise<void>
+  removeNotification: (id: number) => void
 }
 
 const NotificationContext = createContext<NotificationContextType | null>(null)
@@ -33,7 +34,9 @@ export const NotificationProvider = ({
 }) => {
   const { user } = useAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
-
+  const removeNotification = (id: number) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id))
+  }
   const loadNotifications = async () => {
     try {
       const res = await fetch(
@@ -82,9 +85,13 @@ export const NotificationProvider = ({
   const markAsRead = async (id: number | 'all') => {
     try {
       setNotifications((prev) =>
-        prev.map((n) =>
-          n.id === id || id === 'all' ? { ...n, read: true } : n
-        )
+        prev.map((n) => {
+          if (n.type === 'FOLLOW_REQUEST') return n
+          if (id === 'all' || n.id === id) {
+            return { ...n, read: true }
+          }
+          return n
+        })
       )
       await fetch(
         `${import.meta.env.VITE_API_URL}/auth/notifications/${id}/read`,
@@ -155,7 +162,7 @@ export const NotificationProvider = ({
 
   return (
     <NotificationContext.Provider
-      value={{ notifications, unreadCount, markAsRead }}
+      value={{ notifications, unreadCount, markAsRead, removeNotification }}
     >
       {children}
     </NotificationContext.Provider>

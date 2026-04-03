@@ -30,6 +30,7 @@ import { useInfiniteScrollDialog } from '../../../hooks/effectsSkeletons'
 import type { ExtendedPost } from '../../../pages/community/PostsArchived'
 import { MessagePerson } from '../../../utils/components/MessagePerson'
 
+import { UserAvatar } from '@/utils/components/UserAvatar'
 import { feelingStatus } from '../../../utils/components/FeelingStatus'
 import ListMarcation from './ListMarcation'
 import ActionsPost from './components/ActionsPostComponent'
@@ -417,10 +418,9 @@ const PostComponentDialog = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {postAtualizado.user.avatar ? (
-                    <img
-                      src={postAtualizado.user.avatar || ''}
-                      alt="Avatar"
-                      className="h-10 w-10 rounded-full"
+                    <UserAvatar
+                      url={postAtualizado.user.avatar}
+                      name={postAtualizado.user.name_at}
                     />
                   ) : (
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-800">
