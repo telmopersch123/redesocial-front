@@ -167,6 +167,7 @@ export interface User {
 }
 
 export interface AuthMeResponse {
+  HasTheUserBeenBanned: boolean
   friendship: {
     IsSender: boolean
     status: string

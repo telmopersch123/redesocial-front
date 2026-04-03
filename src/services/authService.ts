@@ -484,7 +484,7 @@ export async function getConfigCommunities(communityId: number) {
 }
 export async function updateCommunityDetails(
   communityId: number,
-  payload: ConfigCommunityFormData
+  payload: ConfigCommunityFormData & { image?: string | null }
 ) {
   const formData = new FormData()
   formData.append('nameComunity', payload.nameComunity)
@@ -495,9 +495,10 @@ export async function updateCommunityDetails(
   formData.append('rules', payload.rules ?? '')
   formData.append('limit', String(payload.limit))
   formData.append('isPrivate', String(payload.isPrivate))
-  if (payload.image instanceof FileList && payload.image[0]) {
-    formData.append('image', payload.image[0])
-  }
+  formData.append('image', payload.image ?? '')
+  // if (payload.image instanceof FileList && payload.image[0]) {
+  //   formData.append('image', payload.image[0])
+  // }
 
   const res = await fetch(
     `${import.meta.env.VITE_API_URL}/auth/comunity/update/${communityId}`,

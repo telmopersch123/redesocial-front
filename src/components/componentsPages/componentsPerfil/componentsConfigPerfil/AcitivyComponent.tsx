@@ -45,6 +45,7 @@ export const ActivityComponent = ({
   const itemsPerPage = 10
 
   const handleTabChange = (newTab: 'saved' | 'liked' | 'comment') => {
+    if (newTab === tab) return
     setTab(newTab)
     setCurrentPage(1)
 

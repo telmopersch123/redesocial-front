@@ -1,5 +1,6 @@
 'use client'
 
+import { createReportPost } from '@/services/authService'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Flag, Loader2, X } from 'lucide-react' // Loader para feedback de envio
 import { useState } from 'react'
@@ -22,7 +23,6 @@ import {
   reportPostSchema,
   type ReportPostFormData,
 } from '../../../lib/validatorSchemas/autoSchemaAutenticator'
-import { createReportPost } from '../../../services/authService'
 import { MessagePerson } from '../../../utils/components/MessagePerson'
 import { TooltipComponent } from '../../globalcomponents/tooltipComponent'
 import {
@@ -89,6 +89,7 @@ const DialogReportPost = ({ postId }: DialogReportPostProps) => {
 
   const onSubmit = async (data: ReportPostFormData) => {
     setIsSubmitting(true)
+
     try {
       await createReportPost({
         postId,

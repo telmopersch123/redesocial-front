@@ -66,6 +66,7 @@ interface ChatContextType {
   setCursorByChat: React.Dispatch<
     React.SetStateAction<Record<string, string | null>>
   >
+
   cursorByChat: Record<string, string | null>
   loadingHistoryByChat: Record<string, boolean>
   loadingHistoryInitial: Record<string, boolean>
@@ -83,6 +84,8 @@ interface ChatContextType {
   setLoadingHistoryInitial: React.Dispatch<
     React.SetStateAction<Record<string, boolean>>
   >
+  setEmptyMessages: React.Dispatch<React.SetStateAction<boolean>>
+  emptyMessages: boolean
 }
 
 const ChatContext = createContext<ChatContextType | null>(null)
@@ -113,6 +116,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [isChatOpenChatSideBar, setIsOpenChatSideBar] = useState(false)
   const [clickedState, setClickedState] = useState(false)
+  const [emptyMessages, setEmptyMessages] = useState(false)
   const resetChatState = () => {
     setMessagesByChat({})
     setCursorByChat({})
@@ -175,6 +179,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       loading: boolean
       loadingInitial: boolean
     }) => {
+      setEmptyMessages(false)
       if (isOrphan) {
         setValidatedExistingUser(true)
       } else {
@@ -220,6 +225,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
           [chatId]: nextCursor ?? null,
         }))
       }
+
       setLoadingInitial(false)
     }
 
@@ -445,6 +451,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         setClickedState,
         clickedState,
         setLoadingHistoryInitial,
+        setEmptyMessages,
+        emptyMessages,
       }}
     >
       {children}

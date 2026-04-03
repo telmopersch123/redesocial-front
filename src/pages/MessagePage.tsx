@@ -53,7 +53,7 @@ const MessagePage = () => {
     setIsChatOpen,
     cursorByChat,
     loadingHistoryByChat,
-    loadingHistoryInitial,
+
     setLastCreatedChatId,
     loadingInitial,
     setLoadingInitial,
@@ -61,6 +61,8 @@ const MessagePage = () => {
     markChatAsRead,
     validatedExistingUser,
     setLoadingHistoryInitial,
+    setEmptyMessages,
+    emptyMessages,
   } = useChat()
 
   const location = useLocation()
@@ -74,7 +76,7 @@ const MessagePage = () => {
   const [clickContact, setClickContact] = useState<string>(initialClickContact)
   const chatMessages = selectedChat ? (messagesByChat[selectedChat] ?? []) : []
   const loadingChatMessage = loadingHistoryByChat[selectedChat ?? '']
-  let loadingChatMessageInitial = loadingHistoryInitial[selectedChat ?? '']
+
   const [usersDate, setUsersDate] = useState<HeaderUserView | null>()
   const [image, setImage] = useState<string>('')
   const [contatMessage, setContatMessage] = useState<boolean>(false)
@@ -86,7 +88,7 @@ const MessagePage = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const responsive = 1000
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const [emptyMessages, setEmptyMessages] = useState(false)
+
   let { id: ChatIdOrUserId } = useParams<{ id: string }>()
   const isOnline = onlineUsers.has(Number(usersDate?.id))
 
@@ -97,7 +99,7 @@ const MessagePage = () => {
     console.log(chatMessages.length)
     const timeout = setInterval(() => {
       setEmptyMessages(chatMessages.length === 0 ? true : false)
-    }, 5000)
+    }, 3000)
 
     return () => clearTimeout(timeout)
   }, [chatMessages])
@@ -836,10 +838,11 @@ const MessagePage = () => {
                     type="text"
                     value={inputText}
                     disabled={
-                      loadingInitial ||
-                      loadingChatMessageInitial ||
-                      loadingChatMessage ||
-                      validatedExistingUser
+                      // loadingInitial ||
+                      // loadingChatMessageInitial ||
+                      // loadingChatMessage ||
+                      // validatedExistingUser
+                      loadingInitial
                     }
                     onChange={(e) => {
                       messageInput.handleChange(e)

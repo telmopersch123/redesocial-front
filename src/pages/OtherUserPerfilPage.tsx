@@ -29,6 +29,9 @@ import { UserAvatar } from '../utils/components/UserAvatar'
 const OtherUserPerfilPage = () => {
   const { user: authUser } = useAuth()
   const { id } = useParams<{ id: string }>()
+  if (!id || isNaN(Number(id))) {
+    return <Navigate to="/not-found" replace />
+  }
 
   if (Number(authUser?.id) === Number(id)) {
     return <Navigate to="/perfil" />
@@ -312,7 +315,9 @@ const OtherUserPerfilPage = () => {
                 <NavLink
                   state={{ chatId: false }}
                   to={
-                    authUser?.id ? `/mensagens/${profileUser.user.id}` : '/auth'
+                    !profileUser.HasTheUserBeenBanned && authUser?.id
+                      ? `/mensagens/${profileUser.user.id}`
+                      : '/auth'
                   }
                   onClick={() => {
                     if (authUser?.id) {

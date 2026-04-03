@@ -82,7 +82,7 @@ export const createCommunitySchema = z.object({
 })
 
 export const configCommunitySchema = z.object({
-  image: z.instanceof(FileList).optional(),
+  // image: z.instanceof(FileList).optional(),
   nameComunity: z
     .string()
     .min(10, 'Nome muito curto, escreva pelo menos 10 caracteres')

@@ -44,6 +44,7 @@ export interface PostReport {
   reason: string
   postContent: string
   PostIdReported: number
+  descriptionReport?: string
   imagens?: {
     url: string
   }[]
@@ -348,10 +349,17 @@ export const RouterSupSentinelPosts = () => {
           <div className="space-y-6 py-4">
             <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase text-zinc-400">
-                Conteúdo do Texto
+                Comentário da Denúncia
               </label>
-              <div className="rounded-lg border bg-zinc-50 p-4 text-sm italic dark:bg-zinc-900">
-                "{selectedPost?.postContent}"
+              <div className="max-h-40 w-full min-w-0 overflow-y-auto break-all rounded-lg border bg-zinc-50 p-4 text-sm italic dark:bg-zinc-900">
+                {selectedPost?.descriptionReport ||
+                  'Nenhum comentário adicional fornecido pelo denunciante.'}
+              </div>
+              <label className="text-[10px] font-bold uppercase text-zinc-400">
+                Conteúdo do Post Denunciado
+              </label>
+              <div className="w-full min-w-0 break-all rounded-lg border bg-zinc-50 p-4 text-sm italic dark:bg-zinc-900">
+                {selectedPost?.postContent}
               </div>
             </div>
 

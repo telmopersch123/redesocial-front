@@ -6,6 +6,7 @@ import RouterPost from '../components/componentsPages/PostsComponent.tsx/RouterP
 import AnalysisLogin from '../pages/analysis/initLogin'
 import { RouteValided } from '../pages/analysis/RouteValided'
 
+import NotFoundPage from '@/utils/components/NotFoundPage'
 import { AnalysisInitPage } from '../pages/analysis/RouterInitial'
 import { RouterSupSentinelPosts } from '../pages/analysis/RouterSupSentinelPosts'
 import { RouteSup } from '../pages/analysis/RouteSupAnalysis'
@@ -90,6 +91,7 @@ export default function AppRoutes() {
         <Route path="denuncias-perfil" element={<RouterSupSentinelPersons />} />
         <Route path="denuncias-posts" element={<RouterSupSentinelPosts />} />
       </Route>
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }

@@ -201,7 +201,7 @@ export const RouteSup = () => {
           </div>
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <h1 className="text-2xl font-bold tracking-tight">
-              Denúncias de Usuários
+              Monitoramento Emocional
             </h1>
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-4">
