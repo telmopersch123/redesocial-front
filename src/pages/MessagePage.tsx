@@ -96,7 +96,6 @@ const MessagePage = () => {
   // effect de inicialização
 
   useEffect(() => {
-    console.log(chatMessages.length)
     const timeout = setInterval(() => {
       setEmptyMessages(chatMessages.length === 0 ? true : false)
     }, 3000)

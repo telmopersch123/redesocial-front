@@ -46,7 +46,7 @@ export const NotificationProvider = ({
         }
       )
       const data = await res.json()
-      console.log(data)
+
       setNotifications(data)
 
       const unreadAlerts = data.filter(

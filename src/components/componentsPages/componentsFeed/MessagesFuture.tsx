@@ -1,9 +1,11 @@
+import { useAuth } from '@/context/getMe'
 import { AnimatePresence, motion, type Variants } from 'framer-motion'
 import { Quote, Sparkles, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 export const MessagesFuture = () => {
   const hasFetched = useRef(false)
+  const { user } = useAuth()
   const [isOpen, setIsOpen] = useState(true)
   const [ignore, setIgnore] = useState(false)
   const [data, setData] = useState<{ message: string } | null>(null)
@@ -49,6 +51,7 @@ export const MessagesFuture = () => {
   }
 
   useEffect(() => {
+    if (!user) return
     if (hasFetched.current) return
     hasFetched.current = true
 

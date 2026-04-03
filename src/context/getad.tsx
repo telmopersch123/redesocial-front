@@ -43,7 +43,7 @@ export const AdminProvider = ({ children }: { children: ReactNode }) => {
       } else {
         setAdmin(null)
       }
-    } catch (error) {
+    } catch {
       setAdmin(null)
     } finally {
       setLoading(false)

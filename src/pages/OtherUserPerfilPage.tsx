@@ -47,7 +47,6 @@ const OtherUserPerfilPage = () => {
     setIsBlocked,
   } = useViewedProfile()
 
-  console.log(profileUser)
   const navigate = useNavigate()
   const [page, setPage] = useState(1)
   const loadingRef = useRef(false)
