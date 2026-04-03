@@ -3,6 +3,8 @@ import { AtSign, CheckCircle } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 
 import { useAuth } from '@/context/getMe'
+import { MessagePerson } from '@/utils/components/MessagePerson'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../../../components/ui/button'
 import {
   Card,
@@ -32,6 +34,7 @@ export type FirstStepData = {
 
 const RegisterFinally = ({ firstStepData, sexo }: RegisterFormData) => {
   const { refreshUser } = useAuth()
+  const navigate = useNavigate()
   const { setIsLoading, isLoading } = useResetPassword()
   const {
     register,
@@ -94,7 +97,12 @@ const RegisterFinally = ({ firstStepData, sexo }: RegisterFormData) => {
 
       if (resRegister.ok) {
         await refreshUser()
-        window.location.href = '/'
+        navigate('/')
+        MessagePerson(
+          '🎉 Seja bem-vindo!',
+          'Que bom ter você aqui! Aproveite tudo o que preparamos para você 🚀',
+          'success'
+        )
       }
     } catch (error) {
       setIsLoading(false)
