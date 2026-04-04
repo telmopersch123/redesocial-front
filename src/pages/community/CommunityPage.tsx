@@ -132,17 +132,17 @@ const CommunityPage = () => {
             animate={{ opacity: 1, height: 'auto', y: 0 }} // sobe para a posição normal
             exit={{ opacity: 0, height: 0, y: 20 }} // sai descendo
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="mt-10 grid min-h-[650px] grid-cols-1 gap-6 gap-y-44 ym:grid-cols-2 xl:grid-cols-3"
+            className="mt-10 grid grid-cols-1 gap-6 ym:grid-cols-2 xl:grid-cols-3"
           >
             {isLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-[280px] w-full">
+                <div key={i} className="w-full">
                   <CommunityCardSkeleton />
                 </div>
               ))
             ) : currentItems.length > 0 ? (
               currentItems.map((community, index) => (
-                <div key={community.id || index} className="h-[280px] w-full">
+                <div key={community.id || index} className="w-full">
                   <CardsCommunityComponent
                     valuesComunity={community}
                     user={user}
