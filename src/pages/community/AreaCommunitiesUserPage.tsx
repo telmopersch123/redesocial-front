@@ -136,7 +136,6 @@ export default function AreaCommunitiesUserPage() {
     const targetId = inviteData?.id
     if (!targetId) {
       MessagePerson('Erro ao entrar na comunidade', null, 'error')
-
       return
     }
     try {
@@ -155,13 +154,19 @@ export default function AreaCommunitiesUserPage() {
       })
     } catch (error) {
       const { message } = error as ApiError
+      console.log(message)
       if (error instanceof Error) {
-        if (message?.includes('já faz parte')) {
+        if (message?.includes('Usuário ja faz parte da comunidade')) {
           setIsInvitePending(false)
           setShowInviteModal(false)
           navigate(`/comunidades/comunidades-do-usuario/${urlCommunityName}`, {
             replace: true,
           })
+          MessagePerson(
+            `Temos um aviso para você!`,
+            `você já faz parte da comunidade ${urlCommunityName}`,
+            'warning'
+          )
         } else {
           MessagePerson('Erro ao entrar na comunidade', null, 'error')
         }
