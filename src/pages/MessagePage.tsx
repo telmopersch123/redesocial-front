@@ -836,13 +836,7 @@ const MessagePage = () => {
                     ref={inputRef}
                     type="text"
                     value={inputText}
-                    disabled={
-                      // loadingInitial ||
-                      // loadingChatMessageInitial ||
-                      // loadingChatMessage ||
-                      // validatedExistingUser
-                      loadingInitial
-                    }
+                    disabled={loadingInitial && !!clickContact}
                     onChange={(e) => {
                       messageInput.handleChange(e)
                       handleTyping(e.target.value)
