@@ -237,7 +237,6 @@ const SessionPerson = ({
                     })
                   }
                 } else {
-
                   MessagePerson('Erro ao atualizar privacidade', null, 'error')
                   setAnonMode(!checked)
                 }
